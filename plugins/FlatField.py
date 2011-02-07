@@ -31,7 +31,7 @@ class FlatfieldDeviceServer(BasePostProcess) :
         self.__flatFieldTask = None
         self.__flatFieldImage = Core.Processlib.Data()
         
-        BasePostProcess__init__(self,cl,name)
+        BasePostProcess.__init__(self,cl,name)
         FlatfieldDeviceServer.init_device(self)
 
     def set_state(self,state) :

@@ -1399,7 +1399,7 @@ def export_default_plugins() :
                                                specificDevice.__name__.lower().replace('deviceserver',''),cameraName)
                     print 'create device',specificDevice.__name__,deviceName
                     try:
-                        util.create_device(specificClass.__name__,deviceName)
+                        util.create_device(specificDevice.__name__,deviceName)
                     except:
                         import traceback
                         traceback.print_exc()
@@ -1508,15 +1508,20 @@ if __name__ == '__main__':
         py = PyTango.Util(sys.argv)
         py.add_TgClass(LimaCCDsClass,LimaCCDs,'LimaCCDs')
 	try:
-        	declare_camera_n_commun_to_tango_world(py)
-                export_default_plugins()
+            declare_camera_n_commun_to_tango_world(py)
 	except:
-		print 'SEB_EXP'
-		import traceback
-		traceback.print_exc()
+            print 'SEB_EXP'
+            import traceback
+            traceback.print_exc()
         
         U = PyTango.Util.instance()
         U.server_init()
+	try:
+            export_default_plugins()
+	except:
+            print 'SEB_EXP'
+            import traceback
+            traceback.print_exc()
         U.server_run()
 
     except PyTango.DevFailed,e:

@@ -31,7 +31,7 @@ class BackgroundSubstractionDeviceServer(BasePostProcess) :
         self.__backGroundTask = None
         self.__backGroundImage = Core.Processlib.Data()
         
-        BasePostProcess__init__(self,cl,name)
+        BasePostProcess.__init__(self,cl,name)
         BackgroundSubstractionDeviceServer.init_device(self)
 
     def set_state(self,state) :

@@ -31,7 +31,7 @@ class MaskDeviceServer(BasePostProcess) :
         self.__maskTask = None
         self.__maskImage = Core.Processlib.Data()
         
-        BasePostProcess__init__(self,cl,name)
+        BasePostProcess.__init__(self,cl,name)
         MaskDeviceServer.init_device(self)
 
     def set_state(self,state) :
