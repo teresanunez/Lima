@@ -33,6 +33,8 @@ def getDataFromFile(filepath,index = 0) :
         datas = getDatasFromFile(filepath,index,index)
         return datas[0]
     except:
+	import traceback
+	traceback.print_exc()
         return Core.Processlib.Data()   # empty
 
 ##@brief the function read all known data file
@@ -44,14 +46,20 @@ def getDatasFromFile(filepath,fromIndex = 0,toIndex = -1) :
         f = EdfFile.EdfFile(filepath)
         if toIndex < 0 :
             toIndex = f.GetNumImages()
-        for i in range(fromIndex,toIndex + 1) :
-            a = f.ReadImage(i)
+        for i in range(fromIndex,toIndex) :
+            a = f.GetData(i)
             header = f.GetHeader(i)
             rData = Core.Processlib.Data()
             rData.buffer = a
-            rData.header = header
+	    try:
+              rData.header = header
+	    except TypeError:
+	      pass
             returnDatas.append(rData)
     except:
+	import traceback
+	traceback.print_exc()
+    finally:
         return returnDatas
 
 

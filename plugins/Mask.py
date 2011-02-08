@@ -52,7 +52,7 @@ class MaskDeviceServer(BasePostProcess) :
 	PyTango.Device_4Impl.set_state(self,state)
 
     def setMaskImage(self,filepath) :
-        self.__maskImage = getDataFromFile(filepath)
+        self.__maskImage = getDataFromFile(*filepath)
         if(self.__maskTask) :
             self.__maskTask.setMaskImage(self.__maskImage)
 

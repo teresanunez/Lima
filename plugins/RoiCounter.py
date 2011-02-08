@@ -121,7 +121,7 @@ class RoiCounterDeviceServer(BasePostProcess) :
         self.__roiCounterMgr.clearAllRoi()
 
     def setMaskFile(self,argin) :
-        mask = getDataFromFile(argin)
+        mask = getDataFromFile(*argin)
         self.__roiCounterMgr.setMask(mask)
     
     def readCounters(self,argin) :

@@ -128,7 +128,7 @@ class Roi2spectrumDeviceServer(BasePostProcess) :
         self.__roi2spectrumMgr.clearAllRoi()
 
     def setMaskFile(self,argin) :
-        mask = getDataFromFile(argin)
+        mask = getDataFromFile(*argin)
         self.__roi2spectrumMgr.setMask(mask)
     
     def readImage(self,argin) :

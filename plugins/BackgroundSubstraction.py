@@ -43,16 +43,21 @@ class BackgroundSubstractionDeviceServer(BasePostProcess) :
 		extOpt.delOp(self.BACKGROUND_TASK_NAME)
 	elif(state == PyTango.DevState.ON) :
 	    if not self.__backGroundTask:
-                ctControl = _control_ref()
-                extOpt = ctControl.externalOperation()
-                self.__backGroundTask = extOpt.addOp(Core.BACKGROUNDSUBSTRACTION,
-                                                     self.BACKGROUND_TASK_NAME,
-                                                     self._runLevel)
-                self.__backGroundTask.setBackgroundImage(self.__backGroundImage)
+		try:
+                  ctControl = _control_ref()
+                  extOpt = ctControl.externalOperation()
+                  self.__backGroundTask = extOpt.addOp(Core.BACKGROUNDSUBSTRACTION,
+                                                       self.BACKGROUND_TASK_NAME,
+                                                       self._runLevel)
+                  self.__backGroundTask.setBackgroundImage(self.__backGroundImage)
+		except:
+			import traceback
+			traceback.print_exc()
+			return
 	PyTango.Device_4Impl.set_state(self,state)
 
     def setBackgroundImage(self,filepath) :
-        self.__backGroundImage = getDataFromFile(filepath)
+        self.__backGroundImage = getDataFromFile(*filepath)
         if(self.__backGroundTask) :
             self.__backGroundTask.setBackgroundImage(self.__backGroundImage)
 
