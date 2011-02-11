@@ -105,6 +105,7 @@ class Maxipix(PyTango.Device_4Impl):
         for attName in ['fill_mode','ready_mode','ready_level','gate_mode','gate_level','shutter_level','trigger_level'] :
             self.__setMaxipixAttr(attName,None)
 
+        print "\n\nThe Maxipix detector is configured and ready for acquisitions!"
 
 #==================================================================
 # 
