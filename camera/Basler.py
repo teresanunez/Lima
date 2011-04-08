@@ -42,7 +42,7 @@
 import PyTango
 from Lima import Core
 from Lima import Basler as BaslerAcq
-from LimaCCD import CallableReadEnum,CallableWriteEnum
+from LimaCCDs import CallableReadEnum,CallableWriteEnum
 
 
 class Basler(PyTango.Device_4Impl):
@@ -109,7 +109,7 @@ class BaslerClass(PyTango.DeviceClass):
 
     device_property_list = {
         'cam_ip_addresse':
-        [PyTango.DevShort,
+        [PyTango.DevString,
          "Camera ip addresse",[]],
         }
 
@@ -132,11 +132,12 @@ class BaslerClass(PyTango.DeviceClass):
 _BaslerCam = None
 _BaslerInterface = None
 
-def get_control(cam_ip_addresse = 0,**keys) :
+def get_control(cam_ip_addresse = "0",**keys) :
+    print "cam_ip_addresse",cam_ip_addresse
     global _BaslerCam
     global _BaslerInterface
     if _BaslerCam is None:
-	_BaslerCam = BaslerAcq.BaslerCamera(cam_ip_addresse)
+	_BaslerCam = BaslerAcq.Camera(cam_ip_addresse)
 	_BaslerInterface = BaslerAcq.Interface(_BaslerCam)
     return Core.CtControl(_BaslerInterface)
 

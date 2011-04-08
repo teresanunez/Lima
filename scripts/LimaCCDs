@@ -3,4 +3,4 @@
 LIMA_BASE_SERVER_PATH=$BLISSADM/applications/LimaCCDs
 
 cd $LIMA_BASE_SERVER_PATH
-exec python LimaCCD.py $* 
+exec python LimaCCDs.py $* 

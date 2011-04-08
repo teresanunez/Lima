@@ -42,7 +42,7 @@
 import PyTango
 from Lima import Core
 from Lima import Frelon as FrelonAcq
-from LimaCCD import CallableReadEnum,CallableWriteEnum
+from LimaCCDs import CallableReadEnum,CallableWriteEnum
 
 
 class Frelon(PyTango.Device_4Impl):
