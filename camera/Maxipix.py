@@ -302,8 +302,8 @@ class Maxipix(PyTango.Device_4Impl):
     ## @brief Read the global threshold
     #
     def read_threshold(self,attr) :
-        dac = _MaxipixAcq.mpxDacs
-        thl = dac.getThl()
+        dacs = _MaxipixAcq.mpxDacs
+        thl = dacs.getThl()
 	if thl is None: thl = -1
 
         attr.set_value(thl)
@@ -314,8 +314,8 @@ class Maxipix(PyTango.Device_4Impl):
         data = []
         attr.get_write_value(data)
         
-        dac = _MaxipixAcq.mpxDacs
-        dac.setThl(data[0])
+        dacs = _MaxipixAcq.mpxDacs
+        dacs.setThl(data[0])
         dacs.applyChipDacs(0)
 
     ## @brief Read the energy step
@@ -324,8 +324,8 @@ class Maxipix(PyTango.Device_4Impl):
     # threshold
     # 
     def read_energy_calibration(self,attr) :
-        dac = _MaxipixAcq.mpxDacs
-        values = dac.getECalibration()
+        dacs = _MaxipixAcq.mpxDacs
+        values = dacs .getECalibration()
         
         attr.set_value(values,len(values))
         
@@ -335,15 +335,15 @@ class Maxipix(PyTango.Device_4Impl):
         data = []
         attr.get_write_value(data)
 
-        dac = _MaxipixAcq.mpxDacs
-        dat.setECalibration(data)
+        dacs  = _MaxipixAcq.mpxDacs
+        dacs.setECalibration(data)
 
     ## @brief Read the energy threshold
     #
     # energy_threshold = energy_step * threshold (global)
     def read_energy_threshold(self,attr) :
-        dac = _MaxipixAcq.mpxDacs
-        value = dac.getEThl()
+        dacs= _MaxipixAcq.mpxDacs
+        value = dacs.getEThl()
 	if value is None: value = -1
 	
         attr.set_value(value)
@@ -354,9 +354,9 @@ class Maxipix(PyTango.Device_4Impl):
         data = []
         attr.get_write_value(data)
         
-        dac = _MaxipixAcq.mpxDacs
-        dac.setEThl(data[0])
-	_MaxipixAcq.applyChipFsr(0)
+        dacs = _MaxipixAcq.mpxDacs
+        dacs.setEThl(data[0])
+        dacs.applyChipDacs(0)
         
     ## @brief read the config name
     #
