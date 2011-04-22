@@ -42,6 +42,7 @@
 import PyTango
 from Lima import Core
 from Lima import Frelon as FrelonAcq
+from LimaCCD import CallableReadEnum,CallableWriteEnum
 
 
 class Frelon(PyTango.Device_4Impl):
@@ -55,6 +56,12 @@ class Frelon(PyTango.Device_4Impl):
     def __init__(self,*args) :
         PyTango.Device_4Impl.__init__(self,*args)
 
+        self.__FrameTransfertMode = {'ON': FrelonAcq.FTM,
+                                     'OFF': FrelonAcq.FFM}
+        self.__RoiMode = {'NONE' : FrelonAcq.None,
+                          'SLOW' : FrelonAcq.Slow,
+                          'FAST' : FrelonAcq.Fast,
+                          'KINETIC' : FrelonAcq.Kinetic}
 
         self.init_device()
 
@@ -82,6 +89,29 @@ class Frelon(PyTango.Device_4Impl):
 
         return valueList
 
+    def __getattr__(self,name) :
+        if name.startswith('read_') or name.startswith('write_') :
+            split_name = name.split('_')[1:]
+            attr_name = ''.join([x.title() for x in split_name])
+            dict_name = '_' + self.__class__.__name__ + '__' + attr_name
+            d = getattr(self,dict_name,None)
+            if d:
+                if name.startswith('read_') :
+                    functionName = 'get' + attr_name
+                    function2Call = getattr(_FrelonAcq,functionName)
+                    callable_obj = CallableReadEnum(d,function2Call)
+                else:
+                    functionName = 'set' + attr_name
+                    function2Call = getattr(_FrelonAcq,function2Call)
+                    callable_obj = CallableWriteEnum(d,function2Call)
+                self.__dict__[name] = callable_obj
+                return callable_obj
+        raise AttributeError('Frelon has no attribute %s' % name)
+
+    @Core.DEB_MEMBER_FUNCT
+    def execSerialCommand(self, command_string) :
+        return _FrelonAcq.execFrelonSerialCmd(command_string)
+
     ## @brief read the espia board id
     #
     def read_espia_dev_nb(self,attr) :
@@ -105,6 +135,9 @@ class FrelonClass(PyTango.DeviceClass):
         'getAttrStringValueList':
         [[PyTango.DevString, "Attribute name"],
          [PyTango.DevVarStringArray, "Authorized String value list"]],
+        'execSerialCommand':
+        [[PyTango.DevString,"command"],
+         [PyTango.DevString,"return command"]],
         }
 
     attr_list = {
@@ -112,6 +145,14 @@ class FrelonClass(PyTango.DeviceClass):
         [[PyTango.DevShort,
           PyTango.SCALAR,
           PyTango.READ]],
+        'frame_transfert_mode' :
+        [[PyTango.DevString,
+          PyTango.SCALAR,
+          PyTango.READ_WRITE]],
+        'roi_mode' :
+        [[PyTango.DevString,
+          PyTango.SCALAR,
+          PyTango.READ_WRITE]],
         }
 
     def __init__(self,name) :
