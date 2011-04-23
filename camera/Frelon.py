@@ -56,12 +56,30 @@ class Frelon(PyTango.Device_4Impl):
     def __init__(self,*args) :
         PyTango.Device_4Impl.__init__(self,*args)
 
-        self.__FrameTransfertMode = {'ON': FrelonAcq.FTM,
-                                     'OFF': FrelonAcq.FFM}
+        self.__ImageMode = {'Frame transfer': FrelonAcq.FTM,
+                            'Full frame': FrelonAcq.FFM}
+
         self.__RoiMode = {'NONE' : FrelonAcq.None,
                           'SLOW' : FrelonAcq.Slow,
                           'FAST' : FrelonAcq.Fast,
                           'KINETIC' : FrelonAcq.Kinetic}
+
+        self.__InputChannel = {'1'       : 0x1,
+                               '2'       : 0x2,
+                               '3'       : 0x4,
+                               '4'       : 0x8,
+                               '1-2'     : 0x3,
+                               '3-4'     : 0xc,
+                               '1-3'     : 0x5,
+                               '2-4'     : 0xA,
+                               '1-2-3-4' : 0xf} 
+
+        self.__E2vCorrection = {'ON' : True,
+                                'OFF' : False}
+
+        self.__Attribute2FunctionBase = {'image_mode' : 'FrameTransferMode',
+                                         'input_channel' : 'InputChan',
+                                         'e2v_correction' : 'E2VCorrectionActive'}
 
         self.init_device()
 
@@ -95,6 +113,7 @@ class Frelon(PyTango.Device_4Impl):
             attr_name = ''.join([x.title() for x in split_name])
             dict_name = '_' + self.__class__.__name__ + '__' + attr_name
             d = getattr(self,dict_name,None)
+            attr_name = self.__Attribute2FunctionBase.get('_'.join(split_name),attr_name)
             if d:
                 if name.startswith('read_') :
                     functionName = 'get' + attr_name
@@ -119,6 +138,15 @@ class Frelon(PyTango.Device_4Impl):
         if self.espia_dev_nb:
             espia_dev_nb = self.espia_dev_nb
         attr.set_value(espia_dev_nb)
+
+    def read_roi_bin_offset(self,attr) :
+        attr.set_value(-1)
+        #TODO
+
+    def write_roi_bin_offset(self,attr) :
+        data = []
+        attr.get_write_value(data)
+        #TODO
 
 
 class FrelonClass(PyTango.DeviceClass):
@@ -145,11 +173,23 @@ class FrelonClass(PyTango.DeviceClass):
         [[PyTango.DevShort,
           PyTango.SCALAR,
           PyTango.READ]],
-        'frame_transfert_mode' :
+        'image_mode' :
+        [[PyTango.DevString,
+          PyTango.SCALAR,
+          PyTango.READ_WRITE]],
+        'input_channel' :
         [[PyTango.DevString,
           PyTango.SCALAR,
           PyTango.READ_WRITE]],
         'roi_mode' :
+        [[PyTango.DevString,
+          PyTango.SCALAR,
+          PyTango.READ_WRITE]],
+        'roi_bin_offset' :
+        [[PyTango.DevLong,
+          PyTango.SCALAR,
+          PyTango.READ_WRITE]],
+        'e2v_correction' :
         [[PyTango.DevString,
           PyTango.SCALAR,
           PyTango.READ_WRITE]],
