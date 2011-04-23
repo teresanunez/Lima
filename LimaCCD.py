@@ -341,7 +341,7 @@ class LimaCCDs(PyTango.Device_4Impl) :
     ## @brief Read maximum accumulation exposure time
     #
     @Core.DEB_MEMBER_FUNCT
-    def read_acc_max_expotime(self,attr) :        
+    def read_acc_max_expo_time(self,attr) :        
 	acq = self.__control.acquisition()
 
         value = acq.getAccMaxExpoTime()
@@ -352,7 +352,7 @@ class LimaCCDs(PyTango.Device_4Impl) :
     ## @brief Write the accumulation max exposure time
     #
     @Core.DEB_MEMBER_FUNCT
-    def write_acc_max_expotime(self,attr) :
+    def write_acc_max_expo_time(self,attr) :
         data = []
         attr.get_write_value(data)
 	acq = self.__control.acquisition()
@@ -378,7 +378,7 @@ class LimaCCDs(PyTango.Device_4Impl) :
     ## @brief Read calculated accumulation exposure time
     #
     @Core.DEB_MEMBER_FUNCT
-    def read_acc_expotime(self,attr) :        
+    def read_acc_expo_time(self,attr) :        
 	acq = self.__control.acquisition()
 
         value = acq.getAccExpoTime()
@@ -518,6 +518,32 @@ class LimaCCDs(PyTango.Device_4Impl) :
         image = self.__control.image()
         roi = Core.Roi(*data)
         image.setRoi(roi)
+
+    ## @brief Read image type
+    #
+    @Core.DEB_MEMBER_FUNCT
+    def read_image_sizes(self,attr) :
+        imageType2NbBytes = {
+            Core.Bpp8 : 1 ,
+            Core.Bpp8S : 1 ,
+            Core.Bpp10 : 2 ,
+            Core.Bpp10S : 2 ,
+            Core.Bpp12 : 2 ,
+            Core.Bpp12S : 2 ,
+            Core.Bpp14 : 2 ,
+            Core.Bpp14S : 2 , 
+            Core.Bpp16 : 2,
+            Core.Bpp16S : 2,
+            Core.Bpp32 : 4 ,
+            Core.Bpp32S : 4
+            }        
+        image = self.__control.image()
+        imageType = image.getImageType()
+        dim = image.getImageDim()
+        
+        sizes = [imageType2NbBytes.get(imageType,"?"), dim.getSize().getWidth(), dim.getSize().getHeight()]
+        
+        attr.set_value(sizes)
 
     ## @brief Read image type
     #
@@ -1169,7 +1195,7 @@ class LimaCCDsClass(PyTango.DeviceClass) :
         [[PyTango.DevString,
           PyTango.SCALAR,
           PyTango.READ]],
-        'acc_expotime':
+        'acc_expo_time':
         [[PyTango.DevDouble,
           PyTango.SCALAR,
           PyTango.READ]],	      	
@@ -1213,7 +1239,7 @@ class LimaCCDsClass(PyTango.DeviceClass) :
         [[PyTango.DevDouble,
           PyTango.SCALAR,
           PyTango.READ_WRITE]],
-        'acc_max_expotime':
+        'acc_max_expo_time':
         [[PyTango.DevDouble,
           PyTango.SCALAR,
           PyTango.READ_WRITE]],
@@ -1233,6 +1259,18 @@ class LimaCCDsClass(PyTango.DeviceClass) :
         [[PyTango.DevLong,
           PyTango.SPECTRUM,
           PyTango.READ_WRITE,4]],
+        'image_sizes':
+        [[PyTango.DevULong,
+          PyTango.SPECTRUM,
+          PyTango.READ,3],
+         {
+             'label':"Image sizes:Depth, Width, Height",
+             'unit':"",
+             'standard unit':"",
+             'display unit':"",
+             'format':"%d",
+             'description':"nb bytes of depth, nb pixels of width and nb pixels of height",
+         }],
         'image_type':
         [[PyTango.DevString,
           PyTango.SCALAR,

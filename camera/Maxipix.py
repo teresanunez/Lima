@@ -1,3 +1,4 @@
+
 ############################################################################
 # This file is part of LImA, a Library for Image Acquisition
 #
@@ -81,6 +82,8 @@ class Maxipix(PyTango.Device_4Impl):
         self.__GateMode =    {'INACTIVE': _PriamAcq.INACTIVE,\
                               'ACTIVE': _PriamAcq.ACTIVE}
 	self.__FillMode =    _MaxipixAcq.mpxFillModes
+
+        self.__dacname = "thl"
         
         #Init default Path
         if self.config_path:
@@ -105,7 +108,6 @@ class Maxipix(PyTango.Device_4Impl):
         for attName in ['fill_mode','ready_mode','ready_level','gate_mode','gate_level','shutter_level','trigger_level'] :
             self.__setMaxipixAttr(attName,None)
 
-        print "\n\nThe Maxipix detector is configured and ready for acquisitions!"
 
 #==================================================================
 # 
@@ -232,6 +234,52 @@ class Maxipix(PyTango.Device_4Impl):
 #
 #==================================================================
 	            
+    ## @brief Read the current dac name
+    #
+    def read_dac_name(self,attr) :
+        attr.set_value(self.__dacname)
+        
+    ## @brief Write dac name
+    #
+    def write_dac_name(self,attr) :
+        data = []
+        attr.get_write_value(data)
+
+        dacs = _MaxipixAcq.mpxDacs
+        if data[0] not in dacs.getListKeys():
+            PyTango.Except.throw_exception('WrongData',\
+                                           'Wrong value %s: %s'%('dac_name',data),\
+                                           'Maxipix Class')          
+        self.__dacname = data[0]
+
+    ## @brief Read the possible dac names
+    #
+    def read_dac_possible(self,attr) :
+
+        dacs = _MaxipixAcq.mpxDacs
+        data = dacs.getListKeys()
+        attr.set_value(data)        
+
+    # Read the chip dac value, named by the dac_name attribute
+    # For multichips only a unique DAC is valid for all the chips
+    def read_dac_value(self,attr) :
+        data = 0
+        dacs = _MaxipixAcq.mpxDacs
+        data = dacs.getOneDac(0,self.__dacname)
+        # if a all the chips don't have the same dac value
+        # None is return, typically this is the case for thl
+        if data == None: data = -1
+        attr.set_value(data)
+        
+    ## @brief Write a DAC value of the named dac_name attribute
+    #
+    def write_dac_value(self,attr) :
+        data = 0
+        attr.get_write_value(data)
+        dacs = _MaxipixAcq.mpxDacs
+        dacs.setOneDac(0,self.__dacname, data)
+        dacs.applyChipDacs(0)
+    
     ## @brief Read threshold noise of a maxipix chips
     #
     def read_threshold_noise(self,attr) :
@@ -246,8 +294,10 @@ class Maxipix(PyTango.Device_4Impl):
         data = []
         attr.get_write_value(data)
 
-        dac = _MaxipixAcq.mpxDacs
-        dac.setThlNoise(0,data)
+        dacs = _MaxipixAcq.mpxDacs
+        dacs.setThlNoise(0,data)
+        dacs.applyChipDacs(0)
+
 
     ## @brief Read the global threshold
     #
@@ -266,7 +316,7 @@ class Maxipix(PyTango.Device_4Impl):
         
         dac = _MaxipixAcq.mpxDacs
         dac.setThl(data[0])
-	_MaxipixAcq.applyChipFsr(0)
+        dacs.applyChipDacs(0)
 
     ## @brief Read the energy step
     #
@@ -540,65 +590,179 @@ class MaxipixClass(PyTango.DeviceClass):
         'setDebugFlags':
         [[PyTango.DevULong, "Debug flag in HEX format"],
          [PyTango.DevVoid, ""]],
-	}
+        }
 
     attr_list = {
         'threshold_noise':
         [[PyTango.DevLong,
           PyTango.SPECTRUM,
-          PyTango.READ_WRITE,5]],
+          PyTango.READ_WRITE,5],
+         {
+             'label':"Threshold (thlow) noise of chips",
+             'unit':"N/A",
+             'format':"%6d",
+             'description':"Threshold (thlow) noise of the chip(s)",
+         }],
         'threshold':
         [[PyTango.DevLong,
           PyTango.SCALAR,
-          PyTango.READ_WRITE]],
+          PyTango.READ_WRITE],
+         {
+             'label':"Global Threshold ",
+             'unit':"N/A",
+             'format':"%6d",
+             'description':"The global threshold, apply the same offset on all the chips",
+         }],
         'energy_calibration':
         [[PyTango.DevDouble,
           PyTango.SPECTRUM,
-          PyTango.READ_WRITE,5]],
+          PyTango.READ_WRITE,2],
+         {
+             'label':"Energy calibration",
+             'unit':"N/A",
+             'format':"%5.2f",
+             'description':"[0] = e0thl, [1] = estep: ethl=(thl-e0thl)*estep",
+         }],
         'energy_threshold':
         [[PyTango.DevDouble,
           PyTango.SCALAR,
-          PyTango.READ_WRITE]],
+          PyTango.READ_WRITE],
+         {
+             'label':"Energy thresholds",
+             'unit':"keV",
+             'format':"%5.2f",
+             'description':"Threshold in energy (keV)",
+         }],
         'config_name':
         [[PyTango.DevString,
           PyTango.SCALAR,
-          PyTango.READ_WRITE]],
+          PyTango.READ_WRITE],
+         {
+             'label':"Configuration name",
+             'unit':"N/A",
+             'format':"",
+             'description':"root name of the configuration files",
+         }],
         'config_path':
         [[PyTango.DevString,
           PyTango.SCALAR,
-          PyTango.READ_WRITE]],
+          PyTango.READ_WRITE],
+         {
+             'label':"Configuration directory path",
+             'unit':"N/A",
+             'format':"",
+             'description':"Path of the configuration directory",
+         }],
         'fill_mode':	  
         [[PyTango.DevString,
           PyTango.SCALAR,
-          PyTango.READ_WRITE]],	  
+          PyTango.READ_WRITE],
+         {
+             'label':"Fill mode",
+             'unit':"enum.",
+             'format':"",
+             'description':"Between chip filling mode",
+         }],	  
         'espia_dev_nb':	  
         [[PyTango.DevShort,
           PyTango.SCALAR,
-          PyTango.READ]],	  
+          PyTango.READ],
+         {
+             'label':"Espia board number",
+             'unit':"number",
+             'format':"",
+             'description':"The Espia board device number",
+         }],	  
         'ready_mode':	  
         [[PyTango.DevString,
           PyTango.SCALAR,
-          PyTango.READ_WRITE]],	  
+          PyTango.READ_WRITE],
+         {
+             'label':"Ready output mode",
+             'unit':"enum.",
+             'format':"",
+             'description':"Mode of the Ready output",
+         }],	  
         'ready_level':	  
         [[PyTango.DevString,
           PyTango.SCALAR,
-          PyTango.READ_WRITE]],	  
+          PyTango.READ_WRITE],
+         {
+             'label':"Ready output level",
+             'unit':"enum.",
+             'format':"",
+             'description':"The level logic of the Ready output",
+         }],	  
         'shutter_level':	  
         [[PyTango.DevString,
           PyTango.SCALAR,
-          PyTango.READ_WRITE]],	  
+          PyTango.READ_WRITE],
+         {
+             'label':"Shutter output level",
+             'unit':"enum.",
+             'format':"",
+             'description':"The level logic of the  Shutter output",
+         }],	  
         'gate_mode':	  
         [[PyTango.DevString,
           PyTango.SCALAR,
-          PyTango.READ_WRITE]],	  
+          PyTango.READ_WRITE],
+         {
+             'label':"The Gate input mode",
+             'unit':"enum.",
+             'format':"",
+             'description':"",
+         }],	  
         'gate_level':	  
         [[PyTango.DevString,
           PyTango.SCALAR,
-          PyTango.READ_WRITE]],	  
+          PyTango.READ_WRITE],
+         {
+             'label':"",
+             'unit':"",
+             'format':"",
+             'description':"",
+         }],	  
         'trigger_level':	  
         [[PyTango.DevString,
           PyTango.SCALAR,
-          PyTango.READ_WRITE]],	  
+          PyTango.READ_WRITE],
+         {
+             'label':"",
+             'unit':"",
+             'format':"",
+             'description':"",
+         }],	  
+         'dac_possible':	  
+         [[PyTango.DevString,
+           PyTango.SPECTRUM,
+           PyTango.READ,17],
+         {
+             'label':"",
+             'unit':"",
+             'format':"",
+             'description':"",
+          }],	  
+        'dac_name':	  
+        [[PyTango.DevString,
+           PyTango.SCALAR,
+           PyTango.READ_WRITE],
+         {
+             'label':"",
+             'unit':"",
+             'format':"",
+             'description':"",
+         }],	  
+         'dac_value':	  
+         [[PyTango.DevLong,
+           PyTango.SCALAR,
+           PyTango.READ_WRITE],
+         {
+             'label':"",
+             'unit':"",
+             'format':"%xd",
+             'description':"",
+          }],
         }
 
 
