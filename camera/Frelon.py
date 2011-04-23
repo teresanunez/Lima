@@ -56,8 +56,8 @@ class Frelon(PyTango.Device_4Impl):
     def __init__(self,*args) :
         PyTango.Device_4Impl.__init__(self,*args)
 
-        self.__ImageMode = {'Frame transfer': FrelonAcq.FTM,
-                            'Full frame': FrelonAcq.FFM}
+        self.__ImageMode = {'FRAME TRANSFER': FrelonAcq.FTM,
+                            'FULL FRAME': FrelonAcq.FFM}
 
         self.__RoiMode = {'NONE' : FrelonAcq.None,
                           'SLOW' : FrelonAcq.Slow,
