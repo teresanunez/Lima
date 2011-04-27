@@ -115,7 +115,13 @@ void XpadPixelDetector::delete_device()
 	DELETE_SCALAR_ATTRIBUTE(attr_gp2_read);
 	DELETE_SCALAR_ATTRIBUTE(attr_gp3_read);
 	DELETE_SCALAR_ATTRIBUTE(attr_gp4_read);
-
+	
+	//!!!! ONLY LimaDetector device can do this !!!!
+	//if(m_ct!=0)
+	//{
+	//	ControlFactory::instance().reset("Simulator");
+	//	m_ct = 0;
+	//}
 }
 
 //+----------------------------------------------------------------------------
@@ -169,27 +175,31 @@ void XpadPixelDetector::init_device()
 		m_ct = ControlFactory::instance().get_control("XpadPixelDetector","0.0.0.0", false);		
 		if(m_ct==0)
 		{
-			ERROR_STREAM <<"Error at init. : Unable to create the lima control object !"<<endl;
-			m_status_message <<"Error at init. : Unable to create the lima control object !"<< endl;
+			INFO_STREAM<<"Initialization Failed : Unable to get the lima control object !"<<endl;
+			m_status_message <<"Initialization Failed : Unable to get the lima control object !"<< endl;
 			m_is_device_initialized = false;
 			set_state(Tango::INIT);		
 			return;			
 		}
 		
 		//- get interface to specific detector
-		if(m_ct!=0)
+		m_hw = dynamic_cast<XpadInterface*>(m_ct->hwInterface());
+		if(m_hw==0)
 		{
-			m_hw = dynamic_cast<XpadInterface*>(m_ct->hwInterface());
-			m_is_device_initialized = true;			
+			INFO_STREAM<<"Initialization Failed : Unable to get the interface of camera plugin !"<<endl;
+			m_status_message <<"Initialization Failed : Unable to get the interface of camera plugin !"<< endl;
+			m_is_device_initialized = false;
+			set_state(Tango::INIT);		
+			return;			
 		}
 	}
 	catch(Exception& e)
 	{
-		ERROR_STREAM << e.getErrMsg()<<endl;
-		m_status_message <<e.getErrMsg( )<< endl;
+		INFO_STREAM<<"Initialization Failed : "<<e.getErrMsg()<<endl;
+		m_status_message <<"Initialization Failed : "<<e.getErrMsg( )<< endl;
 		m_is_device_initialized = false;
 		set_state(Tango::INIT);		
-		return;		
+		return;	
 	}
 
 	//- Xpad Stuff specific stuff:
@@ -289,7 +299,14 @@ void XpadPixelDetector::get_device_property()
 //-----------------------------------------------------------------------------
 void XpadPixelDetector::always_executed_hook()
 {
+	//- get the main object used to pilot the lima framework
+	//in fact LimaCCD is create the singleton control objet
+	//so this call, will only return existing object, no need to give it the ip !!
+	m_ct = ControlFactory::instance().get_control("XpadPixelDetector","0.0.0.0", false);	
 	
+	//- get interface to specific detector
+	if(m_ct!=0)
+		m_hw = dynamic_cast<XpadInterface*>(m_ct->hwInterface());
 }
 //+----------------------------------------------------------------------------
 //
