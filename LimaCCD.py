@@ -814,9 +814,9 @@ class LimaCCDs(PyTango.Device_4Impl) :
             matchFiles = glob.glob(os.path.join(directory,'%s*%s' % (prefix,suffix)))
             lastnumber = _getLastFileNumber(prefix,suffix,matchFiles)
         else:
-            lastnumber = 0
+            lastnumber = -1
         saving.setPrefix(prefix)
-        saving.setNextNumber(lastnumber)
+        saving.setNextNumber(lastnumber + 1)
 
     @Core.DEB_MEMBER_FUNCT
     def read_saving_suffix(self,attr) :
@@ -1459,7 +1459,7 @@ def _set_control_ref(ctrl_ref) :
 #                                TOOLS
 #============================================================================
 def _getLastFileNumber(prefix,suffix,filesPath) :
-    lastNumber = 0
+    lastNumber = -1
     prefixLen = len(prefix)
     lenSuffix = len(suffix)
 
