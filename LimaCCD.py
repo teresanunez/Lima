@@ -1465,7 +1465,7 @@ def _getLastFileNumber(prefix,suffix,filesPath) :
 
     for fPath in filesPath :
         fName = os.path.split(fPath)[-1]
-        number = fName[prefix:-lenSuffix]
+        number = fName[prefixLen:-lenSuffix]
         try:
             number = int(number)
         except ValueError:
