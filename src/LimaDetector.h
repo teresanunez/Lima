@@ -35,16 +35,9 @@
 
 #include <tango.h>
 
-#include <yat/utils/XString.h>
 #include <yat4tango/InnerAppender.h>
 
-
 #include <boost/smart_ptr.hpp>
-#include <boost/filesystem.hpp>
-#include <boost/algorithm/string.hpp>
-
-
-#include <limits>
 #include <string>
 #include <iostream>
 
@@ -60,12 +53,11 @@
 
 #include "AcquisitionTask.h"
 #include "Factory.h"
-
+#include <base.h>
 
 using namespace lima;
 using namespace std;
 using namespace yat4tango;
-
 
 /**
  * @author	$Author:  $
@@ -230,10 +222,9 @@ public :
 		Tango::DevDouble	attr_exposureAccTime_write;
 		Tango::DevLong	*attr_nbFrames_read;
 		Tango::DevLong	attr_nbFrames_write;
-		Tango::DevULong	*attr_numeroFrame_read;
+		Tango::DevULong	*attr_currentFrame_read;
 		Tango::DevBoolean	*attr_fileGeneration_read;
 		Tango::DevBoolean	attr_fileGeneration_write;
-		Tango::DevString	*attr_logs_read;
 		Tango::DevUShort	*attr_image_read;
 //@}
 
@@ -290,6 +281,14 @@ public :
  *	
  */
 	string	fileTargetPath;
+/**
+ *	Define Lima Modules for which we need some traces in the console.
+ */
+	vector<string>	debugModules;
+/**
+ *	Define Lima verbose level of traces in the console.
+ */
+	vector<string>	debugLevels;
 //@}
 
 /**
@@ -427,9 +426,9 @@ public :
  */
 	virtual void write_nbFrames(Tango::WAttribute &attr);
 /**
- *	Extract real attribute values for numeroFrame acquisition result.
+ *	Extract real attribute values for currentFrame acquisition result.
  */
-	virtual void read_numeroFrame(Tango::Attribute &attr);
+	virtual void read_currentFrame(Tango::Attribute &attr);
 /**
  *	Extract real attribute values for fileGeneration acquisition result.
  */
@@ -438,10 +437,6 @@ public :
  *	Write fileGeneration attribute values to hardware.
  */
 	virtual void write_fileGeneration(Tango::WAttribute &attr);
-/**
- *	Extract real attribute values for logs acquisition result.
- */
-	virtual void read_logs(Tango::Attribute &attr);
 /**
  *	Extract real attribute values for image acquisition result.
  */
@@ -491,17 +486,13 @@ public :
  */
 	virtual bool is_nbFrames_allowed(Tango::AttReqType type);
 /**
- *	Read/Write allowed for numeroFrame attribute.
+ *	Read/Write allowed for currentFrame attribute.
  */
-	virtual bool is_numeroFrame_allowed(Tango::AttReqType type);
+	virtual bool is_currentFrame_allowed(Tango::AttReqType type);
 /**
  *	Read/Write allowed for fileGeneration attribute.
  */
 	virtual bool is_fileGeneration_allowed(Tango::AttReqType type);
-/**
- *	Read/Write allowed for logs attribute.
- */
-	virtual bool is_logs_allowed(Tango::AttReqType type);
 /**
  *	Read/Write allowed for image attribute.
  */
@@ -598,13 +589,8 @@ protected :
 	string 								m_acquisition_mode;
 	
 	//-Yat task to manage device Start/Snap/Stop commands
-	boost::shared_ptr<AcquisitionTask>	m_acquisition_task;
+	TaskPtr								m_acquisition_task;
 	AcquisitionTask::AcqConfig 			m_acq_conf;
-	
-	//- logging manager
-	InnerAppender* 						m_appender;
-	InnerAppender::LogList				m_logs;
-	Tango::DevVarStringArray			m_logs_array;
 
 };
 

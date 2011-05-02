@@ -119,7 +119,7 @@ void LimaDetector::delete_device()
 	DELETE_SCALAR_ATTRIBUTE(attr_sensorHeight_read);
 	DELETE_SCALAR_ATTRIBUTE(attr_depth_read);
 	DELETE_SCALAR_ATTRIBUTE(attr_nbFrames_read);
-	DELETE_SCALAR_ATTRIBUTE(attr_numeroFrame_read);
+	DELETE_SCALAR_ATTRIBUTE(attr_currentFrame_read);
 	DELETE_SCALAR_ATTRIBUTE(attr_fileGeneration_read);
 	DELETE_DEVSTRING_ATTRIBUTE(attr_detectorDescription_read);	
 	DELETE_DEVSTRING_ATTRIBUTE(attr_detectorType_read);
@@ -141,14 +141,12 @@ void LimaDetector::delete_device()
 	}
 	
 	// Exit acquisition task
-	m_acquisition_task.reset();
+	m_acquisition_task = NULL;
 	
-	// Delete log manager
-	if (this->m_appender)
-	{
-		this->get_logger()->remove_appender(this->m_appender);
-		this->m_appender = 0;
-	}	
+
+	//- remove the inner-appender
+	yat4tango::InnerAppender::release(this);
+
 }
 
 //+----------------------------------------------------------------------------
@@ -174,8 +172,8 @@ void LimaDetector::init_device()
 	//- instanciate the appender in order ton manage logs
 	try
 	{
-		this->m_appender = new InnerAppender("SelfAppender");
-		this->get_logger()->add_appender(this->m_appender);
+		//- specify both the associated device and the log buffer depth
+		yat4tango::InnerAppender::initialize(this, 512);
 	}
 	catch( Tango::DevFailed& df )
 	{
@@ -184,32 +182,7 @@ void LimaDetector::init_device()
 		m_status_message <<"Initialization Failed :  could not instanciate the InnerAppender ! "<< endl;		
 		return;
 	}
-	
-	//////////////////////////////////////////////////////////////////////	
-	//// Manage LIMA logs - TODO make this code more clever
-	//////////////////////////////////////////////////////////////////////
-	
-	std::vector<std::string> vModuleList;
-	vModuleList.push_back("Common");
-	vModuleList.push_back("Hardware");
-	vModuleList.push_back("Control");
-	vModuleList.push_back("Camera");
 
-	std::vector<std::string> vTypeList;
-	vTypeList.push_back("Fatal");
-	vTypeList.push_back("Error");
-	vTypeList.push_back("Warning");
-	////vTypeList.push_back("Funct");
-	////vTypeList.push_back("Trace");
-	////vTypeList.push_back("Param");
-	////vTypeList.push_back("Return");
-	////vTypeList.push_back("Always");
-	
-	//////////////////////////////////////////////////////////////////////
-	
-		
-	DebParams::setModuleFlagsNameList(vModuleList);
-	DebParams::setTypeFlagsNameList(vTypeList);
 	
 	//By default INIT, need to ensure that all objets are OK beofre set the device to STANDBY
 	set_state(Tango::INIT);
@@ -222,7 +195,7 @@ void LimaDetector::init_device()
 	CREATE_SCALAR_ATTRIBUTE(attr_sensorHeight_read);
 	CREATE_SCALAR_ATTRIBUTE(attr_depth_read);
 	CREATE_SCALAR_ATTRIBUTE(attr_nbFrames_read);
-	CREATE_SCALAR_ATTRIBUTE(attr_numeroFrame_read);
+	CREATE_SCALAR_ATTRIBUTE(attr_currentFrame_read);
 	CREATE_SCALAR_ATTRIBUTE(attr_fileGeneration_read);
 	CREATE_DEVSTRING_ATTRIBUTE(attr_detectorDescription_read,MAX_ATTRIBUTE_STRING_LENGTH);
 	CREATE_DEVSTRING_ATTRIBUTE(attr_detectorType_read,MAX_ATTRIBUTE_STRING_LENGTH);
@@ -235,6 +208,10 @@ void LimaDetector::init_device()
 	//- Create lima control object and configure acquistion parameters
 	try
 	{
+		////- Manage LIMA logs verbose
+		DebParams::setModuleFlagsNameList(debugModules);
+		DebParams::setTypeFlagsNameList(debugLevels);
+	
 		//- get the main object used to pilot the lima framework
 		m_ct = ControlFactory::instance().get_control(detectorType, detectorIP);
 		if(m_ct==0)
@@ -256,15 +233,14 @@ void LimaDetector::init_device()
 			set_state(Tango::INIT);		
 			return;			
 		}
-		
+
 		//- prepare a listen (callback) to receive some notifications from framework
 		m_img_status_cb	= new ImageStatusCallback(*m_ct);
 		m_ct->registerImageStatusCallback(*m_img_status_cb);
 		
 		//- parameters of acquisition
 		m_ct->acquisition()->setAcqNbFrames(attr_nbFrames_write);
-		
-		
+
 		//- parameters of ctSaving object used to store image in files
 		m_saving_par.temporaryPath 	= fileTemporaryPath;
 		m_saving_par.directory 		= fileTargetPath;
@@ -275,17 +251,18 @@ void LimaDetector::init_device()
 		m_saving_par.framesPerFile 	= fileNbFrames;
 		m_saving_par.nbframes 		= attr_nbFrames_write;
 		
-		if (boost::iequals(fileFormat, "NXS"))
+		gdshare::String strFileFormat(fileFormat); 
+		if (strFileFormat.IsEqualsNoCase("NXS"))
 		{			
 			m_saving_par.fileFormat = CtSaving::NXS;
 			m_saving_par.suffix = ".nxs";
 		}
-		else if(boost::iequals(fileFormat, "EDF"))
+		else if(strFileFormat.IsEqualsNoCase("NXS"))
 		{
 			m_saving_par.fileFormat = CtSaving::EDF;
 			m_saving_par.suffix = ".edf";
 		}
-		else if(boost::iequals(fileFormat, "CBF"))
+		else if(strFileFormat.IsEqualsNoCase("NXS"))
 		{			
 			m_saving_par.fileFormat = CtSaving::CBFFormat;
 			m_saving_par.suffix = ".cbf";			
@@ -355,6 +332,8 @@ void LimaDetector::get_device_property()
 	dev_prop.push_back(Tango::DbDatum("FileNbFrames"));
 	dev_prop.push_back(Tango::DbDatum("FileTemporaryPath"));
 	dev_prop.push_back(Tango::DbDatum("FileTargetPath"));
+	dev_prop.push_back(Tango::DbDatum("DebugModules"));
+	dev_prop.push_back(Tango::DbDatum("DebugLevels"));
 
 	//	Call database and extract values
 	//--------------------------------------------
@@ -464,10 +443,34 @@ void LimaDetector::get_device_property()
 	//	And try to extract FileTargetPath value from database
 	if (dev_prop[i].is_empty()==false)	dev_prop[i]  >>  fileTargetPath;
 
+	//	Try to initialize DebugModules from class property
+	cl_prop = ds_class->get_class_property(dev_prop[++i].name);
+	if (cl_prop.is_empty()==false)	cl_prop  >>  debugModules;
+	else {
+		//	Try to initialize DebugModules from default device value
+		def_prop = ds_class->get_default_device_property(dev_prop[i].name);
+		if (def_prop.is_empty()==false)	def_prop  >>  debugModules;
+	}
+	//	And try to extract DebugModules value from database
+	if (dev_prop[i].is_empty()==false)	dev_prop[i]  >>  debugModules;
+
+	//	Try to initialize DebugLevels from class property
+	cl_prop = ds_class->get_class_property(dev_prop[++i].name);
+	if (cl_prop.is_empty()==false)	cl_prop  >>  debugLevels;
+	else {
+		//	Try to initialize DebugLevels from default device value
+		def_prop = ds_class->get_default_device_property(dev_prop[i].name);
+		if (def_prop.is_empty()==false)	def_prop  >>  debugLevels;
+	}
+	//	And try to extract DebugLevels value from database
+	if (dev_prop[i].is_empty()==false)	dev_prop[i]  >>  debugLevels;
+
 
 
 	//	End of Automatic code generation
 	//------------------------------------------------------------------
+	vector<string> myVector;
+	
 	create_property_if_empty(dev_prop,"This is my simulator","DetectorDescription");	
 	create_property_if_empty(dev_prop,"0.0.0.0","DetectorIP");	
 	create_property_if_empty(dev_prop,"Simulator","DetectorType");
@@ -477,6 +480,19 @@ void LimaDetector::get_device_property()
 	create_property_if_empty(dev_prop,"1","FileNbFrames");
 	create_property_if_empty(dev_prop,".","FileTemporaryPath");	
 	create_property_if_empty(dev_prop,"./data","FileTargetPath");
+	
+	myVector.clear();
+	myVector.push_back("Hardware");
+	myVector.push_back("Control");
+	myVector.push_back("Common");
+	myVector.push_back("Camera");
+	create_property_if_empty(dev_prop,myVector,"DebugModules");
+	
+	myVector.clear();
+	myVector.push_back("Fatal");
+	myVector.push_back("Error");
+	myVector.push_back("Warning");
+	create_property_if_empty(dev_prop,myVector,"DebugLevels");		
 }
 //+----------------------------------------------------------------------------
 //
@@ -500,47 +516,6 @@ void LimaDetector::read_attr_hardware(vector<long> &attr_list)
 {
 	DEBUG_STREAM << "LimaDetector::read_attr_hardware(vector<long> &attr_list) entering... "<< endl;
 	//	Add your own code here
-}
-
-
-//+----------------------------------------------------------------------------
-//
-// method : 		LimaDetector::read_logs
-// 
-// description : 	Extract real attribute values for logs acquisition result.
-//
-//-----------------------------------------------------------------------------
-void LimaDetector::read_logs(Tango::Attribute &attr)
-{
-	DEBUG_STREAM << "LimaDetector::read_logs(Tango::Attribute &attr) entering... "<< endl;
-	try
-	{
-		if (this->m_appender)
-		{
-			this->m_logs.clear();
-			this->m_appender->get_logs(this->m_logs);
-			this->m_logs_array.length(this->m_logs.size());
-			for (size_t i = 0; i < this->m_logs.size(); i++)
-				this->m_logs_array[i] = this->m_logs[i].c_str();
-				
-			attr.set_value(this->m_logs_array.get_buffer(), this->m_logs.size());
-		}
-		else
-		{
-			this->m_logs_array.length(1);
-			this->m_logs_array[0] = CORBA::string_dup("no log available - device initialization failed [see status]");
-			attr.set_value(this->m_logs_array.get_buffer(), 1);
-		}
-	}
-	catch(Tango::DevFailed& df)
-	{
-		ERROR_STREAM << df << endl;
-        //- rethrow exception
-        Tango::Except::re_throw_exception(df,
-					static_cast<const char*> ("TANGO_DEVICE_ERROR"),
-					static_cast<const char*> (string(df.errors[0].desc).c_str()),
-                    static_cast<const char*> ("LimaDetector::read_logs"));	
-	}	
 }
 
 //+----------------------------------------------------------------------------
@@ -1195,18 +1170,18 @@ void LimaDetector::write_nbFrames(Tango::WAttribute &attr)
 
 //+----------------------------------------------------------------------------
 //
-// method : 		LimaDetector::read_numeroFrame
+// method : 		LimaDetector::read_currentFrame
 // 
-// description : 	Extract real attribute values for numeroFrame acquisition result.
+// description : 	Extract real attribute values for currentFrame acquisition result.
 //
 //-----------------------------------------------------------------------------
-void LimaDetector::read_numeroFrame(Tango::Attribute &attr)
+void LimaDetector::read_currentFrame(Tango::Attribute &attr)
 {
-	DEBUG_STREAM << "LimaDetector::read_numeroFrame(Tango::Attribute &attr) entering... "<< endl;
+	DEBUG_STREAM << "LimaDetector::read_currentFrame(Tango::Attribute &attr) entering... "<< endl;
 	try
 	{
-		*attr_numeroFrame_read = m_img_status_cb->get_image_number();
-		attr.set_value(attr_numeroFrame_read);
+		*attr_currentFrame_read = m_img_status_cb->get_image_number();
+		attr.set_value(attr_currentFrame_read);
 	}
 	catch(Tango::DevFailed& df)
 	{
@@ -1215,7 +1190,7 @@ void LimaDetector::read_numeroFrame(Tango::Attribute &attr)
         Tango::Except::re_throw_exception(df,
 					static_cast<const char*> ("TANGO_DEVICE_ERROR"),
 					static_cast<const char*> (string(df.errors[0].desc).c_str()),
-                    static_cast<const char*> ("LimaDetector::read_numeroFrame"));
+                    static_cast<const char*> ("LimaDetector::read_currentFrame"));
 	}	
 	catch(Exception& e)
 	{
@@ -1224,7 +1199,7 @@ void LimaDetector::read_numeroFrame(Tango::Attribute &attr)
         Tango::Except::throw_exception(
 					static_cast<const char*> ("TANGO_DEVICE_ERROR"),
 					static_cast<const char*> (e.getErrMsg().c_str()),
-                    static_cast<const char*> ("LimaDetector::read_numeroFrame"));		
+                    static_cast<const char*> ("LimaDetector::read_currentFrame"));		
 	}		
 }
 
@@ -1674,7 +1649,7 @@ bool LimaDetector::create_acquisition_task(void)
 	{	
 		//---------------------------------------------------------------------
 		//- Create the task
-		m_acquisition_task.reset(new AcquisitionTask(this), TaskExiter());
+		m_acquisition_task = new AcquisitionTask(this);
 		
 		//- prepare the conf to be passed to the task
 		m_acq_conf.ct				= m_ct;
@@ -1833,7 +1808,6 @@ int LimaDetector::FindIndexFromPropertyName(Tango::DbData& dev_prop, string prop
 	if (i == iNbProperties) return -1;
 	return i;
 }
-
 
 
 

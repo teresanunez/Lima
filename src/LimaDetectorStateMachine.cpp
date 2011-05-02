@@ -242,29 +242,6 @@ bool LimaDetector::is_nbFrames_allowed(Tango::AttReqType type)
 }
 //+----------------------------------------------------------------------------
 //
-// method : 		LimaDetector::is_numeroFrame_allowed
-// 
-// description : 	Read/Write allowed for numeroFrame attribute.
-//
-//-----------------------------------------------------------------------------
-bool LimaDetector::is_numeroFrame_allowed(Tango::AttReqType type)
-{
-	if (get_state() == Tango::INIT	||
-		get_state() == Tango::FAULT	||
-		get_state() == Tango::RUNNING)
-	{
-		//	End of Generated Code
-		if ( (get_state()==Tango::FAULT || get_state()==Tango::RUNNING )&& type==Tango::READ_REQ )
-		{
-           return true;
-		}
-		//	Re-Start of Generated Code
-		return false;
-	}
-	return true;
-}
-//+----------------------------------------------------------------------------
-//
 // method : 		LimaDetector::is_detectorDescription_allowed
 // 
 // description : 	Read/Write allowed for detectorDescription attribute.
@@ -284,20 +261,6 @@ bool LimaDetector::is_detectorDescription_allowed(Tango::AttReqType type)
 		//	Re-Start of Generated Code
 		return false;
 	}
-	return true;
-}
-//+----------------------------------------------------------------------------
-//
-// method : 		LimaDetector::is_logs_allowed
-// 
-// description : 	Read/Write allowed for logs attribute.
-//
-//-----------------------------------------------------------------------------
-bool LimaDetector::is_logs_allowed(Tango::AttReqType type)
-{
-		//	End of Generated Code
-
-		//	Re-Start of Generated Code
 	return true;
 }
 //+----------------------------------------------------------------------------
@@ -392,6 +355,29 @@ bool LimaDetector::is_fileGeneration_allowed(Tango::AttReqType type)
 	}
 	return true;
 }
+//+----------------------------------------------------------------------------
+//
+// method : 		LimaDetector::is_currentFrame_allowed
+// 
+// description : 	Read/Write allowed for currentFrame attribute.
+//
+//-----------------------------------------------------------------------------
+bool LimaDetector::is_currentFrame_allowed(Tango::AttReqType type)
+{
+	if (get_state() == Tango::INIT	||
+		get_state() == Tango::FAULT	||
+		get_state() == Tango::RUNNING)
+	{
+		//	End of Generated Code
+		if ( (get_state()==Tango::FAULT || get_state()==Tango::RUNNING )&& type==Tango::READ_REQ )
+		{
+			return true;
+		}
+		//	Re-Start of Generated Code
+		return false;
+	}
+	return true;
+}
 
 //=================================================
 //		Commands Allowed Methods
@@ -445,8 +431,7 @@ bool LimaDetector::is_Snap_allowed(const CORBA::Any &any)
 //-----------------------------------------------------------------------------
 bool LimaDetector::is_Stop_allowed(const CORBA::Any &any)
 {
-	if (get_state() == Tango::INIT	||
-		get_state() == Tango::FAULT)
+	if (get_state() == Tango::INIT)
 	{
 		//	End of Generated Code
 

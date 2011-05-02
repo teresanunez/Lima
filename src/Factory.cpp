@@ -25,13 +25,12 @@ CtControl* ControlFactory::get_control( const string& detector_type, const strin
 	}
 	else if (detector_type.compare("Basler")== 0)
 	{	
-
 		if(!ControlFactory::is_created)
 		{
 			my_camera_basler            = new Basler::Camera(camera_ip);
-			my_camera_basler->go(2000);
-			my_interface_basler         = new Basler::Interface(*my_camera_basler);
-			my_control                  = new CtControl(my_interface_basler);
+			my_camera_basler->go(2000);		
+			my_interface_basler         = new Basler::Interface(*my_camera_basler);	
+			my_control                  = new CtControl(my_interface_basler);			
 			ControlFactory::is_created  = true;
 			return my_control;
 		}

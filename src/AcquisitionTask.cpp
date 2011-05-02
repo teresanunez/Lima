@@ -11,10 +11,9 @@
 //
 // ============================================================================
 #include <yat/threading/Mutex.h>
-#include <AcquisitionTask.h>
 #include <yat/time/Timer.h>
 #include <Tools.h>
-
+#include <AcquisitionTask.h>
 					
 namespace LimaDetector_ns {
 // ============================================================================
@@ -43,6 +42,15 @@ AcquisitionTask::~AcquisitionTask()
 {
 	INFO_STREAM << "AcquisitionTask::~AcquisitionTask"<< endl;
 
+}
+
+//=============================================================================
+// exiter AcquisitionTask
+//=============================================================================
+void AcquisitionTask::Discard() const
+{
+   // Ugly method to call a no-const method from a const one
+  ((AcquisitionTask*)((void*)this))->exit();
 }
 
 // ============================================================================
@@ -81,7 +89,6 @@ void AcquisitionTask::process_message(yat::Message& msg) throw (Tango::DevFailed
 				INFO_STREAM << "-> yat::TASK_EXIT" << endl;
 				try
 				{
-					
 					set_state(Tango::INIT);	
 					set_status(string("Acquisition is Stopped."));	
 				}
@@ -172,7 +179,7 @@ void AcquisitionTask::process_message(yat::Message& msg) throw (Tango::DevFailed
 			case DEVICE_ABORT_MSG:
 			{
 				INFO_STREAM << "-> yat::DEVICE_ABORT_MSG" << endl;
-				//afficher ici le vrai status, sinon ecrasé par ailleurs.
+				//display here the final status, otherwise is overwrited.
 				set_state(Tango::FAULT);
 				set_status(m_acq_conf.abort_status_message);
 				INFO_STREAM << "Acquisition is Aborted." << endl;	
@@ -183,12 +190,17 @@ void AcquisitionTask::process_message(yat::Message& msg) throw (Tango::DevFailed
 			case DEVICE_DELETE_FILES_MSG:
 			{
 				INFO_STREAM << "-> yat::DEVICE_DELETE_FILES_MSG" << endl;
-
-				// iterate on all files in the directory in order to remove them.				
-				boost::filesystem::directory_iterator end_itr;
-				for ( boost::filesystem::directory_iterator itr( m_acq_conf.file_target_path ); itr != end_itr; ++itr )
+				try
 				{
-					boost::filesystem::remove( itr->path());        
+					//delete *.* in the directory "file_target_path"
+					gdshare::FileName fn(m_acq_conf.file_target_path);
+					fn.Rmdir(false, true);
+				}
+				catch(gdshare::FileException& e)
+				{
+					ERROR_STREAM << e.Message() << endl;
+					set_state(Tango::FAULT);
+					set_status(e.Message());
 				}
 			}
 			break;
@@ -289,5 +301,6 @@ void AcquisitionTask::on_abort (const std::string& st)
 	post(msg);
 	
 }
+
 
 }
