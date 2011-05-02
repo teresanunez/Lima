@@ -132,12 +132,12 @@ public :
 /**
  *	list of the all config G, that will be used by the command LoadAllConfigG:
  *	CMOS_DSBL
- *	AMP_TP 
+ *	AMP_TP
  *	ITHH
  *	VADJ
- *	VREF 
+ *	VREF
  *	IMFP
- *	IOTA 
+ *	IOTA
  *	IPRE
  *	ITHL
  *	ITUNE
@@ -388,6 +388,12 @@ public :
  *	Execution allowed for LoadAutoTest command.
  */
 	virtual bool is_LoadAutoTest_allowed(const CORBA::Any &any);
+/**
+ * This command gets the device state (stored in its <i>device_state</i> data member) and returns it to the caller.
+ *	@return	State Code
+ *	@exception DevFailed
+ */
+	virtual Tango::DevState	dev_state();
 /**
  * Load a Flat config, for each pixel
  *	@param	argin	Flat value

@@ -151,7 +151,7 @@ void XpadPixelDetector::init_device()
 	CREATE_SCALAR_ATTRIBUTE(attr_gp3_read);
 	CREATE_SCALAR_ATTRIBUTE(attr_gp4_read);
 
-	m_is_device_initialized = false;
+	m_is_device_initialized = true;
 	set_state(Tango::INIT);		
 	m_status_message.str("");
 
@@ -202,7 +202,7 @@ void XpadPixelDetector::init_device()
 		return;	
 	}
 
-	//- Xpad Stuff specific stuff:
+	//- Xpad specific stuff:
 	try
 	{
 		INFO_STREAM << "acquisitionType = " << acquisitionType <<endl;
@@ -887,5 +887,66 @@ void XpadPixelDetector::load_auto_test(Tango::DevULong argin)
 	}
 
 }
+
+
+//+------------------------------------------------------------------
+/**
+ *	method:	XpadPixelDetector::dev_state
+ *
+ *	description:	method to execute "State"
+ *	This command gets the device state (stored in its <i>device_state</i> data member) and returns it to the caller.
+ *
+ * @return	State Code
+ *
+ */
+//+------------------------------------------------------------------
+Tango::DevState XpadPixelDetector::dev_state()
+{
+	Tango::DevState	argout = DeviceImpl::dev_state();
+	DEBUG_STREAM << "XpadPixelDetector::dev_state(): entering... !" << endl;
+
+	//	Add your own code to control device here
+
+	stringstream    DeviceStatus;
+	DeviceStatus 	<< "";
+	Tango::DevState DeviceState	= Tango::STANDBY;
+	if(!m_is_device_initialized )
+	{
+		DeviceState			= Tango::INIT;
+		DeviceStatus		<< m_status_message.str();		
+	}
+	else if (m_ct==0)
+	{
+		DeviceState			= Tango::INIT;
+		DeviceStatus		<<"Initialization Failed : Unable to get the lima control object !\n\n";				
+	}
+	else
+	{
+		CtControl::Status status;
+		m_ct->getStatus(status);
+		if (status.AcquisitionStatus == lima::AcqReady)
+		{
+			DeviceState=Tango::STANDBY;
+			DeviceStatus<<"Waiting for Request ...\n"<<endl;
+		}		
+		else if(status.AcquisitionStatus == lima::AcqRunning)
+		{
+			DeviceState=Tango::RUNNING;
+			DeviceStatus<<"Acquisition is Running ...\n"<<endl;
+		}
+		else
+		{
+			DeviceState=Tango::FAULT;//FAULT
+			DeviceStatus<<"Acquisition is in Fault\n"<<endl;
+		}
+	}
+	
+	set_state(DeviceState);
+	set_status(DeviceStatus.str());
+	
+	argout = DeviceState;
+	return argout;
+}
+
 
 }	//	namespace

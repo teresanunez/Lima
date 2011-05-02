@@ -63,9 +63,13 @@ namespace XpadPixelDetector_ns
 //-----------------------------------------------------------------------------
 bool XpadPixelDetector::is_dacl_allowed(Tango::AttReqType type)
 {
+	if (get_state() == Tango::FAULT)
+	{
 		//	End of Generated Code
 
 		//	Re-Start of Generated Code
+		return false;
+	}
 	return true;
 }
 //+----------------------------------------------------------------------------
@@ -77,9 +81,13 @@ bool XpadPixelDetector::is_dacl_allowed(Tango::AttReqType type)
 //-----------------------------------------------------------------------------
 bool XpadPixelDetector::is_ithl_allowed(Tango::AttReqType type)
 {
+	if (get_state() == Tango::FAULT)
+	{
 		//	End of Generated Code
 
 		//	Re-Start of Generated Code
+		return false;
+	}
 	return true;
 }
 //+----------------------------------------------------------------------------
@@ -91,9 +99,13 @@ bool XpadPixelDetector::is_ithl_allowed(Tango::AttReqType type)
 //-----------------------------------------------------------------------------
 bool XpadPixelDetector::is_deadTime_allowed(Tango::AttReqType type)
 {
+	if (get_state() == Tango::FAULT)
+	{
 		//	End of Generated Code
 
 		//	Re-Start of Generated Code
+		return false;
+	}
 	return true;
 }
 //+----------------------------------------------------------------------------
@@ -105,9 +117,13 @@ bool XpadPixelDetector::is_deadTime_allowed(Tango::AttReqType type)
 //-----------------------------------------------------------------------------
 bool XpadPixelDetector::is_init_allowed(Tango::AttReqType type)
 {
+	if (get_state() == Tango::FAULT)
+	{
 		//	End of Generated Code
 
 		//	Re-Start of Generated Code
+		return false;
+	}
 	return true;
 }
 //+----------------------------------------------------------------------------
@@ -119,9 +135,13 @@ bool XpadPixelDetector::is_init_allowed(Tango::AttReqType type)
 //-----------------------------------------------------------------------------
 bool XpadPixelDetector::is_shutter_allowed(Tango::AttReqType type)
 {
+	if (get_state() == Tango::FAULT)
+	{
 		//	End of Generated Code
 
 		//	Re-Start of Generated Code
+		return false;
+	}
 	return true;
 }
 //+----------------------------------------------------------------------------
@@ -133,9 +153,13 @@ bool XpadPixelDetector::is_shutter_allowed(Tango::AttReqType type)
 //-----------------------------------------------------------------------------
 bool XpadPixelDetector::is_ovf_allowed(Tango::AttReqType type)
 {
+	if (get_state() == Tango::FAULT)
+	{
 		//	End of Generated Code
 
 		//	Re-Start of Generated Code
+		return false;
+	}
 	return true;
 }
 //+----------------------------------------------------------------------------
@@ -147,9 +171,13 @@ bool XpadPixelDetector::is_ovf_allowed(Tango::AttReqType type)
 //-----------------------------------------------------------------------------
 bool XpadPixelDetector::is_mode_allowed(Tango::AttReqType type)
 {
+	if (get_state() == Tango::FAULT)
+	{
 		//	End of Generated Code
 
 		//	Re-Start of Generated Code
+		return false;
+	}
 	return true;
 }
 //+----------------------------------------------------------------------------
@@ -161,9 +189,13 @@ bool XpadPixelDetector::is_mode_allowed(Tango::AttReqType type)
 //-----------------------------------------------------------------------------
 bool XpadPixelDetector::is_n_allowed(Tango::AttReqType type)
 {
+	if (get_state() == Tango::FAULT)
+	{
 		//	End of Generated Code
 
 		//	Re-Start of Generated Code
+		return false;
+	}
 	return true;
 }
 //+----------------------------------------------------------------------------
@@ -175,9 +207,13 @@ bool XpadPixelDetector::is_n_allowed(Tango::AttReqType type)
 //-----------------------------------------------------------------------------
 bool XpadPixelDetector::is_p_allowed(Tango::AttReqType type)
 {
+	if (get_state() == Tango::FAULT)
+	{
 		//	End of Generated Code
 
 		//	Re-Start of Generated Code
+		return false;
+	}
 	return true;
 }
 //+----------------------------------------------------------------------------
@@ -189,9 +225,13 @@ bool XpadPixelDetector::is_p_allowed(Tango::AttReqType type)
 //-----------------------------------------------------------------------------
 bool XpadPixelDetector::is_gp1_allowed(Tango::AttReqType type)
 {
+	if (get_state() == Tango::FAULT)
+	{
 		//	End of Generated Code
 
 		//	Re-Start of Generated Code
+		return false;
+	}
 	return true;
 }
 //+----------------------------------------------------------------------------
@@ -203,9 +243,13 @@ bool XpadPixelDetector::is_gp1_allowed(Tango::AttReqType type)
 //-----------------------------------------------------------------------------
 bool XpadPixelDetector::is_gp2_allowed(Tango::AttReqType type)
 {
+	if (get_state() == Tango::FAULT)
+	{
 		//	End of Generated Code
 
 		//	Re-Start of Generated Code
+		return false;
+	}
 	return true;
 }
 //+----------------------------------------------------------------------------
@@ -217,9 +261,13 @@ bool XpadPixelDetector::is_gp2_allowed(Tango::AttReqType type)
 //-----------------------------------------------------------------------------
 bool XpadPixelDetector::is_gp3_allowed(Tango::AttReqType type)
 {
+	if (get_state() == Tango::FAULT)
+	{
 		//	End of Generated Code
 
 		//	Re-Start of Generated Code
+		return false;
+	}
 	return true;
 }
 //+----------------------------------------------------------------------------
@@ -231,9 +279,13 @@ bool XpadPixelDetector::is_gp3_allowed(Tango::AttReqType type)
 //-----------------------------------------------------------------------------
 bool XpadPixelDetector::is_gp4_allowed(Tango::AttReqType type)
 {
+	if (get_state() == Tango::FAULT)
+	{
 		//	End of Generated Code
 
 		//	Re-Start of Generated Code
+		return false;
+	}
 	return true;
 }
 
@@ -310,9 +362,15 @@ bool XpadPixelDetector::is_LoadConfigG_allowed(const CORBA::Any &any)
 //-----------------------------------------------------------------------------
 bool XpadPixelDetector::is_LoadAutoTest_allowed(const CORBA::Any &any)
 {
+	if (get_state() == Tango::INIT	||
+		get_state() == Tango::RUNNING	||
+		get_state() == Tango::FAULT)
+	{
 		//	End of Generated Code
 
 		//	Re-Start of Generated Code
+		return false;
+	}
 	return true;
 }
 

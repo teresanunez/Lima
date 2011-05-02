@@ -538,7 +538,7 @@ void XpadPixelDetectorClass::set_default_property()
 		add_wiz_dev_prop(prop_name, prop_desc);
 
 	prop_name = "AllConfigG";
-	prop_desc = "list of the all config G, that will be used by the command LoadAllConfigG:\nCMOS_DSBL\nAMP_TP \nITHH\nVADJ\nVREF \nIMFP\nIOTA \nIPRE\nITHL\nITUNE\nIBUFFER";
+	prop_desc = "list of the all config G, that will be used by the command LoadAllConfigG:\nCMOS_DSBL\nAMP_TP\nITHH\nVADJ\nVREF\nIMFP\nIOTA\nIPRE\nITHL\nITUNE\nIBUFFER";
 	prop_def  = "0\n0\n0\n0\n0\n0\n0\n0\n0\n0";
 	vect_data.clear();
 	vect_data.push_back("0");
