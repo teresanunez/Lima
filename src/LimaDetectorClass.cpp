@@ -499,10 +499,6 @@ void LimaDetectorClass::attribute_factory(vector<Tango::Attr *> &att_list)
 	file_generation->set_memorized_init(true);
 	att_list.push_back(file_generation);
 
-	//	Attribute : image
-	imageAttrib	*image = new imageAttrib();
-	att_list.push_back(image);
-
 	//	End of Automatic code generation
 	//-------------------------------------------------------------
 }
@@ -570,7 +566,7 @@ void LimaDetectorClass::set_default_property()
 		add_wiz_dev_prop(prop_name, prop_desc);
 
 	prop_name = "DetectorIP";
-	prop_desc = "Ip Address of the Detector";
+	prop_desc = "Ip Address of the Detector if necessary, NA otherwise.";
 	prop_def  = "0.0.0.0";
 	vect_data.clear();
 	vect_data.push_back("0.0.0.0");
@@ -585,7 +581,7 @@ void LimaDetectorClass::set_default_property()
 		add_wiz_dev_prop(prop_name, prop_desc);
 
 	prop_name = "DetectorType";
-	prop_desc = "Define the type of the connected Detector .<cr>\ni.e:<cr>\nBasler<cr>\nSimulator<cr>\n";
+	prop_desc = "Define the type of the connected Detector .<BR>\nAvailables types :<BR>\nBasler<BR>\nSimulator<BR>\nXpad<BR>\nPilatus<BR>\n\n";
 	prop_def  = "Simulator";
 	vect_data.clear();
 	vect_data.push_back("Simulator");
@@ -599,8 +595,23 @@ void LimaDetectorClass::set_default_property()
 	else
 		add_wiz_dev_prop(prop_name, prop_desc);
 
+	prop_name = "DetectorPixelFormat";
+	prop_desc = "Define the pixel depth of the detecor (8, 16, 32).";
+	prop_def  = "16";
+	vect_data.clear();
+	vect_data.push_back("16");
+	if (prop_def.length()>0)
+	{
+		Tango::DbDatum	data(prop_name);
+		data << vect_data ;
+		dev_def_prop.push_back(data);
+		add_wiz_dev_prop(prop_name, prop_desc,  prop_def);
+	}
+	else
+		add_wiz_dev_prop(prop_name, prop_desc);
+
 	prop_name = "FileFormat";
-	prop_desc = "Define the format of image files :<cr>\n- EDF\n- NXS\n- RAW\n";
+	prop_desc = "Define the format of image files :<BR>\n- EDF<BR>\n- NXS<BR>\n- RAW<BR>\n";
 	prop_def  = "NXS";
 	vect_data.clear();
 	vect_data.push_back("NXS");
@@ -615,7 +626,7 @@ void LimaDetectorClass::set_default_property()
 		add_wiz_dev_prop(prop_name, prop_desc);
 
 	prop_name = "FilePrefix";
-	prop_desc = "Define the prefix used for the image files name.<cr>";
+	prop_desc = "Define the prefix used for the image files name.";
 	prop_def  = "Image";
 	vect_data.clear();
 	vect_data.push_back("Image");
@@ -630,7 +641,7 @@ void LimaDetectorClass::set_default_property()
 		add_wiz_dev_prop(prop_name, prop_desc);
 
 	prop_name = "FileIndexFormat";
-	prop_desc = "Define the format of the index used for image files names.<cr>";
+	prop_desc = "Define the format of the index used for image files names.";
 	prop_def  = "%06d";
 	vect_data.clear();
 	vect_data.push_back("%06d");
@@ -645,7 +656,7 @@ void LimaDetectorClass::set_default_property()
 		add_wiz_dev_prop(prop_name, prop_desc);
 
 	prop_name = "FileNbFrames";
-	prop_desc = "Define the number of frames per file.<cr>";
+	prop_desc = "Define the number of frames per file.";
 	prop_def  = "1";
 	vect_data.clear();
 	vect_data.push_back("1");
@@ -660,7 +671,7 @@ void LimaDetectorClass::set_default_property()
 		add_wiz_dev_prop(prop_name, prop_desc);
 
 	prop_name = "FileTemporaryPath";
-	prop_desc = "Define the root path for temporary generated files.<BR>\n[default = .]";
+	prop_desc = "Define the root path for temporary generated files.";
 	prop_def  = ".";
 	vect_data.clear();
 	vect_data.push_back(".");
@@ -675,7 +686,7 @@ void LimaDetectorClass::set_default_property()
 		add_wiz_dev_prop(prop_name, prop_desc);
 
 	prop_name = "FileTargetPath";
-	prop_desc = "Define the Path where Files will be generated, only when savingFile is checked.<br>\n[default = ./data]\n\n";
+	prop_desc = "Define the Path where Files will be generated, only when savingFile is checked.\n\n";
 	prop_def  = "./data";
 	vect_data.clear();
 	vect_data.push_back("./data");
@@ -690,7 +701,7 @@ void LimaDetectorClass::set_default_property()
 		add_wiz_dev_prop(prop_name, prop_desc);
 
 	prop_name = "DebugModules";
-	prop_desc = "Define Lima Modules for which we need some traces in the console.";
+	prop_desc = "Define Lima Modules for which we need some traces in the console.<BR>\nAvailables values :<BR>\nNone<BR>\nHardware<BR>\nControl<BR>\nCommon<BR>\nCamera<BR>";
 	prop_def  = "Hardware\nControl\nCommon\nCamera";
 	vect_data.clear();
 	vect_data.push_back("Hardware");
@@ -708,7 +719,7 @@ void LimaDetectorClass::set_default_property()
 		add_wiz_dev_prop(prop_name, prop_desc);
 
 	prop_name = "DebugLevels";
-	prop_desc = "Define Lima verbose level of traces in the console.";
+	prop_desc = "Define Lima verbose level of traces in the console.<BR>\nAvailables values :<BR>\nFatal<BR>\nError<BR>\nWarning<BR>\nTrace<BR>\nFunct<BR>\nParam<BR>\nReturn<BR>\nAlways<BR>";
 	prop_def  = "Fatal\nError\nWarning";
 	vect_data.clear();
 	vect_data.push_back("Fatal");

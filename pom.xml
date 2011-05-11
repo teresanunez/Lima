@@ -9,7 +9,7 @@
 
    <groupId>fr.soleil.device</groupId>
    <artifactId>LimaDetector-${aol}-${mode}</artifactId>
-   <version>1.0.4-SNAPSHOT</version>
+   <version>1.0.5-SNAPSHOT</version>
 
    <packaging>nar</packaging>
 
@@ -54,6 +54,11 @@
 		 <artifactId>Xpad-${aol}-shared-${mode}</artifactId>
 		 <version>1.0.3-SNAPSHOT</version>
 	  </dependency>
+	  <dependency>
+		 <groupId>fr.soleil.lib.Lima.Camera</groupId>
+		 <artifactId>Pilatus-${aol}-shared-${mode}</artifactId>
+		 <version>1.0.3-SNAPSHOT</version>
+	  </dependency>	  
 	  <dependency>
 		 <groupId>fr.soleil.lib</groupId>
 		 <artifactId>GDShare-${aol}-${library}-${mode}</artifactId>

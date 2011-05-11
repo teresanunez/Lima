@@ -127,29 +127,6 @@ bool LimaDetector::is_depth_allowed(Tango::AttReqType type)
 }
 //+----------------------------------------------------------------------------
 //
-// method : 		LimaDetector::is_image_allowed
-// 
-// description : 	Read/Write allowed for image attribute.
-//
-//-----------------------------------------------------------------------------
-bool LimaDetector::is_image_allowed(Tango::AttReqType type)
-{
-	if (get_state() == Tango::INIT	||
-		get_state() == Tango::FAULT	||
-		get_state() == Tango::RUNNING)
-	{
-		//	End of Generated Code
-		if ( (get_state()==Tango::FAULT || get_state()==Tango::RUNNING )&& type==Tango::READ_REQ )
-		{
-           return true;
-		}
-		//	Re-Start of Generated Code
-		return false;
-	}
-	return true;
-}
-//+----------------------------------------------------------------------------
-//
 // method : 		LimaDetector::is_exposureTime_allowed
 // 
 // description : 	Read/Write allowed for exposureTime attribute.

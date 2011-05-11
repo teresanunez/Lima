@@ -158,6 +158,7 @@ void AcquisitionTask::process_message(yat::Message& msg) throw (Tango::DevFailed
 				try
 				{
 					m_acq_conf.ct->stopAcq();
+					m_acq_conf.ct->resetStatus(false);
 					set_state(Tango::STANDBY);
 					set_status(string("Waiting for request ..."));				
 					INFO_STREAM << "Acquisition is Stoped." << endl;

@@ -1,13 +1,13 @@
 static const char *RcsId = "$Id:  $";
 //+=============================================================================
 //
-// file :         BaslerCCD.cpp
+// file :         Pilatus.cpp
 //
-// description :  C++ source for the BaslerCCD and its commands. 
+// description :  C++ source for the Pilatus and its commands. 
 //                The class is derived from Device. It represents the
 //                CORBA servant object which will be accessed from the
 //                network. All commands which can be executed on the
-//                BaslerCCD are implemented in this file.
+//                Pilatus are implemented in this file.
 //
 // project :      TANGO Device Server
 //
@@ -55,76 +55,74 @@ static const char *RcsId = "$Id:  $";
 
 #include <tango.h>
 #include <PogoHelper.h>
-#include <BaslerCCD.h>
-#include <BaslerCCDClass.h>
+#include <Pilatus.h>
+#include <PilatusClass.h>
 
-namespace BaslerCCD_ns
+namespace Pilatus_ns
 {
 
 //+----------------------------------------------------------------------------
 //
-// method : 		BaslerCCD::BaslerCCD(string &s)
+// method : 		Pilatus::Pilatus(string &s)
 // 
-// description : 	constructor for simulated BaslerCCD
+// description : 	constructor for simulated Pilatus
 //
 // in : - cl : Pointer to the DeviceClass object
 //      - s : Device name 
 //
 //-----------------------------------------------------------------------------
-BaslerCCD::BaslerCCD(Tango::DeviceClass *cl,string &s)
+Pilatus::Pilatus(Tango::DeviceClass *cl,string &s)
 :Tango::Device_4Impl(cl,s.c_str())
 {
 	init_device();
 }
 
-BaslerCCD::BaslerCCD(Tango::DeviceClass *cl,const char *s)
+Pilatus::Pilatus(Tango::DeviceClass *cl,const char *s)
 :Tango::Device_4Impl(cl,s)
 {
 	init_device();
 }
 
-BaslerCCD::BaslerCCD(Tango::DeviceClass *cl,const char *s,const char *d)
+Pilatus::Pilatus(Tango::DeviceClass *cl,const char *s,const char *d)
 :Tango::Device_4Impl(cl,s,d)
 {
 	init_device();
 }
 //+----------------------------------------------------------------------------
 //
-// method : 		BaslerCCD::delete_device()
+// method : 		Pilatus::delete_device()
 // 
 // description : 	will be called at device destruction or at init command.
 //
 //-----------------------------------------------------------------------------
-void BaslerCCD::delete_device()
+void Pilatus::delete_device()
 {
 	//	Delete device allocated objects
-	DELETE_SCALAR_ATTRIBUTE(attr_frameRate_read	);
+	DELETE_SCALAR_ATTRIBUTE(attr_exposureTime_read);
 	
 	//!!!! ONLY LimaDetector device can do this !!!!
 	//if(m_ct!=0)
 	//{
-	//	ControlFactory::instance().reset("Basler");
+	//	ControlFactory::instance().reset("Pilatus");
 	//	m_ct = 0;
 	//}
-}	
+}
 
 //+----------------------------------------------------------------------------
 //
-// method : 		BaslerCCD::init_device()
+// method : 		Pilatus::init_device()
 // 
 // description : 	will be called at device initialization.
 //
 //-----------------------------------------------------------------------------
-void BaslerCCD::init_device()
+void Pilatus::init_device()
 {
-	INFO_STREAM << "BaslerCCD::BaslerCCD() create device " << device_name << endl;
+	INFO_STREAM << "Pilatus::Pilatus() create device " << device_name << endl;
 
 	// Initialise variables to default values
 	//--------------------------------------------
-	get_device_property();
-	CREATE_SCALAR_ATTRIBUTE(attr_frameRate_read,0.0	);
+	CREATE_SCALAR_ATTRIBUTE(attr_exposureTime_read,1.0);
 	m_is_device_initialized = false;
-	set_state(Tango::INIT);		
 	m_status_message.str("");
 	
 	try
@@ -132,7 +130,7 @@ void BaslerCCD::init_device()
 		//- get the main object used to pilot the lima framework
 		//in fact LimaDetector is create the singleton control objet
 		//so this call, will only return existing object, no need to give it the ip !!
-		m_ct = ControlFactory::instance().get_control("Basler","0.0.0.0", false);		
+		m_ct = ControlFactory::instance().get_control("Pilatus","0.0.0.0", false);
 		if(m_ct==0)
 		{
 			INFO_STREAM<<"Initialization Failed : Unable to get the lima control object !"<<endl;
@@ -143,7 +141,7 @@ void BaslerCCD::init_device()
 		}
 		
 		//- get interface to specific camera
-		m_hw = dynamic_cast<Basler::Interface*>(m_ct->hwInterface());
+		m_hw = dynamic_cast<Pilatus_cpp::Interface*>(m_ct->hwInterface());
 		if(m_hw==0)
 		{
 			INFO_STREAM<<"Initialization Failed : Unable to get the interface of camera plugin !"<<endl;
@@ -172,78 +170,57 @@ void BaslerCCD::init_device()
 	}
 	m_is_device_initialized = true;
 	set_state(Tango::STANDBY);	
-	this->dev_state();		
+	this->dev_state();	
 }
-
 
 //+----------------------------------------------------------------------------
 //
-// method : 		BaslerCCD::get_device_property()
-// 
-// description : 	Read the device properties from database.
-//
-//-----------------------------------------------------------------------------
-void BaslerCCD::get_device_property()
-{
-	//	Initialize your default values here (if not done with  POGO).
-	//------------------------------------------------------------------
-
-	//	Read device properties from database.(Automatic code generation)
-	//------------------------------------------------------------------
-	Tango::DbData	dev_prop;
-
-	//	End of Automatic code generation
-	//------------------------------------------------------------------
-
-}
-//+----------------------------------------------------------------------------
-//
-// method : 		BaslerCCD::always_executed_hook()
+// method : 		Pilatus::always_executed_hook()
 // 
 // description : 	method always executed before any command is executed
 //
 //-----------------------------------------------------------------------------
-void BaslerCCD::always_executed_hook()
+void Pilatus::always_executed_hook()
 {
 	//- get the main object used to pilot the lima framework
 	//in fact LimaCCD is create the singleton control objet
 	//so this call, will only return existing object, no need to give it the ip !!
-	m_ct = ControlFactory::instance().get_control("Basler","0.0.0.0", false);
+	m_ct = ControlFactory::instance().get_control("Pilatus","0.0.0.0", false);
 	
 	//- get interface to specific detector
 	if(m_ct!=0)
-		m_hw = dynamic_cast<Basler::Interface*>(m_ct->hwInterface());
-	
+		m_hw = dynamic_cast<Pilatus_cpp::Interface*>(m_ct->hwInterface());
 }
 //+----------------------------------------------------------------------------
 //
-// method : 		BaslerCCD::read_attr_hardware
+// method : 		Pilatus::read_attr_hardware
 // 
 // description : 	Hardware acquisition for attributes.
 //
 //-----------------------------------------------------------------------------
-void BaslerCCD::read_attr_hardware(vector<long> &attr_list)
+void Pilatus::read_attr_hardware(vector<long> &attr_list)
 {
-	DEBUG_STREAM << "BaslerCCD::read_attr_hardware(vector<long> &attr_list) entering... "<< endl;
+	DEBUG_STREAM << "Pilatus::read_attr_hardware(vector<long> &attr_list) entering... "<< endl;
 	//	Add your own code here
 }
-
 //+----------------------------------------------------------------------------
 //
-// method : 		BaslerCCD::read_frameRate
+// method : 		Pilatus::read_exposureTime
 // 
-// description : 	Extract real attribute values for frameRate acquisition result.
+// description : 	Extract real attribute values for exposureTime acquisition result.
 //
 //-----------------------------------------------------------------------------
-void BaslerCCD::read_frameRate(Tango::Attribute &attr)
+void Pilatus::read_exposureTime(Tango::Attribute &attr)
 {
-	DEBUG_STREAM << "BaslerCCD::read_frameRate(Tango::Attribute &attr) entering... "<< endl;
+	DEBUG_STREAM << "Pilatus::read_exposureTime(Tango::Attribute &attr) entering... "<< endl;
 	if(m_ct!=0)
-	{	
+	{
 		try
 		{
-			m_hw->getFrameRate((double&)*attr_frameRate_read);
-			attr.set_value(attr_frameRate_read);
+			double exposure;
+			m_ct->acquisition()->getAcqExpoTime(exposure);
+			*attr_exposureTime_read = (Tango::DevDouble)exposure;
+			attr.set_value(attr_exposureTime_read);
 		}
 		catch(Tango::DevFailed& df)
 		{
@@ -252,8 +229,8 @@ void BaslerCCD::read_frameRate(Tango::Attribute &attr)
 			Tango::Except::re_throw_exception(df,
 						static_cast<const char*> ("TANGO_DEVICE_ERROR"),
 						static_cast<const char*> (string(df.errors[0].desc).c_str()),
-						static_cast<const char*> ("BaslerCCD::read_frameRate"));
-		}
+						static_cast<const char*> ("Pilatus::read_exposureTime"));
+		}	
 		catch(Exception& e)
 		{
 			ERROR_STREAM << e.getErrMsg() << endl;
@@ -261,7 +238,45 @@ void BaslerCCD::read_frameRate(Tango::Attribute &attr)
 			Tango::Except::throw_exception(
 						static_cast<const char*> ("TANGO_DEVICE_ERROR"),
 						static_cast<const char*> (e.getErrMsg().c_str()),
-						static_cast<const char*> ("BaslerCCD::read_frameRate"));
+						static_cast<const char*> ("Pilatus::read_exposureTime"));		
+		}
+	}
+}
+
+//+----------------------------------------------------------------------------
+//
+// method : 		Pilatus::write_exposureTime
+// 
+// description : 	Write exposureTime attribute values to hardware.
+//
+//-----------------------------------------------------------------------------
+void Pilatus::write_exposureTime(Tango::WAttribute &attr)
+{
+	DEBUG_STREAM << "Pilatus::write_exposureTime(Tango::WAttribute &attr) entering... "<< endl;
+	if(m_ct!=0)
+	{	
+		try
+		{
+			attr.get_write_value(attr_exposureTime_write);
+			m_ct->acquisition()->setAcqExpoTime((double)attr_exposureTime_write);
+		}
+		catch(Tango::DevFailed& df)
+		{
+			ERROR_STREAM << df << endl;
+			//- rethrow exception
+			Tango::Except::re_throw_exception(df,
+						static_cast<const char*> ("TANGO_DEVICE_ERROR"),
+						static_cast<const char*> (string(df.errors[0].desc).c_str()),
+						static_cast<const char*> ("Pilatus::write_exposureTime"));
+		}	
+		catch(Exception& e)
+		{
+			ERROR_STREAM << e.getErrMsg() << endl;
+			//- throw exception
+			Tango::Except::throw_exception(
+						static_cast<const char*> ("TANGO_DEVICE_ERROR"),
+						static_cast<const char*> (e.getErrMsg().c_str()),
+						static_cast<const char*> ("Pilatus::write_exposureTime"));		
 		}
 	}
 }
@@ -269,7 +284,7 @@ void BaslerCCD::read_frameRate(Tango::Attribute &attr)
 
 //+------------------------------------------------------------------
 /**
- *	method:	BaslerCCD::dev_state
+ *	method:	Pilatus::dev_state
  *
  *	description:	method to execute "State"
  *	This command gets the device state (stored in its <i>device_state</i> data member) and returns it to the caller.
@@ -278,12 +293,11 @@ void BaslerCCD::read_frameRate(Tango::Attribute &attr)
  *
  */
 //+------------------------------------------------------------------
-Tango::DevState BaslerCCD::dev_state()
+Tango::DevState Pilatus::dev_state()
 {
 	Tango::DevState	argout = DeviceImpl::dev_state();
-	DEBUG_STREAM << "BaslerCCD::dev_state(): entering... !" << endl;	
+	DEBUG_STREAM << "Pilatus::dev_state(): entering... !" << endl;	
 	//	Add your own code to control device here
-	
 	stringstream    DeviceStatus;
 	DeviceStatus 	<< "";
 	Tango::DevState DeviceState	= Tango::STANDBY;
@@ -324,6 +338,9 @@ Tango::DevState BaslerCCD::dev_state()
 	argout = DeviceState;
 	return argout;
 }
+
+
+
 
 
 }	//	namespace

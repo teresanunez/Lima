@@ -168,6 +168,7 @@ void SimulatorCCD::init_device()
 		m_is_device_initialized = false;
 		return;
 	}
+	m_is_device_initialized = true;
 	set_state(Tango::STANDBY);	
 	this->dev_state();	
 }

@@ -36,10 +36,13 @@
 #include <tango.h>
 
 #include <yat4tango/InnerAppender.h>
+#include <yat4tango/DynamicAttributeManager.h>
 
 #include <boost/smart_ptr.hpp>
+#include <algorithm>
 #include <string>
 #include <iostream>
+#include <yat/memory/SharedPtr.h>
 
 #include "Debug.h"
 #include "HwInterface.h"
@@ -70,6 +73,7 @@ using namespace yat4tango;
 
 namespace LimaDetector_ns
 {
+
 class ImageStatusCallback : public CtControl::ImageStatusCallback
 {
 
@@ -225,7 +229,6 @@ public :
 		Tango::DevULong	*attr_currentFrame_read;
 		Tango::DevBoolean	*attr_fileGeneration_read;
 		Tango::DevBoolean	attr_fileGeneration_write;
-		Tango::DevUShort	*attr_image_read;
 //@}
 
 /**
@@ -238,55 +241,75 @@ public :
  */
 	string	detectorDescription;
 /**
- *	Ip Address of the Detector
+ *	Ip Address of the Detector if necessary, NA otherwise.
  */
 	string	detectorIP;
 /**
- *	Define the type of the connected Detector .<cr>
- *	i.e:<cr>
- *	Basler<cr>
- *	Simulator<cr>
+ *	Define the type of the connected Detector .<BR>
+ *	Availables types :<BR>
+ *	Basler<BR>
+ *	Simulator<BR>
+ *	Xpad<BR>
+ *	Pilatus<BR>
+ *	
  *	
  */
 	string	detectorType;
 /**
- *	Define the format of image files :<cr>
- *	- EDF
- *	- NXS
- *	- RAW
+ *	Define the pixel depth of the detecor (8, 16, 32).
+ */
+	Tango::DevUShort	detectorPixelFormat;
+/**
+ *	Define the format of image files :<BR>
+ *	- EDF<BR>
+ *	- NXS<BR>
+ *	- RAW<BR>
  *	
  */
 	string	fileFormat;
 /**
- *	Define the prefix used for the image files name.<cr>
+ *	Define the prefix used for the image files name.
  */
 	string	filePrefix;
 /**
- *	Define the format of the index used for image files names.<cr>
+ *	Define the format of the index used for image files names.
  */
 	string	fileIndexFormat;
 /**
- *	Define the number of frames per file.<cr>
+ *	Define the number of frames per file.
  */
 	Tango::DevShort	fileNbFrames;
 /**
- *	Define the root path for temporary generated files.<BR>
- *	[default = .]
+ *	Define the root path for temporary generated files.
  */
 	string	fileTemporaryPath;
 /**
- *	Define the Path where Files will be generated, only when savingFile is checked.<br>
- *	[default = ./data]
+ *	Define the Path where Files will be generated, only when savingFile is checked.
  *	
  *	
  */
 	string	fileTargetPath;
 /**
- *	Define Lima Modules for which we need some traces in the console.
+ *	Define Lima Modules for which we need some traces in the console.<BR>
+ *	Availables values :<BR>
+ *	None<BR>
+ *	Hardware<BR>
+ *	Control<BR>
+ *	Common<BR>
+ *	Camera<BR>
  */
 	vector<string>	debugModules;
 /**
- *	Define Lima verbose level of traces in the console.
+ *	Define Lima verbose level of traces in the console.<BR>
+ *	Availables values :<BR>
+ *	Fatal<BR>
+ *	Error<BR>
+ *	Warning<BR>
+ *	Trace<BR>
+ *	Funct<BR>
+ *	Param<BR>
+ *	Return<BR>
+ *	Always<BR>
  */
 	vector<string>	debugLevels;
 //@}
@@ -438,10 +461,6 @@ public :
  */
 	virtual void write_fileGeneration(Tango::WAttribute &attr);
 /**
- *	Extract real attribute values for image acquisition result.
- */
-	virtual void read_image(Tango::Attribute &attr);
-/**
  *	Read/Write allowed for detectorDescription attribute.
  */
 	virtual bool is_detectorDescription_allowed(Tango::AttReqType type);
@@ -493,10 +512,6 @@ public :
  *	Read/Write allowed for fileGeneration attribute.
  */
 	virtual bool is_fileGeneration_allowed(Tango::AttReqType type);
-/**
- *	Read/Write allowed for image attribute.
- */
-	virtual bool is_image_allowed(Tango::AttReqType type);
 /**
  *	Execution allowed for DeleteRemainingFiles command.
  */
@@ -560,7 +575,7 @@ public :
 	//-------------------------------------------------------------	
 
 
-
+	void 			read_image_callback(yat4tango::DynamicAttributeReadCallbackData& cbd);	
 protected :	
 	//	Add your own data members here
 	//-----------------------------------------
@@ -571,7 +586,7 @@ protected :
 	void			create_property_if_empty(Tango::DbData& dev_prop,T value, string property_name);	
 	template <class T>
 	void			store_value_as_property(T value, string property_name);	
-	bool 			create_acquisition_task(void);
+	bool 			create_acquisition_task(void);	
 		
 	//print parameters acquisition
 	void 			print_acq_conf();	
@@ -591,6 +606,9 @@ protected :
 	//-Yat task to manage device Start/Snap/Stop commands
 	TaskPtr								m_acquisition_task;
 	AcquisitionTask::AcqConfig 			m_acq_conf;
+	
+	//- Dyn Attr
+	DynamicAttributeManager				m_dam;
 
 };
 

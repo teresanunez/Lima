@@ -48,6 +48,19 @@ CtControl* ControlFactory::get_control( const string& detector_type, const strin
 			return my_control;
 		}
 	}
+	else if (detector_type.compare("Pilatus")== 0)
+	{	
+	
+		if(!ControlFactory::is_created)
+		{
+			my_camera_pilatus           = new Pilatus_cpp::Camera(camera_ip, 6666);
+			my_camera_pilatus->go(2000);		
+			my_interface_pilatus        = new Pilatus_cpp::Interface(*my_camera_pilatus);	
+			my_control                  = new CtControl(my_interface_pilatus);			
+			ControlFactory::is_created  = true;
+			return my_control;
+		}
+	}
 	else
 	{
 		//return 0 to indicate an ERROR
@@ -81,6 +94,12 @@ void ControlFactory::reset(const string& detector_type )
 			my_xpad_camera->exit();       my_xpad_camera = 0;
 			delete my_xpad_interface;     my_xpad_interface = 0;
 		}
+		else if (detector_type.compare("Pilatus")==0)
+		{          
+			//- do not delete because its a YAT Task			
+			my_camera_pilatus->exit();       my_camera_pilatus = 0;
+			delete my_interface_pilatus;     my_interface_pilatus = 0;
+		}		
 		else
 		{
 			///

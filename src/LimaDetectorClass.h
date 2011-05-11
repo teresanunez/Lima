@@ -45,18 +45,6 @@ namespace LimaDetector_ns
 {//=====================================
 //	Define classes for attributes
 //=====================================
-class imageAttrib: public Tango::ImageAttr
-{
-public:
-	imageAttrib():ImageAttr("image", Tango::DEV_USHORT, Tango::READ, 4096, 4096) {};
-	~imageAttrib() {};
-	
-	virtual void read(Tango::DeviceImpl *dev,Tango::Attribute &att)
-	{(static_cast<LimaDetector *>(dev))->read_image(att);}
-	virtual bool is_allowed(Tango::DeviceImpl *dev,Tango::AttReqType ty)
-	{return (static_cast<LimaDetector *>(dev))->is_image_allowed(ty);}
-};
-
 class fileGenerationAttrib: public Tango::Attr
 {
 public:

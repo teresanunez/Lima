@@ -85,19 +85,22 @@ namespace LimaDetector_ns
 //
 //-----------------------------------------------------------------------------
 LimaDetector::LimaDetector(Tango::DeviceClass *cl,string &s)
-:Tango::Device_4Impl(cl,s.c_str())
+:Tango::Device_4Impl(cl,s.c_str()),
+m_dam(this)
 {
 	init_device();
 }
 
 LimaDetector::LimaDetector(Tango::DeviceClass *cl,const char *s)
-:Tango::Device_4Impl(cl,s)
+:Tango::Device_4Impl(cl,s),
+m_dam(this)
 {
 	init_device();
 }
 
 LimaDetector::LimaDetector(Tango::DeviceClass *cl,const char *s,const char *d)
-:Tango::Device_4Impl(cl,s,d)
+:Tango::Device_4Impl(cl,s,d),
+m_dam(this)
 {
 	init_device();
 }
@@ -125,7 +128,10 @@ void LimaDetector::delete_device()
 	DELETE_DEVSTRING_ATTRIBUTE(attr_detectorType_read);
 	DELETE_DEVSTRING_ATTRIBUTE(attr_detectorModel_read);
 	DELETE_DEVSTRING_ATTRIBUTE(attr_acquisitionMode_read);
-	DELETE_DEVSTRING_ATTRIBUTE(attr_triggerMode_read);	
+	DELETE_DEVSTRING_ATTRIBUTE(attr_triggerMode_read);
+	
+	//remove attributes from dam
+	m_dam.remove_attributes();
 	
 	// Delete control object via the factory
 	if(m_ct!=0)
@@ -142,7 +148,6 @@ void LimaDetector::delete_device()
 	
 	// Exit acquisition task
 	m_acquisition_task = NULL;
-	
 
 	//- remove the inner-appender
 	yat4tango::InnerAppender::release(this);
@@ -177,14 +182,13 @@ void LimaDetector::init_device()
 	}
 	catch( Tango::DevFailed& df )
 	{
-		ERROR_STREAM << df << std::endl;
+		ERROR_STREAM << df << endl;
 		this->set_state(Tango::INIT);
 		m_status_message <<"Initialization Failed :  could not instanciate the InnerAppender ! "<< endl;		
 		return;
 	}
 
-	
-	//By default INIT, need to ensure that all objets are OK beofre set the device to STANDBY
+	//By default INIT, need to ensure that all objets are OK before set the device to STANDBY
 	set_state(Tango::INIT);
 
 	get_device_property();
@@ -233,7 +237,39 @@ void LimaDetector::init_device()
 			set_state(Tango::INIT);		
 			return;			
 		}
+		
+		//- add image dynamic attribute
+		//- fix curentImageType of detector (16 bits, 32 bits, ...)
+		//- create image dyn attr (UChar, UShort or ULong)		
+		//@@TODO Template this code later .
+		HwDetInfoCtrlObj *hw_det_info;
+		m_hw->getHwCtrlObj(hw_det_info);
+		
+		DynamicAttributeInfo dai;
+		dai.dev = this;
+		dai.tai.name = "image";
+		dai.tai.data_format = Tango::IMAGE;
+		
+		switch(detectorPixelFormat)
+		{
+			case 8	: 	hw_det_info->setCurrImageType(Bpp8);
+						dai.tai.data_type = Tango::DEV_UCHAR;
+				break;			
+			case 32	: 	hw_det_info->setCurrImageType(Bpp32);
+						dai.tai.data_type = Tango::DEV_ULONG;
+				break;
+			default	: 	//by default 16 bits
+						hw_det_info->setCurrImageType(Bpp16);
+						dai.tai.data_type = Tango::DEV_USHORT;
+				break;
+		}
+		dai.tai.writable = Tango::READ;
+		dai.tai.disp_level = Tango::OPERATOR;
+		dai.rcb = DynamicAttributeReadCallback::instanciate(*this, &LimaDetector::read_image_callback);
+		//- add the attribute to the dam
+		m_dam.add_attribute(dai);
 
+		
 		//- prepare a listen (callback) to receive some notifications from framework
 		m_img_status_cb	= new ImageStatusCallback(*m_ct);
 		m_ct->registerImageStatusCallback(*m_img_status_cb);
@@ -251,18 +287,20 @@ void LimaDetector::init_device()
 		m_saving_par.framesPerFile 	= fileNbFrames;
 		m_saving_par.nbframes 		= attr_nbFrames_write;
 		
-		gdshare::String strFileFormat(fileFormat); 
-		if (strFileFormat.IsEqualsNoCase("NXS"))
+		string strFileFormat(fileFormat);
+		transform(strFileFormat.begin(), strFileFormat.end(),strFileFormat.begin(), ::toupper);
+		
+		if (strFileFormat.compare("NXS") == 0)
 		{			
 			m_saving_par.fileFormat = CtSaving::NXS;
 			m_saving_par.suffix = ".nxs";
 		}
-		else if(strFileFormat.IsEqualsNoCase("NXS"))
+		else if(strFileFormat.compare("EDF") == 0)
 		{
 			m_saving_par.fileFormat = CtSaving::EDF;
 			m_saving_par.suffix = ".edf";
 		}
-		else if(strFileFormat.IsEqualsNoCase("NXS"))
+		else if(strFileFormat.compare("CBF") == 0)
 		{			
 			m_saving_par.fileFormat = CtSaving::CBFFormat;
 			m_saving_par.suffix = ".cbf";			
@@ -274,7 +312,6 @@ void LimaDetector::init_device()
 		}
 
 		m_ct->saving()->setParameters(m_saving_par);
-		
 	}
 	catch(Exception& e)
 	{
@@ -308,6 +345,8 @@ void LimaDetector::init_device()
 	this->dev_state();
 }
 
+
+
 //+----------------------------------------------------------------------------
 //
 // method : 		LimaDetector::get_device_property()
@@ -326,6 +365,7 @@ void LimaDetector::get_device_property()
 	dev_prop.push_back(Tango::DbDatum("DetectorDescription"));
 	dev_prop.push_back(Tango::DbDatum("DetectorIP"));
 	dev_prop.push_back(Tango::DbDatum("DetectorType"));
+	dev_prop.push_back(Tango::DbDatum("DetectorPixelFormat"));
 	dev_prop.push_back(Tango::DbDatum("FileFormat"));
 	dev_prop.push_back(Tango::DbDatum("FilePrefix"));
 	dev_prop.push_back(Tango::DbDatum("FileIndexFormat"));
@@ -376,6 +416,17 @@ void LimaDetector::get_device_property()
 	}
 	//	And try to extract DetectorType value from database
 	if (dev_prop[i].is_empty()==false)	dev_prop[i]  >>  detectorType;
+
+	//	Try to initialize DetectorPixelFormat from class property
+	cl_prop = ds_class->get_class_property(dev_prop[++i].name);
+	if (cl_prop.is_empty()==false)	cl_prop  >>  detectorPixelFormat;
+	else {
+		//	Try to initialize DetectorPixelFormat from default device value
+		def_prop = ds_class->get_default_device_property(dev_prop[i].name);
+		if (def_prop.is_empty()==false)	def_prop  >>  detectorPixelFormat;
+	}
+	//	And try to extract DetectorPixelFormat value from database
+	if (dev_prop[i].is_empty()==false)	dev_prop[i]  >>  detectorPixelFormat;
 
 	//	Try to initialize FileFormat from class property
 	cl_prop = ds_class->get_class_property(dev_prop[++i].name);
@@ -474,6 +525,7 @@ void LimaDetector::get_device_property()
 	create_property_if_empty(dev_prop,"This is my simulator","DetectorDescription");	
 	create_property_if_empty(dev_prop,"0.0.0.0","DetectorIP");	
 	create_property_if_empty(dev_prop,"Simulator","DetectorType");
+	create_property_if_empty(dev_prop,"16","DetectorPixelFormat");
 	create_property_if_empty(dev_prop,"NXS","FileFormat");	
 	create_property_if_empty(dev_prop,"Image","FilePrefix");
 	create_property_if_empty(dev_prop,"%06d","FileIndexFormat");
@@ -559,7 +611,7 @@ void LimaDetector::read_detectorType(Tango::Attribute &attr)
 		HwDetInfoCtrlObj *hw_det_info;
 		m_hw->getHwCtrlObj(hw_det_info);
 
-		std::string str_detector_type;
+		string str_detector_type;
 		hw_det_info->getDetectorType(str_detector_type);
 	
 		strcpy(*attr_detectorType_read , str_detector_type.c_str());
@@ -601,7 +653,7 @@ void LimaDetector::read_detectorModel(Tango::Attribute &attr)
 		HwDetInfoCtrlObj *hw_det_info;
 		m_hw->getHwCtrlObj(hw_det_info);
 	
-		std::string str_detector_model;
+		string str_detector_model;
 		hw_det_info->getDetectorModel(str_detector_model);
 		
 		strcpy(*attr_detectorModel_read , str_detector_model.c_str());
@@ -1205,51 +1257,56 @@ void LimaDetector::read_currentFrame(Tango::Attribute &attr)
 
 //+----------------------------------------------------------------------------
 //
-// method : 		LimaDetector::read_image
+// method : 		LimaDetector::read_image_callback()
 // 
-// description : 	Extract real attribute values for image acquisition result.
+// description : 	
 //
 //-----------------------------------------------------------------------------
-void LimaDetector::read_image(Tango::Attribute &attr)
+void LimaDetector::read_image_callback(yat4tango::DynamicAttributeReadCallbackData& cbd)
 {
-	DEBUG_STREAM << "LimaDetector::read_image(Tango::Attribute &attr) entering... "<< endl;
+	DEBUG_STREAM << "LimaDetector::read_image_callback()"<<endl;//  << cbd.dya->get_name() << endl;
 	try
 	{
-		if(m_img_status_cb !=0)
+		//@@TODO Template this code later .
+		if((m_img_status_cb->get_last_image()->data())!=0 )
 		{
-			if(m_img_status_cb->get_image_number()!=0)
+			switch (cbd.dya->get_tango_data_type())
 			{
-				//- display the last image notified in ImageStatusCallback
-				if((Tango::DevUShort*)(m_img_status_cb->get_last_image()->data())!=0 )
-				{	
-					attr.set_value	(	(Tango::DevUShort*)( m_img_status_cb->get_last_image()->data()),
-										m_img_status_cb->get_last_image()->width,
-										m_img_status_cb->get_last_image()->height
-									);
-				}
+				case  TangoTraits<Tango::DevUChar>::type_id : 	cbd.tga->set_value((Tango::DevUChar*)m_img_status_cb->get_last_image()->data(),
+																					m_img_status_cb->get_last_image()->width,
+																					m_img_status_cb->get_last_image()->height);
+				break;
+				case  TangoTraits<Tango::DevULong>::type_id : 	cbd.tga->set_value( (Tango::DevULong*)m_img_status_cb->get_last_image()->data(),
+																					m_img_status_cb->get_last_image()->width,
+																					m_img_status_cb->get_last_image()->height);
+				break;
+				//by default 16 bits
+				default	:										cbd.tga->set_value( (Tango::DevUShort*)m_img_status_cb->get_last_image()->data(),
+																					m_img_status_cb->get_last_image()->width,
+																					m_img_status_cb->get_last_image()->height);
+				break;
 			}
 		}
 	}
 	catch(Tango::DevFailed& df)
 	{
 		ERROR_STREAM << df << endl;
-        //- rethrow exception
-        Tango::Except::re_throw_exception(df,
-					static_cast<const char*> ("TANGO_DEVICE_ERROR"),
-					static_cast<const char*> (string(df.errors[0].desc).c_str()),
-                    static_cast<const char*> ("LimaDetector::read_image"));
+		//- rethrow exception
+		Tango::Except::re_throw_exception(df,
+				static_cast<const char*> ("TANGO_DEVICE_ERROR"),
+				static_cast<const char*> (string(df.errors[0].desc).c_str()),
+				static_cast<const char*> ("LimaDetector::read_image_callback"));
 	}	
 	catch(Exception& e)
 	{
 		ERROR_STREAM << e.getErrMsg() << endl;
-        //- throw exception
-        Tango::Except::throw_exception(
-					static_cast<const char*> ("TANGO_DEVICE_ERROR"),
-					static_cast<const char*> (e.getErrMsg().c_str()),
-                    static_cast<const char*> ("LimaDetector::read_image"));		
+		//- throw exception
+		Tango::Except::throw_exception(
+			static_cast<const char*> ("TANGO_DEVICE_ERROR"),
+			static_cast<const char*> (e.getErrMsg().c_str()),
+			static_cast<const char*> ("LimaDetector::read_image_callback"));		
 	}				
 }
-
 
 //+----------------------------------------------------------------------------
 //
@@ -1693,6 +1750,8 @@ bool LimaDetector::create_acquisition_task(void)
 	return true;
 }
 
+
+
 //+----------------------------------------------------------------------------
 //
 // method : 		LimaDetector::print_acq_conf
@@ -1700,20 +1759,22 @@ bool LimaDetector::create_acquisition_task(void)
 //-----------------------------------------------------------------------------
 void LimaDetector::print_acq_conf(void)
 {
-	INFO_STREAM<<"-----------------------------------------------"<<std::endl;
+	INFO_STREAM<<"-----------------------------------------------"<<endl;
 	
-	INFO_STREAM<<"triggerMode\t\t = "		<<m_trigger_mode<<std::endl;
-	INFO_STREAM<<"acquisitionMode\t\t = "	<<m_acquisition_mode<<std::endl;
-	INFO_STREAM<<"exposureTime\t\t = "		<<*attr_exposureTime_read<<std::endl;
-	INFO_STREAM<<"exposureAccTime\t = "		<<*attr_exposureAccTime_read<<std::endl;
-	INFO_STREAM<<"temporaryPath\t\t = "		<<m_saving_par.temporaryPath<<std::endl;
-	INFO_STREAM<<"directory\t\t = "			<<m_saving_par.directory<<std::endl;
-	INFO_STREAM<<"prefix\t\t = "			<<m_saving_par.prefix<<std::endl;
-	INFO_STREAM<<"suffix\t\t = "			<<m_saving_par.suffix<<std::endl;
-	INFO_STREAM<<"indexFormat\t\t = "		<<m_saving_par.indexFormat<<std::endl;
-	INFO_STREAM<<"framesPerFile\t\t = "		<<m_saving_par.framesPerFile<<std::endl;
-	INFO_STREAM<<"nbframes\t\t = "			<<m_saving_par.nbframes<<std::endl;
-	INFO_STREAM<<"fileGeneration\t\t = "	<<attr_fileGeneration_write<<std::endl;	
+	
+	INFO_STREAM<<"PixelFormat\t\t = "		<<detectorPixelFormat<<endl;
+	INFO_STREAM<<"triggerMode\t\t = "		<<m_trigger_mode<<endl;
+	INFO_STREAM<<"acquisitionMode\t\t = "	<<m_acquisition_mode<<endl;
+	INFO_STREAM<<"exposureTime\t\t = "		<<*attr_exposureTime_read<<endl;
+	INFO_STREAM<<"exposureAccTime\t = "		<<*attr_exposureAccTime_read<<endl;
+	INFO_STREAM<<"temporaryPath\t\t = "		<<m_saving_par.temporaryPath<<endl;
+	INFO_STREAM<<"directory\t\t = "			<<m_saving_par.directory<<endl;
+	INFO_STREAM<<"prefix\t\t = "			<<m_saving_par.prefix<<endl;
+	INFO_STREAM<<"suffix\t\t = "			<<m_saving_par.suffix<<endl;
+	INFO_STREAM<<"indexFormat\t\t = "		<<m_saving_par.indexFormat<<endl;
+	INFO_STREAM<<"framesPerFile\t\t = "		<<m_saving_par.framesPerFile<<endl;
+	INFO_STREAM<<"nbframes\t\t = "			<<m_saving_par.nbframes<<endl;
+	INFO_STREAM<<"fileGeneration\t\t = "	<<attr_fileGeneration_write<<endl;	
 	Roi roi;
 	HwRoiCtrlObj *hw_roi;
 	m_hw->getHwCtrlObj(hw_roi);
@@ -1725,10 +1786,10 @@ void LimaDetector::print_acq_conf(void)
 									<<roi.getSize().getWidth()	<<" , "
 									<<roi.getSize().getHeight()	<<
 								"]"
-					<<std::endl;
+					<<endl;
 	}
 	
-	INFO_STREAM<<"-----------------------------------------------"<<std::endl;	
+	INFO_STREAM<<"-----------------------------------------------"<<endl;	
 }
 
 /*-------------------------------------------------------------------------
@@ -1808,7 +1869,6 @@ int LimaDetector::FindIndexFromPropertyName(Tango::DbData& dev_prop, string prop
 	if (i == iNbProperties) return -1;
 	return i;
 }
-
 
 
 

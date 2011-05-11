@@ -68,55 +68,75 @@ Revision:  - Author:
 
 <Tr><Td><b><a href=#Dev_DefaultValues>DetectorIP </a></b></Td>
 <Td><Font Size=-1>Tango::DEV_STRING</Font></Td>
-<Td><Font Size=-1>Ip Address of the Detector</Font></Td></Tr>
+<Td><Font Size=-1>Ip Address of the Detector if necessary, NA otherwise.</Font></Td></Tr>
 
 <Tr><Td><b><a href=#Dev_DefaultValues>DetectorType </a></b></Td>
 <Td><Font Size=-1>Tango::DEV_STRING</Font></Td>
-<Td><Font Size=-1>Define the type of the connected Detector .<cr>
-i.e:<cr>
-Basler<cr>
-Simulator<cr>
+<Td><Font Size=-1>Define the type of the connected Detector .<BR>
+Availables types :<BR>
+Basler<BR>
+Simulator<BR>
+Xpad<BR>
+Pilatus<BR>
+
 </Font></Td></Tr>
+
+<Tr><Td><b><a href=#Dev_DefaultValues>DetectorPixelFormat </a></b></Td>
+<Td><Font Size=-1>Tango::DEV_USHORT</Font></Td>
+<Td><Font Size=-1>Define the pixel depth of the detecor (8, 16, 32).</Font></Td></Tr>
 
 <Tr><Td><b><a href=#Dev_DefaultValues>FileFormat </a></b></Td>
 <Td><Font Size=-1>Tango::DEV_STRING</Font></Td>
-<Td><Font Size=-1>Define the format of image files :<cr>
-- EDF
-- NXS
-- RAW
+<Td><Font Size=-1>Define the format of image files :<BR>
+- EDF<BR>
+- NXS<BR>
+- RAW<BR>
 </Font></Td></Tr>
 
 <Tr><Td><b><a href=#Dev_DefaultValues>FilePrefix </a></b></Td>
 <Td><Font Size=-1>Tango::DEV_STRING</Font></Td>
-<Td><Font Size=-1>Define the prefix used for the image files name.<cr></Font></Td></Tr>
+<Td><Font Size=-1>Define the prefix used for the image files name.</Font></Td></Tr>
 
 <Tr><Td><b><a href=#Dev_DefaultValues>FileIndexFormat </a></b></Td>
 <Td><Font Size=-1>Tango::DEV_STRING</Font></Td>
-<Td><Font Size=-1>Define the format of the index used for image files names.<cr></Font></Td></Tr>
+<Td><Font Size=-1>Define the format of the index used for image files names.</Font></Td></Tr>
 
 <Tr><Td><b><a href=#Dev_DefaultValues>FileNbFrames </a></b></Td>
 <Td><Font Size=-1>Tango::DEV_SHORT</Font></Td>
-<Td><Font Size=-1>Define the number of frames per file.<cr></Font></Td></Tr>
+<Td><Font Size=-1>Define the number of frames per file.</Font></Td></Tr>
 
 <Tr><Td><b><a href=#Dev_DefaultValues>FileTemporaryPath </a></b></Td>
 <Td><Font Size=-1>Tango::DEV_STRING</Font></Td>
-<Td><Font Size=-1>Define the root path for temporary generated files.<BR>
-[default = .]</Font></Td></Tr>
+<Td><Font Size=-1>Define the root path for temporary generated files.</Font></Td></Tr>
 
 <Tr><Td><b><a href=#Dev_DefaultValues>FileTargetPath </a></b></Td>
 <Td><Font Size=-1>Tango::DEV_STRING</Font></Td>
-<Td><Font Size=-1>Define the Path where Files will be generated, only when savingFile is checked.<br>
-[default = ./data]
+<Td><Font Size=-1>Define the Path where Files will be generated, only when savingFile is checked.
 
 </Font></Td></Tr>
 
 <Tr><Td><b><a href=#Dev_DefaultValues>DebugModules </a></b></Td>
 <Td><Font Size=-1>Array of string</Font></Td>
-<Td><Font Size=-1>Define Lima Modules for which we need some traces in the console.</Font></Td></Tr>
+<Td><Font Size=-1>Define Lima Modules for which we need some traces in the console.<BR>
+Availables values :<BR>
+None<BR>
+Hardware<BR>
+Control<BR>
+Common<BR>
+Camera<BR></Font></Td></Tr>
 
 <Tr><Td><b><a href=#Dev_DefaultValues>DebugLevels </a></b></Td>
 <Td><Font Size=-1>Array of string</Font></Td>
-<Td><Font Size=-1>Define Lima verbose level of traces in the console.</Font></Td></Tr>
+<Td><Font Size=-1>Define Lima verbose level of traces in the console.<BR>
+Availables values :<BR>
+Fatal<BR>
+Error<BR>
+Warning<BR>
+Trace<BR>
+Funct<BR>
+Param<BR>
+Return<BR>
+Always<BR></Font></Td></Tr>
 
 </Table>
 
@@ -142,6 +162,10 @@ Simulator<cr>
     <Tr>
         <Td>DetectorType</Td>
         <td>Simulator</td>
+    </Tr>
+    <Tr>
+        <Td>DetectorPixelFormat</Td>
+        <td>16</td>
     </Tr>
     <Tr>
         <Td>FileFormat</Td>
