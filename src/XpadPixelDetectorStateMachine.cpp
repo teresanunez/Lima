@@ -373,5 +373,25 @@ bool XpadPixelDetector::is_LoadAutoTest_allowed(const CORBA::Any &any)
 	}
 	return true;
 }
+//+----------------------------------------------------------------------------
+//
+// method : 		XpadPixelDetector::is_GetDacl_allowed
+// 
+// description : 	Execution allowed for GetDacl command.
+//
+//-----------------------------------------------------------------------------
+bool XpadPixelDetector::is_GetDacl_allowed(const CORBA::Any &any)
+{
+	if (get_state() == Tango::INIT	||
+		get_state() == Tango::RUNNING	||
+		get_state() == Tango::FAULT)
+	{
+		//	End of Generated Code
+
+		//	Re-Start of Generated Code
+		return false;
+	}
+	return true;
+}
 
 }	// namespace XpadPixelDetector_ns

@@ -120,10 +120,6 @@ public :
  */
 //@{
 /**
- *	Depth of the pixels: can be 2 or 4 (bytes)
- */
-	Tango::DevShort	pixelDepth;
-/**
  *	Type of Acquisition:
  *	0->slow (readOneImage)
  *	1->fast (getImgSeq)
@@ -389,6 +385,10 @@ public :
  */
 	virtual bool is_LoadAutoTest_allowed(const CORBA::Any &any);
 /**
+ *	Execution allowed for GetDacl command.
+ */
+	virtual bool is_GetDacl_allowed(const CORBA::Any &any);
+/**
  * This command gets the device state (stored in its <i>device_state</i> data member) and returns it to the caller.
  *	@return	State Code
  *	@exception DevFailed
@@ -429,6 +429,12 @@ public :
  *	@exception DevFailed
  */
 	void	load_auto_test(Tango::DevULong);
+/**
+ * Get the DACL values and refresh the dacl attribute
+ *	@return	DACL values
+ *	@exception DevFailed
+ */
+	Tango::DevVarUShortArray	*get_dacl();
 
 /**
  *	Read the device properties from database
@@ -447,6 +453,8 @@ protected :
 
 	bool 			m_is_device_initialized ;
 	stringstream	m_status_message;
+	Tango::DevUShort* my_attr_dacl_write;
+	Tango::DevUShort* my_attr_ithl_write;
 
 	void set_all_f_parameters();
 

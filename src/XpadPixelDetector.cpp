@@ -53,6 +53,7 @@ static const char *RcsId = "$Id:  $";
 //  LoadAllConfigG  |  load_all_config_g()
 //  LoadConfigG     |  load_config_g()
 //  LoadAutoTest    |  load_auto_test()
+//  GetDacl         |  get_dacl()
 //
 //===================================================================
 
@@ -115,6 +116,11 @@ void XpadPixelDetector::delete_device()
 	DELETE_SCALAR_ATTRIBUTE(attr_gp2_read);
 	DELETE_SCALAR_ATTRIBUTE(attr_gp3_read);
 	DELETE_SCALAR_ATTRIBUTE(attr_gp4_read);
+
+	DELETE_IMAGE_ATTRIBUTE(attr_dacl_read);
+	DELETE_IMAGE_ATTRIBUTE(attr_ithl_read);
+	DELETE_IMAGE_ATTRIBUTE(my_attr_dacl_write);
+	DELETE_IMAGE_ATTRIBUTE(my_attr_ithl_write);
 	
 	//!!!! ONLY LimaDetector device can do this !!!!
 	//if(m_ct!=0)
@@ -150,6 +156,12 @@ void XpadPixelDetector::init_device()
 	CREATE_SCALAR_ATTRIBUTE(attr_gp2_read);
 	CREATE_SCALAR_ATTRIBUTE(attr_gp3_read);
 	CREATE_SCALAR_ATTRIBUTE(attr_gp4_read);
+
+	CREATE_IMAGE_ATTRIBUTE(attr_dacl_read,560,960);
+	CREATE_IMAGE_ATTRIBUTE(attr_ithl_read,7,8);
+
+	CREATE_IMAGE_ATTRIBUTE(my_attr_dacl_write,560,960);
+	CREATE_IMAGE_ATTRIBUTE(my_attr_ithl_write,7,8);
 
 	m_is_device_initialized = true;
 	set_state(Tango::INIT);		
@@ -238,7 +250,6 @@ void XpadPixelDetector::get_device_property()
 	//	Read device properties from database.(Automatic code generation)
 	//------------------------------------------------------------------
 	Tango::DbData	dev_prop;
-	dev_prop.push_back(Tango::DbDatum("PixelDepth"));
 	dev_prop.push_back(Tango::DbDatum("AcquisitionType"));
 	dev_prop.push_back(Tango::DbDatum("AllConfigG"));
 
@@ -250,17 +261,6 @@ void XpadPixelDetector::get_device_property()
 	XpadPixelDetectorClass	*ds_class =
 		(static_cast<XpadPixelDetectorClass *>(get_device_class()));
 	int	i = -1;
-
-	//	Try to initialize PixelDepth from class property
-	cl_prop = ds_class->get_class_property(dev_prop[++i].name);
-	if (cl_prop.is_empty()==false)	cl_prop  >>  pixelDepth;
-	else {
-		//	Try to initialize PixelDepth from default device value
-		def_prop = ds_class->get_default_device_property(dev_prop[i].name);
-		if (def_prop.is_empty()==false)	def_prop  >>  pixelDepth;
-	}
-	//	And try to extract PixelDepth value from database
-	if (dev_prop[i].is_empty()==false)	dev_prop[i]  >>  pixelDepth;
 
 	//	Try to initialize AcquisitionType from class property
 	cl_prop = ds_class->get_class_property(dev_prop[++i].name);
@@ -661,6 +661,8 @@ void XpadPixelDetector::write_gp1(Tango::WAttribute &attr)
 void XpadPixelDetector::read_dacl(Tango::Attribute &attr)
 {
 	DEBUG_STREAM << "XpadPixelDetector::read_dacl(Tango::Attribute &attr) entering... "<< endl;
+
+	attr.set_value(attr_dacl_read);
 }
 
 //+----------------------------------------------------------------------------
@@ -673,6 +675,22 @@ void XpadPixelDetector::read_dacl(Tango::Attribute &attr)
 void XpadPixelDetector::write_dacl(Tango::WAttribute &attr)
 {
 	DEBUG_STREAM << "XpadPixelDetector::write_dacl(Tango::WAttribute &attr) entering... "<< endl;
+
+	attr.get_write_value(my_attr_dacl_write);
+
+	try
+	{
+		m_hw->saveAndloadDacl(my_attr_dacl_write);
+	}
+	catch(Exception& e)
+	{
+		ERROR_STREAM << e.getErrMsg() << endl;
+		//- throw exception
+		Tango::Except::throw_exception(
+					static_cast<const char*> ("TANGO_DEVICE_ERROR"),
+					static_cast<const char*> (e.getErrMsg().c_str()),
+					static_cast<const char*> ("XpadPixelDetector::write_dacl"));
+	}
 }
 
 //+----------------------------------------------------------------------------
@@ -685,6 +703,8 @@ void XpadPixelDetector::write_dacl(Tango::WAttribute &attr)
 void XpadPixelDetector::read_ithl(Tango::Attribute &attr)
 {
 	DEBUG_STREAM << "XpadPixelDetector::read_ithl(Tango::Attribute &attr) entering... "<< endl;
+
+	attr.set_value(attr_ithl_read);
 }
 
 //+----------------------------------------------------------------------------
@@ -697,8 +717,9 @@ void XpadPixelDetector::read_ithl(Tango::Attribute &attr)
 void XpadPixelDetector::write_ithl(Tango::WAttribute &attr)
 {
 	DEBUG_STREAM << "XpadPixelDetector::write_ithl(Tango::WAttribute &attr) entering... "<< endl;
-}
 
+	attr.get_write_value(my_attr_ithl_write);
+}
 
 
 //+------------------------------------------------------------------
@@ -948,5 +969,52 @@ Tango::DevState XpadPixelDetector::dev_state()
 	return argout;
 }
 
+
+
+//+------------------------------------------------------------------
+/**
+ *	method:	XpadPixelDetector::get_dacl
+ *
+ *	description:	method to execute "GetDacl"
+ *	Get the DACL values and refresh the dacl attribute
+ *
+ * @return	DACL values
+ *
+ */
+//+------------------------------------------------------------------
+Tango::DevVarUShortArray *XpadPixelDetector::get_dacl()
+{
+	//	POGO has generated a method core with argout allocation.
+	//	If you would like to use a static reference without copying,
+	//	See "TANGO Device Server Programmer's Manual"
+	//		(chapter : Writing a TANGO DS / Exchanging data)
+	//------------------------------------------------------------
+	Tango::DevVarUShortArray	*argout  = new Tango::DevVarUShortArray();
+	argout->length(1);
+	(*argout)[0] = 0;
+	DEBUG_STREAM << "XpadPixelDetector::get_dacl(): entering... !" << endl;
+
+	//	Add your own code to control device here
+
+	try
+	{
+		vector<uint16_t> dacl_values;
+		dacl_values = m_hw->getDacl();
+
+		//- *attr_dacl_read = dacl_values;
+	}
+	catch(Exception& e)
+	{
+		ERROR_STREAM << e.getErrMsg() << endl;
+		//- throw exception
+		Tango::Except::throw_exception(
+			static_cast<const char*> ("TANGO_DEVICE_ERROR"),
+			static_cast<const char*> (e.getErrMsg().c_str()),
+			static_cast<const char*> ("XpadPixelDetector::get_dacl"));
+	}
+
+
+	return argout;
+}
 
 }	//	namespace

@@ -61,6 +61,27 @@ namespace XpadPixelDetector_ns
 {
 //+----------------------------------------------------------------------------
 //
+// method : 		GetDaclClass::execute()
+// 
+// description : 	method to trigger the execution of the command.
+//                PLEASE DO NOT MODIFY this method core without pogo   
+//
+// in : - device : The device on which the command must be executed
+//		- in_any : The command input data
+//
+// returns : The command output data (packed in the Any object)
+//
+//-----------------------------------------------------------------------------
+CORBA::Any *GetDaclClass::execute(Tango::DeviceImpl *device,const CORBA::Any &in_any)
+{
+
+	cout2 << "GetDaclClass::execute(): arrived" << endl;
+
+	return insert((static_cast<XpadPixelDetector *>(device))->get_dacl());
+}
+
+//+----------------------------------------------------------------------------
+//
 // method : 		LoadAutoTestClass::execute()
 // 
 // description : 	method to trigger the execution of the command.
@@ -265,6 +286,11 @@ void XpadPixelDetectorClass::command_factory()
 		"value to be loaded",
 		"",
 		Tango::OPERATOR));
+	command_list.push_back(new GetDaclClass("GetDacl",
+		Tango::DEV_VOID, Tango::DEVVAR_USHORTARRAY,
+		"",
+		"DACL values",
+		Tango::OPERATOR));
 
 	//	add polling if any
 	for (unsigned int i=0 ; i<command_list.size(); i++)
@@ -450,6 +476,9 @@ void XpadPixelDetectorClass::attribute_factory(vector<Tango::Attr *> &att_list)
 
 	//	Attribute : dacl
 	daclAttrib	*dacl = new daclAttrib();
+	Tango::UserDefaultAttrProp	dacl_prop;
+	dacl_prop.set_description("Dacl values (refreshed by the execution of the command GetDacl)");
+	dacl->set_default_properties(dacl_prop);
 	att_list.push_back(dacl);
 
 	//	Attribute : ithl
@@ -507,21 +536,6 @@ void XpadPixelDetectorClass::set_default_property()
 	vector<string>	vect_data;
 	//	Set Default Class Properties
 	//	Set Default Device Properties
-	prop_name = "PixelDepth";
-	prop_desc = "Depth of the pixels: can be 2 or 4 (bytes)";
-	prop_def  = "2";
-	vect_data.clear();
-	vect_data.push_back("2");
-	if (prop_def.length()>0)
-	{
-		Tango::DbDatum	data(prop_name);
-		data << vect_data ;
-		dev_def_prop.push_back(data);
-		add_wiz_dev_prop(prop_name, prop_desc,  prop_def);
-	}
-	else
-		add_wiz_dev_prop(prop_name, prop_desc);
-
 	prop_name = "AcquisitionType";
 	prop_desc = "Type of Acquisition:\n0->slow (readOneImage)\n1->fast (getImgSeq)";
 	prop_def  = "1";

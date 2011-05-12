@@ -230,6 +230,30 @@ public:
 //=========================================
 //	Define classes for commands
 //=========================================
+class GetDaclClass : public Tango::Command
+{
+public:
+	GetDaclClass(const char   *name,
+	               Tango::CmdArgType in,
+				   Tango::CmdArgType out,
+				   const char        *in_desc,
+				   const char        *out_desc,
+				   Tango::DispLevel  level)
+	:Command(name,in,out,in_desc,out_desc, level)	{};
+
+	GetDaclClass(const char   *name,
+	               Tango::CmdArgType in,
+				   Tango::CmdArgType out)
+	:Command(name,in,out)	{};
+	~GetDaclClass() {};
+	
+	virtual CORBA::Any *execute (Tango::DeviceImpl *dev, const CORBA::Any &any);
+	virtual bool is_allowed (Tango::DeviceImpl *dev, const CORBA::Any &any)
+	{return (static_cast<XpadPixelDetector *>(dev))->is_GetDacl_allowed(any);}
+};
+
+
+
 class LoadAutoTestClass : public Tango::Command
 {
 public:
