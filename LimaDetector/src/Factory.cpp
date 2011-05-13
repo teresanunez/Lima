@@ -23,6 +23,7 @@ CtControl* ControlFactory::get_control( const string& detector_type, const strin
 			return my_control;      
 		}
 	}
+#ifdef BASLER_ENABLED
 	else if (detector_type.compare("Basler")== 0)
 	{	
 		if(!ControlFactory::is_created)
@@ -35,6 +36,8 @@ CtControl* ControlFactory::get_control( const string& detector_type, const strin
 			return my_control;
 		}
 	}
+#endif
+#ifdef XPAD_ENABLED	
 	else if (detector_type.compare("XpadPixelDetector")== 0)
 	{	
 	
@@ -48,6 +51,8 @@ CtControl* ControlFactory::get_control( const string& detector_type, const strin
 			return my_control;
 		}
 	}
+#endif	
+#ifdef PILATUS_ENABLED	
 	else if (detector_type.compare("Pilatus")== 0)
 	{	
 	
@@ -61,6 +66,7 @@ CtControl* ControlFactory::get_control( const string& detector_type, const strin
 			return my_control;
 		}
 	}
+#endif	
 	else
 	{
 		//return 0 to indicate an ERROR
@@ -82,24 +88,30 @@ void ControlFactory::reset(const string& detector_type )
 			delete my_camera_simulator;     my_camera_simulator = 0;  
 			delete my_interface_simulator;  my_interface_simulator = 0;
 		}
+#ifdef BASLER_ENABLED		
 		else if (detector_type.compare("Basler")==0)
 		{          
 			//- do not delete because its a YAT Task			
 			my_camera_basler->exit();       my_camera_basler = 0;
 			delete my_interface_basler;     my_interface_basler = 0;
 		}
+#endif		
+#ifdef XPAD_ENABLED		
 		else if (detector_type.compare("XpadPixelDetector")==0)
 		{          
 			//- do not delete because its a YAT Task
 			my_xpad_camera->exit();       my_xpad_camera = 0;
 			delete my_xpad_interface;     my_xpad_interface = 0;
 		}
+#endif		
+#ifdef PILATUS_ENABLED		
 		else if (detector_type.compare("Pilatus")==0)
 		{          
 			//- do not delete because its a YAT Task			
 			my_camera_pilatus->exit();       my_camera_pilatus = 0;
 			delete my_interface_pilatus;     my_interface_pilatus = 0;
-		}		
+		}
+#endif		
 		else
 		{
 			///

@@ -38,9 +38,18 @@ static const char *RcsId = "$Id:  $";
 #include <tango.h>
 #include <LimaDetectorClass.h>
 #include <SimulatorCCDClass.h>
-#include <BaslerCCDClass.h>
-#include <PilatusClass.h>
-#include <XpadPixelDetectorClass.h>
+
+#ifdef BASLER_ENABLED
+	#include <BaslerCCDClass.h>
+#endif
+
+#ifdef PILATUS_ENABLED
+	#include <PilatusClass.h>
+#endif
+
+#ifdef XPAD_ENABLED
+	#include <XpadPixelDetectorClass.h>
+#endif
 
 
 /**
@@ -51,7 +60,15 @@ void Tango::DServer::class_factory()
 {
 	add_class(LimaDetector_ns::LimaDetectorClass::init("LimaDetector"));
 	add_class(SimulatorCCD_ns::SimulatorCCDClass::init("SimulatorCCD"));
+#ifdef BASLER_ENABLED
 	add_class(BaslerCCD_ns::BaslerCCDClass::init("BaslerCCD"));
+#endif
+
+#ifdef PILATUS_ENABLED
 	add_class(Pilatus_ns::PilatusClass::init("Pilatus"));
+#endif
+
+#ifdef XPAD_ENABLED	
 	add_class(XpadPixelDetector_ns::XpadPixelDetectorClass::init("XpadPixelDetector"));
+#endif
 }
