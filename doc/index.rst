@@ -212,7 +212,7 @@ Configuration device
   frelon
   maxipix
   pilatus
-  
+  prosilica 
 
 Calculation devices
 -------------------
