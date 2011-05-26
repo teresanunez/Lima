@@ -613,10 +613,10 @@ void LimaDetectorClass::set_default_property()
 		add_wiz_dev_prop(prop_name, prop_desc);
 
 	prop_name = "DetectorType";
-	prop_desc = "Define the type of the connected Detector .<BR>\nAvailables types :<BR>\nBasler<BR>\nSimulator<BR>\nXpadPixelDetector<BR>\nPilatus<BR>\n\n";
-	prop_def  = "Simulator";
+	prop_desc = "Define the type of the connected Detector .<BR>\nAvailables types :<BR>\nBaslerCCD<BR>\nSimulatorCCD<BR>\nXpadPixelDetector<BR>\nPilatusPixelDetector<BR>\n\n";
+	prop_def  = "SimulatorCCD";
 	vect_data.clear();
-	vect_data.push_back("Simulator");
+	vect_data.push_back("SimulatorCCD");
 	if (prop_def.length()>0)
 	{
 		Tango::DbDatum	data(prop_name);

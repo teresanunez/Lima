@@ -537,7 +537,7 @@ void LimaDetector::get_device_property()
 	create_property_if_empty(dev_prop,"This is my simulator","DetectorDescription");	
 	create_property_if_empty(dev_prop,"0.0.0.0","DetectorIP");
 	create_property_if_empty(dev_prop,"-1","DetectorPort");	
-	create_property_if_empty(dev_prop,"Simulator","DetectorType");
+	create_property_if_empty(dev_prop,"SimulatorCCD","DetectorType");
 	create_property_if_empty(dev_prop,"16","DetectorPixelFormat");
 	create_property_if_empty(dev_prop,"NXS","FileFormat");	
 	create_property_if_empty(dev_prop,"Image","FilePrefix");
@@ -1891,6 +1891,7 @@ int LimaDetector::FindIndexFromPropertyName(Tango::DbData& dev_prop, string prop
 	if (i == iNbProperties) return -1;
 	return i;
 }
+
 
 
 

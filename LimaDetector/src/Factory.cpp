@@ -14,7 +14,7 @@ CtControl* ControlFactory::get_control( const string& detector_type, const strin
 		if(!is_master)
 			return my_control;
 	
-		if (detector_type.compare("Simulator")== 0)
+		if (detector_type.compare("SimulatorCCD")== 0)
 		{	    
 			if(!ControlFactory::is_created)
 			{
@@ -26,7 +26,7 @@ CtControl* ControlFactory::get_control( const string& detector_type, const strin
 			}
 		}
 	#ifdef BASLER_ENABLED
-		else if (detector_type.compare("Basler")== 0)
+		else if (detector_type.compare("BaslerCCD")== 0)
 		{	
 			if(!ControlFactory::is_created)
 			{
@@ -55,7 +55,7 @@ CtControl* ControlFactory::get_control( const string& detector_type, const strin
 		}
 	#endif	
 	#ifdef PILATUS_ENABLED	
-		else if (detector_type.compare("Pilatus")== 0)
+		else if (detector_type.compare("PilatusPixelDetector")== 0)
 		{	
 		
 			if(!ControlFactory::is_created)
@@ -89,14 +89,14 @@ void ControlFactory::reset(const string& detector_type )
 	if(ControlFactory::is_created)
 	{    
 		delete my_control;                my_control = 0;      
-		if (detector_type.compare("Simulator")== 0)
+		if (detector_type.compare("SimulatorCCD")== 0)
 		{
 			my_camera_simulator->reset(); 
 			delete my_camera_simulator;     my_camera_simulator = 0;  
 			delete my_interface_simulator;  my_interface_simulator = 0;
 		}
 #ifdef BASLER_ENABLED		
-		else if (detector_type.compare("Basler")==0)
+		else if (detector_type.compare("BaslerCCD")==0)
 		{          
 			//- do not delete because its a YAT Task			
 			my_camera_basler->exit();       my_camera_basler = 0;
@@ -112,7 +112,7 @@ void ControlFactory::reset(const string& detector_type )
 		}
 #endif		
 #ifdef PILATUS_ENABLED		
-		else if (detector_type.compare("Pilatus")==0)
+		else if (detector_type.compare("PilatusPixelDetector")==0)
 		{          
 			delete my_camera_pilatus;        my_camera_pilatus = 0;
 			delete my_interface_pilatus;     my_interface_pilatus = 0;

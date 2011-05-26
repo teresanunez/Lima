@@ -103,7 +103,7 @@ void BaslerCCD::delete_device()
 	//!!!! ONLY LimaDetector device can do this !!!!
 	//if(m_ct!=0)
 	//{
-	//	ControlFactory::instance().reset("Basler");
+	//	ControlFactory::instance().reset("BaslerCCD");
 	//	m_ct = 0;
 	//}
 }	
@@ -132,7 +132,7 @@ void BaslerCCD::init_device()
 		//- get the main object used to pilot the lima framework
 		//in fact LimaDetector is create the singleton control objet
 		//so this call, will only return existing object, no need to give it the ip !!
-		m_ct = ControlFactory::instance().get_control("Basler");		
+		m_ct = ControlFactory::instance().get_control("BaslerCCD");		
 		if(m_ct==0)
 		{
 			INFO_STREAM<<"Initialization Failed : Unable to get the lima control object !"<<endl;
@@ -208,7 +208,7 @@ void BaslerCCD::always_executed_hook()
 	//- get the main object used to pilot the lima framework
 	//in fact LimaCCD is create the singleton control objet
 	//so this call, will only return existing object, no need to give it the ip !!
-	m_ct = ControlFactory::instance().get_control("Basler");
+	m_ct = ControlFactory::instance().get_control("BaslerCCD");
 	
 	//- get interface to specific detector
 	if(m_ct!=0)

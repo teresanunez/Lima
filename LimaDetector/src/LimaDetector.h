@@ -251,10 +251,10 @@ public :
 /**
  *	Define the type of the connected Detector .<BR>
  *	Availables types :<BR>
- *	Basler<BR>
- *	Simulator<BR>
+ *	BaslerCCD<BR>
+ *	SimulatorCCD<BR>
  *	XpadPixelDetector<BR>
- *	Pilatus<BR>
+ *	PilatusPixelDetector<BR>
  *	
  *	
  */

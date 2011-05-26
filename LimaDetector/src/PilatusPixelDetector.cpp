@@ -102,7 +102,7 @@ void Pilatus::delete_device()
 	//!!!! ONLY LimaDetector device can do this !!!!
 	//if(m_ct!=0)
 	//{
-	//	ControlFactory::instance().reset("Pilatus");
+	//	ControlFactory::instance().reset("PilatusPixelDetector");
 	//	m_ct = 0;
 	//}
 }
@@ -128,7 +128,7 @@ void Pilatus::init_device()
 		//- get the main object used to pilot the lima framework
 		//in fact LimaDetector is create the singleton control objet
 		//so this call, will only return existing object, no need to give it the ip !!
-		m_ct = ControlFactory::instance().get_control("Pilatus");
+		m_ct = ControlFactory::instance().get_control("PilatusPixelDetector");
 		if(m_ct==0)
 		{
 			INFO_STREAM<<"Initialization Failed : Unable to get the lima control object !"<<endl;
@@ -183,7 +183,7 @@ void Pilatus::always_executed_hook()
 	//- get the main object used to pilot the lima framework
 	//in fact LimaCCD is create the singleton control objet
 	//so this call, will only return existing object, no need to give it the ip !!
-	m_ct = ControlFactory::instance().get_control("Pilatus");
+	m_ct = ControlFactory::instance().get_control("PilatusPixelDetector");
 	
 	//- get interface to specific detector
 	if(m_ct!=0)

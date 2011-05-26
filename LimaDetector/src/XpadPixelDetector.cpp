@@ -125,7 +125,7 @@ void XpadPixelDetector::delete_device()
 	//!!!! ONLY LimaDetector device can do this !!!!
 	//if(m_ct!=0)
 	//{
-	//	ControlFactory::instance().reset("Simulator");
+	//	ControlFactory::instance().reset("SimulatorCCD");
 	//	m_ct = 0;
 	//}
 }
