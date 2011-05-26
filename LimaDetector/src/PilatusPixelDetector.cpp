@@ -55,8 +55,8 @@ static const char *RcsId = "$Id:  $";
 
 #include <tango.h>
 #include <PogoHelper.h>
-#include <Pilatus.h>
-#include <PilatusClass.h>
+#include <PilatusPixelDetector.h>
+#include <PilatusPixelDetectorClass.h>
 
 namespace Pilatus_ns
 {
@@ -98,7 +98,6 @@ Pilatus::Pilatus(Tango::DeviceClass *cl,const char *s,const char *d)
 void Pilatus::delete_device()
 {
 	//	Delete device allocated objects
-	DELETE_SCALAR_ATTRIBUTE(attr_exposureTime_read);
 	
 	//!!!! ONLY LimaDetector device can do this !!!!
 	//if(m_ct!=0)
@@ -121,7 +120,6 @@ void Pilatus::init_device()
 
 	// Initialise variables to default values
 	//--------------------------------------------
-	CREATE_SCALAR_ATTRIBUTE(attr_exposureTime_read,1.0);
 	m_is_device_initialized = false;
 	m_status_message.str("");
 	
@@ -130,7 +128,7 @@ void Pilatus::init_device()
 		//- get the main object used to pilot the lima framework
 		//in fact LimaDetector is create the singleton control objet
 		//so this call, will only return existing object, no need to give it the ip !!
-		m_ct = ControlFactory::instance().get_control("Pilatus","0.0.0.0", false);
+		m_ct = ControlFactory::instance().get_control("Pilatus");
 		if(m_ct==0)
 		{
 			INFO_STREAM<<"Initialization Failed : Unable to get the lima control object !"<<endl;
@@ -141,7 +139,7 @@ void Pilatus::init_device()
 		}
 		
 		//- get interface to specific camera
-		m_hw = dynamic_cast<Pilatus_cpp::Interface*>(m_ct->hwInterface());
+		m_hw = dynamic_cast<PilatusCpp::Interface*>(m_ct->hwInterface());
 		if(m_hw==0)
 		{
 			INFO_STREAM<<"Initialization Failed : Unable to get the interface of camera plugin !"<<endl;
@@ -185,101 +183,13 @@ void Pilatus::always_executed_hook()
 	//- get the main object used to pilot the lima framework
 	//in fact LimaCCD is create the singleton control objet
 	//so this call, will only return existing object, no need to give it the ip !!
-	m_ct = ControlFactory::instance().get_control("Pilatus","0.0.0.0", false);
+	m_ct = ControlFactory::instance().get_control("Pilatus");
 	
 	//- get interface to specific detector
 	if(m_ct!=0)
-		m_hw = dynamic_cast<Pilatus_cpp::Interface*>(m_ct->hwInterface());
-}
-//+----------------------------------------------------------------------------
-//
-// method : 		Pilatus::read_attr_hardware
-// 
-// description : 	Hardware acquisition for attributes.
-//
-//-----------------------------------------------------------------------------
-void Pilatus::read_attr_hardware(vector<long> &attr_list)
-{
-	DEBUG_STREAM << "Pilatus::read_attr_hardware(vector<long> &attr_list) entering... "<< endl;
-	//	Add your own code here
-}
-//+----------------------------------------------------------------------------
-//
-// method : 		Pilatus::read_exposureTime
-// 
-// description : 	Extract real attribute values for exposureTime acquisition result.
-//
-//-----------------------------------------------------------------------------
-void Pilatus::read_exposureTime(Tango::Attribute &attr)
-{
-	DEBUG_STREAM << "Pilatus::read_exposureTime(Tango::Attribute &attr) entering... "<< endl;
-	if(m_ct!=0)
-	{
-		try
-		{
-			double exposure;
-			m_ct->acquisition()->getAcqExpoTime(exposure);
-			*attr_exposureTime_read = (Tango::DevDouble)exposure;
-			attr.set_value(attr_exposureTime_read);
-		}
-		catch(Tango::DevFailed& df)
-		{
-			ERROR_STREAM << df << endl;
-			//- rethrow exception
-			Tango::Except::re_throw_exception(df,
-						static_cast<const char*> ("TANGO_DEVICE_ERROR"),
-						static_cast<const char*> (string(df.errors[0].desc).c_str()),
-						static_cast<const char*> ("Pilatus::read_exposureTime"));
-		}	
-		catch(Exception& e)
-		{
-			ERROR_STREAM << e.getErrMsg() << endl;
-			//- throw exception
-			Tango::Except::throw_exception(
-						static_cast<const char*> ("TANGO_DEVICE_ERROR"),
-						static_cast<const char*> (e.getErrMsg().c_str()),
-						static_cast<const char*> ("Pilatus::read_exposureTime"));		
-		}
-	}
+		m_hw = dynamic_cast<PilatusCpp::Interface*>(m_ct->hwInterface());
 }
 
-//+----------------------------------------------------------------------------
-//
-// method : 		Pilatus::write_exposureTime
-// 
-// description : 	Write exposureTime attribute values to hardware.
-//
-//-----------------------------------------------------------------------------
-void Pilatus::write_exposureTime(Tango::WAttribute &attr)
-{
-	DEBUG_STREAM << "Pilatus::write_exposureTime(Tango::WAttribute &attr) entering... "<< endl;
-	if(m_ct!=0)
-	{	
-		try
-		{
-			attr.get_write_value(attr_exposureTime_write);
-			m_ct->acquisition()->setAcqExpoTime((double)attr_exposureTime_write);
-		}
-		catch(Tango::DevFailed& df)
-		{
-			ERROR_STREAM << df << endl;
-			//- rethrow exception
-			Tango::Except::re_throw_exception(df,
-						static_cast<const char*> ("TANGO_DEVICE_ERROR"),
-						static_cast<const char*> (string(df.errors[0].desc).c_str()),
-						static_cast<const char*> ("Pilatus::write_exposureTime"));
-		}	
-		catch(Exception& e)
-		{
-			ERROR_STREAM << e.getErrMsg() << endl;
-			//- throw exception
-			Tango::Except::throw_exception(
-						static_cast<const char*> ("TANGO_DEVICE_ERROR"),
-						static_cast<const char*> (e.getErrMsg().c_str()),
-						static_cast<const char*> ("Pilatus::write_exposureTime"));		
-		}
-	}
-}
 
 
 //+------------------------------------------------------------------
@@ -338,6 +248,7 @@ Tango::DevState Pilatus::dev_state()
 	argout = DeviceState;
 	return argout;
 }
+
 
 
 

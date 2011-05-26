@@ -35,8 +35,8 @@ static const char *HttpServer = "http://www.esrf.fr/computing/cs/tango/tango_doc
 
 #include <tango.h>
 
-#include <Pilatus.h>
-#include <PilatusClass.h>
+#include <PilatusPixelDetector.h>
+#include <PilatusPixelDetectorClass.h>
 
 
 //+----------------------------------------------------------------------------
@@ -237,24 +237,7 @@ void PilatusClass::device_factory(const Tango::DevVarStringArray *devlist_ptr)
 	//-------------------------------------------------------------
 
 }
-//+----------------------------------------------------------------------------
-//	Method: PilatusClass::attribute_factory(vector<Tango::Attr *> &att_list)
-//-----------------------------------------------------------------------------
-void PilatusClass::attribute_factory(vector<Tango::Attr *> &att_list)
-{
-	//	Attribute : exposureTime
-	exposureTimeAttrib	*exposure_time = new exposureTimeAttrib();
-	Tango::UserDefaultAttrProp	exposure_time_prop;
-	exposure_time_prop.set_unit("µs");
-	exposure_time_prop.set_standard_unit("µs");
-	exposure_time_prop.set_display_unit("µs");
-	exposure_time_prop.set_format("%7d");
-	exposure_time->set_default_properties(exposure_time_prop);
-	att_list.push_back(exposure_time);
 
-	//	End of Automatic code generation
-	//-------------------------------------------------------------
-}
 
 //+----------------------------------------------------------------------------
 //

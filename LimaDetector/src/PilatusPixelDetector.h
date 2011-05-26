@@ -83,8 +83,6 @@ public :
  *	Attribute member data.
  */
 //@{
-		Tango::DevDouble	*attr_exposureTime_read;
-		Tango::DevDouble	attr_exposureTime_write;
 //@}
 
 /**
@@ -161,22 +159,6 @@ public :
 
 //@{
 /**
- *	Hardware acquisition for attributes.
- */
-	virtual void read_attr_hardware(vector<long> &attr_list);
-/**
- *	Extract real attribute values for exposureTime acquisition result.
- */
-	virtual void read_exposureTime(Tango::Attribute &attr);
-/**
- *	Write exposureTime attribute values to hardware.
- */
-	virtual void write_exposureTime(Tango::WAttribute &attr);
-/**
- *	Read/Write allowed for exposureTime attribute.
- */
-	virtual bool is_exposureTime_allowed(Tango::AttReqType type);
-/**
  * This command gets the device state (stored in its <i>device_state</i> data member) and returns it to the caller.
  *	@return	State Code
  *	@exception DevFailed
@@ -202,7 +184,7 @@ protected :
 	stringstream		m_status_message;
 	
 	//LIMA objects
-	Pilatus_cpp::Interface*	m_hw;
+	PilatusCpp::Interface*	m_hw;
 	CtControl*				m_ct;	
 };
 

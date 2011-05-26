@@ -33,8 +33,8 @@ static const char *RcsId = "$Id $";
 //=============================================================================
 
 #include <tango.h>
-#include <Pilatus.h>
-#include <PilatusClass.h>
+#include <PilatusPixelDetector.h>
+#include <PilatusPixelDetectorClass.h>
 
 /*====================================================================
  *	This file contains the methods to allow commands and attributes
@@ -54,29 +54,6 @@ namespace Pilatus_ns
 //		Attributes Allowed Methods
 //=================================================
 
-//+----------------------------------------------------------------------------
-//
-// method : 		Pilatus::is_exposureTime_allowed
-// 
-// description : 	Read/Write allowed for exposureTime attribute.
-//
-//-----------------------------------------------------------------------------
-bool Pilatus::is_exposureTime_allowed(Tango::AttReqType type)
-{
-	if (get_state() == Tango::INIT	||
-		get_state() == Tango::FAULT	||
-		get_state() == Tango::RUNNING)
-	{
-		//	End of Generated Code
-		if ( (get_state()==Tango::FAULT || get_state()==Tango::RUNNING )&& type==Tango::READ_REQ )
-		{
-           return true;
-		}
-		//	Re-Start of Generated Code
-		return false;
-	}
-	return true;
-}
 
 //=================================================
 //		Commands Allowed Methods

@@ -38,27 +38,13 @@
 #define _PILATUSCLASS_H
 
 #include <tango.h>
-#include <Pilatus.h>
+#include <PilatusPixelDetector.h>
 
 
 namespace Pilatus_ns
 {//=====================================
 //	Define classes for attributes
 //=====================================
-class exposureTimeAttrib: public Tango::Attr
-{
-public:
-	exposureTimeAttrib():Attr("exposureTime", Tango::DEV_DOUBLE, Tango::READ_WRITE) {};
-	~exposureTimeAttrib() {};
-	
-	virtual void read(Tango::DeviceImpl *dev,Tango::Attribute &att)
-	{(static_cast<Pilatus *>(dev))->read_exposureTime(att);}
-	virtual void write(Tango::DeviceImpl *dev,Tango::WAttribute &att)
-	{(static_cast<Pilatus *>(dev))->write_exposureTime(att);}
-	virtual bool is_allowed(Tango::DeviceImpl *dev,Tango::AttReqType ty)
-	{return (static_cast<Pilatus *>(dev))->is_exposureTime_allowed(ty);}
-};
-
 //=========================================
 //	Define classes for commands
 //=========================================
@@ -96,7 +82,6 @@ protected:
 	static PilatusClass *_instance;
 	void command_factory();
 	void get_class_property();
-	void attribute_factory(vector<Tango::Attr *> &);
 	void write_class_property();
 	void set_default_property();
 	string get_cvstag();
