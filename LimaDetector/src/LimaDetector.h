@@ -245,11 +245,15 @@ public :
  */
 	string	detectorIP;
 /**
+ *	Socket Port of the Detector if necessary, NA otherwise.
+ */
+	Tango::DevLong	detectorPort;
+/**
  *	Define the type of the connected Detector .<BR>
  *	Availables types :<BR>
  *	Basler<BR>
  *	Simulator<BR>
- *	Xpad<BR>
+ *	XpadPixelDetector<BR>
  *	Pilatus<BR>
  *	
  *	
@@ -539,27 +543,28 @@ public :
  */
 	virtual Tango::DevState	dev_state();
 /**
- * Remove all EDF files in the directory defined by the property TemporaryEDFFilePath
+ * Remove all files in the directory defined by the property FileTargetPath
  *	@exception DevFailed
  */
 	void	delete_remaining_files();
 /**
- * 
+ * Starts the acquisition of a number of frames equal to  'nbFrames' attribute value.
  *	@exception DevFailed
  */
 	void	snap();
 /**
- * 
+ * Starts a "video/live" acquisition of an infinite number of frames.<br>
+ *	It is not allowed to generate files in this mode.
  *	@exception DevFailed
  */
 	void	start();
 /**
- * 
+ * Stop current acquisition.
  *	@exception DevFailed
  */
 	void	stop();
 /**
- * 
+ * Define a Region of Interest . (OriginX, OriginY, Width, Height)
  *	@param	argin	[origin_x, origin_y, width, height]
  *	@exception DevFailed
  */

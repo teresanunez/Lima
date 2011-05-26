@@ -106,7 +106,7 @@ The language device desctructor automatically calls the <i> delete_device() </i>
 <A NAME="DeleteRemainingFiles"><!-- --></A>
 <h2>4 - DeleteRemainingFiles</h2>
 <ul>
-<Li><Strong>Description: </Strong> Remove all EDF files in the directory defined by the property TemporaryEDFFilePath<Br>&nbsp
+<Li><Strong>Description: </Strong> Remove all files in the directory defined by the property FileTargetPath<Br>&nbsp
 <Li><Strong>Argin:<Br>DEV_VOID</Strong>
  : <Br>&nbsp
 <Li><Strong>Argout:<Br>DEV_VOID</Strong>
@@ -120,7 +120,7 @@ The language device desctructor automatically calls the <i> delete_device() </i>
 <A NAME="Snap"><!-- --></A>
 <h2>5 - Snap</h2>
 <ul>
-<Li><Strong>Description: </Strong> <Br>&nbsp
+<Li><Strong>Description: </Strong> Starts the acquisition of a number of frames equal to  'nbFrames' attribute value.<Br>&nbsp
 <Li><Strong>Argin:<Br>DEV_VOID</Strong>
  : <Br>&nbsp
 <Li><Strong>Argout:<Br>DEV_VOID</Strong>
@@ -134,7 +134,8 @@ The language device desctructor automatically calls the <i> delete_device() </i>
 <A NAME="Start"><!-- --></A>
 <h2>6 - Start</h2>
 <ul>
-<Li><Strong>Description: </Strong> <Br>&nbsp
+<Li><Strong>Description: </Strong> Starts a "video/live" acquisition of an infinite number of frames.<br>
+It is not allowed to generate files in this mode.<Br>&nbsp
 <Li><Strong>Argin:<Br>DEV_VOID</Strong>
  : <Br>&nbsp
 <Li><Strong>Argout:<Br>DEV_VOID</Strong>
@@ -148,7 +149,7 @@ The language device desctructor automatically calls the <i> delete_device() </i>
 <A NAME="Stop"><!-- --></A>
 <h2>7 - Stop</h2>
 <ul>
-<Li><Strong>Description: </Strong> <Br>&nbsp
+<Li><Strong>Description: </Strong> Stop current acquisition.<Br>&nbsp
 <Li><Strong>Argin:<Br>DEV_VOID</Strong>
  : <Br>&nbsp
 <Li><Strong>Argout:<Br>DEV_VOID</Strong>
@@ -162,7 +163,7 @@ The language device desctructor automatically calls the <i> delete_device() </i>
 <A NAME="SetROI"><!-- --></A>
 <h2>8 - SetROI</h2>
 <ul>
-<Li><Strong>Description: </Strong> <Br>&nbsp
+<Li><Strong>Description: </Strong> Define a Region of Interest . (OriginX, OriginY, Width, Height)<Br>&nbsp
 <Li><Strong>Argin:<Br>DEVVAR_LONGARRAY</Strong>
  : [origin_x, origin_y, width, height]<Br>&nbsp
 <Li><Strong>Argout:<Br>DEV_VOID</Strong>

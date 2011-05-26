@@ -393,14 +393,14 @@ void LimaDetectorClass::attribute_factory(vector<Tango::Attr *> &att_list)
 	//	Attribute : detectorType
 	detectorTypeAttrib	*detector_type = new detectorTypeAttrib();
 	Tango::UserDefaultAttrProp	detector_type_prop;
-	detector_type_prop.set_description("Return the type of used detector");
+	detector_type_prop.set_description("Return the type of used Detector.");
 	detector_type->set_default_properties(detector_type_prop);
 	att_list.push_back(detector_type);
 
 	//	Attribute : detectorModel
 	detectorModelAttrib	*detector_model = new detectorModelAttrib();
 	Tango::UserDefaultAttrProp	detector_model_prop;
-	detector_model_prop.set_description("Return the model of used detector");
+	detector_model_prop.set_description("Return the model of used Detector.");
 	detector_model->set_default_properties(detector_model_prop);
 	att_list.push_back(detector_model);
 
@@ -408,8 +408,10 @@ void LimaDetectorClass::attribute_factory(vector<Tango::Attr *> &att_list)
 	sensorWidthAttrib	*sensor_width = new sensorWidthAttrib();
 	Tango::UserDefaultAttrProp	sensor_width_prop;
 	sensor_width_prop.set_unit(" ");
+	sensor_width_prop.set_standard_unit(" ");
+	sensor_width_prop.set_display_unit(" ");
 	sensor_width_prop.set_format("%6d");
-	sensor_width_prop.set_description("Detector width in pixels");
+	sensor_width_prop.set_description("Detector width in pixels.");
 	sensor_width->set_default_properties(sensor_width_prop);
 	att_list.push_back(sensor_width);
 
@@ -417,8 +419,10 @@ void LimaDetectorClass::attribute_factory(vector<Tango::Attr *> &att_list)
 	sensorHeightAttrib	*sensor_height = new sensorHeightAttrib();
 	Tango::UserDefaultAttrProp	sensor_height_prop;
 	sensor_height_prop.set_unit(" ");
+	sensor_height_prop.set_standard_unit(" ");
+	sensor_height_prop.set_display_unit(" ");
 	sensor_height_prop.set_format("%6d");
-	sensor_height_prop.set_description("Detector height in pixels");
+	sensor_height_prop.set_description("Detector height in pixels.");
 	sensor_height->set_default_properties(sensor_height_prop);
 	att_list.push_back(sensor_height);
 
@@ -426,8 +430,10 @@ void LimaDetectorClass::attribute_factory(vector<Tango::Attr *> &att_list)
 	depthAttrib	*depth = new depthAttrib();
 	Tango::UserDefaultAttrProp	depth_prop;
 	depth_prop.set_unit(" ");
+	depth_prop.set_standard_unit(" ");
+	depth_prop.set_display_unit(" ");
 	depth_prop.set_format("%6d");
-	depth_prop.set_description("Pixel size in bits");
+	depth_prop.set_description("Pixel size in bits. (8, 16, 32)");
 	depth->set_default_properties(depth_prop);
 	att_list.push_back(depth);
 
@@ -468,6 +474,8 @@ void LimaDetectorClass::attribute_factory(vector<Tango::Attr *> &att_list)
 	exposureAccTimeAttrib	*exposure_acc_time = new exposureAccTimeAttrib();
 	Tango::UserDefaultAttrProp	exposure_acc_time_prop;
 	exposure_acc_time_prop.set_unit("ms");
+	exposure_acc_time_prop.set_standard_unit("ms");
+	exposure_acc_time_prop.set_display_unit("ms");
 	exposure_acc_time_prop.set_format("%7.2f");
 	exposure_acc_time->set_default_properties(exposure_acc_time_prop);
 	exposure_acc_time->set_memorized();
@@ -478,8 +486,10 @@ void LimaDetectorClass::attribute_factory(vector<Tango::Attr *> &att_list)
 	nbFramesAttrib	*nb_frames = new nbFramesAttrib();
 	Tango::UserDefaultAttrProp	nb_frames_prop;
 	nb_frames_prop.set_unit(" ");
+	nb_frames_prop.set_standard_unit(" ");
+	nb_frames_prop.set_display_unit(" ");
 	nb_frames_prop.set_format("%6d");
-	nb_frames_prop.set_description("Number of acquired frames");
+	nb_frames_prop.set_description("The number of frames to acquire.");
 	nb_frames->set_default_properties(nb_frames_prop);
 	nb_frames->set_memorized();
 	nb_frames->set_memorized_init(true);
@@ -487,6 +497,13 @@ void LimaDetectorClass::attribute_factory(vector<Tango::Attr *> &att_list)
 
 	//	Attribute : currentFrame
 	currentFrameAttrib	*current_frame = new currentFrameAttrib();
+	Tango::UserDefaultAttrProp	current_frame_prop;
+	current_frame_prop.set_unit(" ");
+	current_frame_prop.set_standard_unit(" ");
+	current_frame_prop.set_display_unit(" ");
+	current_frame_prop.set_format("%6d");
+	current_frame_prop.set_description("Display the current frame number.");
+	current_frame->set_default_properties(current_frame_prop);
 	att_list.push_back(current_frame);
 
 	//	Attribute : fileGeneration
@@ -580,8 +597,23 @@ void LimaDetectorClass::set_default_property()
 	else
 		add_wiz_dev_prop(prop_name, prop_desc);
 
+	prop_name = "DetectorPort";
+	prop_desc = "Socket Port of the Detector if necessary, NA otherwise.";
+	prop_def  = "-1";
+	vect_data.clear();
+	vect_data.push_back("-1");
+	if (prop_def.length()>0)
+	{
+		Tango::DbDatum	data(prop_name);
+		data << vect_data ;
+		dev_def_prop.push_back(data);
+		add_wiz_dev_prop(prop_name, prop_desc,  prop_def);
+	}
+	else
+		add_wiz_dev_prop(prop_name, prop_desc);
+
 	prop_name = "DetectorType";
-	prop_desc = "Define the type of the connected Detector .<BR>\nAvailables types :<BR>\nBasler<BR>\nSimulator<BR>\nXpad<BR>\nPilatus<BR>\n\n";
+	prop_desc = "Define the type of the connected Detector .<BR>\nAvailables types :<BR>\nBasler<BR>\nSimulator<BR>\nXpadPixelDetector<BR>\nPilatus<BR>\n\n";
 	prop_def  = "Simulator";
 	vect_data.clear();
 	vect_data.push_back("Simulator");

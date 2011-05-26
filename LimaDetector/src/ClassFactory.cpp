@@ -44,7 +44,7 @@ static const char *RcsId = "$Id:  $";
 #endif
 
 #ifdef PILATUS_ENABLED
-	#include <PilatusClass.h>
+	#include <PilatusPixelDetectorClass.h>
 #endif
 
 #ifdef XPAD_ENABLED
@@ -72,3 +72,4 @@ void Tango::DServer::class_factory()
 	add_class(XpadPixelDetector_ns::XpadPixelDetectorClass::init("XpadPixelDetector"));
 #endif
 }
+

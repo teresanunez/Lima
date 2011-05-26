@@ -70,13 +70,17 @@ Revision:  - Author:
 <Td><Font Size=-1>Tango::DEV_STRING</Font></Td>
 <Td><Font Size=-1>Ip Address of the Detector if necessary, NA otherwise.</Font></Td></Tr>
 
+<Tr><Td><b><a href=#Dev_DefaultValues>DetectorPort </a></b></Td>
+<Td><Font Size=-1>Tango::DEV_LONG</Font></Td>
+<Td><Font Size=-1>Socket Port of the Detector if necessary, NA otherwise.</Font></Td></Tr>
+
 <Tr><Td><b><a href=#Dev_DefaultValues>DetectorType </a></b></Td>
 <Td><Font Size=-1>Tango::DEV_STRING</Font></Td>
 <Td><Font Size=-1>Define the type of the connected Detector .<BR>
 Availables types :<BR>
 Basler<BR>
 Simulator<BR>
-Xpad<BR>
+XpadPixelDetector<BR>
 Pilatus<BR>
 
 </Font></Td></Tr>
@@ -158,6 +162,10 @@ Always<BR></Font></Td></Tr>
     <Tr>
         <Td>DetectorIP</Td>
         <td>0.0.0.0</td>
+    </Tr>
+    <Tr>
+        <Td>DetectorPort</Td>
+        <td>-1</td>
     </Tr>
     <Tr>
         <Td>DetectorType</Td>

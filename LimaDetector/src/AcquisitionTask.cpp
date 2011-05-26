@@ -109,7 +109,6 @@ void AcquisitionTask::process_message(yat::Message& msg) throw (Tango::DevFailed
 				{				
 					set_state(Tango::RUNNING);	
 					set_status(string("Acquisition is Running in snap mode..."));					
-
 					m_acq_conf.ct->prepareAcq();
 					m_acq_conf.ct->startAcq();
 				}

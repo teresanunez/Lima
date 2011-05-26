@@ -5,69 +5,76 @@
 bool  ControlFactory::is_created = false;
 
 //-----------------------------------------------------------------------------------------
-CtControl* ControlFactory::get_control( const string& detector_type, const string& camera_ip, bool is_master)
+CtControl* ControlFactory::get_control( const string& detector_type, const string& camera_ip, int camera_port, bool is_master)
 {
 
-	//must be false for sub-devices BaslerCCD/Simulator/...
-	if(!is_master)
-		return my_control;
-
-	if (detector_type.compare("Simulator")== 0)
-	{	    
-		if(!ControlFactory::is_created)
-		{
-			my_camera_simulator         = new Simulator();		
-			my_interface_simulator      = new SimuHwInterface(*my_camera_simulator);
-			my_control                  = new CtControl(my_interface_simulator);
-			ControlFactory::is_created  = true;
-			return my_control;      
-		}
-	}
-#ifdef BASLER_ENABLED
-	else if (detector_type.compare("Basler")== 0)
-	{	
-		if(!ControlFactory::is_created)
-		{
-			my_camera_basler            = new Basler::Camera(camera_ip);
-			my_camera_basler->go(2000);		
-			my_interface_basler         = new Basler::Interface(*my_camera_basler);	
-			my_control                  = new CtControl(my_interface_basler);			
-			ControlFactory::is_created  = true;
+	try
+	{
+		//must be false for sub-devices BaslerCCD/Simulator/...
+		if(!is_master)
 			return my_control;
-		}
-	}
-#endif
-#ifdef XPAD_ENABLED	
-	else if (detector_type.compare("XpadPixelDetector")== 0)
-	{	
 	
-		if(!ControlFactory::is_created)
+		if (detector_type.compare("Simulator")== 0)
+		{	    
+			if(!ControlFactory::is_created)
+			{
+				my_camera_simulator         = new Simulator();		
+				my_interface_simulator      = new SimuHwInterface(*my_camera_simulator);
+				my_control                  = new CtControl(my_interface_simulator);
+				ControlFactory::is_created  = true;
+				return my_control;      
+			}
+		}
+	#ifdef BASLER_ENABLED
+		else if (detector_type.compare("Basler")== 0)
+		{	
+			if(!ControlFactory::is_created)
+			{
+				my_camera_basler            = new Basler::Camera(camera_ip);
+				my_camera_basler->go(2000);		
+				my_interface_basler         = new Basler::Interface(*my_camera_basler);	
+				my_control                  = new CtControl(my_interface_basler);			
+				ControlFactory::is_created  = true;
+				return my_control;
+			}
+		}
+	#endif
+	#ifdef XPAD_ENABLED	
+		else if (detector_type.compare("XpadPixelDetector")== 0)
+		{	
+		
+			if(!ControlFactory::is_created)
+			{
+				my_xpad_camera				= new XpadCamera();
+				my_xpad_camera->go(2000);
+				my_xpad_interface			= new XpadInterface(*my_xpad_camera);
+				my_control                  = new CtControl(my_xpad_interface);
+				ControlFactory::is_created  = true;
+				return my_control;
+			}
+		}
+	#endif	
+	#ifdef PILATUS_ENABLED	
+		else if (detector_type.compare("Pilatus")== 0)
+		{	
+		
+			if(!ControlFactory::is_created)
+			{
+				my_camera_pilatus           = new PilatusCpp::Communication(camera_ip.c_str(), camera_port);
+				my_interface_pilatus        = new PilatusCpp::Interface(*my_camera_pilatus);
+				my_control                  = new CtControl(my_interface_pilatus);
+				ControlFactory::is_created  = true;
+				return my_control;
+			}
+		}
+	#endif	
+		else
 		{
-			my_xpad_camera				= new XpadCamera();
-			my_xpad_camera->go(2000);
-			my_xpad_interface			= new XpadInterface(*my_xpad_camera);
-			my_control                  = new CtControl(my_xpad_interface);
-			ControlFactory::is_created  = true;
-			return my_control;
+			//return 0 to indicate an ERROR
+			return 0;
 		}
 	}
-#endif	
-#ifdef PILATUS_ENABLED	
-	else if (detector_type.compare("Pilatus")== 0)
-	{	
-	
-		if(!ControlFactory::is_created)
-		{
-			my_camera_pilatus           = new Pilatus_cpp::Camera(camera_ip, 6666);
-			my_camera_pilatus->go(2000);		
-			my_interface_pilatus        = new Pilatus_cpp::Interface(*my_camera_pilatus);	
-			my_control                  = new CtControl(my_interface_pilatus);			
-			ControlFactory::is_created  = true;
-			return my_control;
-		}
-	}
-#endif	
-	else
+	catch(...)
 	{
 		//return 0 to indicate an ERROR
 		return 0;
@@ -107,8 +114,7 @@ void ControlFactory::reset(const string& detector_type )
 #ifdef PILATUS_ENABLED		
 		else if (detector_type.compare("Pilatus")==0)
 		{          
-			//- do not delete because its a YAT Task			
-			my_camera_pilatus->exit();       my_camera_pilatus = 0;
+			delete my_camera_pilatus;        my_camera_pilatus = 0;
 			delete my_interface_pilatus;     my_interface_pilatus = 0;
 		}
 #endif		
@@ -120,4 +126,5 @@ void ControlFactory::reset(const string& detector_type )
 	}
 }
 //-----------------------------------------------------------------------------------------
+
 

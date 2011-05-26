@@ -217,7 +217,7 @@ void LimaDetector::init_device()
 		DebParams::setTypeFlagsNameList(debugLevels);
 	
 		//- get the main object used to pilot the lima framework
-		m_ct = ControlFactory::instance().get_control(detectorType, detectorIP);
+		m_ct = ControlFactory::instance().get_control(detectorType, detectorIP, detectorPort, true);
 		if(m_ct==0)
 		{
 			INFO_STREAM<<"Initialization Failed : Unable to create the lima control object !"<<endl;
@@ -364,6 +364,7 @@ void LimaDetector::get_device_property()
 	Tango::DbData	dev_prop;
 	dev_prop.push_back(Tango::DbDatum("DetectorDescription"));
 	dev_prop.push_back(Tango::DbDatum("DetectorIP"));
+	dev_prop.push_back(Tango::DbDatum("DetectorPort"));
 	dev_prop.push_back(Tango::DbDatum("DetectorType"));
 	dev_prop.push_back(Tango::DbDatum("DetectorPixelFormat"));
 	dev_prop.push_back(Tango::DbDatum("FileFormat"));
@@ -405,6 +406,17 @@ void LimaDetector::get_device_property()
 	}
 	//	And try to extract DetectorIP value from database
 	if (dev_prop[i].is_empty()==false)	dev_prop[i]  >>  detectorIP;
+
+	//	Try to initialize DetectorPort from class property
+	cl_prop = ds_class->get_class_property(dev_prop[++i].name);
+	if (cl_prop.is_empty()==false)	cl_prop  >>  detectorPort;
+	else {
+		//	Try to initialize DetectorPort from default device value
+		def_prop = ds_class->get_default_device_property(dev_prop[i].name);
+		if (def_prop.is_empty()==false)	def_prop  >>  detectorPort;
+	}
+	//	And try to extract DetectorPort value from database
+	if (dev_prop[i].is_empty()==false)	dev_prop[i]  >>  detectorPort;
 
 	//	Try to initialize DetectorType from class property
 	cl_prop = ds_class->get_class_property(dev_prop[++i].name);
@@ -523,7 +535,8 @@ void LimaDetector::get_device_property()
 	vector<string> myVector;
 	
 	create_property_if_empty(dev_prop,"This is my simulator","DetectorDescription");	
-	create_property_if_empty(dev_prop,"0.0.0.0","DetectorIP");	
+	create_property_if_empty(dev_prop,"0.0.0.0","DetectorIP");
+	create_property_if_empty(dev_prop,"-1","DetectorPort");	
 	create_property_if_empty(dev_prop,"Simulator","DetectorType");
 	create_property_if_empty(dev_prop,"16","DetectorPixelFormat");
 	create_property_if_empty(dev_prop,"NXS","FileFormat");	
@@ -1375,7 +1388,7 @@ void LimaDetector::write_fileGeneration(Tango::WAttribute &attr)
  *	method:	LimaDetector::delete_remaining_files
  *
  *	description:	method to execute "DeleteRemainingFiles"
- *	Remove all EDF files in the directory defined by the property TemporaryEDFFilePath
+ *	Remove all files in the directory defined by the property FileTargetPath
  *
  *
  */
@@ -1419,6 +1432,7 @@ void LimaDetector::delete_remaining_files()
  *	method:	LimaDetector::snap
  *
  *	description:	method to execute "Snap"
+ *	Starts the acquisition of a number of frames equal to  'nbFrames' attribute value.
  *
  *
  */
@@ -1459,12 +1473,12 @@ void LimaDetector::snap()
 		
 		yat::Message* msg = yat::Message::allocate( DEVICE_SNAP_MSG, DEFAULT_MSG_PRIORITY, true );
 		m_acquisition_task->wait_msg_handled(msg, 5000);//to ensure that state was updated in lima
-		
-
 	}
 	catch(Tango::DevFailed& df)
 	{
 		ERROR_STREAM << df << endl;
+		m_status_message.str("");
+		m_status_message<<string(df.errors[0].desc).c_str()<<endl;
         //- rethrow exception
         Tango::Except::re_throw_exception(df,
 					static_cast<const char*> ("TANGO_DEVICE_ERROR"),
@@ -1474,6 +1488,8 @@ void LimaDetector::snap()
 	catch(Exception& e)
 	{
 		ERROR_STREAM << e.getErrMsg() << endl;
+		m_status_message.str("");
+		m_status_message<<e.getErrMsg().c_str()<<endl;		
         //- throw exception
         Tango::Except::throw_exception(
 					static_cast<const char*> ("TANGO_DEVICE_ERROR"),
@@ -1487,6 +1503,8 @@ void LimaDetector::snap()
  *	method:	LimaDetector::start
  *
  *	description:	method to execute "Start"
+ *	Starts a "video/live" acquisition of an infinite number of frames.<br>
+ *	It is not allowed to generate files in this mode.
  *
  *
  */
@@ -1548,6 +1566,7 @@ void LimaDetector::start()
  *	method:	LimaDetector::stop
  *
  *	description:	method to execute "Stop"
+ *	Stop current acquisition.
  *
  *
  */
@@ -1587,6 +1606,7 @@ void LimaDetector::stop()
  *	method:	LimaDetector::set_roi
  *
  *	description:	method to execute "SetROI"
+ *	Define a Region of Interest . (OriginX, OriginY, Width, Height)
  *
  * @param	argin	[origin_x, origin_y, width, height]
  *
@@ -1684,6 +1704,8 @@ Tango::DevState LimaDetector::dev_state()
 				DeviceStatus<<"Acquisition is in Fault\n"<<endl;
 			}
 		}
+		//DeviceStatus<< m_status_message.str();
+		//DeviceStatus<<endl;		
 	}
 	
 	set_state(DeviceState);
@@ -1869,6 +1891,10 @@ int LimaDetector::FindIndexFromPropertyName(Tango::DbData& dev_prop, string prop
 	if (i == iNbProperties) return -1;
 	return i;
 }
+
+
+
+
 
 
 
