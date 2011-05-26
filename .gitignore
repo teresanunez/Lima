@@ -1,3 +1,8 @@
 *~
 *.pyc
-*/target/*
+*.o
+*.P
+*.d
+*.so
+\#*\#
+*target*
