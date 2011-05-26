@@ -30,7 +30,7 @@ from Lima import Core
 
 def getDataFromFile(filepath,index = 0) :
     try:
-        datas = getDatasFromFile(filepath,index,index)
+        datas = getDatasFromFile(filepath,index,index+1)
         return datas[0]
     except:
 	import traceback

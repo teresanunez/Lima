@@ -1173,7 +1173,7 @@ class LimaCCDsClass(PyTango.DeviceClass) :
         [[PyTango.DevLong,"From image id"],
          [PyTango.DevVarLongArray,"number of result for each images,sum counter of raw image #0 of image #0,sum counter of raw image #1 of image #0,..."]],
         'setAccSaturatedMask':
-         [[PyTango.DevVarStringArray,"Full path of mask file"],
+         [[PyTango.DevString,"Full path of mask file"],
          [PyTango.DevVoid,""]],
 	}
     
