@@ -238,6 +238,16 @@ void LimaDetector::init_device()
 			return;			
 		}
 		
+		//To ensure that the real ROI will be used at startup
+		Roi roi;
+		HwRoiCtrlObj *hw_roi;
+		m_hw->getHwCtrlObj(hw_roi);
+		if(hw_roi)
+		{
+			hw_roi->getRoi(roi);
+			m_ct->image()->setRoi(roi);
+		}
+		
 		//- add image dynamic attribute
 		//- fix curentImageType of detector (16 bits, 32 bits, ...)
 		//- create image dyn attr (UChar, UShort or ULong)		
@@ -1628,6 +1638,7 @@ void LimaDetector::set_roi(const Tango::DevVarLongArray *argin)
 		Roi roi(Point(x, y), Size(width,height));
 		m_ct->image()->resetRoi();
 		m_ct->image()->setRoi(roi);
+		
 	}
 	catch(Tango::DevFailed& df)
 	{

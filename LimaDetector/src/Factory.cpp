@@ -25,7 +25,7 @@ CtControl* ControlFactory::get_control( const string& detector_type, const strin
 				return my_control;      
 			}
 		}
-	#ifdef BASLER_ENABLED
+#ifdef BASLER_ENABLED
 		else if (detector_type.compare("BaslerCCD")== 0)
 		{	
 			if(!ControlFactory::is_created)
@@ -38,8 +38,9 @@ CtControl* ControlFactory::get_control( const string& detector_type, const strin
 				return my_control;
 			}
 		}
-	#endif
-	#ifdef XPAD_ENABLED	
+#endif
+
+#ifdef XPAD_ENABLED	
 		else if (detector_type.compare("XpadPixelDetector")== 0)
 		{	
 		
@@ -53,8 +54,9 @@ CtControl* ControlFactory::get_control( const string& detector_type, const strin
 				return my_control;
 			}
 		}
-	#endif	
-	#ifdef PILATUS_ENABLED	
+#endif
+
+#ifdef PILATUS_ENABLED	
 		else if (detector_type.compare("PilatusPixelDetector")== 0)
 		{	
 		
@@ -67,7 +69,7 @@ CtControl* ControlFactory::get_control( const string& detector_type, const strin
 				return my_control;
 			}
 		}
-	#endif	
+#endif	
 		else
 		{
 			//return 0 to indicate an ERROR
@@ -102,7 +104,8 @@ void ControlFactory::reset(const string& detector_type )
 			my_camera_basler->exit();       my_camera_basler = 0;
 			delete my_interface_basler;     my_interface_basler = 0;
 		}
-#endif		
+#endif
+
 #ifdef XPAD_ENABLED		
 		else if (detector_type.compare("XpadPixelDetector")==0)
 		{          
@@ -110,7 +113,8 @@ void ControlFactory::reset(const string& detector_type )
 			my_xpad_camera->exit();       my_xpad_camera = 0;
 			delete my_xpad_interface;     my_xpad_interface = 0;
 		}
-#endif		
+#endif
+
 #ifdef PILATUS_ENABLED		
 		else if (detector_type.compare("PilatusPixelDetector")==0)
 		{          

@@ -219,7 +219,7 @@ void SimulatorCCD::read_exposureTime(Tango::Attribute &attr)
 		{
 			double exposure;
 			m_ct->acquisition()->getAcqExpoTime(exposure);
-			*attr_exposureTime_read = (Tango::DevDouble)exposure;
+			*attr_exposureTime_read = (Tango::DevDouble)(exposure*1000.0);
 			attr.set_value(attr_exposureTime_read);
 		}
 		catch(Tango::DevFailed& df)
@@ -258,7 +258,7 @@ void SimulatorCCD::write_exposureTime(Tango::WAttribute &attr)
 		try
 		{
 			attr.get_write_value(attr_exposureTime_write);
-			m_ct->acquisition()->setAcqExpoTime((double)attr_exposureTime_write);
+			m_ct->acquisition()->setAcqExpoTime((double)(attr_exposureTime_write/1000.0));
 		}
 		catch(Tango::DevFailed& df)
 		{

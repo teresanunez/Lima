@@ -1,8 +1,8 @@
 //=============================================================================
 //
-// file :        Pilatus.h
+// file :        PilatusPixelDetector.h
 //
-// description : Include for the Pilatus class.
+// description : Include for the PilatusPixelDetector class.
 //
 // project :	
 //
@@ -30,8 +30,8 @@
 //
 //         (c) - Software Engineering Group - ESRF
 //=============================================================================
-#ifndef _PILATUS_H
-#define _PILATUS_H
+#ifndef _PILATUSPIXELDETECTOR_H
+#define _PILATUSPIXELDETECTOR_H
 
 #include <tango.h>
 //using namespace Tango;
@@ -46,13 +46,17 @@
 #include "HwInterface.h"
 #include "CtControl.h"
 #include "CtAcquisition.h"
+#include <PilatusCommunication.h>
 #include <PilatusInterface.h>
 #include "Factory.h"
+
+
+#define MAX_ATTRIBUTE_STRING_LENGTH 	256
 
 using namespace lima;
 using namespace std;
 
-namespace Pilatus_ns
+namespace PilatusPixelDetector_ns
 {
 
 /**
@@ -69,7 +73,7 @@ namespace Pilatus_ns
  */
 
 
-class Pilatus: public Tango::Device_4Impl
+class PilatusPixelDetector: public Tango::Device_4Impl
 {
 public :
 	//	Add your own data members here
@@ -83,6 +87,10 @@ public :
  *	Attribute member data.
  */
 //@{
+		Tango::DevLong	*attr_threshold_read;
+		Tango::DevLong	attr_threshold_write;
+		Tango::DevString	*attr_gain_read;
+		Tango::DevString	attr_gain_write;
 //@}
 
 /**
@@ -108,14 +116,14 @@ public :
  *	@param cl	Class.
  *	@param s 	Device Name
  */
-	Pilatus(Tango::DeviceClass *cl,string &s);
+	PilatusPixelDetector(Tango::DeviceClass *cl,string &s);
 /**
  * Constructs a newly allocated Command object.
  *
  *	@param cl	Class.
  *	@param s 	Device Name
  */
-	Pilatus(Tango::DeviceClass *cl,const char *s);
+	PilatusPixelDetector(Tango::DeviceClass *cl,const char *s);
 /**
  * Constructs a newly allocated Command object.
  *
@@ -123,7 +131,7 @@ public :
  *	@param s 	Device name
  *	@param d	Device description.
  */
-	Pilatus(Tango::DeviceClass *cl,const char *s,const char *d);
+	PilatusPixelDetector(Tango::DeviceClass *cl,const char *s,const char *d);
 //@}
 
 /**@name Destructor
@@ -132,7 +140,7 @@ public :
 /**
  * The object destructor.
  */	
-	~Pilatus() {delete_device();};
+	~PilatusPixelDetector() {delete_device();};
 /**
  *	will be called at device destruction or at init command.
  */
@@ -154,16 +162,64 @@ public :
 //@}
 
 /**
- * @name Pilatus methods prototypes
+ * @name PilatusPixelDetector methods prototypes
  */
 
 //@{
+/**
+ *	Hardware acquisition for attributes.
+ */
+	virtual void read_attr_hardware(vector<long> &attr_list);
+/**
+ *	Extract real attribute values for threshold acquisition result.
+ */
+	virtual void read_threshold(Tango::Attribute &attr);
+/**
+ *	Write threshold attribute values to hardware.
+ */
+	virtual void write_threshold(Tango::WAttribute &attr);
+/**
+ *	Extract real attribute values for gain acquisition result.
+ */
+	virtual void read_gain(Tango::Attribute &attr);
+/**
+ *	Write gain attribute values to hardware.
+ */
+	virtual void write_gain(Tango::WAttribute &attr);
+/**
+ *	Read/Write allowed for threshold attribute.
+ */
+	virtual bool is_threshold_allowed(Tango::AttReqType type);
+/**
+ *	Read/Write allowed for gain attribute.
+ */
+	virtual bool is_gain_allowed(Tango::AttReqType type);
+/**
+ *	Execution allowed for SetThresholdAndGain command.
+ */
+	virtual bool is_SetThresholdAndGain_allowed(const CORBA::Any &any);
+/**
+ *	Execution allowed for SetMxSettings command.
+ */
+	virtual bool is_SetMxSettings_allowed(const CORBA::Any &any);
 /**
  * This command gets the device state (stored in its <i>device_state</i> data member) and returns it to the caller.
  *	@return	State Code
  *	@exception DevFailed
  */
 	virtual Tango::DevState	dev_state();
+/**
+ * 
+ *	@param	argin	
+ *	@exception DevFailed
+ */
+	void	set_threshold_and_gain(const Tango::DevVarLongStringArray *);
+/**
+ * 
+ *	@param	argin	
+ *	@exception DevFailed
+ */
+	void	set_mx_settings(Tango::DevString);
 
 /**
  *	Read the device properties from database
@@ -180,8 +236,9 @@ protected :
 	//	Add your own data members here
 	//-----------------------------------------
 	
-	bool 				m_is_device_initialized ;
-	stringstream		m_status_message;
+	bool 				    m_is_device_initialized ;
+	stringstream		    m_status_message;
+	string 				    m_gain;    
 	
 	//LIMA objects
 	PilatusCpp::Interface*	m_hw;
@@ -190,4 +247,4 @@ protected :
 
 }	// namespace_ns
 
-#endif	// _PILATUS_H
+#endif	// _PILATUSPIXELDETECTOR_H

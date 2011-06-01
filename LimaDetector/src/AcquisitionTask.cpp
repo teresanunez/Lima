@@ -12,7 +12,6 @@
 // ============================================================================
 #include <yat/threading/Mutex.h>
 #include <yat/time/Timer.h>
-#include <Tools.h>
 #include <AcquisitionTask.h>
 					
 namespace LimaDetector_ns {

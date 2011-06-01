@@ -47,17 +47,103 @@ static const char *RcsId = "$Id $";
  *====================================================================
  */
 
-namespace Pilatus_ns
+namespace PilatusPixelDetector_ns
 {
 
 //=================================================
 //		Attributes Allowed Methods
 //=================================================
 
+//+----------------------------------------------------------------------------
+//
+// method : 		PilatusPixelDetector::is_threshold_allowed
+// 
+// description : 	Read/Write allowed for threshold attribute.
+//
+//-----------------------------------------------------------------------------
+bool PilatusPixelDetector::is_threshold_allowed(Tango::AttReqType type)
+{
+	if (get_state() == Tango::INIT	||
+		get_state() == Tango::FAULT	||
+		get_state() == Tango::RUNNING)
+	{
+		//	End of Generated Code
+		if ( (get_state()==Tango::FAULT || get_state()==Tango::RUNNING )&& type==Tango::READ_REQ )
+		{
+           return true;
+		}
+		//	Re-Start of Generated Code
+		return false;
+	}
+	return true;
+}
+//+----------------------------------------------------------------------------
+//
+// method : 		PilatusPixelDetector::is_gain_allowed
+// 
+// description : 	Read/Write allowed for gain attribute.
+//
+//-----------------------------------------------------------------------------
+bool PilatusPixelDetector::is_gain_allowed(Tango::AttReqType type)
+{
+	if (get_state() == Tango::INIT	||
+		get_state() == Tango::FAULT	||
+		get_state() == Tango::RUNNING)
+	{
+		//	End of Generated Code
+		if ( (get_state()==Tango::FAULT || get_state()==Tango::RUNNING )&& type==Tango::READ_REQ )
+		{
+           return true;
+		}
+		//	Re-Start of Generated Code
+		return false;
+	}
+	return true;
+}
 
 //=================================================
 //		Commands Allowed Methods
 //=================================================
 
+//+----------------------------------------------------------------------------
+//
+// method : 		PilatusPixelDetector::is_SetThresholdAndGain_allowed
+// 
+// description : 	Execution allowed for SetThresholdAndGain command.
+//
+//-----------------------------------------------------------------------------
+bool PilatusPixelDetector::is_SetThresholdAndGain_allowed(const CORBA::Any &any)
+{
+	if (get_state() == Tango::INIT	||
+		get_state() == Tango::FAULT	||
+		get_state() == Tango::RUNNING)
+	{
+		//	End of Generated Code
 
-}	// namespace Pilatus_ns
+		//	Re-Start of Generated Code
+		return false;
+	}
+	return true;
+}
+//+----------------------------------------------------------------------------
+//
+// method : 		PilatusPixelDetector::is_SetMxSettings_allowed
+// 
+// description : 	Execution allowed for SetMxSettings command.
+//
+//-----------------------------------------------------------------------------
+bool PilatusPixelDetector::is_SetMxSettings_allowed(const CORBA::Any &any)
+{
+	if (get_state() == Tango::INIT	||
+		get_state() == Tango::FAULT	||
+		get_state() == Tango::RUNNING)
+	{
+		//	End of Generated Code
+
+		//	Re-Start of Generated Code
+		return false;
+	}
+	return true;
+}
+
+}	// namespace PilatusPixelDetector_ns

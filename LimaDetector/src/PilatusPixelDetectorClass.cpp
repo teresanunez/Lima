@@ -5,9 +5,9 @@ static const char *SvnPath    = "$HeadURL: $";
 static const char *HttpServer = "http://www.esrf.fr/computing/cs/tango/tango_doc/ds_doc/";
 //+=============================================================================
 //
-// file :        PilatusClass.cpp
+// file :        PilatusPixelDetectorClass.cpp
 //
-// description : C++ source for the PilatusClass. A singleton
+// description : C++ source for the PilatusPixelDetectorClass. A singleton
 //               class derived from DeviceClass. It implements the
 //               command list and all properties and methods required
 //               by the Pilatus once per process.
@@ -41,7 +41,7 @@ static const char *HttpServer = "http://www.esrf.fr/computing/cs/tango/tango_doc
 
 //+----------------------------------------------------------------------------
 /**
- *	Create PilatusClass singleton and return it in a C function for Python usage
+ *	Create PilatusPixelDetectorClass singleton and return it in a C function for Python usage
  */
 //+----------------------------------------------------------------------------
 extern "C" {
@@ -52,13 +52,65 @@ __declspec(dllexport)
 #endif
 
 	Tango::DeviceClass *_create_Pilatus_class(const char *name) {
-		return Pilatus_ns::PilatusClass::init(name);
+		return PilatusPixelDetector_ns::PilatusPixelDetectorClass::init(name);
 	}
 }
 
 
-namespace Pilatus_ns
+namespace PilatusPixelDetector_ns
 {
+//+----------------------------------------------------------------------------
+//
+// method : 		SetMxSettingsClass::execute()
+// 
+// description : 	method to trigger the execution of the command.
+//                PLEASE DO NOT MODIFY this method core without pogo   
+//
+// in : - device : The device on which the command must be executed
+//		- in_any : The command input data
+//
+// returns : The command output data (packed in the Any object)
+//
+//-----------------------------------------------------------------------------
+CORBA::Any *SetMxSettingsClass::execute(Tango::DeviceImpl *device,const CORBA::Any &in_any)
+{
+
+	cout2 << "SetMxSettingsClass::execute(): arrived" << endl;
+
+	Tango::DevString	argin;
+	extract(in_any, argin);
+
+	((static_cast<PilatusPixelDetector *>(device))->set_mx_settings(argin));
+	return new CORBA::Any();
+}
+
+//+----------------------------------------------------------------------------
+//
+// method : 		SetThresholdAndGainCmd::execute()
+// 
+// description : 	method to trigger the execution of the command.
+//                PLEASE DO NOT MODIFY this method core without pogo   
+//
+// in : - device : The device on which the command must be executed
+//		- in_any : The command input data
+//
+// returns : The command output data (packed in the Any object)
+//
+//-----------------------------------------------------------------------------
+CORBA::Any *SetThresholdAndGainCmd::execute(Tango::DeviceImpl *device,const CORBA::Any &in_any)
+{
+
+	cout2 << "SetThresholdAndGainCmd::execute(): arrived" << endl;
+
+	const Tango::DevVarLongStringArray	*argin;
+	extract(in_any, argin);
+
+	((static_cast<PilatusPixelDetector *>(device))->set_threshold_and_gain(argin));
+	return new CORBA::Any();
+}
+
+
+
 
 
 //
@@ -66,43 +118,43 @@ namespace Pilatus_ns
 //	Initialize pointer for singleton pattern
 //----------------------------------------------------------------
 //
-PilatusClass *PilatusClass::_instance = NULL;
+PilatusPixelDetectorClass *PilatusPixelDetectorClass::_instance = NULL;
 
 //+----------------------------------------------------------------------------
 //
-// method : 		PilatusClass::PilatusClass(string &s)
+// method : 		PilatusPixelDetectorClass::PilatusPixelDetectorClass(string &s)
 // 
-// description : 	constructor for the PilatusClass
+// description : 	constructor for the PilatusPixelDetectorClass
 //
 // in : - s : The class name
 //
 //-----------------------------------------------------------------------------
-PilatusClass::PilatusClass(string &s):DeviceClass(s)
+PilatusPixelDetectorClass::PilatusPixelDetectorClass(string &s):DeviceClass(s)
 {
 
-	cout2 << "Entering PilatusClass constructor" << endl;
+	cout2 << "Entering PilatusPixelDetectorClass constructor" << endl;
 	set_default_property();
 	get_class_property();
 	write_class_property();
 	
-	cout2 << "Leaving PilatusClass constructor" << endl;
+	cout2 << "Leaving PilatusPixelDetectorClass constructor" << endl;
 
 }
 //+----------------------------------------------------------------------------
 //
-// method : 		PilatusClass::~PilatusClass()
+// method : 		PilatusPixelDetectorClass::~PilatusPixelDetectorClass()
 // 
-// description : 	destructor for the PilatusClass
+// description : 	destructor for the PilatusPixelDetectorClass
 //
 //-----------------------------------------------------------------------------
-PilatusClass::~PilatusClass()
+PilatusPixelDetectorClass::~PilatusPixelDetectorClass()
 {
 	_instance = NULL;
 }
 
 //+----------------------------------------------------------------------------
 //
-// method : 		PilatusClass::instance
+// method : 		PilatusPixelDetectorClass::instance
 // 
 // description : 	Create the object if not already done. Otherwise, just
 //			return a pointer to the object
@@ -110,14 +162,14 @@ PilatusClass::~PilatusClass()
 // in : - name : The class name
 //
 //-----------------------------------------------------------------------------
-PilatusClass *PilatusClass::init(const char *name)
+PilatusPixelDetectorClass *PilatusPixelDetectorClass::init(const char *name)
 {
 	if (_instance == NULL)
 	{
 		try
 		{
 			string s(name);
-			_instance = new PilatusClass(s);
+			_instance = new PilatusPixelDetectorClass(s);
 		}
 		catch (bad_alloc)
 		{
@@ -127,7 +179,7 @@ PilatusClass *PilatusClass::init(const char *name)
 	return _instance;
 }
 
-PilatusClass *PilatusClass::instance()
+PilatusPixelDetectorClass *PilatusPixelDetectorClass::instance()
 {
 	if (_instance == NULL)
 	{
@@ -139,14 +191,24 @@ PilatusClass *PilatusClass::instance()
 
 //+----------------------------------------------------------------------------
 //
-// method : 		PilatusClass::command_factory
+// method : 		PilatusPixelDetectorClass::command_factory
 // 
 // description : 	Create the command object(s) and store them in the 
 //			command list
 //
 //-----------------------------------------------------------------------------
-void PilatusClass::command_factory()
+void PilatusPixelDetectorClass::command_factory()
 {
+	command_list.push_back(new SetThresholdAndGainCmd("SetThresholdAndGain",
+		Tango::DEVVAR_LONGSTRINGARRAY, Tango::DEV_VOID,
+		"",
+		"",
+		Tango::OPERATOR));
+	command_list.push_back(new SetMxSettingsClass("SetMxSettings",
+		Tango::DEV_STRING, Tango::DEV_VOID,
+		"",
+		"",
+		Tango::OPERATOR));
 
 	//	add polling if any
 	for (unsigned int i=0 ; i<command_list.size(); i++)
@@ -156,14 +218,14 @@ void PilatusClass::command_factory()
 
 //+----------------------------------------------------------------------------
 //
-// method : 		PilatusClass::get_class_property
+// method : 		PilatusPixelDetectorClass::get_class_property
 // 
 // description : 	Get the class property for specified name.
 //
 // in :		string	name : The property name
 //
 //+----------------------------------------------------------------------------
-Tango::DbDatum PilatusClass::get_class_property(string &prop_name)
+Tango::DbDatum PilatusPixelDetectorClass::get_class_property(string &prop_name)
 {
 	for (unsigned int i=0 ; i<cl_prop.size() ; i++)
 		if (cl_prop[i].name == prop_name)
@@ -173,12 +235,12 @@ Tango::DbDatum PilatusClass::get_class_property(string &prop_name)
 }
 //+----------------------------------------------------------------------------
 //
-// method : 		PilatusClass::get_default_device_property()
+// method : 		PilatusPixelDetectorClass::get_default_device_property()
 // 
 // description : 	Return the default value for device property.
 //
 //-----------------------------------------------------------------------------
-Tango::DbDatum PilatusClass::get_default_device_property(string &prop_name)
+Tango::DbDatum PilatusPixelDetectorClass::get_default_device_property(string &prop_name)
 {
 	for (unsigned int i=0 ; i<dev_def_prop.size() ; i++)
 		if (dev_def_prop[i].name == prop_name)
@@ -189,12 +251,12 @@ Tango::DbDatum PilatusClass::get_default_device_property(string &prop_name)
 
 //+----------------------------------------------------------------------------
 //
-// method : 		PilatusClass::get_default_class_property()
+// method : 		PilatusPixelDetectorClass::get_default_class_property()
 // 
 // description : 	Return the default value for class property.
 //
 //-----------------------------------------------------------------------------
-Tango::DbDatum PilatusClass::get_default_class_property(string &prop_name)
+Tango::DbDatum PilatusPixelDetectorClass::get_default_class_property(string &prop_name)
 {
 	for (unsigned int i=0 ; i<cl_def_prop.size() ; i++)
 		if (cl_def_prop[i].name == prop_name)
@@ -204,7 +266,7 @@ Tango::DbDatum PilatusClass::get_default_class_property(string &prop_name)
 }
 //+----------------------------------------------------------------------------
 //
-// method : 		PilatusClass::device_factory
+// method : 		PilatusPixelDetectorClass::device_factory
 // 
 // description : 	Create the device object(s) and store them in the 
 //			device list
@@ -212,7 +274,7 @@ Tango::DbDatum PilatusClass::get_default_class_property(string &prop_name)
 // in :		Tango::DevVarStringArray *devlist_ptr : The device name list
 //
 //-----------------------------------------------------------------------------
-void PilatusClass::device_factory(const Tango::DevVarStringArray *devlist_ptr)
+void PilatusPixelDetectorClass::device_factory(const Tango::DevVarStringArray *devlist_ptr)
 {
 
 	//	Create all devices.(Automatic code generation)
@@ -223,7 +285,7 @@ void PilatusClass::device_factory(const Tango::DevVarStringArray *devlist_ptr)
 						
 		// Create devices and add it into the device list
 		//----------------------------------------------------
-		device_list.push_back(new Pilatus(this, (*devlist_ptr)[i]));							 
+		device_list.push_back(new PilatusPixelDetector(this, (*devlist_ptr)[i]));							 
 
 		// Export device to the outside world
 		// Check before if database used.
@@ -237,16 +299,38 @@ void PilatusClass::device_factory(const Tango::DevVarStringArray *devlist_ptr)
 	//-------------------------------------------------------------
 
 }
+//+----------------------------------------------------------------------------
+//	Method: PilatusPixelDetectorClass::attribute_factory(vector<Tango::Attr *> &att_list)
+//-----------------------------------------------------------------------------
+void PilatusPixelDetectorClass::attribute_factory(vector<Tango::Attr *> &att_list)
+{
+	//	Attribute : threshold
+	thresholdAttrib	*threshold = new thresholdAttrib();
+	threshold->set_memorized();
+	threshold->set_memorized_init(true);
+	att_list.push_back(threshold);
+
+	//	Attribute : gain
+	gainAttrib	*gain = new gainAttrib();
+	gain->set_memorized();
+	gain->set_memorized_init(true);
+	att_list.push_back(gain);
+
+	//	End of Automatic code generation
+	//-------------------------------------------------------------
+}
+
+
 
 
 //+----------------------------------------------------------------------------
 //
-// method : 		PilatusClass::get_class_property()
+// method : 		PilatusPixelDetectorClass::get_class_property()
 // 
 // description : 	Read the class properties from database.
 //
 //-----------------------------------------------------------------------------
-void PilatusClass::get_class_property()
+void PilatusPixelDetectorClass::get_class_property()
 {
 	//	Initialize your default values here (if not done with  POGO).
 	//------------------------------------------------------------------
@@ -269,7 +353,7 @@ void PilatusClass::get_class_property()
 
 //+----------------------------------------------------------------------------
 //
-// method : 	PilatusClass::set_default_property
+// method : 	PilatusPixelDetectorClass::set_default_property
 // 
 // description: Set default property (class and device) for wizard.
 //              For each property, add to wizard property name and description
@@ -277,7 +361,7 @@ void PilatusClass::get_class_property()
 //              store it in a DbDatum.
 //
 //-----------------------------------------------------------------------------
-void PilatusClass::set_default_property()
+void PilatusPixelDetectorClass::set_default_property()
 {
 	string	prop_name;
 	string	prop_desc;
@@ -289,12 +373,12 @@ void PilatusClass::set_default_property()
 }
 //+----------------------------------------------------------------------------
 //
-// method : 		PilatusClass::write_class_property
+// method : 		PilatusPixelDetectorClass::write_class_property
 // 
 // description : 	Set class description as property in database
 //
 //-----------------------------------------------------------------------------
-void PilatusClass::write_class_property()
+void PilatusPixelDetectorClass::write_class_property()
 {
 	//	First time, check if database used
 	//--------------------------------------------

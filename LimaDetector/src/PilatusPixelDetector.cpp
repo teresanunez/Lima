@@ -1,13 +1,13 @@
 static const char *RcsId = "$Id:  $";
 //+=============================================================================
 //
-// file :         Pilatus.cpp
+// file :         PilatusPixelDetector.cpp
 //
-// description :  C++ source for the Pilatus and its commands. 
+// description :  C++ source for the PilatusPixelDetector and its commands. 
 //                The class is derived from Device. It represents the
 //                CORBA servant object which will be accessed from the
 //                network. All commands which can be executed on the
-//                Pilatus are implemented in this file.
+//                PilatusPixelDetector are implemented in this file.
 //
 // project :      TANGO Device Server
 //
@@ -45,10 +45,12 @@ static const char *RcsId = "$Id:  $";
 //	The following table gives the correspondence
 //	between commands and method name.
 //
-//  Command name|  Method name
+//  Command name         |  Method name
 //	----------------------------------------
-//  State   |  dev_state()
-//  Status  |  dev_status()
+//  State                |  dev_state()
+//  Status               |  dev_status()
+//  SetThresholdAndGain  |  set_threshold_and_gain()
+//  SetMxSettings        |  set_mx_settings()
 //
 //===================================================================
 
@@ -58,46 +60,48 @@ static const char *RcsId = "$Id:  $";
 #include <PilatusPixelDetector.h>
 #include <PilatusPixelDetectorClass.h>
 
-namespace Pilatus_ns
+namespace PilatusPixelDetector_ns
 {
 
 //+----------------------------------------------------------------------------
 //
-// method : 		Pilatus::Pilatus(string &s)
+// method : 		PilatusPixelDetector::PilatusPixelDetector(string &s)
 // 
-// description : 	constructor for simulated Pilatus
+// description : 	constructor for simulated PilatusPixelDetector
 //
 // in : - cl : Pointer to the DeviceClass object
 //      - s : Device name 
 //
 //-----------------------------------------------------------------------------
-Pilatus::Pilatus(Tango::DeviceClass *cl,string &s)
+PilatusPixelDetector::PilatusPixelDetector(Tango::DeviceClass *cl,string &s)
 :Tango::Device_4Impl(cl,s.c_str())
 {
 	init_device();
 }
 
-Pilatus::Pilatus(Tango::DeviceClass *cl,const char *s)
+PilatusPixelDetector::PilatusPixelDetector(Tango::DeviceClass *cl,const char *s)
 :Tango::Device_4Impl(cl,s)
 {
 	init_device();
 }
 
-Pilatus::Pilatus(Tango::DeviceClass *cl,const char *s,const char *d)
+PilatusPixelDetector::PilatusPixelDetector(Tango::DeviceClass *cl,const char *s,const char *d)
 :Tango::Device_4Impl(cl,s,d)
 {
 	init_device();
 }
 //+----------------------------------------------------------------------------
 //
-// method : 		Pilatus::delete_device()
+// method : 		PilatusPixelDetector::delete_device()
 // 
 // description : 	will be called at device destruction or at init command.
 //
 //-----------------------------------------------------------------------------
-void Pilatus::delete_device()
+void PilatusPixelDetector::delete_device()
 {
 	//	Delete device allocated objects
+	DELETE_SCALAR_ATTRIBUTE(attr_threshold_read);
+	DELETE_DEVSTRING_ATTRIBUTE(attr_gain_read);
 	
 	//!!!! ONLY LimaDetector device can do this !!!!
 	//if(m_ct!=0)
@@ -109,17 +113,20 @@ void Pilatus::delete_device()
 
 //+----------------------------------------------------------------------------
 //
-// method : 		Pilatus::init_device()
+// method : 		PilatusPixelDetector::init_device()
 // 
 // description : 	will be called at device initialization.
 //
 //-----------------------------------------------------------------------------
-void Pilatus::init_device()
+void PilatusPixelDetector::init_device()
 {
-	INFO_STREAM << "Pilatus::Pilatus() create device " << device_name << endl;
+	INFO_STREAM << "PilatusPixelDetector::PilatusPixelDetector() create device " << device_name << endl;
 
 	// Initialise variables to default values
 	//--------------------------------------------
+	CREATE_SCALAR_ATTRIBUTE(attr_threshold_read);
+	CREATE_DEVSTRING_ATTRIBUTE(attr_gain_read,MAX_ATTRIBUTE_STRING_LENGTH);
+	
 	m_is_device_initialized = false;
 	m_status_message.str("");
 	
@@ -173,12 +180,12 @@ void Pilatus::init_device()
 
 //+----------------------------------------------------------------------------
 //
-// method : 		Pilatus::always_executed_hook()
+// method : 		PilatusPixelDetector::always_executed_hook()
 // 
 // description : 	method always executed before any command is executed
 //
 //-----------------------------------------------------------------------------
-void Pilatus::always_executed_hook()
+void PilatusPixelDetector::always_executed_hook()
 {
 	//- get the main object used to pilot the lima framework
 	//in fact LimaCCD is create the singleton control objet
@@ -189,12 +196,199 @@ void Pilatus::always_executed_hook()
 	if(m_ct!=0)
 		m_hw = dynamic_cast<PilatusCpp::Interface*>(m_ct->hwInterface());
 }
+//+----------------------------------------------------------------------------
+//
+// method : 		PilatusPixelDetector::read_attr_hardware
+// 
+// description : 	Hardware acquisition for attributes.
+//
+//-----------------------------------------------------------------------------
+void PilatusPixelDetector::read_attr_hardware(vector<long> &attr_list)
+{
+	DEBUG_STREAM << "PilatusPixelDetector::read_attr_hardware(vector<long> &attr_list) entering... "<< endl;
+	//	Add your own code here
+}
+//+----------------------------------------------------------------------------
+//
+// method : 		PilatusPixelDetector::write_threshold
+// 
+// description : 	Write threshold attribute values to hardware.
+//
+//-----------------------------------------------------------------------------
+void PilatusPixelDetector::write_threshold(Tango::WAttribute &attr)
+{
+	DEBUG_STREAM << "PilatusPixelDetector::write_threshold(Tango::WAttribute &attr) entering... "<< endl;
+	try
+	{
+		attr.get_write_value(attr_threshold_write);
+		m_hw->setThresholdGain(attr_threshold_write, m_hw->getGain());
+	
+	}
+	catch(Tango::DevFailed& df)
+	{
+		ERROR_STREAM << df << endl;
+        //- rethrow exception
+        Tango::Except::re_throw_exception(df,
+					static_cast<const char*> ("TANGO_DEVICE_ERROR"),
+					static_cast<const char*> (string(df.errors[0].desc).c_str()),
+                    static_cast<const char*> ("PilatusPixelDetector::write_threshold"));
+	}	
+	catch(Exception& e)
+	{
+		ERROR_STREAM << e.getErrMsg() << endl;
+        //- throw exception
+        Tango::Except::throw_exception(
+					static_cast<const char*> ("TANGO_DEVICE_ERROR"),
+					static_cast<const char*> (e.getErrMsg().c_str()),
+                    static_cast<const char*> ("PilatusPixelDetector::write_threshold"));		
+	}		
+}
 
 
+//+----------------------------------------------------------------------------
+//
+// method : 		PilatusPixelDetector::read_threshold
+// 
+// description : 	Extract real attribute values for threshold acquisition result.
+//
+//-----------------------------------------------------------------------------
+void PilatusPixelDetector::read_threshold(Tango::Attribute &attr)
+{
+	DEBUG_STREAM << "PilatusPixelDetector::read_threshold(Tango::Attribute &attr) entering... "<< endl;
+	try
+	{
+		*attr_threshold_read = m_hw->getThreshold();
+		attr.set_value(attr_threshold_read);
+	
+	}
+	catch(Tango::DevFailed& df)
+	{
+		ERROR_STREAM << df << endl;
+        //- rethrow exception
+        Tango::Except::re_throw_exception(df,
+					static_cast<const char*> ("TANGO_DEVICE_ERROR"),
+					static_cast<const char*> (string(df.errors[0].desc).c_str()),
+                    static_cast<const char*> ("PilatusPixelDetector::read_threshold"));
+	}	
+	catch(Exception& e)
+	{
+		ERROR_STREAM << e.getErrMsg() << endl;
+        //- throw exception
+        Tango::Except::throw_exception(
+					static_cast<const char*> ("TANGO_DEVICE_ERROR"),
+					static_cast<const char*> (e.getErrMsg().c_str()),
+                    static_cast<const char*> ("PilatusPixelDetector::read_threshold"));		
+	}		
+}
+
+//+----------------------------------------------------------------------------
+//
+// method : 		PilatusPixelDetector::write_gain
+// 
+// description : 	Write gain attribute values to hardware.
+//
+//-----------------------------------------------------------------------------
+void PilatusPixelDetector::write_gain(Tango::WAttribute &attr)
+{
+	DEBUG_STREAM << "PilatusPixelDetector::write_gain(Tango::WAttribute &attr) entering... "<< endl;
+	try
+	{
+		m_gain = *attr_gain_read;
+		string previous = m_gain;
+		attr.get_write_value(attr_gain_write);
+		string current = attr_gain_write;
+		if(current.compare("LOW")!=0 && current.compare("MID")!=0 && current.compare("HIGH")!=0 && current.compare("UHIGH")!=0)
+		{
+			m_gain = previous;			
+			attr_gain_write = new char [m_gain.size()+1];
+			strcpy (attr_gain_write, m_gain.c_str());
+			
+			Tango::Except::throw_exception(	(const char*) ("CONFIGURATION_ERROR"),
+											(const char*) ("Available Gain values are: \n- LOW \n- MID \n- HIGH \n- UHIGH"),
+											(const char*) ("PilatusPixelDetector::write_gain"));
+		}
+
+		//- THIS IS AN AVAILABLE TRIGER MODE
+		m_gain = attr_gain_write;
+	
+		Communication::Gain new_gain;
+		if(m_gain.compare("LOW")==0)
+			new_gain = Communication::LOW;
+		else if(m_gain.compare("MID")==0)
+			new_gain = Communication::MID;
+		else if(m_gain.compare("HIGH")==0)
+			new_gain = Communication::HIGH;
+		else			
+			new_gain = Communication::ULTRA_HIGH;
+
+		m_hw->setThresholdGain(m_hw->getThreshold(), new_gain);
+	}
+	catch(Tango::DevFailed& df)
+	{
+		ERROR_STREAM << df << endl;
+        //- rethrow exception
+        Tango::Except::re_throw_exception(df,
+					static_cast<const char*> ("TANGO_DEVICE_ERROR"),
+					static_cast<const char*> (string(df.errors[0].desc).c_str()),
+                    static_cast<const char*> ("PilatusPixelDetector::write_gain"));
+	}	
+	catch(Exception& e)
+	{
+		ERROR_STREAM << e.getErrMsg() << endl;
+        //- throw exception
+        Tango::Except::throw_exception(
+					static_cast<const char*> ("TANGO_DEVICE_ERROR"),
+					static_cast<const char*> (e.getErrMsg().c_str()),
+                    static_cast<const char*> ("PilatusPixelDetector::write_gain"));		
+	}		
+}
+
+//+----------------------------------------------------------------------------
+//
+// method : 		PilatusPixelDetector::read_gain
+// 
+// description : 	Extract real attribute values for gain acquisition result.
+//
+//-----------------------------------------------------------------------------
+void PilatusPixelDetector::read_gain(Tango::Attribute &attr)
+{
+	DEBUG_STREAM << "PilatusPixelDetector::read_gain(Tango::Attribute &attr) entering... "<< endl;
+	try
+	{
+		Communication::Gain current_gain = m_hw->getGain();
+		switch (current_gain)
+		{
+			case Communication::LOW 	: strcpy(*attr_gain_read, "LOW")	;	break;
+			case Communication::MID 	: strcpy(*attr_gain_read, "MID")	;	break;
+			case Communication::HIGH	: strcpy(*attr_gain_read, "HIGH")	;	break;
+			default /*ULTRA_HIGH*/		: strcpy(*attr_gain_read, "UHIGH")	;	break;
+		}
+		
+		attr.set_value(attr_gain_read);
+	}
+	catch(Tango::DevFailed& df)
+	{
+		ERROR_STREAM << df << endl;
+        //- rethrow exception
+        Tango::Except::re_throw_exception(df,
+					static_cast<const char*> ("TANGO_DEVICE_ERROR"),
+					static_cast<const char*> (string(df.errors[0].desc).c_str()),
+                    static_cast<const char*> ("PilatusPixelDetector::read_gain"));
+	}	
+	catch(Exception& e)
+	{
+		ERROR_STREAM << e.getErrMsg() << endl;
+        //- throw exception
+        Tango::Except::throw_exception(
+					static_cast<const char*> ("TANGO_DEVICE_ERROR"),
+					static_cast<const char*> (e.getErrMsg().c_str()),
+                    static_cast<const char*> ("PilatusPixelDetector::read_gain"));		
+	}	
+}
 
 //+------------------------------------------------------------------
 /**
- *	method:	Pilatus::dev_state
+ *	method:	PilatusPixelDetector::dev_state
  *
  *	description:	method to execute "State"
  *	This command gets the device state (stored in its <i>device_state</i> data member) and returns it to the caller.
@@ -203,10 +397,10 @@ void Pilatus::always_executed_hook()
  *
  */
 //+------------------------------------------------------------------
-Tango::DevState Pilatus::dev_state()
+Tango::DevState PilatusPixelDetector::dev_state()
 {
 	Tango::DevState	argout = DeviceImpl::dev_state();
-	DEBUG_STREAM << "Pilatus::dev_state(): entering... !" << endl;	
+	DEBUG_STREAM << "PilatusPixelDetector::dev_state(): entering... !" << endl;	
 	//	Add your own code to control device here
 	stringstream    DeviceStatus;
 	DeviceStatus 	<< "";
@@ -250,8 +444,63 @@ Tango::DevState Pilatus::dev_state()
 }
 
 
+//+------------------------------------------------------------------
+/**
+ *	method:	PilatusPixelDetector::set_threshold_and_gain
+ *
+ *	description:	method to execute "SetThresholdAndGain"
+ *
+ * @param	argin	
+ *
+ */
+//+------------------------------------------------------------------
+void PilatusPixelDetector::set_threshold_and_gain(const Tango::DevVarLongStringArray *argin)
+{
+	DEBUG_STREAM << "PilatusPixelDetector::set_threshold_and_gain(): entering... !" << endl;
 
+	//	Add your own code to control device here
 
+}
 
+//+------------------------------------------------------------------
+/**
+ *	method:	PilatusPixelDetector::set_mx_settings
+ *
+ *	description:	method to execute "SetMxSettings"
+ *
+ * @param	argin	
+ *
+ */
+//+------------------------------------------------------------------
+void PilatusPixelDetector::set_mx_settings(Tango::DevString argin)
+{
+	DEBUG_STREAM << "PilatusPixelDetector::set_mx_settings(): entering... !" << endl;
+
+	//	Add your own code to control device here
+	try
+	{
+		std::string str_cmd_to_send = argin;
+		m_hw->setMxSettings(str_cmd_to_send);
+	}
+	catch(Tango::DevFailed& df)
+	{
+		ERROR_STREAM << df << endl;
+        //- rethrow exception
+        Tango::Except::re_throw_exception(df,
+					static_cast<const char*> ("TANGO_DEVICE_ERROR"),
+					static_cast<const char*> (string(df.errors[0].desc).c_str()),
+                    static_cast<const char*> ("PilatusPixelDetector::set_mx_settings"));
+	}	
+	catch(Exception& e)
+	{
+		ERROR_STREAM << e.getErrMsg() << endl;
+        //- throw exception
+        Tango::Except::throw_exception(
+					static_cast<const char*> ("TANGO_DEVICE_ERROR"),
+					static_cast<const char*> (e.getErrMsg().c_str()),
+                    static_cast<const char*> ("PilatusPixelDetector::set_mx_settings"));		
+	}	
+
+}
 
 }	//	namespace

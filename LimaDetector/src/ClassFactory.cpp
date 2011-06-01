@@ -65,7 +65,7 @@ void Tango::DServer::class_factory()
 #endif
 
 #ifdef PILATUS_ENABLED
-	add_class(Pilatus_ns::PilatusClass::init("PilatusPixelDetector"));
+	add_class(PilatusPixelDetector_ns::PilatusPixelDetectorClass::init("PilatusPixelDetector"));
 #endif
 
 #ifdef XPAD_ENABLED	
