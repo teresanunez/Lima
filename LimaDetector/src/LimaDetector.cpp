@@ -1290,23 +1290,27 @@ void LimaDetector::read_image_callback(yat4tango::DynamicAttributeReadCallbackDa
 	DEBUG_STREAM << "LimaDetector::read_image_callback()"<<endl;//  << cbd.dya->get_name() << endl;
 	try
 	{
+		Data lastImage = m_img_status_cb->get_last_image();
 		//@@TODO Template this code later .
-		if((m_img_status_cb->get_last_image()->data())!=0 )
+		if(!lastImage->empty())
 		{
+			int width = lastImage->dimensions[0];
+			int height = lastImage->dimensions[1];
+
 			switch (cbd.dya->get_tango_data_type())
 			{
-				case  TangoTraits<Tango::DevUChar>::type_id : 	cbd.tga->set_value((Tango::DevUChar*)m_img_status_cb->get_last_image()->data(),
-																					m_img_status_cb->get_last_image()->width,
-																					m_img_status_cb->get_last_image()->height);
+				case  TangoTraits<Tango::DevUChar>::type_id : 	cbd.tga->set_value((Tango::DevUChar*)lastImage->data(),
+																					width,
+																					height);
 				break;
-				case  TangoTraits<Tango::DevULong>::type_id : 	cbd.tga->set_value( (Tango::DevULong*)m_img_status_cb->get_last_image()->data(),
-																					m_img_status_cb->get_last_image()->width,
-																					m_img_status_cb->get_last_image()->height);
+				case  TangoTraits<Tango::DevULong>::type_id : 	cbd.tga->set_value( (Tango::DevULong*)lastImage->data(),
+																					width,
+																					height);
 				break;
 				//by default 16 bits
-				default	:										cbd.tga->set_value( (Tango::DevUShort*)m_img_status_cb->get_last_image()->data(),
-																					m_img_status_cb->get_last_image()->width,
-																					m_img_status_cb->get_last_image()->height);
+				default	:										cbd.tga->set_value( (Tango::DevUShort*)lastImage->data(),
+																					width,
+																					height);
 				break;
 			}
 		}
