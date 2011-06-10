@@ -1,0 +1,167 @@
+<?xml version="1.0" encoding="utf-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+   <modelVersion>4.0.0</modelVersion>
+   <parent>
+       <groupId>fr.soleil</groupId>
+       <artifactId>super-pom-C-CPP-device</artifactId>
+       <version>RELEASE</version>
+   </parent>
+
+   <groupId>fr.soleil.device</groupId>
+   <artifactId>LimaDetector-${aol}-${mode}</artifactId>
+   <version>1.1.0</version>
+
+   <packaging>nar</packaging>
+
+   <name>LimaDetector</name>
+   <description>LimaDetector device</description>
+
+    <dependencies>
+	  
+	  <dependency>
+		 <groupId>fr.soleil.lib</groupId>
+		 <artifactId>YAT-${aol}-${library}-${mode}</artifactId>
+	  </dependency>
+	  <dependency>
+		 <groupId>fr.soleil.lib</groupId>
+		 <artifactId>YAT4Tango-${aol}-${library}-${mode}</artifactId>
+	  </dependency>
+	  <dependency>
+		 <groupId>fr.soleil.lib</groupId>
+		 <artifactId>Utils-${aol}-${library}-${mode}</artifactId>
+	  </dependency>	   
+	  <dependency>
+		 <groupId>org.boost</groupId>
+		 <artifactId>Boost-libraries-${aol}-shared-${mode}</artifactId>
+	  </dependency>
+	  <dependency>
+		 <groupId>fr.soleil.lib.Lima</groupId>
+		 <artifactId>Control-${aol}-shared-${mode}</artifactId>
+		 <version>1.0.3-SNAPSHOT</version>
+	  </dependency>   
+	  <dependency>
+		 <groupId>fr.soleil.lib.Lima.Camera</groupId>
+		 <artifactId>Simulator-${aol}-shared-${mode}</artifactId>
+		 <version>1.0.3-SNAPSHOT</version>
+	  </dependency>
+<!--
+	  <dependency>
+		 <groupId>fr.soleil.lib.Lima.Camera</groupId>
+		 <artifactId>Basler-${aol}-shared-${mode}</artifactId>
+		 <version>1.0.3-SNAPSHOT</version>
+	  </dependency>
+-->
+<!--	  
+	  <dependency>
+		 <groupId>fr.soleil.lib.Lima.Camera</groupId>
+		 <artifactId>Xpad-${aol}-shared-${mode}</artifactId>
+		 <version>1.0.3-SNAPSHOT</version>
+	  </dependency>
+-->
+<!--
+	  <dependency>
+		 <groupId>fr.soleil.lib.Lima.Camera</groupId>
+		 <artifactId>Pilatus-${aol}-shared-${mode}</artifactId>
+		 <version>1.0.3-SNAPSHOT</version>
+	  </dependency>
+-->
+	  <dependency>
+		 <groupId>fr.soleil.lib</groupId>
+		 <artifactId>GDShare-${aol}-${library}-${mode}</artifactId>
+	  </dependency>	  
+	  <dependency>
+		 <groupId>fr.soleil.lib</groupId>
+		 <artifactId>Nexus4Tango-${aol}-${library}-${mode}</artifactId>
+	  </dependency>
+	  <dependency>
+		 <groupId>fr.soleil.lib</groupId>
+		 <artifactId>NexusCPP-${aol}-${library}-${mode}</artifactId>
+	  </dependency>
+    </dependencies>
+	
+	
+   <build>
+       <plugins>
+			<plugin>
+				 <groupId>fr.soleil.maven.plugins</groupId>
+				 <artifactId>maven-cvs-plugin</artifactId>
+				 <configuration>
+				 <enable>false</enable>
+				 </configuration>
+			</plugin>
+			
+			<plugin>
+				 <groupId>org.freehep</groupId>
+				 <artifactId>freehep-nar-plugin</artifactId>
+				 <configuration>
+					 <cpp>
+						<defines>
+						   <define>BOOST_ALL_DYN_LINK</define>
+						   <define>LOG4TANGO_HAVE_INT64_T</define>
+						   <!-- define wich detector you need to ENABLE -->
+						   <!--<define>USE_GIGE</define>-->
+						   <!--<define>BASLER_ENABLED</define>-->
+						   <!--<define>XPAD_ENABLED</define>-->
+						   <!--<define>PILATUS_ENABLED</define>-->
+						</defines>
+						
+						<systemIncludePaths>
+						   <!--<systemIncludePath>${env.PYLON_ROOT}/include</systemIncludePath>-->
+						   <!--<systemIncludePath>${env.GENICAM_ROOT_V1_1}/include/genicam</systemIncludePath>-->
+						   <!--<systemIncludePath>/home/informatique/ica/noureddine/DeviceSources/PCIex280311/trunk/sw/xpci_lib</systemIncludePath>-->
+						</systemIncludePaths>
+	  
+						<!-- exclude every detector who is NOT ENABLED -->
+						<excludes>
+							<exclude>Basler*.*</exclude>
+							<exclude>Xpad*.*</exclude>
+							<exclude>Pilat*.*</exclude>
+						</excludes>
+						
+						<!-- define less verbose mode for gcc-->
+						<options>
+							<option>-w</option>
+						</options>
+					 </cpp>
+					 
+					 <!-- define libraries path's -->
+					 <linker>
+						<libs>
+						   <!--
+						   <lib>
+							  <name>pylonbase</name>
+							  <type>shared</type>
+							  <directory>${env.PYLON_ROOT}/lib</directory>
+						   </lib>
+						   -->
+						   
+						   <!--
+						   <lib>
+							  <name>xpci_lib</name>
+							  <type>static</type>
+							  <directory>/home/informatique/ica/noureddine/DeviceSources/PCIex280311/trunk/sw/xpci_lib</directory>
+						   </lib>
+						   -->
+						</libs>
+					 </linker>
+				 </configuration>
+			</plugin>
+                        
+       </plugins>
+   </build>
+
+   <developers>
+       <developer>
+           <id>noureddine</id>
+           <name>noureddine</name>
+           <url>http://controle/</url>
+           <organization>Synchrotron Soleil</organization>
+           <organizationUrl>http://www.synchrotron-soleil.fr</organizationUrl>
+           <roles>
+               <role>manager</role>
+           </roles>
+           <timezone>1</timezone>
+       </developer>
+   </developers>
+</project>
+

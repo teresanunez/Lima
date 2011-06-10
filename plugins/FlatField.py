@@ -42,7 +42,7 @@ class FlatfieldDeviceServer(BasePostProcess) :
 		extOpt = ctControl.externalOperation()
 		extOpt.delOp(self.FLATFIELD_TASK_NAME)
 	elif(state == PyTango.DevState.ON) :
-	    if not self.__backGroundTask:
+	    if not self.__flatFieldTask:
                 ctControl = _control_ref()
                 extOpt = ctControl.externalOperation()
                 self.__flatFieldTask = extOpt.addOp(Core.FLATFIELDCORRECTION,
@@ -71,7 +71,7 @@ class FlatfieldDeviceServerClass(PyTango.DeviceClass) :
     #	 Command definitions
     cmd_list = {
         'setFlatFieldImage':
-        [[PyTango.DevVarStringArray,"Full path of background image file"],
+        [[PyTango.DevVarStringArray,"Full path of flatfield image file"],
          [PyTango.DevVoid,""]],
 	'Start':
 	[[PyTango.DevVoid,""],
