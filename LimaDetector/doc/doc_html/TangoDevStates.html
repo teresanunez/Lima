@@ -45,7 +45,7 @@
 <h1>
 		<Br>
 Device States Description 		<Br> <Br>
-PilatusPixelDetector Class	<Br>
+LimaDetector Class	<Br>
 </h1>
 <b>
 Revision:  - Author: 
@@ -62,16 +62,36 @@ Revision:  - Author:
 <Td><Center><b>Names</b></td></Center>
 <Td><Center><b>Descriptions</b></td></Center>
 <Tr><Td><b>INIT</b></Td>
-<Td><Font Size=-1></Font></Td></Tr>
+<Td><Font Size=-1>Error occured at the initialization of the device.<br>
+It is mandatory to fix the errors and run the [ Init ] command of the LimaDetector device.<br>
+The [ Snap ] command IS NOT available.<br>
+The [ Start ] command IS NOT available.<br>
+The [ Stop ] command IS NOT available.<br>
+The [ DeleteRemainingFiles ] command IS NOT available.<br>
+</Font></Td></Tr>
 
 <Tr><Td><b>STANDBY</b></Td>
-<Td><Font Size=-1></Font></Td></Tr>
+<Td><Font Size=-1>The Device is Waiting for a user request.<br>
+The [ Snap ] command IS available.<br>
+The [ Start ] command IS available.<br>
+The [ Stop ] command IS available.<br>
+The [ DeleteRemainingFiles ] command IS available.<br></Font></Td></Tr>
 
 <Tr><Td><b>FAULT</b></Td>
-<Td><Font Size=-1></Font></Td></Tr>
+<Td><Font Size=-1>Acquisition/Settings of the detector encounter a problem.<BR>
+It is mandatory to fix the errors and run the command [ Init ] of the LimaDetector device.<br>
+The [ Snap ] command IS NOT available.<br>
+The [ Start ] command IS NOT available.<br>
+The [ Stop ] command IS NOT available.<br>
+The [ DeleteRemainingFiles] command IS available.<br>
+</Font></Td></Tr>
 
 <Tr><Td><b>RUNNING</b></Td>
-<Td><Font Size=-1></Font></Td></Tr>
+<Td><Font Size=-1>The Acquisition is in Progress.<br>
+The [ Snap ] command IS NOT available.<br>
+The [ Start ] command IS NOT available.<br>
+The [ Stop ] command IS available.<br>
+The [ DeleteRemainingFiles ] command IS NOT available.<br></Font></Td></Tr>
 
 
 

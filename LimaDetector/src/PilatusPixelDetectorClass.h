@@ -45,6 +45,48 @@ namespace PilatusPixelDetector_ns
 {//=====================================
 //	Define classes for attributes
 //=====================================
+class latencyAttrib: public Tango::Attr
+{
+public:
+	latencyAttrib():Attr("latency", Tango::DEV_DOUBLE, Tango::READ_WRITE) {};
+	~latencyAttrib() {};
+	
+	virtual void read(Tango::DeviceImpl *dev,Tango::Attribute &att)
+	{(static_cast<PilatusPixelDetector *>(dev))->read_latency(att);}
+	virtual void write(Tango::DeviceImpl *dev,Tango::WAttribute &att)
+	{(static_cast<PilatusPixelDetector *>(dev))->write_latency(att);}
+	virtual bool is_allowed(Tango::DeviceImpl *dev,Tango::AttReqType ty)
+	{return (static_cast<PilatusPixelDetector *>(dev))->is_latency_allowed(ty);}
+};
+
+class fileNameAttrib: public Tango::Attr
+{
+public:
+	fileNameAttrib():Attr("fileName", Tango::DEV_STRING, Tango::READ_WRITE) {};
+	~fileNameAttrib() {};
+	
+	virtual void read(Tango::DeviceImpl *dev,Tango::Attribute &att)
+	{(static_cast<PilatusPixelDetector *>(dev))->read_fileName(att);}
+	virtual void write(Tango::DeviceImpl *dev,Tango::WAttribute &att)
+	{(static_cast<PilatusPixelDetector *>(dev))->write_fileName(att);}
+	virtual bool is_allowed(Tango::DeviceImpl *dev,Tango::AttReqType ty)
+	{return (static_cast<PilatusPixelDetector *>(dev))->is_fileName_allowed(ty);}
+};
+
+class imagePathAttrib: public Tango::Attr
+{
+public:
+	imagePathAttrib():Attr("imagePath", Tango::DEV_STRING, Tango::READ_WRITE) {};
+	~imagePathAttrib() {};
+	
+	virtual void read(Tango::DeviceImpl *dev,Tango::Attribute &att)
+	{(static_cast<PilatusPixelDetector *>(dev))->read_imagePath(att);}
+	virtual void write(Tango::DeviceImpl *dev,Tango::WAttribute &att)
+	{(static_cast<PilatusPixelDetector *>(dev))->write_imagePath(att);}
+	virtual bool is_allowed(Tango::DeviceImpl *dev,Tango::AttReqType ty)
+	{return (static_cast<PilatusPixelDetector *>(dev))->is_imagePath_allowed(ty);}
+};
+
 class gainAttrib: public Tango::Attr
 {
 public:
@@ -76,10 +118,10 @@ public:
 //=========================================
 //	Define classes for commands
 //=========================================
-class SetMxSettingsClass : public Tango::Command
+class SendAnyCommandCmd : public Tango::Command
 {
 public:
-	SetMxSettingsClass(const char   *name,
+	SendAnyCommandCmd(const char   *name,
 	               Tango::CmdArgType in,
 				   Tango::CmdArgType out,
 				   const char        *in_desc,
@@ -87,11 +129,35 @@ public:
 				   Tango::DispLevel  level)
 	:Command(name,in,out,in_desc,out_desc, level)	{};
 
-	SetMxSettingsClass(const char   *name,
+	SendAnyCommandCmd(const char   *name,
 	               Tango::CmdArgType in,
 				   Tango::CmdArgType out)
 	:Command(name,in,out)	{};
-	~SetMxSettingsClass() {};
+	~SendAnyCommandCmd() {};
+	
+	virtual CORBA::Any *execute (Tango::DeviceImpl *dev, const CORBA::Any &any);
+	virtual bool is_allowed (Tango::DeviceImpl *dev, const CORBA::Any &any)
+	{return (static_cast<PilatusPixelDetector *>(dev))->is_SendAnyCommand_allowed(any);}
+};
+
+
+
+class SetMxSettingsCmd : public Tango::Command
+{
+public:
+	SetMxSettingsCmd(const char   *name,
+	               Tango::CmdArgType in,
+				   Tango::CmdArgType out,
+				   const char        *in_desc,
+				   const char        *out_desc,
+				   Tango::DispLevel  level)
+	:Command(name,in,out,in_desc,out_desc, level)	{};
+
+	SetMxSettingsCmd(const char   *name,
+	               Tango::CmdArgType in,
+				   Tango::CmdArgType out)
+	:Command(name,in,out)	{};
+	~SetMxSettingsCmd() {};
 	
 	virtual CORBA::Any *execute (Tango::DeviceImpl *dev, const CORBA::Any &any);
 	virtual bool is_allowed (Tango::DeviceImpl *dev, const CORBA::Any &any)
