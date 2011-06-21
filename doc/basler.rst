@@ -22,4 +22,6 @@ Properties
 Property name	Mandatory	Default value	Description
 =============== =============== =============== ==============================================================
 cam_ip_addresse	Yes		N/A		The camera's ip or hostname 
+packet_size	No		8000		Suppose that eth MTU is set at least to 8192 (Jumbo mode !).
+						if you want default Basler packet size set it to -1
 =============== =============== =============== ==============================================================
