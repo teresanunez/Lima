@@ -143,7 +143,7 @@ void ControlFactory::reset(const string& detector_type )
             my_xpad_camera->exit();       my_xpad_camera = 0;
             delete my_xpad_interface;     my_xpad_interface = 0;
         }
-#endiF
+#endif
 
 #ifdef PILATUS_ENABLED
         else if (detector_type.compare("PilatusPixelDetector")==0)
