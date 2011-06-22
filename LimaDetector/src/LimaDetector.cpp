@@ -274,7 +274,7 @@ void LimaDetector::init_device()
             m_ct->image()->setRoi(roi);
         }
 
-        //- define curentImageType of detector (16 bits, 32 bits, ...)
+        //- define currentImageType of detector (16 bits, 32 bits, ...) according to "DetectorPixelDepth" device property
         HwDetInfoCtrlObj *hw_det_info;
         m_hw->getHwCtrlObj(hw_det_info);
         switch(detectorPixelDepth)
@@ -290,10 +290,7 @@ void LimaDetector::init_device()
                 break;
         }
 
-		//gete the depth of image, used later for ct_saving
-		ImageType image_type;
-		hw_det_info->getCurrImageType(image_type);
-		
+
 		//- soft reset of camera Interface, re-init some parameters
 		m_hw->reset(HwInterface::SoftReset);
 		
@@ -301,10 +298,12 @@ void LimaDetector::init_device()
         m_img_status_cb    = new ImageStatusCallback(*m_ct);
         m_ct->registerImageStatusCallback(*m_img_status_cb);
 
-        //- parameters of acquisition
+        //- default nb frames of acquisition at start-up
         m_ct->acquisition()->setAcqNbFrames(attr_nbFrames_write);
 
         //- parameters of ctSaving object used to store image in files
+		ImageType image_type;
+		hw_det_info->getCurrImageType(image_type);
         m_saving_par.temporaryPath     = fileTemporaryPath;
         m_saving_par.directory         = fileTargetPath;
         m_saving_par.prefix            = filePrefix;
@@ -340,6 +339,10 @@ void LimaDetector::init_device()
         }
 
         m_ct->saving()->setParameters(m_saving_par);
+		
+		//- force Init() on the specific sub device.
+		ControlFactory::instance().init_specific_device(detectorType);
+
     }
     catch(Exception& e)
     {

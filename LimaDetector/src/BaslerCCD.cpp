@@ -97,6 +97,7 @@ BaslerCCD::BaslerCCD(Tango::DeviceClass *cl,const char *s,const char *d)
 //-----------------------------------------------------------------------------
 void BaslerCCD::delete_device()
 {
+    INFO_STREAM << "BaslerCCD::BaslerCCD() delete device " << device_name << endl;	
     //    Delete device allocated objects
     DELETE_SCALAR_ATTRIBUTE(attr_frameRate_read    );
 

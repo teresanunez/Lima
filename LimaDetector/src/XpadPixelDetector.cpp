@@ -103,7 +103,7 @@ XpadPixelDetector::XpadPixelDetector(Tango::DeviceClass *cl,const char *s,const 
 void XpadPixelDetector::delete_device()
 {
     //    Delete device allocated objects
-    INFO_STREAM << "XpadPixelDetector::delete_device() " << device_name << endl;
+    INFO_STREAM << "XpadPixelDetector::XpadPixelDetector() delete device " << device_name << endl;
 
     DELETE_SCALAR_ATTRIBUTE(attr_deadTime_read);
     DELETE_SCALAR_ATTRIBUTE(attr_init_read);

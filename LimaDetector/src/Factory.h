@@ -31,6 +31,7 @@ public:
 
   CtControl*                     get_control( const string& detector_type, bool is_master = false);
   void                           reset(const string& detector_type );
+  void                           init_specific_device(const string& detector_type );
   
 private:  
   Simulator*                     my_camera_simulator;

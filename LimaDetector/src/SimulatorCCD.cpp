@@ -97,7 +97,8 @@ SimulatorCCD::SimulatorCCD(Tango::DeviceClass *cl,const char *s,const char *d)
 //-----------------------------------------------------------------------------
 void SimulatorCCD::delete_device()
 {
-    //    Delete device allocated objects
+    INFO_STREAM << "SimulatorCCD::SimulatorCCD() delete device " << device_name << endl;        
+	//    Delete device allocated objects
     DELETE_SCALAR_ATTRIBUTE(attr_exposureTime_read);
 
     //!!!! ONLY LimaDetector device can do this !!!!

@@ -100,6 +100,7 @@ PilatusPixelDetector::PilatusPixelDetector(Tango::DeviceClass *cl,const char *s,
 //-----------------------------------------------------------------------------
 void PilatusPixelDetector::delete_device()
 {
+    INFO_STREAM << "PilatusPixelDetector::PilatusPixelDetector() delete device " << device_name << endl;    
     //    Delete device allocated objects
     DELETE_SCALAR_ATTRIBUTE(attr_latency_read);
     DELETE_SCALAR_ATTRIBUTE(attr_threshold_read);
