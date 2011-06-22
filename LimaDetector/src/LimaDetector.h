@@ -329,6 +329,17 @@ public :
  *	Always<BR>
  */
 	vector<string>	debugLevels;
+/**
+ *	Define Lima message format in the console.<BR>
+ *	Availables values :<BR>
+ *	DateTime<BR>
+ *	Thread<BR>
+ *	Module<BR>
+ *	Obj<BR>
+ *	Funct<BR>
+ *	FileLine<BR>
+ */
+	vector<string>	debugFormats;
 //@}
 
 /**

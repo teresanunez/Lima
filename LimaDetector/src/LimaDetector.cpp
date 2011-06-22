@@ -227,7 +227,7 @@ void LimaDetector::init_device()
             case 32    :    dai.tai.data_type = Tango::DEV_ULONG;
                 break;
             default    :    //by default 16 bits
-							dai.tai.data_type = Tango::DEV_USHORT;
+                            dai.tai.data_type = Tango::DEV_USHORT;
                 break;
         }
         dai.tai.writable = Tango::READ;
@@ -240,8 +240,8 @@ void LimaDetector::init_device()
         ////- Manage LIMA logs verbose
         DebParams::setModuleFlagsNameList(debugModules);
         DebParams::setTypeFlagsNameList(debugLevels);
-		
-			
+        DebParams::setFormatFlagsNameList(debugFormats);
+
         //- get the main object used to pilot the lima framework		
         m_ct = ControlFactory::instance().get_control(detectorType, true);
         if(m_ct==0)
@@ -270,7 +270,7 @@ void LimaDetector::init_device()
         m_hw->getHwCtrlObj(hw_roi);
         if(hw_roi)
         {
-			hw_roi->getRoi(roi);
+            hw_roi->getRoi(roi);
             m_ct->image()->setRoi(roi);
         }
 
@@ -280,10 +280,10 @@ void LimaDetector::init_device()
         switch(detectorPixelDepth)
         {
             case 8    :
-				hw_det_info->setCurrImageType(Bpp8);
+                hw_det_info->setCurrImageType(Bpp8);
                 break;
             case 32    :
-				hw_det_info->setCurrImageType(Bpp32);
+                hw_det_info->setCurrImageType(Bpp32);
                 break;
             default    :     //by default 16 bits
                 hw_det_info->setCurrImageType(Bpp16);
@@ -291,9 +291,9 @@ void LimaDetector::init_device()
         }
 
 
-		//- soft reset of camera Interface, re-init some parameters
-		m_hw->reset(HwInterface::SoftReset);
-		
+        //- soft reset of camera Interface, re-init some parameters
+        m_hw->reset(HwInterface::SoftReset);
+
         //- prepare a listen (callback) to receive some notifications from framework
         m_img_status_cb    = new ImageStatusCallback(*m_ct);
         m_ct->registerImageStatusCallback(*m_img_status_cb);
@@ -302,8 +302,8 @@ void LimaDetector::init_device()
         m_ct->acquisition()->setAcqNbFrames(attr_nbFrames_write);
 
         //- parameters of ctSaving object used to store image in files
-		ImageType image_type;
-		hw_det_info->getCurrImageType(image_type);
+        ImageType image_type;
+        hw_det_info->getCurrImageType(image_type);
         m_saving_par.temporaryPath     = fileTemporaryPath;
         m_saving_par.directory         = fileTargetPath;
         m_saving_par.prefix            = filePrefix;
@@ -339,9 +339,9 @@ void LimaDetector::init_device()
         }
 
         m_ct->saving()->setParameters(m_saving_par);
-		
-		//- force Init() on the specific sub device.
-		ControlFactory::instance().init_specific_device(detectorType);
+
+       //- force Init() on the specific sub device.
+        ControlFactory::instance().init_specific_device(detectorType);
 
     }
     catch(Exception& e)
@@ -404,6 +404,7 @@ void LimaDetector::get_device_property()
 	dev_prop.push_back(Tango::DbDatum("FileTargetPath"));
 	dev_prop.push_back(Tango::DbDatum("DebugModules"));
 	dev_prop.push_back(Tango::DbDatum("DebugLevels"));
+	dev_prop.push_back(Tango::DbDatum("DebugFormats"));
 
 	//	Call database and extract values
 	//--------------------------------------------
@@ -535,6 +536,17 @@ void LimaDetector::get_device_property()
 	//	And try to extract DebugLevels value from database
 	if (dev_prop[i].is_empty()==false)	dev_prop[i]  >>  debugLevels;
 
+	//	Try to initialize DebugFormats from class property
+	cl_prop = ds_class->get_class_property(dev_prop[++i].name);
+	if (cl_prop.is_empty()==false)	cl_prop  >>  debugFormats;
+	else {
+		//	Try to initialize DebugFormats from default device value
+		def_prop = ds_class->get_default_device_property(dev_prop[i].name);
+		if (def_prop.is_empty()==false)	def_prop  >>  debugFormats;
+	}
+	//	And try to extract DebugFormats value from database
+	if (dev_prop[i].is_empty()==false)	dev_prop[i]  >>  debugFormats;
+
 
 
     //    End of Automatic code generation
@@ -563,6 +575,13 @@ void LimaDetector::get_device_property()
     myVector.push_back("Error");
     myVector.push_back("Warning");
     create_property_if_empty(dev_prop,myVector,"DebugLevels");
+
+    myVector.clear();
+    myVector.push_back("DateTime");
+    myVector.push_back("Module");
+    myVector.push_back("Type");
+    create_property_if_empty(dev_prop,myVector,"DebugFormats");
+
 }
 //+----------------------------------------------------------------------------
 //
@@ -1764,7 +1783,7 @@ bool LimaDetector::create_acquisition_task(void)
 
         //- prepare the conf to be passed to the task
         m_acq_conf.ct                = m_ct;
-        m_acq_conf.file_target_path    = fileTargetPath;        //property, no need to refresh on each START_MSG
+        m_acq_conf.file_target_path  = fileTargetPath;        //property, no need to refresh on each START_MSG
 
         //- create an INIT msg to pass it some data (Conf)
         yat::Message* msg = yat::Message::allocate( yat::TASK_INIT, INIT_MSG_PRIORITY, true );
@@ -1816,30 +1835,31 @@ void LimaDetector::print_acq_conf(void)
     INFO_STREAM<<"-----------------------------------------------"<<endl;
 
 
-    INFO_STREAM<<"pixelDepth\t\t = "        <<detectorPixelDepth<<endl;
+    INFO_STREAM<<"pixelDepth\t\t = "         <<detectorPixelDepth<<endl;
     INFO_STREAM<<"triggerMode\t\t = "        <<m_trigger_mode<<endl;
     INFO_STREAM<<"acquisitionMode\t\t = "    <<m_acquisition_mode<<endl;
-    INFO_STREAM<<"exposureTime\t\t = "        <<attr_exposureTime_write<<endl;
-    INFO_STREAM<<"exposureAccTime\t = "        <<attr_exposureAccTime_write<<endl;
-    INFO_STREAM<<"temporaryPath\t\t = "        <<m_saving_par.temporaryPath<<endl;
-    INFO_STREAM<<"directory\t\t = "            <<m_saving_par.directory<<endl;
-    INFO_STREAM<<"prefix\t\t = "            <<m_saving_par.prefix<<endl;
-    INFO_STREAM<<"suffix\t\t = "            <<m_saving_par.suffix<<endl;
-	INFO_STREAM<<"imageType\t\t = "            <<m_saving_par.imageType<<endl;
+    INFO_STREAM<<"exposureTime\t\t = "       <<attr_exposureTime_write<<endl;
+    INFO_STREAM<<"exposureAccTime\t = "      <<attr_exposureAccTime_write<<endl;
+    INFO_STREAM<<"temporaryPath\t\t = "      <<m_saving_par.temporaryPath<<endl;
+    INFO_STREAM<<"directory\t\t = "          <<m_saving_par.directory<<endl;
+    INFO_STREAM<<"prefix\t\t = "             <<m_saving_par.prefix<<endl;
+    INFO_STREAM<<"suffix\t\t = "             <<m_saving_par.suffix<<endl;
+    INFO_STREAM<<"imageType\t\t = "          <<m_saving_par.imageType<<endl;
     INFO_STREAM<<"indexFormat\t\t = "        <<m_saving_par.indexFormat<<endl;
-    INFO_STREAM<<"framesPerFile\t\t = "        <<m_saving_par.framesPerFile<<endl;
-    INFO_STREAM<<"nbframes\t\t = "            <<m_saving_par.nbframes<<endl;
-    INFO_STREAM<<"fileGeneration\t\t = "    <<attr_fileGeneration_write<<endl;
+    INFO_STREAM<<"framesPerFile\t\t = "      <<m_saving_par.framesPerFile<<endl;
+    INFO_STREAM<<"nbframes\t\t = "           <<m_saving_par.nbframes<<endl;
+    INFO_STREAM<<"fileGeneration\t\t = "     <<attr_fileGeneration_write<<endl;
+
     Roi roi;
     HwRoiCtrlObj *hw_roi;
     m_hw->getHwCtrlObj(hw_roi);
     if(hw_roi)
     {
         hw_roi->getRoi(roi);
-        INFO_STREAM<<"Roi\t\t = ["    <<roi.getTopLeft().x        <<" , "
+        INFO_STREAM <<"Roi\t\t = ["  <<roi.getTopLeft().x       <<" , "
                                     <<roi.getTopLeft().y        <<" , "
-                                    <<roi.getSize().getWidth()    <<" , "
-                                    <<roi.getSize().getHeight()    <<
+                                    <<roi.getSize().getWidth()  <<" , "
+                                    <<roi.getSize().getHeight() <<
                                 "]"
                     <<endl;
     }
@@ -1923,6 +1943,8 @@ int LimaDetector::FindIndexFromPropertyName(Tango::DbData& dev_prop, string prop
     if (i == iNbProperties) return -1;
     return i;
 }
+
+
 
 
 

@@ -173,7 +173,6 @@ void ControlFactory::init_specific_device(const string& detector_type )
 		my_server_name = Tango::Util::instance()->get_ds_name ();
 		db_datum = (Tango::Util::instance()->get_database())->get_device_name(my_server_name,detector);
 		db_datum >> my_device_name;
-		cout<<">>> my_device_name = "<<my_device_name<<endl;		
 	}
 	
 	(Tango::Util::instance()->get_device_by_name(my_device_name))->delete_device();
