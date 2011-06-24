@@ -21,9 +21,9 @@
 ############################################################################
 #=============================================================================
 #
-# file :        Basler.py
+# file :        Prosilica.py
 #
-# description : Python source for the Basler and its commands.
+# description : Python source for the Prosilica and its commands.
 #                The class is derived from Device. It represents the
 #                CORBA servant object which will be accessed from the
 #                network. All commands which can be executed on the
@@ -41,11 +41,11 @@
 #
 import PyTango
 from Lima import Core
-from Lima import Basler as BaslerAcq
+from Lima import Prosilica as ProsilicaAcq
 from LimaCCDs import CallableReadEnum,CallableWriteEnum
 
 
-class Basler(PyTango.Device_4Impl):
+class Prosilica(PyTango.Device_4Impl):
 
     Core.DEB_CLASS(Core.DebModApplication, 'LimaCCDs')
 
@@ -92,18 +92,18 @@ class Basler(PyTango.Device_4Impl):
             if d:
                 if name.startswith('read_') :
                     functionName = 'get' + attr_name
-                    function2Call = getattr(_BaslerAcq,functionName)
+                    function2Call = getattr(_ProsilicaAcq,functionName)
                     callable_obj = CallableReadEnum(d,function2Call)
                 else:
                     functionName = 'set' + attr_name
-                    function2Call = getattr(_BaslerAcq,function2Call)
+                    function2Call = getattr(_ProsilicaAcq,function2Call)
                     callable_obj = CallableWriteEnum(d,function2Call)
                 self.__dict__[name] = callable_obj
                 return callable_obj
-        raise AttributeError('Basler has no attribute %s' % name)
+        raise AttributeError('Prosilica has no attribute %s' % name)
 
 
-class BaslerClass(PyTango.DeviceClass):
+class ProsilicaClass(PyTango.DeviceClass):
 
     class_property_list = {}
 
@@ -129,22 +129,17 @@ class BaslerClass(PyTango.DeviceClass):
 #----------------------------------------------------------------------------
 # Plugins
 #----------------------------------------------------------------------------
-_BaslerCam = None
-_BaslerInterface = None
+_ProsilicaCam = None
+_ProsilicaInterface = None
 
-# packet_size = 8000 suppose the eth MTU is set at least to 8192 (Jumbo mode !)
-# otherwise frame transfer can failed, the package size must but 
-# correspond to the MTU, see README file under Pylon-3.2.2 installation
-# directory for for details about network optimization.
-
-def get_control(cam_ip_addresse = "0",packet_size = 8000,**keys) :
+def get_control(cam_ip_addresse = "0",**keys) :
     print "cam_ip_addresse",cam_ip_addresse
-    global _BaslerCam
-    global _BaslerInterface
-    if _BaslerCam is None:
-	_BaslerCam = BaslerAcq.Camera(cam_ip_addresse,packet_size)
-	_BaslerInterface = BaslerAcq.Interface(_BaslerCam)
-    return Core.CtControl(_BaslerInterface)
+    global _ProsilicaCam
+    global _ProsilicaInterface
+    if _ProsilicaCam is None:
+	_ProsilicaCam = ProsilicaAcq.Camera(cam_ip_addresse)
+	_ProsilicaInterface = ProsilicaAcq.Interface(_ProsilicaCam)
+    return Core.CtControl(_ProsilicaInterface)
 
 def get_tango_specific_class_n_device():
-    return BaslerClass,Basler
+    return ProsilicaClass,Prosilica
