@@ -183,14 +183,7 @@ void SimulatorCCD::init_device()
 //-----------------------------------------------------------------------------
 void SimulatorCCD::always_executed_hook()
 {
-    //- get the main object used to pilot the lima framework
-    //in fact LimaCCD is create the singleton control objet
-    //so this call, will only return existing object, no need to give it the ip !!
-    m_ct = ControlFactory::instance().get_control("SimulatorCCD");
 
-    //- get interface to specific detector
-    if(m_ct!=0)
-        m_hw = dynamic_cast<SimuHwInterface*>(m_ct->hwInterface());
 }
 //+----------------------------------------------------------------------------
 //

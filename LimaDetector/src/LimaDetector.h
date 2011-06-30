@@ -142,8 +142,7 @@ protected:
             //- here we ensure that code below is executed once !
             if(image_number_ != (last_acq_frame_nb + 1))
             {
-                image_number_ = last_acq_frame_nb + 1;
-                cout<<"[Image is acquired] -> "<<image_number_<<endl;                
+                image_number_ = last_acq_frame_nb + 1;                
     
                 m_ct_.ReadImage(*lastImage_);
                 

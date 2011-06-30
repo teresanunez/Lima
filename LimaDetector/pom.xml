@@ -42,27 +42,25 @@
          <artifactId>LimaSimulator-${aol}-shared-${mode}</artifactId>
          <version>1.0.4-SNAPSHOT</version>
       </dependency>
-
+<!--
       <dependency>
          <groupId>fr.soleil.lib.Lima.Camera</groupId>
          <artifactId>LimaBasler-${aol}-shared-${mode}</artifactId>
          <version>1.0.4-SNAPSHOT</version>
       </dependency>
 
-<!--
       <dependency>
          <groupId>fr.soleil.lib.Lima.Camera</groupId>
          <artifactId>LimaXpad-${aol}-shared-${mode}</artifactId>
          <version>1.0.4-SNAPSHOT</version>
       </dependency>
--->
 
       <dependency>
          <groupId>fr.soleil.lib.Lima.Camera</groupId>
          <artifactId>LimaPilatus-${aol}-shared-${mode}</artifactId>
          <version>1.0.4-SNAPSHOT</version>
       </dependency>
-
+-->
       <dependency>
          <groupId>fr.soleil.lib</groupId>
          <artifactId>GDShare-${aol}-${library}-${mode}</artifactId>
@@ -95,25 +93,25 @@
                      <cpp>
                         <defines>
                            <define>BOOST_ALL_DYN_LINK</define>
-                           <define>LOG4TANGO_HAVE_INT64_T</define>
+                           <define>LOG4TANGO_HAVE_INT64_T</define>                            
                            <!-- define wich detector you need to ENABLE -->
-                           <define>USE_GIGE</define>
-                           <define>BASLER_ENABLED</define>
+                           <!--<define>USE_GIGE</define>-->
+                           <!--<define>BASLER_ENABLED</define>-->
                            <!--<define>XPAD_ENABLED</define>-->
-                           <define>PILATUS_ENABLED</define>
+                           <!--<define>PILATUS_ENABLED</define>-->
                         </defines>
 
                         <systemIncludePaths>
-                           <systemIncludePath>${env.PYLON_ROOT}/include</systemIncludePath>
-                           <systemIncludePath>${env.GENICAM_ROOT_V1_1}/include/genicam</systemIncludePath>
+                           <!--<systemIncludePath>${env.PYLON_ROOT}/include</systemIncludePath>-->
+                           <!--<systemIncludePath>${env.GENICAM_ROOT_V1_1}/include/genicam</systemIncludePath>-->
                            <!--<systemIncludePath>/home/informatique/ica/noureddine/DeviceSources/PCIex280311/trunk/sw/xpci_lib</systemIncludePath>-->
                         </systemIncludePaths>
 
                         <!-- exclude every detector who is NOT ENABLED -->
                         <excludes>
-                            <!--<exclude>Basler*.*</exclude>-->
+                            <exclude>Basler*.*</exclude>
                             <exclude>Xpad*.*</exclude>
-                            <!--<exclude>Pilat*.*</exclude>-->
+                            <exclude>Pilat*.*</exclude>
                         </excludes>
 
                         <!-- define less verbose mode for gcc-->
@@ -125,19 +123,19 @@
                      <!-- define libraries path's -->
                      <linker>
                         <libs>
-
+<!--
                            <lib>
                               <name>pylonbase</name>
                               <type>shared</type>
                               <directory>${env.PYLON_ROOT}/lib</directory>
                            </lib>
-                           <!--
+
                            <lib>
                               <name>xpci_lib</name>
                               <type>static</type>
                               <directory>/home/informatique/ica/noureddine/DeviceSources/PCIex280311/trunk/sw/xpci_lib</directory>
                            </lib>
-                           -->
+-->
                         </libs>
                      </linker>
                  </configuration>

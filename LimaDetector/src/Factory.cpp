@@ -90,7 +90,7 @@ CtControl* ControlFactory::get_control( const string& detector_type, bool is_mas
 				db_data[0] >> camera_ip;
 				db_data[1] >> camera_port;
 				
-				my_camera_pilatus           = new PilatusCpp::Communication(camera_ip.c_str(), 6666/*camera_port*/);
+				my_camera_pilatus           = new PilatusCpp::Communication(camera_ip.c_str(), camera_port);
                 my_interface_pilatus        = new PilatusCpp::Interface(*my_camera_pilatus);
                 my_control                  = new CtControl(my_interface_pilatus);
                 ControlFactory::is_created  = true;
@@ -165,18 +165,25 @@ void ControlFactory::reset(const string& detector_type )
 //-----------------------------------------------------------------------------------------
 void ControlFactory::init_specific_device(const string& detector_type )
 {
-	//get the tango device/instance
-	if(!ControlFactory::is_created)
-	{	
-		string  detector = detector_type;
-		DbDatum db_datum;
-		my_server_name = Tango::Util::instance()->get_ds_name ();
-		db_datum = (Tango::Util::instance()->get_database())->get_device_name(my_server_name,detector);
-		db_datum >> my_device_name;
+	try
+	{
+		//get the tango device/instance
+		if(!ControlFactory::is_created)
+		{	
+			string  detector = detector_type;
+			DbDatum db_datum;
+			my_server_name = Tango::Util::instance()->get_ds_name ();
+			db_datum = (Tango::Util::instance()->get_database())->get_device_name(my_server_name,detector);
+			db_datum >> my_device_name;
+		}
+		
+		(Tango::Util::instance()->get_device_by_name(my_device_name))->delete_device();
+		(Tango::Util::instance()->get_device_by_name(my_device_name))->init_device();
 	}
-	
-	(Tango::Util::instance()->get_device_by_name(my_device_name))->delete_device();
-	(Tango::Util::instance()->get_device_by_name(my_device_name))->init_device();
+	catch(...)
+	{
+		//NOP
+	}
 
 }
 //-----------------------------------------------------------------------------------------

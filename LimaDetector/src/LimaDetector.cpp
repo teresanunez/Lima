@@ -215,6 +215,7 @@ void LimaDetector::init_device()
     {
         //- add image dynamic attribute
         //- create image dyn attr (UChar, UShort or ULong)
+        INFO_STREAM<<"Add image dynamic attribute."<<endl;
         DynamicAttributeInfo dai;
         dai.dev = this;
         dai.tai.name = "image";
@@ -242,7 +243,8 @@ void LimaDetector::init_device()
         DebParams::setTypeFlagsNameList(debugLevels);
         DebParams::setFormatFlagsNameList(debugFormats);
 
-        //- get the main object used to pilot the lima framework		
+        //- get the main object used to pilot the lima framework
+        INFO_STREAM<<"Get the main object used to pilot/control detector through Lima."<<endl;
         m_ct = ControlFactory::instance().get_control(detectorType, true);
         if(m_ct==0)
         {
@@ -254,6 +256,7 @@ void LimaDetector::init_device()
         }
 
         //- get interface to specific camera
+        INFO_STREAM<<"Get Interface to a specific camera."<<endl;
         m_hw = dynamic_cast<HwInterface*>(m_ct->hwInterface());
         if(m_hw==0)
         {
@@ -265,6 +268,7 @@ void LimaDetector::init_device()
         }
 
         //To ensure that the real ROI will be used at startup
+        INFO_STREAM<<"Reload hard ROI of detector."<<endl;
         Roi roi;
         HwRoiCtrlObj *hw_roi;
         m_hw->getHwCtrlObj(hw_roi);
@@ -275,6 +279,7 @@ void LimaDetector::init_device()
         }
 
         //- define currentImageType of detector (16 bits, 32 bits, ...) according to "DetectorPixelDepth" device property
+        INFO_STREAM<<"Define ImageType of detector (16 bits, 32 bits, ...)."<<endl;
         HwDetInfoCtrlObj *hw_det_info;
         m_hw->getHwCtrlObj(hw_det_info);
         switch(detectorPixelDepth)
@@ -290,11 +295,12 @@ void LimaDetector::init_device()
                 break;
         }
 
-
         //- soft reset of camera Interface, re-init some parameters
+        INFO_STREAM<<"Reset (soft) of camera."<<endl;
         m_hw->reset(HwInterface::SoftReset);
 
         //- prepare a listen (callback) to receive some notifications from framework
+        INFO_STREAM<<"Prepare a callback to receive acquisition notifications."<<endl;
         m_img_status_cb    = new ImageStatusCallback(*m_ct);
         m_ct->registerImageStatusCallback(*m_img_status_cb);
 
@@ -302,6 +308,7 @@ void LimaDetector::init_device()
         m_ct->acquisition()->setAcqNbFrames(attr_nbFrames_write);
 
         //- parameters of ctSaving object used to store image in files
+        INFO_STREAM<<"Define parameters to store image in files."<<endl;
         ImageType image_type;
         hw_det_info->getCurrImageType(image_type);
         m_saving_par.temporaryPath     = fileTemporaryPath;
@@ -340,7 +347,8 @@ void LimaDetector::init_device()
 
         m_ct->saving()->setParameters(m_saving_par);
 
-       //- force Init() on the specific sub device.
+        //- force Init() on the specific sub device.
+        INFO_STREAM<<"Force Initialization on the specific sub device."<<endl;
         ControlFactory::instance().init_specific_device(detectorType);
 
     }

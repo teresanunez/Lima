@@ -246,14 +246,6 @@ void BaslerCCD::get_device_property()
 //-----------------------------------------------------------------------------
 void BaslerCCD::always_executed_hook()
 {
-    //- get the main object used to pilot the lima framework
-    //in fact LimaCCD is create the singleton control objet
-    //so this call, will only return existing object, no need to give it the ip !!
-    m_ct = ControlFactory::instance().get_control("BaslerCCD");
-
-    //- get interface to specific detector
-    if(m_ct!=0)
-        m_hw = dynamic_cast<Basler::Interface*>(m_ct->hwInterface());
 
 }
 //+----------------------------------------------------------------------------
