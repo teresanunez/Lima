@@ -1038,6 +1038,14 @@ class LimaCCDs(PyTango.Device_4Impl) :
         dataflat.dtype = numpy.uint8
         return dataflat
 
+    ##@brief manual write image
+    #
+    #
+    @Core.DEB_MEMBER_FUNCT
+    def writeImage(self,image_id) :
+        saving = self.__control.saving()
+        saving.writeFrame(image_id)
+
     ##@brief get saturated images
     #
     #@params image_id if < 0 read the last image
@@ -1174,6 +1182,9 @@ class LimaCCDsClass(PyTango.DeviceClass) :
          [PyTango.DevVarLongArray,"number of result for each images,sum counter of raw image #0 of image #0,sum counter of raw image #1 of image #0,..."]],
         'setAccSaturatedMask':
          [[PyTango.DevString,"Full path of mask file"],
+         [PyTango.DevVoid,""]],
+        'writeImage':
+        [[PyTango.DevLong,"Image id"],
          [PyTango.DevVoid,""]],
 	}
     
