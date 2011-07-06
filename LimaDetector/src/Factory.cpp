@@ -15,17 +15,17 @@ CtControl* ControlFactory::get_control( const string& detector_type, bool is_mas
         if(!is_master)
             return my_control;
 		
-		//get the tango device/instance
-		if(!ControlFactory::is_created)
-		{	
-			string  detector = detector_type;
-			DbDatum db_datum;
-			my_server_name = Tango::Util::instance()->get_ds_name ();
-			db_datum = (Tango::Util::instance()->get_database())->get_device_name(my_server_name,detector);
-			db_datum >> my_device_name;
-		}
+	//get the tango device/instance
+	if(!ControlFactory::is_created)
+	{	
+		string  detector = detector_type;
+		DbDatum db_datum;
+		my_server_name = Tango::Util::instance()->get_ds_name ();
+		db_datum = (Tango::Util::instance()->get_database())->get_device_name(my_server_name,detector);
+		db_datum >> my_device_name;
+	}
 
-//SIMULATOR IS ALWAYS ENABLED
+	//SIMULATOR IS ALWAYS ENABLED
         if (detector_type.compare("SimulatorCCD")== 0)
         {        
             if(!ControlFactory::is_created)
@@ -62,7 +62,6 @@ CtControl* ControlFactory::get_control( const string& detector_type, bool is_mas
 #ifdef XPAD_ENABLED
         else if (detector_type.compare("XpadPixelDetector")== 0)
         {    
-        
             if(!ControlFactory::is_created)
             {
                 my_xpad_camera                = new XpadCamera();
@@ -81,16 +80,16 @@ CtControl* ControlFactory::get_control( const string& detector_type, bool is_mas
         
             if(!ControlFactory::is_created)
             {				
-				DbData db_data;
-				db_data.push_back(DbDatum("DetectorIP"));
-				db_data.push_back(DbDatum("DetectorPort"));
-				(Tango::Util::instance()->get_database())->get_device_property(my_device_name, db_data);
-				string camera_ip;
-				long camera_port;
-				db_data[0] >> camera_ip;
-				db_data[1] >> camera_port;
-				
-				my_camera_pilatus           = new PilatusCpp::Communication(camera_ip.c_str(), 6666/*camera_port*/);
+		DbData db_data;
+		db_data.push_back(DbDatum("DetectorIP"));
+		db_data.push_back(DbDatum("DetectorPort"));
+		(Tango::Util::instance()->get_database())->get_device_property(my_device_name, db_data);
+		string camera_ip;
+		long camera_port;
+		db_data[0] >> camera_ip;
+		db_data[1] >> camera_port;
+		
+		my_camera_pilatus           = new PilatusCpp::Communication(camera_ip.c_str(),6666/*camera_port*/);
                 my_interface_pilatus        = new PilatusCpp::Interface(*my_camera_pilatus);
                 my_control                  = new CtControl(my_interface_pilatus);
                 ControlFactory::is_created  = true;
