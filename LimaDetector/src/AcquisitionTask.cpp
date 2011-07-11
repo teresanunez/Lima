@@ -195,11 +195,11 @@ void AcquisitionTask::process_message(yat::Message& msg) throw (Tango::DevFailed
                     gdshare::FileName fn(m_acq_conf.file_target_path);
                     fn.Rmdir(false, true);
                 }
-                catch(gdshare::FileException& e)
+                catch(yat::Exception& e)
                 {
-                    ERROR_STREAM << e.Message() << endl;
+                    e.dump();
                     set_state(Tango::FAULT);
-                    set_status(e.Message());
+                    set_status("Failed to delete directory content");
                 }
             }
             break;
