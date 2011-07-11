@@ -178,7 +178,8 @@ class LimaCCDs(PyTango.Device_4Impl) :
         self.__Prefix2SubClass = {'acc' : self.__control.acquisition,
                                   'acq' : self.__control.acquisition,
                                   'shutter' : self.__control.shutter,
-                                  'saving' : self.__control.saving}
+                                  'saving' : self.__control.saving,
+                                  'image' : self.__control.image}
 
         self.__Attribute2FunctionBase = {'acq_trigger_mode':'TriggerMode',
                                          'saving_overwrite_policy' : 'OverwritePolicy',
@@ -225,6 +226,13 @@ class LimaCCDs(PyTango.Device_4Impl) :
 	except AttributeError:
 	    pass
 
+        try:
+            self.__ImageRotation = {'NONE' : Core.Rotation_0,
+                                    '90' : Core.Rotation_90,
+                                    '180' : Core.Rotation_180,
+                                    '270' : Core.Rotation_270}
+        except AttributeError:
+            pass
 
         
     def __getattr__(self,name) :
@@ -1332,6 +1340,10 @@ class LimaCCDsClass(PyTango.DeviceClass) :
         [[PyTango.DevBoolean,
           PyTango.SPECTRUM,
           PyTango.READ_WRITE,2]],
+        'image_rotation':
+        [[PyTango.DevString,
+          PyTango.SCALAR,
+          PyTango.READ_WRITE]],
         'last_image_acquired':
         [[PyTango.DevLong,
           PyTango.SCALAR,
