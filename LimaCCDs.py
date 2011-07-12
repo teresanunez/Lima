@@ -676,8 +676,28 @@ class LimaCCDs(PyTango.Device_4Impl) :
         self.__key_header_delimiter = data[0]
         self.__entry_header_delimiter = data[1]
         self.__image_number_header_delimiter = data[2]
+    ## @brief last image acquired
+    #
+    @Core.DEB_MEMBER_FUNCT
+    def read_last_image_acquired(self,attr) :
+        status = self.__control.getStatus()
+        img_counters = status.ImageCounters
+
+        value = img_counters.LastImageAcquired
+        attr.set_value(value)
+
+    ## @brief last base image acquired
+    #
+    @Core.DEB_MEMBER_FUNCT
+    def read_last_base_image_ready(self,attr) :
+        status = self.__control.getStatus()
+        img_counters = status.ImageCounters
+
+        value = img_counters.LastBaseImageReady
+        attr.set_value(value)
+
     
-    ## @brief Read last image acquired
+    ## @brief Read last image ready
     #
     @Core.DEB_MEMBER_FUNCT
     def read_last_image_ready(self,attr) :
@@ -685,7 +705,17 @@ class LimaCCDs(PyTango.Device_4Impl) :
 	img_counters= status.ImageCounters
 
         value = img_counters.LastImageReady
-        if value is None: value = -1
+
+        attr.set_value(value)
+
+    ## @brief last counter ready
+    #
+    @Core.DEB_MEMBER_FUNCT
+    def read_last_counter_ready(self,attr) :
+        status = self.__control.getStatus()
+	img_counters= status.ImageCounters
+
+        value = img_counters.LastCounterReady
 
         attr.set_value(value)
 
@@ -1052,6 +1082,14 @@ class LimaCCDs(PyTango.Device_4Impl) :
         dataflat.dtype = numpy.uint8
         return dataflat
 
+    ##@brief manual write image
+    #
+    #
+    @Core.DEB_MEMBER_FUNCT
+    def writeImage(self,image_id) :
+        saving = self.__control.saving()
+        saving.writeFrame(image_id)
+
     ##@brief get saturated images
     #
     #@params image_id if < 0 read the last image
@@ -1189,6 +1227,9 @@ class LimaCCDsClass(PyTango.DeviceClass) :
         'setAccSaturatedMask':
          [[PyTango.DevString,"Full path of mask file"],
          [PyTango.DevVoid,""]],
+        'writeImage':
+        [[PyTango.DevLong,"Image id"],
+         [PyTango.DevVoid,""]],
 	}
     
     #    Attribute definitions
@@ -1309,11 +1350,23 @@ class LimaCCDsClass(PyTango.DeviceClass) :
         [[PyTango.DevBoolean,
           PyTango.SPECTRUM,
           PyTango.READ_WRITE,2]],
+        'last_image_acquired':
+        [[PyTango.DevLong,
+          PyTango.SCALAR,
+          PyTango.READ]],
+        'last_base_image_ready':
+        [[PyTango.DevLong,
+          PyTango.SCALAR,
+          PyTango.READ]],
         'last_image_ready':
         [[PyTango.DevLong,
           PyTango.SCALAR,
           PyTango.READ]],
         'last_image_saved':
+        [[PyTango.DevLong,
+          PyTango.SCALAR,
+          PyTango.READ]],
+        'last_counter_ready':
         [[PyTango.DevLong,
           PyTango.SCALAR,
           PyTango.READ]],
