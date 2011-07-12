@@ -303,7 +303,21 @@ class LimaCCDs(PyTango.Device_4Impl) :
                         Core.AcqRunning : "Running",
                         Core.AcqFault : "Fault"}
         attr.set_value(state2string.get(status.AcquisitionStatus,"?"))
-
+    ## @brief get the errir message when acq_status is in Fault stat
+    #
+    @Core.DEB_MEMBER_FUNCT
+    def read_acq_status_fault_error(self,attr) :
+        status = self.__control.getStatus()
+        state2string = {Core.CtControl.NoError : "No error",
+                        Core.CtControl.SaveUnknownError : "Saving: unknown error",
+                        Core.CtControl.SaveAccessError : "Saving: access error",
+                        Core.CtControl.SaveOverwriteError : "Saving: overwrite error",
+                        Core.CtControl.SaveDiskFull : "Saving: disk full",
+                        Core.CtControl.SaveOverun : "Saving: overun",
+                        Core.CtControl.ProcessingOverun : "Processing: overun",
+                        Core.CtControl.CameraError : "Camera: error"}
+        attr.set_value(state2string.get(status.Error,"?"))
+        
     ## @brief read the number of frame for an acquisition
     #
     @Core.DEB_MEMBER_FUNCT
@@ -1192,6 +1206,10 @@ class LimaCCDsClass(PyTango.DeviceClass) :
           PyTango.SCALAR,
           PyTango.READ]],
         'acq_status':
+        [[PyTango.DevString,
+          PyTango.SCALAR,
+          PyTango.READ]],
+        'acq_status_fault_error':
         [[PyTango.DevString,
           PyTango.SCALAR,
           PyTango.READ]],
