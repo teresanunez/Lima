@@ -47,6 +47,7 @@ import PyTango
 import weakref
 import itertools
 import numpy
+import struct
 
 from Lima import Core
 
@@ -94,6 +95,7 @@ class LimaCCDs(PyTango.Device_4Impl) :
  	self.__key_header_delimiter = '='
         self.__entry_header_delimiter = '\n'
         self.__image_number_header_delimiter = ';'
+	self.__readImage_frame_number = 0
        
 #------------------------------------------------------------------
 #    Device destructor
@@ -155,10 +157,11 @@ class LimaCCDs(PyTango.Device_4Impl) :
             Core.Processlib.PoolThreadMgr.get().setNumberOfThread(nb_thread)
 
         self.__accThresholdCallback = None
-        try:
-            accThresholdCallbackModule = self.AccThresholdCallbackModule
-        except ValueError:
-            pass
+	
+	accThresholdCallbackModule = self.AccThresholdCallbackModule
+	if not accThresholdCallbackModule:
+	# if NO property accThresholdCallbackModule has been set the member var. is set to []
+	    pass
         else:
             try:
                 m = __import__('plugins.%s' % (accThresholdCallbackModule),None,None,
@@ -524,24 +527,24 @@ class LimaCCDs(PyTango.Device_4Impl) :
     @Core.DEB_MEMBER_FUNCT
     def read_image_sizes(self,attr) :
         imageType2NbBytes = {
-            Core.Bpp8 : 1 ,
-            Core.Bpp8S : 1 ,
-            Core.Bpp10 : 2 ,
-            Core.Bpp10S : 2 ,
-            Core.Bpp12 : 2 ,
-            Core.Bpp12S : 2 ,
-            Core.Bpp14 : 2 ,
-            Core.Bpp14S : 2 , 
-            Core.Bpp16 : 2,
-            Core.Bpp16S : 2,
-            Core.Bpp32 : 4 ,
-            Core.Bpp32S : 4
+            Core.Bpp8 : (1,0) ,
+            Core.Bpp8S : (1,1) ,
+            Core.Bpp10 : (2,0) ,
+            Core.Bpp10S : (2,1) ,
+            Core.Bpp12 : (2,0) ,
+            Core.Bpp12S : (2,1) ,
+            Core.Bpp14 : (2,0) ,
+            Core.Bpp14S : (2,1) , 
+            Core.Bpp16 : (2,0),
+            Core.Bpp16S : (2,1),
+            Core.Bpp32 : (4,0) ,
+            Core.Bpp32S : (4,1)
             }        
         image = self.__control.image()
         imageType = image.getImageType()
         dim = image.getImageDim()
-        
-        sizes = [imageType2NbBytes.get(imageType,"?"), dim.getSize().getWidth(), dim.getSize().getHeight()]
+        depth, signed = imageType2NbBytes.get(imageType,(0,0))
+        sizes = [signed, depth, dim.getSize().getWidth(), dim.getSize().getHeight()]
         
         attr.set_value(sizes)
 
@@ -940,6 +943,99 @@ class LimaCCDs(PyTango.Device_4Impl) :
         data = []
         attr.get_write_value(data)
         Core.DebParams.setTypeFlagsNameList(data)
+
+
+    ##@brief set the image number for image reading
+    # FOR TEST OF DEVENCODED, TEMPORARY HACK FOR TANGO C-BINDING
+    def write_readImage_frame_number(self, attr) :
+    	data = []
+    	attr.get_write_value(data)
+    	self.__readImage_frame_number = data[0]
+
+    ##@brief get the image number for image reading
+    # FOR TEST OF DEVENCODED, TEMPORARY HACK FOR TANGO C-BINDING
+    def read_readImage_frame_number(self, attr) :
+    	attr.set_value(self.__readImage_frame_number)
+    
+    ##@brief read the image specified using readImage_frame_number attribute
+    # FOR TEST OF DEVENCODED, TEMPORARY HACK FOR TANGO C-BINDING    
+    def read_readImage_image_data(self, attr) :    
+        imageType2DataArrayType = {
+            Core.Bpp8 : 0 ,
+            Core.Bpp10 : 1 ,
+            Core.Bpp12 : 1 ,
+            Core.Bpp14 : 1 ,
+            Core.Bpp16 : 1,
+            Core.Bpp32 : 2 ,
+            Core.Bpp8S : 4 ,
+            Core.Bpp10S : 5 ,
+            Core.Bpp12S : 5 ,
+            Core.Bpp14S : 5 ,
+            Core.Bpp16S : 5,
+            Core.Bpp32S : 6 ,
+            }        
+        image = self.__control.image()
+        imageType = image.getImageType()
+        dim = image.getImageDim()    
+        sizes = [imageType2DataArrayType.get(imageType,"?"), dim.getSize().getWidth(), dim.getSize().getHeight()]
+    
+        # The DATA_ARRAY definition
+        #struct {
+          #unsigned int Magic= 0x44544159;
+          #unsigned short Version;
+          #unsigned  short HeaderLength;
+          #DataArrayCategory Category;
+          #DataArrayType DataType;
+          #unsigned short DataEndianness;
+          #unsigned short NbDim;
+          #unsigned short Dim[8]
+          #unsigned int DimStep[8]
+        #} DataArrayHeaderStruct;
+
+        #enum DataArrayCategory {
+            #ScalarStack = 0;
+            #Spectrum;
+            #Image;
+            #SpectrumStack;
+            #ImageStack;
+        #};
+
+        #enum DataArrayType{
+          #DARRAY_UINT8 = 0;
+          #DARRAY_UINT16;
+          #DARRAY_UINT32;
+          #DARRAY_UINT64;
+          #DARRAY_INT8;
+          #DARRAY_INT16;
+          #DARRAY_INT32;
+          #DARRAY_INT64;
+          #DARRAY_FLOAT32;
+          #DARRAY_FLOAT64;
+        #};
+
+        #prepare the structure
+        #  '>IHHHHHHHHHHHHHHIIIIIIII',
+        dataheader = struct.pack(
+          'IHHIIHHHHHHHHHHHHHHHHHHIII',
+          0x44544159,  				# 4bytes I  - magic number
+          1,           				# 2bytes H  - version
+          64,          				# 2 bytes H - header length, this header
+          2,           				# 4 bytes I - category (enum)
+          sizes[0],    				# 4 bytes I - data type (enum)
+          0,           				# 2 bytes H - endianness
+          2,           				# 2 bytes H - nb of dims
+          sizes[1],sizes[2],0,0,0,0,0,0,	# 16 bytes Hx8 - dims
+          1,sizes[2],0,0,0,0,0,0,    		# 16 bytes H x 8 - dimsteps
+          0,0,0)    				# padding 3 x 4 bytes
+
+        image = self.__control.ReadImage(self.__readImage_frame_number)
+        flatimage = image.buffer.ravel()
+        flatimage.dtype = numpy.uint8
+        
+        self._datacache = dataheader+flatimage.tostring()        
+        
+        attr.set_value('DATA_ARRAY',  self._datacache)        
+
     
 #==================================================================
 #
@@ -1027,6 +1123,15 @@ class LimaCCDs(PyTango.Device_4Impl) :
         dataflat = self._data_cache.buffer.ravel()
         dataflat.dtype = numpy.uint8
         return dataflat
+
+    ##@brief get image data
+    #
+    @Core.DEB_MEMBER_FUNCT
+    def readImage(self,frame_number):
+        print "In ", self.get_name(), "::readImage()"
+        #    Add your own code here
+        return
+
 
     ##@brief get base image data
     #
@@ -1175,6 +1280,9 @@ class LimaCCDsClass(PyTango.DeviceClass) :
         'setAccSaturatedMask':
          [[PyTango.DevString,"Full path of mask file"],
          [PyTango.DevVoid,""]],
+        'readImage':
+         [[PyTango.DevLong, "Image number"],
+         [PyTango.DevEncoded, ""]],
 	}
     
     #    Attribute definitions
@@ -1262,14 +1370,14 @@ class LimaCCDsClass(PyTango.DeviceClass) :
         'image_sizes':
         [[PyTango.DevULong,
           PyTango.SPECTRUM,
-          PyTango.READ,3],
+          PyTango.READ,4],
          {
-             'label':"Image sizes:Depth, Width, Height",
+             'label':"Image sizes:Signed, Depth, Width, Height",
              'unit':"",
              'standard unit':"",
              'display unit':"",
              'format':"%d",
-             'description':"nb bytes of depth, nb pixels of width and nb pixels of height",
+             'description':"Signed ,nb bytes of depth, nb pixels of width and nb pixels of height",
          }],
         'image_type':
         [[PyTango.DevString,
@@ -1379,7 +1487,33 @@ class LimaCCDsClass(PyTango.DeviceClass) :
         [[PyTango.DevString,
           PyTango.SPECTRUM,
           PyTango.READ_WRITE,len(LimaCCDs._debugTypeList)]],
+
+        'readImage_frame_number':
+        [[PyTango.DevLong,
+          PyTango.SCALAR,
+          PyTango.READ_WRITE],
+          {
+                             'label':"the image number",
+                             'unit':"image",
+                             'standard unit':"image",
+                             'display unit':"image",
+                             'format':"%d",
+                             'description':"image number",
+         } ],
+        'readImage_image_data':
+         [[PyTango.DevEncoded,
+           PyTango.SCALAR,
+           PyTango.READ],
+           {
+                             'label':"the image data",
+                             'unit':"",
+                             'standard unit':"",
+                             'display unit':"",
+                             'format':"%d",
+                             'description':"image data as encoded",
+           } ],
         }
+
 
 def declare_camera_n_commun_to_tango_world(util) :
     for module_name in camera.__all__:
