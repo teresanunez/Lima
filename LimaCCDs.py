@@ -1340,10 +1340,12 @@ class LimaCCDsClass(PyTango.DeviceClass) :
         'setAccSaturatedMask':
          [[PyTango.DevString,"Full path of mask file"],
          [PyTango.DevVoid,""]],
-         [PyTango.DevEncoded, ""]],
         'writeImage':
         [[PyTango.DevLong,"Image id"],
          [PyTango.DevVoid,""]],
+        'readImage':
+        [[PyTango.DevLong,"Image id"],
+         [PyTango.DevEncoded, ""]],
 	}
     
     #    Attribute definitions
