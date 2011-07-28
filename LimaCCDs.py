@@ -181,7 +181,8 @@ class LimaCCDs(PyTango.Device_4Impl) :
         self.__Prefix2SubClass = {'acc' : self.__control.acquisition,
                                   'acq' : self.__control.acquisition,
                                   'shutter' : self.__control.shutter,
-                                  'saving' : self.__control.saving}
+                                  'saving' : self.__control.saving,
+                                  'image' : self.__control.image}
 
         self.__Attribute2FunctionBase = {'acq_trigger_mode':'TriggerMode',
                                          'saving_overwrite_policy' : 'OverwritePolicy',
@@ -228,6 +229,13 @@ class LimaCCDs(PyTango.Device_4Impl) :
 	except AttributeError:
 	    pass
 
+        try:
+            self.__ImageRotation = {'NONE' : Core.Rotation_0,
+                                    '90' : Core.Rotation_90,
+                                    '180' : Core.Rotation_180,
+                                    '270' : Core.Rotation_270}
+        except AttributeError:
+            pass
 
         
     def __getattr__(self,name) :
@@ -306,7 +314,21 @@ class LimaCCDs(PyTango.Device_4Impl) :
                         Core.AcqRunning : "Running",
                         Core.AcqFault : "Fault"}
         attr.set_value(state2string.get(status.AcquisitionStatus,"?"))
-
+    ## @brief get the errir message when acq_status is in Fault stat
+    #
+    @Core.DEB_MEMBER_FUNCT
+    def read_acq_status_fault_error(self,attr) :
+        status = self.__control.getStatus()
+        state2string = {Core.CtControl.NoError : "No error",
+                        Core.CtControl.SaveUnknownError : "Saving: unknown error",
+                        Core.CtControl.SaveAccessError : "Saving: access error",
+                        Core.CtControl.SaveOverwriteError : "Saving: overwrite error",
+                        Core.CtControl.SaveDiskFull : "Saving: disk full",
+                        Core.CtControl.SaveOverun : "Saving: overun",
+                        Core.CtControl.ProcessingOverun : "Processing: overun",
+                        Core.CtControl.CameraError : "Camera: error"}
+        attr.set_value(state2string.get(status.Error,"?"))
+        
     ## @brief read the number of frame for an acquisition
     #
     @Core.DEB_MEMBER_FUNCT
@@ -665,8 +687,28 @@ class LimaCCDs(PyTango.Device_4Impl) :
         self.__key_header_delimiter = data[0]
         self.__entry_header_delimiter = data[1]
         self.__image_number_header_delimiter = data[2]
+    ## @brief last image acquired
+    #
+    @Core.DEB_MEMBER_FUNCT
+    def read_last_image_acquired(self,attr) :
+        status = self.__control.getStatus()
+        img_counters = status.ImageCounters
+
+        value = img_counters.LastImageAcquired
+        attr.set_value(value)
+
+    ## @brief last base image acquired
+    #
+    @Core.DEB_MEMBER_FUNCT
+    def read_last_base_image_ready(self,attr) :
+        status = self.__control.getStatus()
+        img_counters = status.ImageCounters
+
+        value = img_counters.LastBaseImageReady
+        attr.set_value(value)
+
     
-    ## @brief Read last image acquired
+    ## @brief Read last image ready
     #
     @Core.DEB_MEMBER_FUNCT
     def read_last_image_ready(self,attr) :
@@ -674,7 +716,17 @@ class LimaCCDs(PyTango.Device_4Impl) :
 	img_counters= status.ImageCounters
 
         value = img_counters.LastImageReady
-        if value is None: value = -1
+
+        attr.set_value(value)
+
+    ## @brief last counter ready
+    #
+    @Core.DEB_MEMBER_FUNCT
+    def read_last_counter_ready(self,attr) :
+        status = self.__control.getStatus()
+	img_counters= status.ImageCounters
+
+        value = img_counters.LastCounterReady
 
         attr.set_value(value)
 
@@ -1143,6 +1195,14 @@ class LimaCCDs(PyTango.Device_4Impl) :
         dataflat.dtype = numpy.uint8
         return dataflat
 
+    ##@brief manual write image
+    #
+    #
+    @Core.DEB_MEMBER_FUNCT
+    def writeImage(self,image_id) :
+        saving = self.__control.saving()
+        saving.writeFrame(image_id)
+
     ##@brief get saturated images
     #
     #@params image_id if < 0 read the last image
@@ -1280,9 +1340,10 @@ class LimaCCDsClass(PyTango.DeviceClass) :
         'setAccSaturatedMask':
          [[PyTango.DevString,"Full path of mask file"],
          [PyTango.DevVoid,""]],
-        'readImage':
-         [[PyTango.DevLong, "Image number"],
          [PyTango.DevEncoded, ""]],
+        'writeImage':
+        [[PyTango.DevLong,"Image id"],
+         [PyTango.DevVoid,""]],
 	}
     
     #    Attribute definitions
@@ -1300,6 +1361,10 @@ class LimaCCDsClass(PyTango.DeviceClass) :
           PyTango.SCALAR,
           PyTango.READ]],
         'acq_status':
+        [[PyTango.DevString,
+          PyTango.SCALAR,
+          PyTango.READ]],
+        'acq_status_fault_error':
         [[PyTango.DevString,
           PyTango.SCALAR,
           PyTango.READ]],
@@ -1399,11 +1464,27 @@ class LimaCCDsClass(PyTango.DeviceClass) :
         [[PyTango.DevBoolean,
           PyTango.SPECTRUM,
           PyTango.READ_WRITE,2]],
+        'image_rotation':
+        [[PyTango.DevString,
+          PyTango.SCALAR,
+          PyTango.READ_WRITE]],
+        'last_image_acquired':
+        [[PyTango.DevLong,
+          PyTango.SCALAR,
+          PyTango.READ]],
+        'last_base_image_ready':
+        [[PyTango.DevLong,
+          PyTango.SCALAR,
+          PyTango.READ]],
         'last_image_ready':
         [[PyTango.DevLong,
           PyTango.SCALAR,
           PyTango.READ]],
         'last_image_saved':
+        [[PyTango.DevLong,
+          PyTango.SCALAR,
+          PyTango.READ]],
+        'last_counter_ready':
         [[PyTango.DevLong,
           PyTango.SCALAR,
           PyTango.READ]],
