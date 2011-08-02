@@ -187,7 +187,8 @@ class LimaCCDs(PyTango.Device_4Impl) :
         self.__Attribute2FunctionBase = {'acq_trigger_mode':'TriggerMode',
                                          'saving_overwrite_policy' : 'OverwritePolicy',
                                          'saving_format' : 'Format',
-                                         'shutter_mode' : 'Mode'}
+                                         'shutter_mode' : 'Mode',
+					 'image_rotation':'Rotation'}
             
         self.__ShutterMode = {'MANUAL': Core.ShutterManual,
                               'AUTO_FRAME': Core.ShutterAutoFrame,
@@ -652,7 +653,7 @@ class LimaCCDs(PyTango.Device_4Impl) :
         image = self.__control.image()
         image.setFlip(flip)
 
-    ## @brief Read image flip
+    ## @brief Read common header
     #
     @Core.DEB_MEMBER_FUNCT
     def read_saving_common_header(self,attr) :
@@ -661,7 +662,7 @@ class LimaCCDs(PyTango.Device_4Impl) :
         headerArr = ['%s%s%s' % (k,self.__key_header_delimiter,v) for k,v in header.iteritems()]
         attr.set_value(headerArr,len(headerArr))
 
-    ## @brief Write image flip
+    ## @brief Write common header
     #
     @Core.DEB_MEMBER_FUNCT
     def write_saving_common_header(self,attr) :
