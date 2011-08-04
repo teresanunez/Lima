@@ -1824,8 +1824,6 @@ void LimaDetector::print_acq_conf(void)
 {
     INFO_STREAM<<"-----------------------------------------------"<<endl;
 
-
-    INFO_STREAM<<"pixelDepth\t\t = "         <<detectorPixelDepth<<endl;
     INFO_STREAM<<"triggerMode\t\t = "        <<m_trigger_mode<<endl;
     INFO_STREAM<<"acquisitionMode\t\t = "    <<m_acquisition_mode<<endl;
     INFO_STREAM<<"exposureTime\t\t = "       <<attr_exposureTime_write<<endl;
@@ -1845,10 +1843,10 @@ void LimaDetector::print_acq_conf(void)
     if(hw_roi)
     {
         hw_roi->getRoi(roi);
-        INFO_STREAM <<"Roi\t\t = ["  <<roi.getTopLeft().x       <<" , "
-                                    <<roi.getTopLeft().y        <<" , "
-                                    <<roi.getSize().getWidth()  <<" , "
-                                    <<roi.getSize().getHeight() <<
+        INFO_STREAM <<"Roi\t\t = [" <<roi.getTopLeft().x       <<" , "
+                                    <<roi.getTopLeft().y       <<" , "
+                                    <<roi.getSize().getWidth() <<" , "
+                                    <<roi.getSize().getHeight()<<
                                 "]"
                     <<endl;
     }
