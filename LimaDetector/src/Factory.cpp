@@ -36,7 +36,7 @@ CtControl* ControlFactory::get_control( const string& detector_type)
 #endif
 
 #ifdef BASLER_ENABLED
-        else if (detector_type.compare("BaslerCCD")== 0)
+        if (detector_type.compare("BaslerCCD")== 0)
         {    
             if(!ControlFactory::is_created)
             {				
@@ -58,7 +58,7 @@ CtControl* ControlFactory::get_control( const string& detector_type)
 #endif
 
 #ifdef XPAD_ENABLED
-        else if (detector_type.compare("XpadPixelDetector")== 0)
+        if (detector_type.compare("XpadPixelDetector")== 0)
         {    
         
             if(!ControlFactory::is_created)
@@ -74,7 +74,7 @@ CtControl* ControlFactory::get_control( const string& detector_type)
 #endif
 
 #ifdef PILATUS_ENABLED
-        else if (detector_type.compare("PilatusPixelDetector")== 0)
+        if (detector_type.compare("PilatusPixelDetector")== 0)
         {    
         
             if(!ControlFactory::is_created)
@@ -96,10 +96,10 @@ CtControl* ControlFactory::get_control( const string& detector_type)
             }
         }
 #endif
-        else
-        {
-            throw LIMA_HW_EXC(Error, "Unable to create the lima control object : Unknown Detector Type");
-        }
+        
+        if(!ControlFactory::is_created)
+        	throw LIMA_HW_EXC(Error, "Unable to create the lima control object : Unknown Detector Type");
+        
     }
     catch(Tango::DevFailed& df)
     {
@@ -123,8 +123,9 @@ void ControlFactory::reset(const string& detector_type )
 {
     if(ControlFactory::is_created)
     {    
+	delete my_control;                my_control = 0;     
+	     
 #ifdef SIMULATOR_ENABLED
-		delete my_control;                my_control = 0;      
         if (detector_type.compare("SimulatorCCD")== 0)
         {
             my_camera_simulator->reset(); 
@@ -134,7 +135,7 @@ void ControlFactory::reset(const string& detector_type )
 #endif        
 
 #ifdef BASLER_ENABLED
-        else if (detector_type.compare("BaslerCCD")==0)
+        if (detector_type.compare("BaslerCCD")==0)
         {          
             //- do not delete because its a YAT Task            
             my_camera_basler->exit();       my_camera_basler = 0;
@@ -143,7 +144,7 @@ void ControlFactory::reset(const string& detector_type )
 #endif
 
 #ifdef XPAD_ENABLED
-        else if (detector_type.compare("XpadPixelDetector")==0)
+        if (detector_type.compare("XpadPixelDetector")==0)
         {          
             //- do not delete because its a YAT Task
             my_xpad_camera->exit();       my_xpad_camera = 0;
@@ -152,16 +153,12 @@ void ControlFactory::reset(const string& detector_type )
 #endif
 
 #ifdef PILATUS_ENABLED
-        else if (detector_type.compare("PilatusPixelDetector")==0)
+        if (detector_type.compare("PilatusPixelDetector")==0)
         {          
             delete my_camera_pilatus;        my_camera_pilatus = 0;
             delete my_interface_pilatus;     my_interface_pilatus = 0;
         }
 #endif
-        else
-        {
-            ///
-        }
         ControlFactory::is_created = false;        
     }
 }
