@@ -132,14 +132,6 @@ void SimulatorCCD::init_device()
         //in fact LimaDetector is create the singleton control objet
         //so this call, will only return existing object, no need to give it the ip !!
         m_ct = ControlFactory::instance().get_control("SimulatorCCD");
-        if(m_ct==0)
-        {
-            INFO_STREAM<<"Initialization Failed : Unable to create the lima control object "<<"("<<"SimulatorCCD"<<") !"<< endl;
-            m_status_message <<"Initialization Failed : Unable to create the lima control object "<<"("<<"SimulatorCCD"<<") !"<< endl;
-            m_is_device_initialized = false;
-            set_state(Tango::INIT);
-            return;
-        }
 
         //- get interface to specific camera
         m_hw = dynamic_cast<SimuHwInterface*>(m_ct->hwInterface());

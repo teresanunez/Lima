@@ -38,8 +38,9 @@ static const char *RcsId = "$Id:  $";
 #include <tango.h>
 #include <LimaDetectorClass.h>
 
-//SIMULATOR IS ALWAYS ENABLED
-#include <SimulatorCCDClass.h>
+#ifdef SIMULATOR_ENABLED
+	#include <SimulatorCCDClass.h>
+#endif
 
 #ifdef BASLER_ENABLED
 	#include <BaslerCCDClass.h>
@@ -62,9 +63,10 @@ void Tango::DServer::class_factory()
 {
 	add_class(LimaDetector_ns::LimaDetectorClass::init("LimaDetector"));
 	
-//SIMULATOR IS ALWAYS ENABLED	
+#ifdef SIMULATOR_ENABLED
 	add_class(SimulatorCCD_ns::SimulatorCCDClass::init("SimulatorCCD"));
-	
+#endif
+
 #ifdef BASLER_ENABLED
 	add_class(BaslerCCD_ns::BaslerCCDClass::init("BaslerCCD"));
 #endif

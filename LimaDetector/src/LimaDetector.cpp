@@ -73,7 +73,7 @@ using namespace std;
 namespace LimaDetector_ns
 {
 
-
+bool  LimaDetector::is_created = false;
 
 //+----------------------------------------------------------------------------
 //
@@ -243,17 +243,10 @@ void LimaDetector::init_device()
         DebParams::setTypeFlagsNameList(debugLevels);
         DebParams::setFormatFlagsNameList(debugFormats);
 
+        
         //- get the main object used to pilot the lima framework
         INFO_STREAM<<"Get the main object used to pilot/control detector through Lima."<<endl;
-        m_ct = ControlFactory::instance().get_control(detectorType, true);
-        if(m_ct==0)
-        {
-            INFO_STREAM<<"Initialization Failed : Unable to create the lima control object "<<"("<<detectorType<<") !"<< endl;
-            m_status_message <<"Initialization Failed : Unable to create the lima control object "<<"("<<detectorType<<") !"<< endl;
-            m_is_device_initialized = false;
-            set_state(Tango::INIT);
-            return;
-        }
+        m_ct = ControlFactory::instance().get_control(detectorType);
 
         //- get interface to specific camera
         INFO_STREAM<<"Get Interface to a specific camera."<<endl;
@@ -311,7 +304,6 @@ void LimaDetector::init_device()
         INFO_STREAM<<"Define parameters to store image in files."<<endl;
         ImageType image_type;
         hw_det_info->getCurrImageType(image_type);
-        m_saving_par.temporaryPath     = fileTemporaryPath;
         m_saving_par.directory         = fileTargetPath;
         m_saving_par.prefix            = filePrefix;
         m_saving_par.imageType         = image_type;
@@ -347,10 +339,13 @@ void LimaDetector::init_device()
 
         m_ct->saving()->setParameters(m_saving_par);
 
-        //- force Init() on the specific sub device.
-        INFO_STREAM<<"Force Initialization on the specific sub device."<<endl;
-        ControlFactory::instance().init_specific_device(detectorType);
-
+        //ensure to call this, only when sub device is already created by ClassFactory
+        if(LimaDetector::is_created)
+        {
+            //- force Init() on the specific sub device.
+            INFO_STREAM<<"Force Initialization on the specific sub device."<<endl;
+            ControlFactory::instance().init_specific_device(detectorType);
+        }
     }
     catch(Exception& e)
     {
@@ -382,8 +377,8 @@ void LimaDetector::init_device()
     m_is_device_initialized = true;
     set_state(Tango::STANDBY);
     this->dev_state();
+    LimaDetector::is_created = true;
 }
-
 
 
 //+----------------------------------------------------------------------------
@@ -408,7 +403,6 @@ void LimaDetector::get_device_property()
 	dev_prop.push_back(Tango::DbDatum("FilePrefix"));
 	dev_prop.push_back(Tango::DbDatum("FileIndexPattern"));
 	dev_prop.push_back(Tango::DbDatum("FileNbFrames"));
-	dev_prop.push_back(Tango::DbDatum("FileTemporaryPath"));
 	dev_prop.push_back(Tango::DbDatum("FileTargetPath"));
 	dev_prop.push_back(Tango::DbDatum("DebugModules"));
 	dev_prop.push_back(Tango::DbDatum("DebugLevels"));
@@ -500,17 +494,6 @@ void LimaDetector::get_device_property()
 	//	And try to extract FileNbFrames value from database
 	if (dev_prop[i].is_empty()==false)	dev_prop[i]  >>  fileNbFrames;
 
-	//	Try to initialize FileTemporaryPath from class property
-	cl_prop = ds_class->get_class_property(dev_prop[++i].name);
-	if (cl_prop.is_empty()==false)	cl_prop  >>  fileTemporaryPath;
-	else {
-		//	Try to initialize FileTemporaryPath from default device value
-		def_prop = ds_class->get_default_device_property(dev_prop[i].name);
-		if (def_prop.is_empty()==false)	def_prop  >>  fileTemporaryPath;
-	}
-	//	And try to extract FileTemporaryPath value from database
-	if (dev_prop[i].is_empty()==false)	dev_prop[i]  >>  fileTemporaryPath;
-
 	//	Try to initialize FileTargetPath from class property
 	cl_prop = ds_class->get_class_property(dev_prop[++i].name);
 	if (cl_prop.is_empty()==false)	cl_prop  >>  fileTargetPath;
@@ -568,7 +551,6 @@ void LimaDetector::get_device_property()
     create_property_if_empty(dev_prop,"Image","FilePrefix");
     create_property_if_empty(dev_prop,"%06d","FileIndexPattern");
     create_property_if_empty(dev_prop,"1","FileNbFrames");
-    create_property_if_empty(dev_prop,".","FileTemporaryPath");
     create_property_if_empty(dev_prop,"./data","FileTargetPath");
 
     myVector.clear();
@@ -1345,7 +1327,7 @@ void LimaDetector::read_image_callback(yat4tango::DynamicAttributeReadCallbackDa
                                                                                     m_img_status_cb->get_last_image()->height);
                 break;
                 //by default 16 bits
-                default    :                                        cbd.tga->set_value( (Tango::DevUShort*)m_img_status_cb->get_last_image()->data(),
+                default    :                                      cbd.tga->set_value( (Tango::DevUShort*)m_img_status_cb->get_last_image()->data(),
                                                                                     m_img_status_cb->get_last_image()->width,
                                                                                     m_img_status_cb->get_last_image()->height);
                 break;
@@ -1848,7 +1830,6 @@ void LimaDetector::print_acq_conf(void)
     INFO_STREAM<<"acquisitionMode\t\t = "    <<m_acquisition_mode<<endl;
     INFO_STREAM<<"exposureTime\t\t = "       <<attr_exposureTime_write<<endl;
     INFO_STREAM<<"exposureAccTime\t = "      <<attr_exposureAccTime_write<<endl;
-    INFO_STREAM<<"temporaryPath\t\t = "      <<m_saving_par.temporaryPath<<endl;
     INFO_STREAM<<"directory\t\t = "          <<m_saving_par.directory<<endl;
     INFO_STREAM<<"prefix\t\t = "             <<m_saving_par.prefix<<endl;
     INFO_STREAM<<"suffix\t\t = "             <<m_saving_par.suffix<<endl;
@@ -1951,6 +1932,9 @@ int LimaDetector::FindIndexFromPropertyName(Tango::DbData& dev_prop, string prop
     if (i == iNbProperties) return -1;
     return i;
 }
+
+
+
 
 
 

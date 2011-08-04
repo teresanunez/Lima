@@ -195,11 +195,17 @@ void AcquisitionTask::process_message(yat::Message& msg) throw (Tango::DevFailed
                     gdshare::FileName fn(m_acq_conf.file_target_path);
                     fn.Rmdir(false, true);
                 }
-                catch(gdshare::FileException& e)
-                {
-                    ERROR_STREAM << e.Message() << endl;
+                catch( yat::Exception& ex )
+                {                 
+                    std::stringstream my_error;
+                    my_error.str("");
+                    for(unsigned i = 0; i < ex.errors.size(); i++)
+                    {
+                        my_error<<ex.errors[i].desc<<endl;
+                    }
+                    INFO_STREAM<<my_error.str()<<endl;
                     set_state(Tango::FAULT);
-                    set_status(e.Message());
+                    set_status(my_error.str());
                 }
             }
             break;

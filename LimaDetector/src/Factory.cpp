@@ -6,15 +6,11 @@ bool  ControlFactory::is_created = false;
 
 
 //-----------------------------------------------------------------------------------------
-CtControl* ControlFactory::get_control( const string& detector_type, bool is_master)
+CtControl* ControlFactory::get_control( const string& detector_type)
 {
 
     try
     {
-        //must be false for sub-devices BaslerCCD/Simulator/...
-        if(!is_master)
-            return my_control;
-		
 		//get the tango device/instance
 		if(!ControlFactory::is_created)
 		{	
@@ -25,7 +21,7 @@ CtControl* ControlFactory::get_control( const string& detector_type, bool is_mas
 			db_datum >> my_device_name;
 		}
 
-//SIMULATOR IS ALWAYS ENABLED
+#ifdef SIMULATOR_ENABLED
         if (detector_type.compare("SimulatorCCD")== 0)
         {        
             if(!ControlFactory::is_created)
@@ -37,6 +33,8 @@ CtControl* ControlFactory::get_control( const string& detector_type, bool is_mas
                 return my_control;      
             }
         }
+#endif
+
 #ifdef BASLER_ENABLED
         else if (detector_type.compare("BaslerCCD")== 0)
         {    
@@ -100,14 +98,21 @@ CtControl* ControlFactory::get_control( const string& detector_type, bool is_mas
 #endif
         else
         {
-            //return 0 to indicate an ERROR
-            return 0;
+            throw LIMA_HW_EXC(Error, "Unable to create the lima control object : Unknown Detector Type");
         }
     }
+    catch(Tango::DevFailed& df)
+    {
+        //- rethrow exception
+        throw LIMA_HW_EXC(Error, string(df.errors[0].desc).c_str());
+    }    
+    catch(Exception& e)
+    {
+		throw LIMA_HW_EXC(Error, e.getErrMsg());
+    }    
     catch(...)
     {
-        //return 0 to indicate an ERROR
-        return 0;
+        throw LIMA_HW_EXC(Error, "Unable to create the lima control object : Unknow Exception");
     }
     return my_control;
 }
@@ -118,7 +123,7 @@ void ControlFactory::reset(const string& detector_type )
 {
     if(ControlFactory::is_created)
     {    
-//SIMULATOR IS ALWAYS ENABLED
+#ifdef SIMULATOR_ENABLED
 		delete my_control;                my_control = 0;      
         if (detector_type.compare("SimulatorCCD")== 0)
         {
@@ -126,6 +131,7 @@ void ControlFactory::reset(const string& detector_type )
             delete my_camera_simulator;     my_camera_simulator = 0;  
             delete my_interface_simulator;  my_interface_simulator = 0;
         }
+#endif        
 
 #ifdef BASLER_ENABLED
         else if (detector_type.compare("BaslerCCD")==0)
@@ -180,10 +186,11 @@ void ControlFactory::init_specific_device(const string& detector_type )
 		(Tango::Util::instance()->get_device_by_name(my_device_name))->delete_device();
 		(Tango::Util::instance()->get_device_by_name(my_device_name))->init_device();
 	}
-	catch(...)
-	{
-		//NOP
-	}
+    catch(Tango::DevFailed& df)
+    {
+        //- rethrow exception
+        throw LIMA_HW_EXC(Error, string(df.errors[0].desc).c_str());
+    }
 
 }
 //-----------------------------------------------------------------------------------------
