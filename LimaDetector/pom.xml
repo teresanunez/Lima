@@ -37,13 +37,13 @@
          <artifactId>LimaControl-${aol}-shared-${mode}</artifactId>
          <version>1.0.4-SNAPSHOT</version>
       </dependency>
+      
       <dependency>
          <groupId>fr.soleil.lib.Lima.Camera</groupId>
          <artifactId>LimaSimulator-${aol}-shared-${mode}</artifactId>
          <version>1.0.4-SNAPSHOT</version>
       </dependency>
-
-<!--
+<!-- 
       <dependency>
          <groupId>fr.soleil.lib.Lima.Camera</groupId>
          <artifactId>LimaBasler-${aol}-shared-${mode}</artifactId>
@@ -69,7 +69,6 @@
       <dependency>
          <groupId>fr.soleil.lib</groupId>
          <artifactId>Nexus4Tango-${aol}-${library}-${mode}</artifactId>
-         <version>2.5.0</version>
       </dependency>
       <dependency>
          <groupId>fr.soleil.lib</groupId>
