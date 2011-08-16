@@ -6,15 +6,11 @@ bool  ControlFactory::is_created = false;
 
 
 //-----------------------------------------------------------------------------------------
-CtControl* ControlFactory::get_control( const string& detector_type, bool is_master)
+CtControl* ControlFactory::get_control( const string& detector_type)
 {
 
     try
     {
-        //must be false for sub-devices BaslerCCD/Simulator/...
-        if(!is_master)
-            return my_control;
-		
 		//get the tango device/instance
 		if(!ControlFactory::is_created)
 		{	
@@ -25,7 +21,7 @@ CtControl* ControlFactory::get_control( const string& detector_type, bool is_mas
 			db_datum >> my_device_name;
 		}
 
-//SIMULATOR IS ALWAYS ENABLED		
+#ifdef SIMULATOR_ENABLED
         if (detector_type.compare("SimulatorCCD")== 0)
         {        
             if(!ControlFactory::is_created)
@@ -37,8 +33,10 @@ CtControl* ControlFactory::get_control( const string& detector_type, bool is_mas
                 return my_control;      
             }
         }
+#endif
+
 #ifdef BASLER_ENABLED
-        else if (detector_type.compare("BaslerCCD")== 0)
+        if (detector_type.compare("BaslerCCD")== 0)
         {    
             if(!ControlFactory::is_created)
             {				
@@ -53,14 +51,14 @@ CtControl* ControlFactory::get_control( const string& detector_type, bool is_mas
                 my_camera_basler->go(2000);        
                 my_interface_basler         = new Basler::Interface(*my_camera_basler);    
                 my_control                  = new CtControl(my_interface_basler);            
-                ControlFactory::is_created  = true;
+                ControlFactory::is_created  = true;				
                 return my_control;
             }
         }
 #endif
 
-#ifdef XPAD_ENABLED    
-        else if (detector_type.compare("XpadPixelDetector")== 0)
+#ifdef XPAD_ENABLED
+        if (detector_type.compare("XpadPixelDetector")== 0)
         {    
         
             if(!ControlFactory::is_created)
@@ -75,8 +73,8 @@ CtControl* ControlFactory::get_control( const string& detector_type, bool is_mas
         }
 #endif
 
-#ifdef PILATUS_ENABLED    
-        else if (detector_type.compare("PilatusPixelDetector")== 0)
+#ifdef PILATUS_ENABLED
+        if (detector_type.compare("PilatusPixelDetector")== 0)
         {    
         
             if(!ControlFactory::is_created)
@@ -90,24 +88,31 @@ CtControl* ControlFactory::get_control( const string& detector_type, bool is_mas
 				db_data[0] >> camera_ip;
 				db_data[1] >> camera_port;
 				
-				my_camera_pilatus           = new PilatusCpp::Communication(camera_ip.c_str(), 6666/*camera_port*/);
+				my_camera_pilatus           = new PilatusCpp::Communication(camera_ip.c_str(), camera_port);
                 my_interface_pilatus        = new PilatusCpp::Interface(*my_camera_pilatus);
                 my_control                  = new CtControl(my_interface_pilatus);
                 ControlFactory::is_created  = true;
                 return my_control;
             }
         }
-#endif    
-        else
-        {
-            //return 0 to indicate an ERROR
-            return 0;
-        }
+#endif
+        
+        if(!ControlFactory::is_created)
+        	throw LIMA_HW_EXC(Error, "Unable to create the lima control object : Unknown Detector Type");
+        
     }
+    catch(Tango::DevFailed& df)
+    {
+        //- rethrow exception
+        throw LIMA_HW_EXC(Error, string(df.errors[0].desc).c_str());
+    }    
+    catch(Exception& e)
+    {
+		throw LIMA_HW_EXC(Error, e.getErrMsg());
+    }    
     catch(...)
     {
-        //return 0 to indicate an ERROR
-        return 0;
+        throw LIMA_HW_EXC(Error, "Unable to create the lima control object : Unknow Exception");
     }
     return my_control;
 }
@@ -118,17 +123,19 @@ void ControlFactory::reset(const string& detector_type )
 {
     if(ControlFactory::is_created)
     {    
-//SIMULATOR IS ALWAYS ENABLED
-		delete my_control;                my_control = 0;      
+	delete my_control;                my_control = 0;     
+	     
+#ifdef SIMULATOR_ENABLED
         if (detector_type.compare("SimulatorCCD")== 0)
         {
             my_camera_simulator->reset(); 
             delete my_camera_simulator;     my_camera_simulator = 0;  
             delete my_interface_simulator;  my_interface_simulator = 0;
         }
+#endif        
 
-#ifdef BASLER_ENABLED        
-        else if (detector_type.compare("BaslerCCD")==0)
+#ifdef BASLER_ENABLED
+        if (detector_type.compare("BaslerCCD")==0)
         {          
             //- do not delete because its a YAT Task            
             my_camera_basler->exit();       my_camera_basler = 0;
@@ -136,8 +143,8 @@ void ControlFactory::reset(const string& detector_type )
         }
 #endif
 
-#ifdef XPAD_ENABLED        
-        else if (detector_type.compare("XpadPixelDetector")==0)
+#ifdef XPAD_ENABLED
+        if (detector_type.compare("XpadPixelDetector")==0)
         {          
             //- do not delete because its a YAT Task
             my_xpad_camera->exit();       my_xpad_camera = 0;
@@ -145,21 +152,44 @@ void ControlFactory::reset(const string& detector_type )
         }
 #endif
 
-#ifdef PILATUS_ENABLED        
-        else if (detector_type.compare("PilatusPixelDetector")==0)
+#ifdef PILATUS_ENABLED
+        if (detector_type.compare("PilatusPixelDetector")==0)
         {          
             delete my_camera_pilatus;        my_camera_pilatus = 0;
             delete my_interface_pilatus;     my_interface_pilatus = 0;
         }
-#endif        
-        else
-        {
-            ///
-        }
+#endif
         ControlFactory::is_created = false;        
     }
 }
 
+//-----------------------------------------------------------------------------------------
+//- force Init() on the specific device.
+//-----------------------------------------------------------------------------------------
+void ControlFactory::init_specific_device(const string& detector_type )
+{
+	try
+	{
+		//get the tango device/instance
+		if(!ControlFactory::is_created)
+		{	
+			string  detector = detector_type;
+			DbDatum db_datum;
+			my_server_name = Tango::Util::instance()->get_ds_name ();
+			db_datum = (Tango::Util::instance()->get_database())->get_device_name(my_server_name,detector);
+			db_datum >> my_device_name;
+		}
+		
+		(Tango::Util::instance()->get_device_by_name(my_device_name))->delete_device();
+		(Tango::Util::instance()->get_device_by_name(my_device_name))->init_device();
+	}
+    catch(Tango::DevFailed& df)
+    {
+        //- rethrow exception
+        throw LIMA_HW_EXC(Error, string(df.errors[0].desc).c_str());
+    }
+
+}
 //-----------------------------------------------------------------------------------------
 
 

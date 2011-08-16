@@ -142,8 +142,7 @@ protected:
             //- here we ensure that code below is executed once !
             if(image_number_ != (last_acq_frame_nb + 1))
             {
-                image_number_ = last_acq_frame_nb + 1;
-                cout<<"[Image is acquired] -> "<<image_number_<<endl;                
+                image_number_ = last_acq_frame_nb + 1;                
     
                 m_ct_.ReadImage(*lastImage_);
                 
@@ -297,10 +296,6 @@ public :
  */
 	Tango::DevShort	fileNbFrames;
 /**
- *	Define the root path for temporary generated files.
- */
-	string	fileTemporaryPath;
-/**
  *	Define the Path where Files will be generated, only when savingFile is checked.
  *	
  *	
@@ -329,6 +324,17 @@ public :
  *	Always<BR>
  */
 	vector<string>	debugLevels;
+/**
+ *	Define Lima message format in the console.<BR>
+ *	Availables values :<BR>
+ *	DateTime<BR>
+ *	Thread<BR>
+ *	Module<BR>
+ *	Obj<BR>
+ *	Funct<BR>
+ *	FileLine<BR>
+ */
+	vector<string>	debugFormats;
 //@}
 
 /**
@@ -599,34 +605,35 @@ protected :
     //-----------------------------------------
     //- Store the values into the property
     //- Properties stuff    
-    int                FindIndexFromPropertyName(Tango::DbData& dev_prop, string property_name);
+    int                 FindIndexFromPropertyName(Tango::DbData& dev_prop, string property_name);
     template <class T>
-    void            create_property_if_empty(Tango::DbData& dev_prop,T value, string property_name);    
+    void                create_property_if_empty(Tango::DbData& dev_prop,T value, string property_name);    
     template <class T>
-    void            store_value_as_property(T value, string property_name);    
-    bool             create_acquisition_task(void);    
+    void                store_value_as_property(T value, string property_name);    
+    bool                create_acquisition_task(void);    
         
     //print parameters acquisition
-    void             print_acq_conf();    
+    void                print_acq_conf();    
     
     //state & status stuff
-    bool                                 m_is_device_initialized ;
+    bool                                m_is_device_initialized ;
     stringstream                        m_status_message;
+    static bool                         is_created;
 
     //LIMA objects
-    HwInterface*                         m_hw;
-    CtControl*                            m_ct;
+    HwInterface*                        m_hw;
+    CtControl*                          m_ct;
     ImageStatusCallback*                m_img_status_cb;
-    CtSaving::Parameters                 m_saving_par;
-    string                                 m_trigger_mode;
-    string                                 m_acquisition_mode;
+    CtSaving::Parameters                m_saving_par;
+    string                              m_trigger_mode;
+    string                              m_acquisition_mode;
     
     //-Yat task to manage device Start/Snap/Stop commands
-    TaskPtr                                m_acquisition_task;
-    AcquisitionTask::AcqConfig             m_acq_conf;
+    TaskPtr                             m_acquisition_task;
+    AcquisitionTask::AcqConfig          m_acq_conf;
     
     //- Dyn Attr
-    DynamicAttributeManager                m_dam;
+    DynamicAttributeManager             m_dam;
 
 };
 

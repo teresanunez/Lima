@@ -68,7 +68,10 @@ bool SimulatorCCD::is_exposureTime_allowed(Tango::AttReqType type)
 		get_state() == Tango::RUNNING)
 	{
 		//	End of Generated Code
-
+		if ( (get_state()==Tango::FAULT || get_state()==Tango::RUNNING )&& type==Tango::READ_REQ )
+		{
+           return true;
+		}
 		//	Re-Start of Generated Code
 		return false;
 	}

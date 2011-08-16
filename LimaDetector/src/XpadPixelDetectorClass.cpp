@@ -59,6 +59,8 @@ __declspec(dllexport)
 
 namespace XpadPixelDetector_ns
 {
+
+
 //+----------------------------------------------------------------------------
 //
 // method : 		GetDaclClass::execute()
@@ -268,7 +270,7 @@ void XpadPixelDetectorClass::command_factory()
 {
 	command_list.push_back(new LoadFlatConfigCmd("LoadFlatConfig",
 		Tango::DEV_ULONG, Tango::DEV_VOID,
-		"Flat value",
+		"Flat value to be loaded",
 		"",
 		Tango::OPERATOR));
 	command_list.push_back(new LoadAllConfigGCmd("LoadAllConfigG",

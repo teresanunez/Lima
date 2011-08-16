@@ -97,7 +97,8 @@ SimulatorCCD::SimulatorCCD(Tango::DeviceClass *cl,const char *s,const char *d)
 //-----------------------------------------------------------------------------
 void SimulatorCCD::delete_device()
 {
-    //    Delete device allocated objects
+    INFO_STREAM << "SimulatorCCD::SimulatorCCD() delete device " << device_name << endl;        
+	//    Delete device allocated objects
     DELETE_SCALAR_ATTRIBUTE(attr_exposureTime_read);
 
     //!!!! ONLY LimaDetector device can do this !!!!
@@ -131,14 +132,6 @@ void SimulatorCCD::init_device()
         //in fact LimaDetector is create the singleton control objet
         //so this call, will only return existing object, no need to give it the ip !!
         m_ct = ControlFactory::instance().get_control("SimulatorCCD");
-        if(m_ct==0)
-        {
-            INFO_STREAM<<"Initialization Failed : Unable to create the lima control object "<<"("<<"SimulatorCCD"<<") !"<< endl;
-            m_status_message <<"Initialization Failed : Unable to create the lima control object "<<"("<<"SimulatorCCD"<<") !"<< endl;
-            m_is_device_initialized = false;
-            set_state(Tango::INIT);
-            return;
-        }
 
         //- get interface to specific camera
         m_hw = dynamic_cast<SimuHwInterface*>(m_ct->hwInterface());
@@ -182,14 +175,7 @@ void SimulatorCCD::init_device()
 //-----------------------------------------------------------------------------
 void SimulatorCCD::always_executed_hook()
 {
-    //- get the main object used to pilot the lima framework
-    //in fact LimaCCD is create the singleton control objet
-    //so this call, will only return existing object, no need to give it the ip !!
-    m_ct = ControlFactory::instance().get_control("SimulatorCCD");
 
-    //- get interface to specific detector
-    if(m_ct!=0)
-        m_hw = dynamic_cast<SimuHwInterface*>(m_ct->hwInterface());
 }
 //+----------------------------------------------------------------------------
 //

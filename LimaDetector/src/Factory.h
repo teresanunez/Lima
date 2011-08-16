@@ -6,8 +6,11 @@
 
 #include <HwInterface.h>
 #include <CtControl.h>
-#include <SimuHwInterface.h>
 #include "Debug.h"
+
+#ifdef SIMULATOR_ENABLED
+    #include <SimuHwInterface.h>
+#endif
 
 #ifdef BASLER_ENABLED  
     #include <BaslerInterface.h>
@@ -29,12 +32,15 @@ class ControlFactory : public Singleton<ControlFactory>
 {
 public:
 
-  CtControl*                     get_control( const string& detector_type, bool is_master = false);
+  CtControl*                     get_control( const string& detector_type);
   void                           reset(const string& detector_type );
+  void                           init_specific_device(const string& detector_type );
   
 private:  
+#ifdef SIMULATOR_ENABLED
   Simulator*                     my_camera_simulator;
   SimuHwInterface*               my_interface_simulator;
+#endif
 
 #ifdef BASLER_ENABLED  
   Basler::Camera*                my_camera_basler;

@@ -97,6 +97,7 @@ BaslerCCD::BaslerCCD(Tango::DeviceClass *cl,const char *s,const char *d)
 //-----------------------------------------------------------------------------
 void BaslerCCD::delete_device()
 {
+    INFO_STREAM << "BaslerCCD::BaslerCCD() delete device " << device_name << endl;	
     //    Delete device allocated objects
     DELETE_SCALAR_ATTRIBUTE(attr_frameRate_read    );
 
@@ -133,14 +134,6 @@ void BaslerCCD::init_device()
         //in fact LimaDetector is create the singleton control objet
         //so this call, will only return existing object, no need to give it the ip !!
         m_ct = ControlFactory::instance().get_control("BaslerCCD");
-        if(m_ct==0)
-        {
-            INFO_STREAM<<"Initialization Failed : Unable to create the lima control object "<<"("<<"BaslerCCD"<<") !"<< endl;
-            m_status_message <<"Initialization Failed : Unable to create the lima control object "<<"("<<"BaslerCCD"<<") !"<< endl;
-            m_is_device_initialized = false;
-            set_state(Tango::INIT);
-            return;
-        }
 
         //- get interface to specific camera
         m_hw = dynamic_cast<Basler::Interface*>(m_ct->hwInterface());
@@ -245,14 +238,6 @@ void BaslerCCD::get_device_property()
 //-----------------------------------------------------------------------------
 void BaslerCCD::always_executed_hook()
 {
-    //- get the main object used to pilot the lima framework
-    //in fact LimaCCD is create the singleton control objet
-    //so this call, will only return existing object, no need to give it the ip !!
-    m_ct = ControlFactory::instance().get_control("BaslerCCD");
-
-    //- get interface to specific detector
-    if(m_ct!=0)
-        m_hw = dynamic_cast<Basler::Interface*>(m_ct->hwInterface());
 
 }
 //+----------------------------------------------------------------------------
