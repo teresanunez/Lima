@@ -33,15 +33,15 @@
 #ifndef _XPADPIXELDETECTOR_H
 #define _XPADPIXELDETECTOR_H
 
-#include <tango.h>
+
 #include "HwInterface.h"
 #include "CtControl.h"
 #include "CtAcquisition.h"
 #include "CtImage.h"
-
 #include <XpadInterface.h>
-
 #include "Factory.h"
+
+#include <tango.h>
 //using namespace Tango;
 
 /**

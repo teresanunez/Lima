@@ -58,10 +58,11 @@ static const char *RcsId = "$Id:  $";
 //===================================================================
 
 
-#include <tango.h>
-#include <PogoHelper.h>
+
 #include <XpadPixelDetector.h>
 #include <XpadPixelDetectorClass.h>
+#include <tango.h>
+#include <PogoHelper.h>
 
 namespace XpadPixelDetector_ns
 {

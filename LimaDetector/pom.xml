@@ -16,13 +16,13 @@
 
     <dependencies>
 
+		<dependency>
+         <groupId>fr.soleil.lib</groupId>
+         <artifactId>YAT4Tango-${aol}-${library}-${mode}</artifactId>
+		</dependency>
       <dependency>
          <groupId>fr.soleil.lib</groupId>
          <artifactId>YAT-${aol}-${library}-${mode}</artifactId>
-      </dependency>
-      <dependency>
-         <groupId>fr.soleil.lib</groupId>
-         <artifactId>YAT4Tango-${aol}-${library}-${mode}</artifactId>
       </dependency>
       <dependency>
          <groupId>fr.soleil.lib</groupId>
@@ -37,12 +37,13 @@
          <artifactId>LimaControl-${aol}-shared-${mode}</artifactId>
          <version>1.0.4-SNAPSHOT</version>
       </dependency>
-      
+
       <dependency>
          <groupId>fr.soleil.lib.Lima.Camera</groupId>
          <artifactId>LimaSimulator-${aol}-shared-${mode}</artifactId>
          <version>1.0.4-SNAPSHOT</version>
       </dependency>
+  
 <!-- 
       <dependency>
          <groupId>fr.soleil.lib.Lima.Camera</groupId>

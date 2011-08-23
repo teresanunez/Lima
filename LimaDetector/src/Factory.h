@@ -1,12 +1,14 @@
 #ifndef _FACTORY_H_
 #define _FACTORY_H_
 
-#include <tango.h>
+
 #include <Singleton.h>
 
 #include <HwInterface.h>
 #include <CtControl.h>
 #include "Debug.h"
+
+#include <tango.h>
 
 #ifdef SIMULATOR_ENABLED
     #include <SimuHwInterface.h>

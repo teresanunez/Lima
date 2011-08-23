@@ -17,15 +17,18 @@
 // DEPENDENCIES
 // ============================================================================
 
+//- LIMA
+#include "CtControl.h"
+
+//- GDshare
+#include <base.h>
+#include <file.h>
+
+//- Tango
 #include <tango.h>
 #include <yat/threading/Mutex.h>
 #include <yat4tango/DeviceTask.h>
 #include <TangoExceptionsHelper.h>
-
-#include "CtControl.h"
-
-#include <base.h>
-#include <file.h>
 
 using namespace lima;
 using namespace std;

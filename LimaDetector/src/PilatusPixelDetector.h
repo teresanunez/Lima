@@ -33,7 +33,7 @@
 #ifndef _PILATUSPIXELDETECTOR_H
 #define _PILATUSPIXELDETECTOR_H
 
-#include <tango.h>
+
 //using namespace Tango;
 
 /**
@@ -49,6 +49,8 @@
 #include <PilatusCommunication.h>
 #include <PilatusInterface.h>
 #include "Factory.h"
+
+#include <tango.h>
 
 
 #define MAX_ATTRIBUTE_STRING_LENGTH     256

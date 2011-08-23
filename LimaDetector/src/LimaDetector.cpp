@@ -58,11 +58,12 @@ static const char *RcsId = "$Id:  $";
 //===================================================================
 
 
-#include <tango.h>
-#include <PogoHelper.h>
+
 #include <LimaDetector.h>
 #include <LimaDetectorClass.h>
-#include <utils.h>
+
+#include <tango.h>
+#include <PogoHelper.h>
 
 #define MAX_ATTRIBUTE_STRING_LENGTH     256
 
@@ -1319,17 +1320,17 @@ void LimaDetector::read_image_callback(yat4tango::DynamicAttributeReadCallbackDa
             switch (cbd.dya->get_tango_data_type())
             {
                 case  TangoTraits<Tango::DevUChar>::type_id :     cbd.tga->set_value((Tango::DevUChar*)m_img_status_cb->get_last_image()->data(),
-                                                                                    m_img_status_cb->get_last_image()->width,
-                                                                                    m_img_status_cb->get_last_image()->height);
+                                                                                    m_img_status_cb->get_last_image()->dimensions[0],//- width
+                                                                                    m_img_status_cb->get_last_image()->dimensions[1]);//- height
                 break;
                 case  TangoTraits<Tango::DevULong>::type_id :     cbd.tga->set_value( (Tango::DevULong*)m_img_status_cb->get_last_image()->data(),
-                                                                                    m_img_status_cb->get_last_image()->width,
-                                                                                    m_img_status_cb->get_last_image()->height);
+                                                                                    m_img_status_cb->get_last_image()->dimensions[0],//- width
+                                                                                    m_img_status_cb->get_last_image()->dimensions[1]);//- height
                 break;
                 //by default 16 bits
                 default    :                                      cbd.tga->set_value( (Tango::DevUShort*)m_img_status_cb->get_last_image()->data(),
-                                                                                    m_img_status_cb->get_last_image()->width,
-                                                                                    m_img_status_cb->get_last_image()->height);
+                                                                                    m_img_status_cb->get_last_image()->dimensions[0],//- width
+                                                                                    m_img_status_cb->get_last_image()->dimensions[1]);//- height
                 break;
             }
         }
