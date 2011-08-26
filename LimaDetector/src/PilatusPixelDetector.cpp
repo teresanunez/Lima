@@ -56,10 +56,11 @@ static const char *RcsId = "$Id:  $";
 //===================================================================
 
 
-#include <tango.h>
-#include <PogoHelper.h>
+
 #include <PilatusPixelDetector.h>
 #include <PilatusPixelDetectorClass.h>
+#include <tango.h>
+#include <PogoHelper.h>
 
 namespace PilatusPixelDetector_ns
 {

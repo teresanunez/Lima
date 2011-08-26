@@ -37,8 +37,9 @@
 #ifndef _LimaDetectorCLASS_H
 #define _LimaDetectorCLASS_H
 
-#include <tango.h>
+
 #include <LimaDetector.h>
+#include <tango.h>
 
 
 namespace LimaDetector_ns

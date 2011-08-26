@@ -35,7 +35,7 @@ static const char *RcsId = "$Id:  $";
 //=============================================================================
 
 
-#include <tango.h>
+
 #include <LimaDetectorClass.h>
 
 #ifdef SIMULATOR_ENABLED
@@ -53,6 +53,8 @@ static const char *RcsId = "$Id:  $";
 #ifdef XPAD_ENABLED
 	#include <XpadPixelDetectorClass.h>
 #endif
+
+#include <tango.h>
 
 
 /**

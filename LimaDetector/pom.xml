@@ -16,10 +16,14 @@
 
     <dependencies>
 
-      <dependency>
+		<dependency>
          <groupId>fr.soleil.lib</groupId>
          <artifactId>YAT4Tango-${aol}-${library}-${mode}</artifactId>
+<<<<<<< HEAD
       </dependency>
+=======
+		</dependency>
+>>>>>>> f59a80de93a59ca6a5e7a1b67acb27566a686571
       <dependency>
          <groupId>fr.soleil.lib</groupId>
          <artifactId>YAT-${aol}-${library}-${mode}</artifactId>
@@ -37,13 +41,22 @@
          <artifactId>LimaControl-${aol}-shared-${mode}</artifactId>
          <version>1.0.4-SNAPSHOT</version>
       </dependency>
+<<<<<<< HEAD
 <!--    
+=======
+
+>>>>>>> f59a80de93a59ca6a5e7a1b67acb27566a686571
       <dependency>
          <groupId>fr.soleil.lib.Lima.Camera</groupId>
          <artifactId>LimaSimulator-${aol}-shared-${mode}</artifactId>
          <version>1.0.4-SNAPSHOT</version>
       </dependency>
+<<<<<<< HEAD
 -->  
+=======
+  
+<!-- 
+>>>>>>> f59a80de93a59ca6a5e7a1b67acb27566a686571
       <dependency>
          <groupId>fr.soleil.lib.Lima.Camera</groupId>
          <artifactId>LimaBasler-${aol}-shared-${mode}</artifactId>

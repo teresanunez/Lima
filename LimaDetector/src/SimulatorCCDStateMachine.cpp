@@ -32,9 +32,10 @@ static const char *RcsId = "$Id $";
 //         (c) - Software Engineering Group - ESRF
 //=============================================================================
 
-#include <tango.h>
+
 #include <SimulatorCCD.h>
 #include <SimulatorCCDClass.h>
+#include <tango.h>
 
 /*====================================================================
  *	This file contains the methods to allow commands and attributes

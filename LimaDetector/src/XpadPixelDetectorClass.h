@@ -37,9 +37,9 @@
 #ifndef _XPADPIXELDETECTORCLASS_H
 #define _XPADPIXELDETECTORCLASS_H
 
-#include <tango.h>
-#include <XpadPixelDetector.h>
 
+#include <XpadPixelDetector.h>
+#include <tango.h>
 
 namespace XpadPixelDetector_ns
 {//=====================================

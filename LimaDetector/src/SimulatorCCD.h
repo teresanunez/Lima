@@ -33,7 +33,7 @@
 #ifndef _SIMULATORCCD_H
 #define _SIMULATORCCD_H
 
-#include <tango.h>
+
 //using namespace Tango;
 
 /**
@@ -48,6 +48,8 @@
 #include "CtAcquisition.h"
 #include <SimuHwInterface.h>
 #include "Factory.h"
+
+#include <tango.h>
 
 using namespace lima;
 using namespace std;

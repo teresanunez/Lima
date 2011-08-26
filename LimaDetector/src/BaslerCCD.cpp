@@ -53,10 +53,12 @@ static const char *RcsId = "$Id:  $";
 //===================================================================
 
 
-#include <tango.h>
-#include <PogoHelper.h>
+
 #include <BaslerCCD.h>
 #include <BaslerCCDClass.h>
+
+#include <tango.h>
+#include <PogoHelper.h>
 
 namespace BaslerCCD_ns
 {
