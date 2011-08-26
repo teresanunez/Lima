@@ -683,8 +683,24 @@ Tango::DevState PilatusPixelDetector::dev_state()
         m_ct->getStatus(status);
         if (status.AcquisitionStatus == lima::AcqReady)
         {
-            DeviceState=Tango::STANDBY;
-            DeviceStatus<<"Waiting for Request ...\n"<<endl;
+                HwInterface::StatusType state;
+                m_hw->getStatus(state); 
+
+                if(state.acq == AcqRunning && state.det == DetExposure)
+                {
+                    DeviceState=Tango::RUNNING;
+                    DeviceStatus<<"Acquisition is Running ...\n"<<endl;
+                }
+                else if(state.acq == AcqFault && state.det == DetFault)
+                {                 
+                    DeviceState=Tango::FAULT;//FAULT
+                    DeviceStatus<<"Acquisition is in Fault\n"<<endl;
+                }  
+                else
+                {
+                    DeviceState=Tango::STANDBY;
+                    DeviceStatus<<"Waiting for Request ...\n"<<endl;
+                }
         }
         else if(status.AcquisitionStatus == lima::AcqRunning)
         {
@@ -955,6 +971,7 @@ int PilatusPixelDetector::FindIndexFromPropertyName(Tango::DbData& dev_prop, str
     if (i == iNbProperties) return -1;
     return i;
 }
+
 
 
 }	//	namespace

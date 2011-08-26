@@ -43,14 +43,6 @@ AcquisitionTask::~AcquisitionTask()
 
 }
 
-//=============================================================================
-// exiter AcquisitionTask
-//=============================================================================
-void AcquisitionTask::Discard() const
-{
-   // Ugly method to call a no-const method from a const one
-  ((AcquisitionTask*)((void*)this))->exit();
-}
 
 // ============================================================================
 // Process the message queue of the Task

@@ -629,7 +629,7 @@ protected :
     string                              m_acquisition_mode;
     
     //-Yat task to manage device Start/Snap/Stop commands
-    TaskPtr                             m_acquisition_task;
+    AcquisitionTask*                    m_acquisition_task;
     AcquisitionTask::AcqConfig          m_acq_conf;
     
     //- Dyn Attr

@@ -45,12 +45,10 @@ CtControl* ControlFactory::get_control( const string& detector_type)
 				(Tango::Util::instance()->get_database())->get_device_property(my_device_name, db_data);
 				string camera_ip;
 				db_data[0] >> camera_ip;
-
 				
-				my_camera_basler            = new Basler::Camera(camera_ip);
-                my_camera_basler->go(2000);        
-                my_interface_basler         = new Basler::Interface(*my_camera_basler);    
-                my_control                  = new CtControl(my_interface_basler);            
+				my_camera_basler            = new Basler::Camera(camera_ip);   
+                my_interface_basler         = new Basler::Interface(*my_camera_basler);
+                my_control                  = new CtControl(my_interface_basler);
                 ControlFactory::is_created  = true;				
                 return my_control;
             }
@@ -123,7 +121,7 @@ void ControlFactory::reset(const string& detector_type )
 {
     if(ControlFactory::is_created)
     {    
-	delete my_control;                my_control = 0;     
+		delete my_control;                my_control = 0;     
 	     
 #ifdef SIMULATOR_ENABLED
         if (detector_type.compare("SimulatorCCD")== 0)
@@ -136,9 +134,8 @@ void ControlFactory::reset(const string& detector_type )
 
 #ifdef BASLER_ENABLED
         if (detector_type.compare("BaslerCCD")==0)
-        {          
-            //- do not delete because its a YAT Task            
-            my_camera_basler->exit();       my_camera_basler = 0;
+        {                
+            delete my_camera_basler;	    my_camera_basler = 0;
             delete my_interface_basler;     my_interface_basler = 0;
         }
 #endif
