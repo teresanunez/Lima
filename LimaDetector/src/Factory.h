@@ -26,6 +26,10 @@
     #include <PilatusInterface.h>
 #endif
 
+#ifdef ADSC_ENABLED  
+    #include <AdscInterface.h>
+#endif
+
 using namespace lima;
 using namespace std;
 using namespace Tango;
@@ -57,6 +61,11 @@ private:
 #ifdef PILATUS_ENABLED      
   PilatusCpp::Communication*     my_camera_pilatus;  
   PilatusCpp::Interface*         my_interface_pilatus;  
+#endif
+
+#ifdef ADSC_ENABLED      
+  AdscCamera*					 my_camera_adsc;  
+  AdscInterface*				 my_interface_adsc;  
 #endif
 
   CtControl*                     my_control;

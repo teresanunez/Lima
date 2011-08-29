@@ -96,6 +96,27 @@ CtControl* ControlFactory::get_control( const string& detector_type)
             }
         }
 #endif
+
+#ifdef ADSC_ENABLED
+        if (detector_type.compare("AdscCCD")== 0)
+        {    
+            if(!ControlFactory::is_created)
+            {				
+				DbData db_data;
+				db_data.push_back(DbDatum("DetectorIP"));
+				db_data.push_back(DbDatum("DetectorPort"));
+				(Tango::Util::instance()->get_database())->get_device_property(my_device_name, db_data);
+				string camera_ip;
+				db_data[0] >> camera_ip;
+
+				my_camera_adsc				= new AdscCamera();
+                my_interface_adsc			= new AdscInterface(*my_camera_adsc);    
+                my_control                  = new CtControl(my_interface_adsc);            
+                ControlFactory::is_created  = true;				
+                return my_control;
+            }
+        }
+#endif
         
         if(!ControlFactory::is_created)
         	throw LIMA_HW_EXC(Error, "Unable to create the lima control object : Unknown Detector Type");
@@ -157,6 +178,15 @@ void ControlFactory::reset(const string& detector_type )
         {          
             delete my_camera_pilatus;        my_camera_pilatus = 0;
             delete my_interface_pilatus;     my_interface_pilatus = 0;
+        }
+#endif
+
+#ifdef ADSC_ENABLED
+        if (detector_type.compare("AdscCCD")==0)
+        {          
+            //- do not delete because its a YAT Task            
+            delete my_camera_adsc;       my_camera_adsc = 0;
+            delete my_interface_adsc;     my_interface_adsc = 0;
         }
 #endif
         ControlFactory::is_created = false;        
