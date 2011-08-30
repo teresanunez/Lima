@@ -182,13 +182,15 @@ class LimaCCDs(PyTango.Device_4Impl) :
                                   'acq' : self.__control.acquisition,
                                   'shutter' : self.__control.shutter,
                                   'saving' : self.__control.saving,
-                                  'image' : self.__control.image}
+                                  'image' : self.__control.image,
+                                  'video' : self.__control.video}
 
         self.__Attribute2FunctionBase = {'acq_trigger_mode':'TriggerMode',
                                          'saving_overwrite_policy' : 'OverwritePolicy',
                                          'saving_format' : 'Format',
                                          'shutter_mode' : 'Mode',
-					 'image_rotation':'Rotation'}
+					 'image_rotation':'Rotation',
+                                         'video_mode':'Mode'}
             
         self.__ShutterMode = {'MANUAL': Core.ShutterManual,
                               'AUTO_FRAME': Core.ShutterAutoFrame,
@@ -238,6 +240,26 @@ class LimaCCDs(PyTango.Device_4Impl) :
         except AttributeError:
             pass
 
+        try:
+            self.__VideoMode = {'Y8'         : Core.Y8,
+                                'Y16'        : Core.Y16,
+                                'Y32'        : Core.Y32,
+                                'Y64'        : Core.Y64,
+                                'RGB555'     : Core.RGB555,
+                                'RGB565'     : Core.RGB565,
+                                'RGB24'      : Core.RGB24,
+                                'RGB32'      : Core.RGB32,
+                                'BGR24'      : Core.BGR24,
+                                'BGR32'      : Core.BGR32,
+                                'BAYER RG8'  : Core.BAYER_RG8,
+                                'BAYER RG16' : Core.BAYER_RG16,
+                                'I420'       : Core.I420,
+                                'YUV411'     : Core.YUV411,
+                                'YUV422'     : Core.YUV422,
+                                'YUV444'     : Core.YUV444}
+        except AttributeError:
+            import traceback
+            traceback.print_exc()
         
     def __getattr__(self,name) :
         if name.startswith('is_') and name.endswith('_allowed') :
@@ -1089,6 +1111,100 @@ class LimaCCDs(PyTango.Device_4Impl) :
         
         attr.set_value('DATA_ARRAY',  self._datacache)        
 
+    def read_video_active(self,attr) :
+        video = self.__control.video()
+        attr.set_value(video.isActive())
+
+    def write_video_active(self,attr) :
+        video = self.__control.video()
+        data = []
+    	attr.get_write_value(data)
+        video.setActive(data[0])
+
+    def read_video_live(self,attr) :
+        video = self.__control.video()
+        attr.set_value(video.getLive())
+
+    def write_video_live(self,attr) :
+        video = self.__control.video()
+        data = []
+        attr.get_write_value(data)
+        video.setLive(data[0])
+
+    def read_video_exposure(self,attr) :
+        video = self.__control.video()
+        attr.set_value(video.getExposure())
+
+    def write_video_exposure(self,attr) :
+        video = self.__control.video()
+        data = []
+        attr.get_write_value(data)
+        video.setExposure(data[0])
+
+    def read_video_gain(self,attr) :
+        video = self.__control.video()
+        attr.set_value(video.getGain())
+
+    def write_video_gain(self,attr) :
+        video = self.__control.video()
+        data = []
+        attr.get_write_value(data)
+        video.setGain(data[0])
+
+    def read_video_bin(self,attr) :
+        video = self.__control.video()
+        binValue = video.getBin()
+
+        attr.set_value([binValue.getX(),
+                        binValue.getY()],2)
+
+    def write_video_bin(self,attr) :
+        data = []
+        attr.get_write_value(data)
+        
+        video = self.__control.video()
+        binValue = Core.Bin(*data)
+        video.setBin(binValue)
+
+
+    def read_video_roi(self,attr) :
+        video = self.__control.video()
+        roi = video.getRoi()
+        point = roi.getTopLeft()
+        size = roi.getSize()
+        
+        attr.set_value([point.x,point.y,
+                        size.getWidth(),size.getHeight()])
+
+    def write_video_roi(self,attr) :
+        data = []
+        attr.get_write_value(data)
+        video = self.__control.video()
+        roi = Core.Roi(*data)
+        video.setRoi(roi)
+
+    def read_video_last_image(self,attr) :
+        video = self.__control.video()
+        lastImage = video.getLastImage()
+        VIDEO_HEADER_FORMAT = '!IHHqiiHHHH'
+        videoheader = struct.pack(
+            VIDEO_HEADER_FORMAT,
+            0x5644454f,                           # Magic
+            1,                                    # header version
+            lastImage.mode(),                     # image mode (Y8,Y16...)
+            lastImage.frameNumber(),              # frame number
+            lastImage.width(),                    # width
+            lastImage.height(),                   # height
+            ord(struct.pack('=H',1)[-1]),         # endianness
+            struct.calcsize(VIDEO_HEADER_FORMAT), # header size
+            0,0)                                  # padding
+
+        self._videoStr = videoheader + lastImage.buffer()
+        attr.set_value("VIDEO_IMAGE",self._videoStr)
+
+    def read_video_last_image_counter(self,attr) :
+        video = self.__control.video()
+        attr.set_value(video.getLastImageCounter())
     
 #==================================================================
 #
@@ -1110,6 +1226,10 @@ class LimaCCDs(PyTango.Device_4Impl) :
                 #Depending of the camera only a subset of the mode list can be supported
                 values = shutter.getModeList()
                 valueList = [_getDictKey(self.__ShutterMode,val) for val in values]
+        elif attr_name == 'video_mode':
+            video = self.__control.video()
+            values = video.getSupportedVideoMode()
+            valueList = [_getDictKey(self.__VideoMode,val) for val in values]
         else:
             dict_name = '_' + self.__class__.__name__ + '__' + ''.join([x.title() for x in attr_name.split('_')])
             d = getattr(self,dict_name,None)
@@ -1563,15 +1683,10 @@ class LimaCCDsClass(PyTango.DeviceClass) :
         [[PyTango.DevString,
           PyTango.SPECTRUM,
           PyTango.READ_WRITE,len(LimaCCDs._debugModuleList)]],
-        'debug_types_possible':
-         [[PyTango.DevString,
-          PyTango.SPECTRUM,
-          PyTango.READ,len(LimaCCDs._debugTypeList)]],
         'debug_types':
         [[PyTango.DevString,
           PyTango.SPECTRUM,
           PyTango.READ_WRITE,len(LimaCCDs._debugTypeList)]],
-
         'readImage_frame_number':
         [[PyTango.DevLong,
           PyTango.SCALAR,
@@ -1596,6 +1711,50 @@ class LimaCCDsClass(PyTango.DeviceClass) :
                              'format':"%d",
                              'description':"image data as encoded",
            } ],
+        'video_active':
+        [[PyTango.DevBoolean,
+          PyTango.SCALAR,
+          PyTango.READ_WRITE]],
+        'video_live':
+        [[PyTango.DevBoolean,
+          PyTango.SCALAR,
+          PyTango.READ_WRITE]],
+        'video_exposure':
+        [[PyTango.DevDouble,
+          PyTango.SCALAR,
+          PyTango.READ_WRITE]],
+        'video_gain':
+        [[PyTango.DevDouble,
+          PyTango.SCALAR,
+          PyTango.READ_WRITE]],
+        'video_mode':
+        [[PyTango.DevString,
+          PyTango.SCALAR,
+          PyTango.READ_WRITE]],
+        'video_roi':
+        [[PyTango.DevLong,
+          PyTango.SPECTRUM,
+          PyTango.READ_WRITE,4]],
+        'video_bin':
+        [[PyTango.DevULong,
+          PyTango.SPECTRUM,
+          PyTango.READ_WRITE,2]],
+        'video_last_image':
+        [[PyTango.DevEncoded,
+          PyTango.SCALAR,
+          PyTango.READ],
+         {
+             'label':"the video image",
+             'unit':"",
+             'standard unit':"",
+             'display unit':"",
+             'format':"%d",
+             'description':"video image as encoded",
+             }],
+        'video_last_image_counter':
+        [[PyTango.DevLong64,
+          PyTango.SCALAR,
+          PyTango.READ]],
         }
 
 
