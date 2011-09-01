@@ -18,32 +18,38 @@
 
       <dependency>
          <groupId>fr.soleil.lib</groupId>
-         <artifactId>YAT-${aol}-${library}-${mode}</artifactId>
+         <artifactId>YAT4Tango-${aol}-${library}-${mode}</artifactId>
       </dependency>
+
       <dependency>
          <groupId>fr.soleil.lib</groupId>
-         <artifactId>YAT4Tango-${aol}-${library}-${mode}</artifactId>
+         <artifactId>YAT-${aol}-${library}-${mode}</artifactId>
       </dependency>
       <dependency>
          <groupId>fr.soleil.lib</groupId>
          <artifactId>Utils-${aol}-${library}-${mode}</artifactId>
       </dependency>
+
       <dependency>
          <groupId>org.boost</groupId>
          <artifactId>Boost-libraries-${aol}-shared-${mode}</artifactId>
       </dependency>
+
       <dependency>
          <groupId>fr.soleil.lib.Lima</groupId>
          <artifactId>LimaControl-${aol}-shared-${mode}</artifactId>
          <version>1.0.4-SNAPSHOT</version>
       </dependency>
-      
+ 
+
       <dependency>
          <groupId>fr.soleil.lib.Lima.Camera</groupId>
          <artifactId>LimaSimulator-${aol}-shared-${mode}</artifactId>
          <version>1.0.4-SNAPSHOT</version>
       </dependency>
-<!-- 
+
+
+<!--
       <dependency>
          <groupId>fr.soleil.lib.Lima.Camera</groupId>
          <artifactId>LimaBasler-${aol}-shared-${mode}</artifactId>
@@ -64,7 +70,7 @@
 -->
       <dependency>
          <groupId>fr.soleil.lib</groupId>
-         <artifactId>GDShare-${aol}-${library}-${mode}</artifactId>
+         <artifactId>GDShare-${aol}-${library}-${mode}</artifactId>   
       </dependency>
       <dependency>
          <groupId>fr.soleil.lib</groupId>
@@ -101,7 +107,7 @@
                            <define>SIMULATOR_ENABLED</define>
                            <!--<define>BASLER_ENABLED</define>-->
                            <!--<define>XPAD_ENABLED</define>-->
-                           <!--<define>PILATUS_ENABLED</define>-->
+                          <!--<define>PILATUS_ENABLED</define>-->
                         </defines>
 
                         <systemIncludePaths>
@@ -127,19 +133,7 @@
                      <!-- define libraries path's -->
                      <linker>
                         <libs>
-<!--
-                           <lib>
-                              <name>pylonbase</name>
-                              <type>shared</type>
-                              <directory>${env.PYLON_ROOT}/lib</directory>
-                           </lib>
 
-                           <lib>
-                              <name>xpci_lib</name>
-                              <type>static</type>
-                              <directory>/home/informatique/ica/noureddine/DeviceSources/PCIex280311/trunk/sw/xpci_lib</directory>
-                           </lib>
--->
                         </libs>
                      </linker>
                  </configuration>

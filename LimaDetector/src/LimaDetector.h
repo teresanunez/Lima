@@ -33,17 +33,13 @@
 #ifndef _LimaDetector_H
 #define _LimaDetector_H
 
-#include <tango.h>
-
-#include <yat4tango/InnerAppender.h>
-#include <yat4tango/DynamicAttributeManager.h>
-
+//- STD/BOOST
 #include <boost/smart_ptr.hpp>
 #include <algorithm>
 #include <string>
 #include <iostream>
-#include <yat/memory/SharedPtr.h>
 
+//- LIMA
 #include "Debug.h"
 #include "HwInterface.h"
 #include "CtControl.h"
@@ -54,9 +50,20 @@
 #include "CtBuffer.h"
 #include "AcqState.h"
 
+//- This Device
 #include "AcquisitionTask.h"
 #include "Factory.h"
+
+//- GDshare
 #include <base.h>
+
+//- Tango
+#include <tango.h>
+//- YAT/4TANGO
+#include <yat/memory/SharedPtr.h>
+#include <yat4tango/InnerAppender.h>
+#include <yat4tango/DynamicAttributeManager.h>
+
 
 using namespace lima;
 using namespace std;
@@ -629,7 +636,7 @@ protected :
     string                              m_acquisition_mode;
     
     //-Yat task to manage device Start/Snap/Stop commands
-    TaskPtr                             m_acquisition_task;
+    AcquisitionTask*                    m_acquisition_task;
     AcquisitionTask::AcqConfig          m_acq_conf;
     
     //- Dyn Attr

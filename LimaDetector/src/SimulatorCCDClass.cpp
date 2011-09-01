@@ -33,11 +33,11 @@ static const char *HttpServer = "http://www.esrf.fr/computing/cs/tango/tango_doc
 //=============================================================================
 
 
-#include <tango.h>
+
 
 #include <SimulatorCCD.h>
 #include <SimulatorCCDClass.h>
-
+#include <tango.h>
 
 //+----------------------------------------------------------------------------
 /**
@@ -252,7 +252,7 @@ void SimulatorCCDClass::attribute_factory(vector<Tango::Attr *> &att_list)
 	exposure_time_prop.set_description("Set/Get exposure time (in ms)");
 	exposure_time->set_default_properties(exposure_time_prop);
 	exposure_time->set_memorized();
-	exposure_time->set_memorized_init(true);
+	exposure_time->set_memorized_init(false);
 	att_list.push_back(exposure_time);
 
 	//	End of Automatic code generation

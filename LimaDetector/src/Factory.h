@@ -1,12 +1,15 @@
 #ifndef _FACTORY_H_
 #define _FACTORY_H_
 
-#include <tango.h>
+
 #include <Singleton.h>
 
 #include <HwInterface.h>
 #include <CtControl.h>
 #include "Debug.h"
+#include <yat/threading/Mutex.h>
+
+#include <tango.h>
 
 #ifdef SIMULATOR_ENABLED
     #include <SimuHwInterface.h>
@@ -53,14 +56,17 @@ private:
 #endif
 
 #ifdef PILATUS_ENABLED      
-  PilatusCpp::Communication*     my_camera_pilatus;  
+  PilatusCpp::Camera*            my_camera_pilatus;  
   PilatusCpp::Interface*         my_interface_pilatus;  
 #endif
 
   CtControl*                     my_control;
   static bool                    is_created;
   string                         my_server_name;  
-  string                         my_device_name;  
+  string                         my_device_name;
+  
+	//lock the singleton acess
+	yat::Mutex 								    object_lock;  
 
 };
 

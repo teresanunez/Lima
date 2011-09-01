@@ -32,9 +32,10 @@ static const char *RcsId = "$Id $";
 //         (c) - Software Engineering Group - ESRF
 //=============================================================================
 
-#include <tango.h>
+
 #include <LimaDetector.h>
 #include <LimaDetectorClass.h>
+#include <tango.h>
 
 /*====================================================================
  *	This file contains the methods to allow commands and attributes
@@ -65,7 +66,6 @@ namespace LimaDetector_ns
 bool LimaDetector::is_detectorType_allowed(Tango::AttReqType type)
 {
 	if (get_state() == Tango::INIT	||
-		get_state() == Tango::FAULT	||
 		get_state() == Tango::RUNNING)
 	{
 		//	End of Generated Code
@@ -88,7 +88,6 @@ bool LimaDetector::is_detectorType_allowed(Tango::AttReqType type)
 bool LimaDetector::is_detectorModel_allowed(Tango::AttReqType type)
 {
 	if (get_state() == Tango::INIT	||
-		get_state() == Tango::FAULT	||
 		get_state() == Tango::RUNNING)
 	{
 		//	End of Generated Code
@@ -112,7 +111,6 @@ bool LimaDetector::is_detectorModel_allowed(Tango::AttReqType type)
 bool LimaDetector::is_depth_allowed(Tango::AttReqType type)
 {
 	if (get_state() == Tango::INIT	||
-		get_state() == Tango::FAULT	||
 		get_state() == Tango::RUNNING)
 	{
 		//	End of Generated Code
@@ -135,7 +133,6 @@ bool LimaDetector::is_depth_allowed(Tango::AttReqType type)
 bool LimaDetector::is_exposureTime_allowed(Tango::AttReqType type)
 {
 	if (get_state() == Tango::INIT	||
-		get_state() == Tango::FAULT	||
 		get_state() == Tango::RUNNING)
 	{
 		//	End of Generated Code
@@ -158,7 +155,6 @@ bool LimaDetector::is_exposureTime_allowed(Tango::AttReqType type)
 bool LimaDetector::is_sensorWidth_allowed(Tango::AttReqType type)
 {
 	if (get_state() == Tango::INIT	||
-		get_state() == Tango::FAULT	||
 		get_state() == Tango::RUNNING)
 	{
 		//	End of Generated Code
@@ -181,7 +177,6 @@ bool LimaDetector::is_sensorWidth_allowed(Tango::AttReqType type)
 bool LimaDetector::is_sensorHeight_allowed(Tango::AttReqType type)
 {
 	if (get_state() == Tango::INIT	||
-		get_state() == Tango::FAULT	||
 		get_state() == Tango::RUNNING)
 	{
 		//	End of Generated Code
@@ -204,7 +199,6 @@ bool LimaDetector::is_sensorHeight_allowed(Tango::AttReqType type)
 bool LimaDetector::is_nbFrames_allowed(Tango::AttReqType type)
 {
 	if (get_state() == Tango::INIT	||
-		get_state() == Tango::FAULT	||
 		get_state() == Tango::RUNNING)
 	{
 		//	End of Generated Code
@@ -227,7 +221,6 @@ bool LimaDetector::is_nbFrames_allowed(Tango::AttReqType type)
 bool LimaDetector::is_detectorDescription_allowed(Tango::AttReqType type)
 {
 	if (get_state() == Tango::INIT	||
-		get_state() == Tango::FAULT	||
 		get_state() == Tango::RUNNING)
 	{
 		//	End of Generated Code
@@ -250,7 +243,6 @@ bool LimaDetector::is_detectorDescription_allowed(Tango::AttReqType type)
 bool LimaDetector::is_acquisitionMode_allowed(Tango::AttReqType type)
 {
 	if (get_state() == Tango::INIT	||
-		get_state() == Tango::FAULT	||
 		get_state() == Tango::RUNNING)
 	{
 		//	End of Generated Code
@@ -273,7 +265,6 @@ bool LimaDetector::is_acquisitionMode_allowed(Tango::AttReqType type)
 bool LimaDetector::is_exposureAccTime_allowed(Tango::AttReqType type)
 {
 	if (get_state() == Tango::INIT	||
-		get_state() == Tango::FAULT	||
 		get_state() == Tango::RUNNING)
 	{
 		//	End of Generated Code
@@ -296,7 +287,6 @@ bool LimaDetector::is_exposureAccTime_allowed(Tango::AttReqType type)
 bool LimaDetector::is_triggerMode_allowed(Tango::AttReqType type)
 {
 	if (get_state() == Tango::INIT	||
-		get_state() == Tango::FAULT	||
 		get_state() == Tango::RUNNING)
 	{
 		//	End of Generated Code
@@ -319,7 +309,6 @@ bool LimaDetector::is_triggerMode_allowed(Tango::AttReqType type)
 bool LimaDetector::is_fileGeneration_allowed(Tango::AttReqType type)
 {
 	if (get_state() == Tango::INIT	||
-		get_state() == Tango::FAULT	||
 		get_state() == Tango::RUNNING)
 	{
 		//	End of Generated Code
@@ -342,7 +331,6 @@ bool LimaDetector::is_fileGeneration_allowed(Tango::AttReqType type)
 bool LimaDetector::is_currentFrame_allowed(Tango::AttReqType type)
 {
 	if (get_state() == Tango::INIT	||
-		get_state() == Tango::FAULT	||
 		get_state() == Tango::RUNNING)
 	{
 		//	End of Generated Code
@@ -389,7 +377,6 @@ bool LimaDetector::is_DeleteRemainingFiles_allowed(const CORBA::Any &any)
 bool LimaDetector::is_Snap_allowed(const CORBA::Any &any)
 {
 	if (get_state() == Tango::INIT	||
-		get_state() == Tango::FAULT	||
 		get_state() == Tango::RUNNING)
 	{
 		//	End of Generated Code
@@ -427,7 +414,6 @@ bool LimaDetector::is_Stop_allowed(const CORBA::Any &any)
 bool LimaDetector::is_Start_allowed(const CORBA::Any &any)
 {
 	if (get_state() == Tango::INIT	||
-		get_state() == Tango::FAULT	||
 		get_state() == Tango::RUNNING)
 	{
 		//	End of Generated Code
@@ -447,7 +433,6 @@ bool LimaDetector::is_Start_allowed(const CORBA::Any &any)
 bool LimaDetector::is_SetROI_allowed(const CORBA::Any &any)
 {
 	if (get_state() == Tango::INIT	||
-		get_state() == Tango::FAULT	||
 		get_state() == Tango::RUNNING)
 	{
 		//	End of Generated Code

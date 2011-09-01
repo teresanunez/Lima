@@ -53,10 +53,10 @@ static const char *RcsId = "$Id:  $";
 //===================================================================
 
 
-#include <tango.h>
-#include <PogoHelper.h>
 #include <SimulatorCCD.h>
 #include <SimulatorCCDClass.h>
+#include <tango.h>
+#include <PogoHelper.h>
 
 namespace SimulatorCCD_ns
 {
@@ -324,6 +324,7 @@ Tango::DevState SimulatorCCD::dev_state()
     argout = DeviceState;
     return argout;
 }
+
 
 
 

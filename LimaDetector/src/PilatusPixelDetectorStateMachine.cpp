@@ -32,9 +32,10 @@ static const char *RcsId = "$Id $";
 //         (c) - Software Engineering Group - ESRF
 //=============================================================================
 
-#include <tango.h>
+
 #include <PilatusPixelDetector.h>
 #include <PilatusPixelDetectorClass.h>
+#include <tango.h>
 
 /*====================================================================
  *	This file contains the methods to allow commands and attributes
@@ -64,7 +65,6 @@ namespace PilatusPixelDetector_ns
 bool PilatusPixelDetector::is_threshold_allowed(Tango::AttReqType type)
 {
 	if (get_state() == Tango::INIT	||
-		get_state() == Tango::FAULT	||
 		get_state() == Tango::RUNNING)
 	{
 		//	End of Generated Code
@@ -87,7 +87,6 @@ bool PilatusPixelDetector::is_threshold_allowed(Tango::AttReqType type)
 bool PilatusPixelDetector::is_gain_allowed(Tango::AttReqType type)
 {
 	if (get_state() == Tango::INIT	||
-		get_state() == Tango::FAULT	||
 		get_state() == Tango::RUNNING)
 	{
 		//	End of Generated Code
@@ -110,7 +109,6 @@ bool PilatusPixelDetector::is_gain_allowed(Tango::AttReqType type)
 bool PilatusPixelDetector::is_imagePath_allowed(Tango::AttReqType type)
 {
 	if (get_state() == Tango::INIT	||
-		get_state() == Tango::FAULT	||
 		get_state() == Tango::RUNNING)
 	{
 		//	End of Generated Code
@@ -133,7 +131,6 @@ bool PilatusPixelDetector::is_imagePath_allowed(Tango::AttReqType type)
 bool PilatusPixelDetector::is_fileName_allowed(Tango::AttReqType type)
 {
 	if (get_state() == Tango::INIT	||
-		get_state() == Tango::FAULT	||
 		get_state() == Tango::RUNNING)
 	{
 		//	End of Generated Code
@@ -156,7 +153,6 @@ bool PilatusPixelDetector::is_fileName_allowed(Tango::AttReqType type)
 bool PilatusPixelDetector::is_latency_allowed(Tango::AttReqType type)
 {
 	if (get_state() == Tango::INIT	||
-		get_state() == Tango::FAULT	||
 		get_state() == Tango::RUNNING)
 	{
 		//	End of Generated Code
@@ -184,7 +180,6 @@ bool PilatusPixelDetector::is_latency_allowed(Tango::AttReqType type)
 bool PilatusPixelDetector::is_SetThresholdAndGain_allowed(const CORBA::Any &any)
 {
 	if (get_state() == Tango::INIT	||
-		get_state() == Tango::FAULT	||
 		get_state() == Tango::RUNNING)
 	{
 		//	End of Generated Code
@@ -204,7 +199,6 @@ bool PilatusPixelDetector::is_SetThresholdAndGain_allowed(const CORBA::Any &any)
 bool PilatusPixelDetector::is_SetMxSettings_allowed(const CORBA::Any &any)
 {
 	if (get_state() == Tango::INIT	||
-		get_state() == Tango::FAULT	||
 		get_state() == Tango::RUNNING)
 	{
 		//	End of Generated Code

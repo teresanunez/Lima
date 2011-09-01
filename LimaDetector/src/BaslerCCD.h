@@ -33,7 +33,6 @@
 #ifndef _BASLERCCD_H
 #define _BASLERCCD_H
 
-#include <tango.h>
 //using namespace Tango;
 
 /**
@@ -48,9 +47,9 @@
 #include "CtAcquisition.h"
 #include "CtImage.h"
 #include <BaslerInterface.h>
-
 #include "Factory.h"
 
+#include <tango.h>
 
 #define MAX_ATTRIBUTE_STRING_LENGTH     256
 
