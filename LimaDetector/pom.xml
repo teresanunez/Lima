@@ -16,7 +16,7 @@
 
     <dependencies>
 
-      <dependency>
+		<dependency>
          <groupId>fr.soleil.lib</groupId>
          <artifactId>YAT4Tango-${aol}-${library}-${mode}</artifactId>
       </dependency>
@@ -55,7 +55,7 @@
          <artifactId>LimaBasler-${aol}-shared-${mode}</artifactId>
          <version>1.0.4-SNAPSHOT</version>
       </dependency>
-
+ 
       <dependency>
          <groupId>fr.soleil.lib.Lima.Camera</groupId>
          <artifactId>LimaXpad-${aol}-shared-${mode}</artifactId>

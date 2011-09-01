@@ -367,7 +367,7 @@ void PilatusPixelDetectorClass::attribute_factory(vector<Tango::Attr *> &att_lis
 	image_path_prop.set_description("Change the image path.<br>\n<br>\nIf the directory does not exist, it will be created if it is possible to do so with write permission.<br>\nA path relative to the current path is accepted.<br>");
 	image_path->set_default_properties(image_path_prop);
 	image_path->set_memorized();
-	image_path->set_memorized_init(true);
+	image_path->set_memorized_init(false);
 	att_list.push_back(image_path);
 
 	//	Attribute : fileName
@@ -376,7 +376,7 @@ void PilatusPixelDetectorClass::attribute_factory(vector<Tango::Attr *> &att_lis
 	file_name_prop.set_description("Image file pattern name.");
 	file_name->set_default_properties(file_name_prop);
 	file_name->set_memorized();
-	file_name->set_memorized_init(true);
+	file_name->set_memorized_init(false);
 	att_list.push_back(file_name);
 
 	//	Attribute : latency

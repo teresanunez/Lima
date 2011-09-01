@@ -956,7 +956,6 @@ void PilatusPixelDetector::create_property_if_empty(Tango::DbData& dev_prop,T va
     }
 }
 
-
 /*-------------------------------------------------------------------------
 //       LimaDetector::FindIndexFromPropertyName
 /-------------------------------------------------------------------------*/
@@ -972,10 +971,5 @@ int PilatusPixelDetector::FindIndexFromPropertyName(Tango::DbData& dev_prop, str
     if (i == iNbProperties) return -1;
     return i;
 }
-
-
-
-
-
 
 }	//	namespace

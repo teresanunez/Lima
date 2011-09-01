@@ -1957,16 +1957,4 @@ int LimaDetector::FindIndexFromPropertyName(Tango::DbData& dev_prop, string prop
     return i;
 }
 
-
-
-
-
-
-
-
-
-
-
-
-
 }	//	namespace
