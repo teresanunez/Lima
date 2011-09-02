@@ -190,10 +190,11 @@ void ControlFactory::reset(const string& detector_type )
 #endif
 
 #ifdef MARCCD_ENABLED
-            if (detector_type.compare("PilatusPixelDetector")==0)
+            if (detector_type.compare("MarCCD")==0)
             {          
-                delete my_camera_pilatus;        my_camera_pilatus = 0;
-                delete my_interface_pilatus;     my_interface_pilatus = 0;
+				//- do not delete because its a YAT Task
+                my_camera_marccd->exit();        my_camera_marccd = 0;
+                delete my_interface_marccd;		 my_interface_marccd = 0;
             }
 #endif     
         }

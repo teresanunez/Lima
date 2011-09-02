@@ -32,9 +32,10 @@ static const char *RcsId = "$Id $";
 //         (c) - Software Engineering Group - ESRF
 //=============================================================================
 
-#include <tango.h>
+
 #include <MarCCD.h>
 #include <MarCCDClass.h>
+#include <tango.h>
 
 /*====================================================================
  *	This file contains the methods to allow commands and attributes
@@ -59,25 +60,5 @@ namespace MarCCD_ns
 //		Commands Allowed Methods
 //=================================================
 
-//+----------------------------------------------------------------------------
-//
-// method : 		MarCCD::is_SetMxSettings_allowed
-// 
-// description : 	Execution allowed for SetMxSettings command.
-//
-//-----------------------------------------------------------------------------
-//bool MarCCD::is_SetMxSettings_allowed(const CORBA::Any &any)
-//{
-//	if (get_state() == Tango::INIT	||
-//		get_state() == Tango::FAULT	||
-//		get_state() == Tango::RUNNING)
-//	{
-//		//	End of Generated Code
-//
-//		//	Re-Start of Generated Code
-//		return false;
-//	}
-//	return true;
-//}
 
 }	// namespace MarCCD_ns

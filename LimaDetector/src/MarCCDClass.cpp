@@ -33,10 +33,11 @@ static const char *HttpServer = "http://www.esrf.fr/computing/cs/tango/tango_doc
 //=============================================================================
 
 
-#include <tango.h>
 
 #include <MarCCD.h>
 #include <MarCCDClass.h>
+
+#include <tango.h>
 
 
 //+----------------------------------------------------------------------------

@@ -67,7 +67,7 @@ private:
 #endif
 
 #ifdef MARCCD_ENABLED      
-  Marccd::MarccdCamera*     	my_camera_marccd;  
+  Marccd::Camera*     			my_camera_marccd;  
   Marccd::Interface*         	my_interface_marccd;  
 #endif
 

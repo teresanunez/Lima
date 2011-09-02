@@ -33,7 +33,7 @@
 #ifndef _MarCCD_H
 #define _MarCCD_H
 
-#include <tango.h>
+
 //using namespace Tango;
 
 /**
@@ -46,9 +46,11 @@
 #include "HwInterface.h"
 #include "CtControl.h"
 #include "CtAcquisition.h"
-//#include <MarccdCamera.h>
+#include <MarccdCamera.h>
 #include <MarccdInterface.h>
 #include "Factory.h"
+
+#include <tango.h>
 
 
 #define MAX_ATTRIBUTE_STRING_LENGTH 	256
@@ -195,13 +197,21 @@ public :
 protected :	
 	//	Add your own data members here
 	//-----------------------------------------
+
+	//- Store the values into the property
+    //- Properties stuff    
+    int             FindIndexFromPropertyName(Tango::DbData& dev_prop, string property_name);
+    template <class T>
+    void            create_property_if_empty(Tango::DbData& dev_prop,T value, string property_name);    
+    template <class T>
+    void            store_value_as_property(T value, string property_name);
 	
 	bool 				    m_is_device_initialized ;
-	std::stringstream		    m_status_message;
-	std::string 				    m_gain;    
+	std::stringstream		m_status_message;
+	std::string 			m_gain;    
 	
 	//LIMA objects
-	Marccd::Interface*	m_hw;
+	Marccd::Interface*		m_hw;
 	CtControl*				m_ct;	
 };
 
