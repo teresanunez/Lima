@@ -61,10 +61,10 @@ CtControl* ControlFactory::get_control( const string& detector_type)
         
             if(!ControlFactory::is_created)
             {
-                my_xpad_camera                = new XpadCamera();
-                my_xpad_camera->go(2000);
-                my_xpad_interface             = new XpadInterface(*my_xpad_camera);
-                my_control                    = new CtControl(my_xpad_interface);
+				my_camera_xpad                = new Xpad::Camera();
+                my_camera_xpad->go(2000);
+				my_interface_xpad             = new Xpad::Interface(*my_camera_xpad);
+                my_control                    = new CtControl(my_interface_xpad);
                 ControlFactory::is_created    = true;
                 return my_control;
             }
@@ -176,8 +176,8 @@ void ControlFactory::reset(const string& detector_type )
             if (detector_type.compare("XpadPixelDetector")==0)
             {          
                 //- do not delete because its a YAT Task
-                my_xpad_camera->exit();       my_xpad_camera = 0;
-                delete my_xpad_interface;     my_xpad_interface = 0;
+                my_camera_xpad->exit();       my_camera_xpad = 0;
+                delete my_interface_xpad;     my_interface_xpad = 0;
             }
 #endif
     
