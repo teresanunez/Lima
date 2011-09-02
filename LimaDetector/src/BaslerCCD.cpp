@@ -125,21 +125,19 @@ void BaslerCCD::init_device()
     // Initialise variables to default values
     //--------------------------------------------
     get_device_property();
-    CREATE_SCALAR_ATTRIBUTE(attr_frameRate_read,0.0    );
+    CREATE_SCALAR_ATTRIBUTE(attr_frameRate_read,0.0);
     m_is_device_initialized = false;
     set_state(Tango::INIT);
     m_status_message.str("");
 
     try
     {
-        //- get the main object used to pilot the lima framework
-        //in fact LimaDetector is create the singleton control objet
-        //so this call, will only return existing object, no need to give it the ip !!
+        //- get the singleton control objet used to pilot the lima framework
         m_ct = ControlFactory::instance().get_control("BaslerCCD");
 
         //- get interface to specific camera
         m_hw = dynamic_cast<Basler::Interface*>(m_ct->hwInterface());
-        if(m_hw==0)
+        if(m_hw == 0)
         {
             INFO_STREAM<<"Initialization Failed : Unable to get the interface of camera plugin "<<"("<<"BaslerCCD"<<") !"<< endl;
             m_status_message <<"Initialization Failed : Unable to get the interface of camera plugin "<<"("<<"BaslerCCD"<<") !"<< endl;
@@ -147,9 +145,8 @@ void BaslerCCD::init_device()
             set_state(Tango::INIT);
             return;
         }
-		
-		//- define Timeout of detector
-		m_hw->setTimeout(detectorTimeout);		
+        //- define Timeout of detector
+        m_hw->setTimeout(detectorTimeout);
 
     }
     catch(Exception& e)
@@ -241,6 +238,24 @@ void BaslerCCD::get_device_property()
 void BaslerCCD::always_executed_hook()
 {
 
+    try
+    {
+        //- get the singleton control objet used to pilot the lima framework
+        m_ct = ControlFactory::instance().get_control("BaslerCCD");
+        
+        //- get interface to specific detector
+        if(m_ct!=0)
+            m_hw = dynamic_cast<Basler::Interface*>(m_ct->hwInterface());
+    }
+    catch(Exception& e)
+    {
+        ERROR_STREAM << e.getErrMsg() << endl;
+        //- throw exception
+        Tango::Except::throw_exception(
+                    static_cast<const char*> ("TANGO_DEVICE_ERROR"),
+                    static_cast<const char*> (e.getErrMsg().c_str()),
+                    static_cast<const char*> ("BaslerCCD::read_frameRate"));
+    }    
 }
 //+----------------------------------------------------------------------------
 //
@@ -269,8 +284,11 @@ void BaslerCCD::read_frameRate(Tango::Attribute &attr)
     {
         try
         {
-            m_hw->getFrameRate((double&)*attr_frameRate_read);
-            attr.set_value(attr_frameRate_read);
+            if(m_hw!=0)
+            {
+              m_hw->getFrameRate((double&)*attr_frameRate_read);
+              attr.set_value(attr_frameRate_read);
+            }
         }
         catch(Tango::DevFailed& df)
         {
@@ -330,8 +348,23 @@ Tango::DevState BaslerCCD::dev_state()
         m_ct->getStatus(status);
         if (status.AcquisitionStatus == lima::AcqReady)
         {
-            DeviceState=Tango::STANDBY;
-            DeviceStatus<<"Waiting for Request ...\n"<<endl;
+            HwInterface::StatusType state;
+            m_hw->getStatus(state); 
+            if(state.acq == AcqRunning && state.det == DetExposure)
+            {
+                DeviceState=Tango::RUNNING;
+                DeviceStatus<<"Acquisition is Running ...\n"<<endl;
+            }
+            else if(state.acq == AcqFault && state.det == DetFault)
+            {                 
+                DeviceState=Tango::FAULT;//FAULT
+                DeviceStatus<<"Acquisition is in Fault\n"<<endl;
+            }  
+            else
+            {
+                DeviceState=Tango::STANDBY;
+                DeviceStatus<<"Waiting for Request ...\n"<<endl;
+            }
         }
         else if(status.AcquisitionStatus == lima::AcqRunning)
         {
@@ -431,6 +464,8 @@ int BaslerCCD::FindIndexFromPropertyName(Tango::DbData& dev_prop, string propert
     if (i == iNbProperties) return -1;
     return i;
 }
+
+
 
 
 

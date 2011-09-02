@@ -574,15 +574,15 @@ void PilatusPixelDetector::write_gain(Tango::WAttribute &attr)
         //- THIS IS AN AVAILABLE TRIGER MODE
         m_gain = attr_gain_write;
 
-        Communication::Gain new_gain;
+        Camera::Gain new_gain;
         if(m_gain.compare("LOW")==0)
-            new_gain = Communication::LOW;
+            new_gain = Camera::LOW;
         else if(m_gain.compare("MID")==0)
-            new_gain = Communication::MID;
+            new_gain = Camera::MID;
         else if(m_gain.compare("HIGH")==0)
-            new_gain = Communication::HIGH;
+            new_gain = Camera::HIGH;
         else
-            new_gain = Communication::UHIGH;
+            new_gain = Camera::UHIGH;
 
         m_hw->setThresholdGain(m_hw->getThreshold(), new_gain);
     }
@@ -618,12 +618,12 @@ void PilatusPixelDetector::read_gain(Tango::Attribute &attr)
     DEBUG_STREAM << "PilatusPixelDetector::read_gain(Tango::Attribute &attr) entering... "<< endl;
     try
     {
-        Communication::Gain current_gain = m_hw->getGain();
+        Camera::Gain current_gain = m_hw->getGain();
         switch (current_gain)
         {
-            case Communication::LOW     : strcpy(*attr_gain_read, "LOW")    ;    break;
-            case Communication::MID     : strcpy(*attr_gain_read, "MID")    ;    break;
-            case Communication::HIGH    : strcpy(*attr_gain_read, "HIGH")    ;    break;
+            case Camera::LOW     : strcpy(*attr_gain_read, "LOW")    ;    break;
+            case Camera::MID     : strcpy(*attr_gain_read, "MID")    ;    break;
+            case Camera::HIGH    : strcpy(*attr_gain_read, "HIGH")    ;    break;
             default /*UHIGH*/           : strcpy(*attr_gain_read, "UHIGH")    ;    break;
         }
 
@@ -684,8 +684,24 @@ Tango::DevState PilatusPixelDetector::dev_state()
         m_ct->getStatus(status);
         if (status.AcquisitionStatus == lima::AcqReady)
         {
-            DeviceState=Tango::STANDBY;
-            DeviceStatus<<"Waiting for Request ...\n"<<endl;
+                HwInterface::StatusType state;
+                m_hw->getStatus(state); 
+
+                if(state.acq == AcqRunning && state.det == DetExposure)
+                {
+                    DeviceState=Tango::RUNNING;
+                    DeviceStatus<<"Acquisition is Running ...\n"<<endl;
+                }
+                else if(state.acq == AcqFault && state.det == DetFault)
+                {                 
+                    DeviceState=Tango::FAULT;//FAULT
+                    DeviceStatus<<"Acquisition is in Fault\n"<<endl;
+                }  
+                else
+                {
+                    DeviceState=Tango::STANDBY;
+                    DeviceStatus<<"Waiting for Request ...\n"<<endl;
+                }
         }
         else if(status.AcquisitionStatus == lima::AcqRunning)
         {
@@ -750,15 +766,15 @@ void PilatusPixelDetector::set_threshold_and_gain(const Tango::DevVarLongStringA
 
         int new_threshold = input_threshold;
 
-        Communication::Gain new_gain;
+        Camera::Gain new_gain;
         if(input_gain.compare("LOW")==0)
-            new_gain = Communication::LOW;
+            new_gain = Camera::LOW;
         else if(input_gain.compare("MID")==0)
-            new_gain = Communication::MID;
+            new_gain = Camera::MID;
         else if(input_gain.compare("HIGH")==0)
-            new_gain = Communication::HIGH;
+            new_gain = Camera::HIGH;
         else
-            new_gain = Communication::UHIGH;
+            new_gain = Camera::UHIGH;
 
         m_hw->setThresholdGain(new_threshold, new_gain);
     }
@@ -940,7 +956,6 @@ void PilatusPixelDetector::create_property_if_empty(Tango::DbData& dev_prop,T va
     }
 }
 
-
 /*-------------------------------------------------------------------------
 //       LimaDetector::FindIndexFromPropertyName
 /-------------------------------------------------------------------------*/
@@ -956,6 +971,5 @@ int PilatusPixelDetector::FindIndexFromPropertyName(Tango::DbData& dev_prop, str
     if (i == iNbProperties) return -1;
     return i;
 }
-
 
 }	//	namespace

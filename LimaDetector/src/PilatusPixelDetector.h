@@ -46,7 +46,7 @@
 #include "HwInterface.h"
 #include "CtControl.h"
 #include "CtAcquisition.h"
-#include <PilatusCommunication.h>
+#include <PilatusCamera.h>
 #include <PilatusInterface.h>
 #include "Factory.h"
 

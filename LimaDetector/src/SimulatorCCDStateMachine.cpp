@@ -65,7 +65,6 @@ namespace SimulatorCCD_ns
 bool SimulatorCCD::is_exposureTime_allowed(Tango::AttReqType type)
 {
 	if (get_state() == Tango::INIT	||
-		get_state() == Tango::FAULT	||
 		get_state() == Tango::RUNNING)
 	{
 		//	End of Generated Code

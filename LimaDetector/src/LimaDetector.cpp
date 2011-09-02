@@ -115,7 +115,7 @@ m_dam(this)
 //-----------------------------------------------------------------------------
 void LimaDetector::delete_device()
 {
-    INFO_STREAM << "LimaDetector::LimaDetector() delete device " << device_name << endl;
+    INFO_STREAM << "LimaDetector::delete_device() delete device " << device_name << endl;
 
     //    Delete device allocated objects
     DELETE_SCALAR_ATTRIBUTE(attr_exposureTime_read);
@@ -149,7 +149,14 @@ void LimaDetector::delete_device()
     }
 
     // Exit acquisition task
-    m_acquisition_task = NULL;
+    if (m_acquisition_task)
+    {
+        //- ask the task to quit
+        m_acquisition_task->exit();
+        //- !!!!! NEVER TRY TO <delete> a yat4tango::DeviceTask, it commits suicide 
+        //- upon return of its main function (i.e. entry point)!!!!!!
+        m_acquisition_task = 0;
+    }
 
     //- remove the inner-appender
     yat4tango::InnerAppender::release(this);
@@ -260,6 +267,7 @@ void LimaDetector::init_device()
             set_state(Tango::INIT);
             return;
         }
+
 
         //To ensure that the real ROI will be used at startup
         INFO_STREAM<<"Reload hard ROI of detector."<<endl;
@@ -1732,19 +1740,34 @@ Tango::DevState LimaDetector::dev_state()
             m_ct->getStatus(status);
             if (status.AcquisitionStatus == lima::AcqReady)
             {
-                DeviceState=Tango::STANDBY;
-                DeviceStatus<<"Waiting for Request ...\n"<<endl;
+                HwInterface::StatusType state;
+                m_hw->getStatus(state); 
+                if(state.acq == AcqRunning && state.det == DetExposure)
+                {
+                    DeviceState=Tango::RUNNING;
+                    DeviceStatus<<"Acquisition is Running ...\n"<<endl;
+                }
+                else if(state.acq == AcqFault && state.det == DetFault)
+                {                 
+                    DeviceState=Tango::FAULT;//FAULT
+                    DeviceStatus<<"Acquisition is in Fault\n"<<endl;
+                }  
+                else
+                {
+                    DeviceState=Tango::STANDBY;
+                    DeviceStatus<<"Waiting for Request ...\n"<<endl;
+                }
             }
             else if(status.AcquisitionStatus == lima::AcqRunning)
-            {
+            {           
                 DeviceState=Tango::RUNNING;
                 DeviceStatus<<"Acquisition is Running ...\n"<<endl;
             }
             else
-            {
+            {      
                 DeviceState=Tango::FAULT;//FAULT
                 DeviceStatus<<"Acquisition is in Fault\n"<<endl;
-            }
+            }              
         }
         //DeviceStatus<< m_status_message.str();
         //DeviceStatus<<endl;
@@ -1933,13 +1956,5 @@ int LimaDetector::FindIndexFromPropertyName(Tango::DbData& dev_prop, string prop
     if (i == iNbProperties) return -1;
     return i;
 }
-
-
-
-
-
-
-
-
 
 }	//	namespace

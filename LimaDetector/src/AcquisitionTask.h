@@ -55,7 +55,7 @@ namespace LimaDetector_ns
 {
 
     //- Scan Acquisition Task 
-    class AcquisitionTask : public yat4tango::DeviceTask, public gdshare::MReferencable
+    class AcquisitionTask : public yat4tango::DeviceTask
     {
     
     public:
@@ -79,9 +79,6 @@ namespace LimaDetector_ns
             string            abort_status_message;        // status when abort is call                
         };
 
-        //used by MReferencable to exit as a smart pointer
-        void Discard() const;        
-    
     protected://- [yat4tango::DeviceTask implementation]
         virtual void process_message( yat::Message& msg ) throw (Tango::DevFailed);
         
@@ -113,9 +110,7 @@ namespace LimaDetector_ns
         Tango::DeviceImpl*     m_device;
     
     };
-    
-    /// Reference pointer to Task object
-    typedef gdshare::RefPtr<AcquisitionTask> TaskPtr;    
+
 }
 
 
