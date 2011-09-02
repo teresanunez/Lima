@@ -94,6 +94,33 @@ CtControl* ControlFactory::get_control( const string& detector_type)
             }
         }
 #endif
+
+#ifdef MARCCD_ENABLED	
+		if (detector_type.compare("MarCCD")== 0)
+		{	
+			if(!ControlFactory::is_created)
+			{
+				DbData db_data;
+				db_data.push_back(DbDatum("DetectorIP"));
+				db_data.push_back(DbDatum("DetectorPort"));
+				db_data.push_back(DbDatum("FullImagePathName"));
+				(Tango::Util::instance()->get_database())->get_device_property(my_device_name, db_data);
+				string camera_ip;
+				string full_img_path_name;
+				unsigned long camera_port;
+				db_data[0] >> camera_ip;
+				db_data[1] >> camera_port;
+				db_data[2] >> full_img_path_name;
+
+				my_camera_marccd           = new Marccd::MarccdCamera(camera_ip.c_str(), camera_port, full_img_path_name);
+				my_camera_marccd->go(2000);        
+				my_interface_marccd        = new Marccd::Interface(*my_camera_marccd);
+				my_control                 = new CtControl(my_interface_marccd);
+				ControlFactory::is_created = true;
+				return my_control;
+			}
+		}
+#endif
         
         if(!ControlFactory::is_created)
             throw LIMA_HW_EXC(Error, "Unable to create the lima control object : Unknown Detector Type");
@@ -160,7 +187,15 @@ void ControlFactory::reset(const string& detector_type )
                 delete my_camera_pilatus;        my_camera_pilatus = 0;
                 delete my_interface_pilatus;     my_interface_pilatus = 0;
             }
-#endif      
+#endif
+
+#ifdef MARCCD_ENABLED
+            if (detector_type.compare("PilatusPixelDetector")==0)
+            {          
+                delete my_camera_pilatus;        my_camera_pilatus = 0;
+                delete my_interface_pilatus;     my_interface_pilatus = 0;
+            }
+#endif     
         }
     }
     catch(Tango::DevFailed& df)

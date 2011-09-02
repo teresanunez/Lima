@@ -29,6 +29,10 @@
     #include <PilatusInterface.h>
 #endif
 
+#ifdef MARCCD_ENABLED
+    #include <MarccdInterface.h>
+#endif
+
 using namespace lima;
 using namespace std;
 using namespace Tango;
@@ -60,6 +64,11 @@ private:
 #ifdef PILATUS_ENABLED      
   PilatusCpp::Camera*            my_camera_pilatus;  
   PilatusCpp::Interface*         my_interface_pilatus;  
+#endif
+
+#ifdef MARCCD_ENABLED      
+  Marccd::MarccdCamera*     	my_camera_marccd;  
+  Marccd::Interface*         	my_interface_marccd;  
 #endif
 
   CtControl*                     my_control;
