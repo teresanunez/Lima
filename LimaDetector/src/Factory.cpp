@@ -111,8 +111,9 @@ CtControl* ControlFactory::get_control( const string& detector_type)
 				db_data[0] >> camera_ip;
 				db_data[1] >> camera_port;
 				db_data[2] >> full_img_path_name;
+                
 
-				my_camera_marccd           = new Marccd::MarccdCamera(camera_ip.c_str(), camera_port, full_img_path_name);
+				my_camera_marccd           = new Marccd::Camera(camera_ip.c_str(), camera_port, full_img_path_name);
 				my_camera_marccd->go(2000);        
 				my_interface_marccd        = new Marccd::Interface(*my_camera_marccd);
 				my_control                 = new CtControl(my_interface_marccd);

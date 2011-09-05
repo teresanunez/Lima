@@ -99,6 +99,12 @@ MarCCD::MarCCD(Tango::DeviceClass *cl,const char *s,const char *d)
 void MarCCD::delete_device()
 {
 	//	Delete device allocated objects
+    //!!!! ONLY LimaDetector device can do this !!!!
+    //if(m_ct!=0)
+    //{
+    //    ControlFactory::instance().reset("PilatusPixelDetector");
+    //    m_ct = 0;
+    //}    
 }
 
 //+----------------------------------------------------------------------------
@@ -317,10 +323,10 @@ Tango::DevState MarCCD::dev_state()
 }
 
 /*-------------------------------------------------------------------------
-//       LimaDetector::store_value_as_property
+//       MarCCD::store_value_as_property
 /-------------------------------------------------------------------------*/
 template <class T>
-void PilatusPixelDetector::store_value_as_property (T value, string property_name)
+void MarCCD::store_value_as_property (T value, string property_name)
 {
     Tango::DbDatum current_value(property_name);
     current_value << value;
@@ -346,10 +352,10 @@ void PilatusPixelDetector::store_value_as_property (T value, string property_nam
 
 
 /*-------------------------------------------------------------------------
-//       LimaDetector::create_property_if_empty
+//       MarCCD::create_property_if_empty
 /-------------------------------------------------------------------------*/
 template <class T>
-void PilatusPixelDetector::create_property_if_empty(Tango::DbData& dev_prop,T value,string property_name)
+void MarCCD::create_property_if_empty(Tango::DbData& dev_prop,T value,string property_name)
 {
     int iPropertyIndex = FindIndexFromPropertyName(dev_prop,property_name);
     if (iPropertyIndex == -1) return;
@@ -379,9 +385,9 @@ void PilatusPixelDetector::create_property_if_empty(Tango::DbData& dev_prop,T va
 }
 
 /*-------------------------------------------------------------------------
-//       LimaDetector::FindIndexFromPropertyName
+//       MarCCD::FindIndexFromPropertyName
 /-------------------------------------------------------------------------*/
-int PilatusPixelDetector::FindIndexFromPropertyName(Tango::DbData& dev_prop, string property_name)
+int MarCCD::FindIndexFromPropertyName(Tango::DbData& dev_prop, string property_name)
 {
     size_t iNbProperties = dev_prop.size();
     unsigned int i;

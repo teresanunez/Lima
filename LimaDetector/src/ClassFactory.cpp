@@ -54,6 +54,10 @@ static const char *RcsId = "$Id:  $";
 	#include <XpadPixelDetectorClass.h>
 #endif
 
+#ifdef MARCCD_ENABLED
+	#include <MarCCDClass.h>
+#endif
+
 #include <tango.h>
 
 
@@ -80,5 +84,10 @@ void Tango::DServer::class_factory()
 #ifdef XPAD_ENABLED	
 	add_class(XpadPixelDetector_ns::XpadPixelDetectorClass::init("XpadPixelDetector"));
 #endif
+
+#ifdef MARCCD_ENABLED	
+	add_class(MarCCD_ns::MarCCDClass::init("MarCCD"));
+#endif
+
 }
 

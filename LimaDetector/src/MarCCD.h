@@ -208,7 +208,6 @@ protected :
 	
 	bool 				    m_is_device_initialized ;
 	std::stringstream		m_status_message;
-	std::string 			m_gain;    
 	
 	//LIMA objects
 	Marccd::Interface*		m_hw;
