@@ -86,8 +86,8 @@ CtControl* ControlFactory::get_control( const string& detector_type)
                 db_data[0] >> camera_ip;
                 db_data[1] >> camera_port;
                 
-                my_camera_pilatus           = new PilatusCpp::Camera(camera_ip.c_str(), camera_port);
-                my_interface_pilatus        = new PilatusCpp::Interface(*my_camera_pilatus);
+                my_camera_pilatus           = new Pilatus::Camera(camera_ip.c_str(), camera_port);
+                my_interface_pilatus        = new Pilatus::Interface(*my_camera_pilatus);
                 my_control                  = new CtControl(my_interface_pilatus);
                 ControlFactory::is_created  = true;
                 return my_control;

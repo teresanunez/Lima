@@ -10,7 +10,7 @@ static const char *HttpServer = "http://www.esrf.fr/computing/cs/tango/tango_doc
 // description : C++ source for the MarCCDClass. A singleton
 //               class derived from DeviceClass. It implements the
 //               command list and all properties and methods required
-//               by the Pilatus once per process.
+//               by the MarCCD once per process.
 //
 // project :     TANGO Device Server
 //
@@ -52,7 +52,7 @@ __declspec(dllexport)
 
 #endif
 
-	Tango::DeviceClass *_create_Pilatus_class(const char *name) {
+	Tango::DeviceClass *_create_MarCCD_class(const char *name) {
 		return MarCCD_ns::MarCCDClass::init(name);
 	}
 }

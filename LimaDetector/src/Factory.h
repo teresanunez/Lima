@@ -62,8 +62,8 @@ private:
 #endif
 
 #ifdef PILATUS_ENABLED      
-	PilatusCpp::Camera*            my_camera_pilatus;  
-	PilatusCpp::Interface*         my_interface_pilatus;  
+	Pilatus::Camera*            my_camera_pilatus;  
+	Pilatus::Interface*         my_interface_pilatus;  
 #endif
 
 #ifdef MARCCD_ENABLED      

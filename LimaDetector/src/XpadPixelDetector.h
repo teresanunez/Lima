@@ -459,8 +459,8 @@ protected :
 	void set_all_f_parameters();
 
 	//lima OBJECTS
-	XpadInterface* 		m_hw;
-	CtControl*			m_ct;
+	Xpad::Interface* 		m_hw;
+	CtControl*			  m_ct;
 };
 
 }	// namespace_ns

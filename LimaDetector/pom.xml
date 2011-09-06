@@ -52,16 +52,12 @@
          <version>1.0.6-SNAPSHOT</version>
       </dependency>
 
-
-
-
-
       <dependency>
          <groupId>fr.soleil.lib.Lima.Camera</groupId>
          <artifactId>LimaBasler-${aol}-shared-${mode}</artifactId>
          <version>1.0.6-SNAPSHOT</version>
       </dependency>
- <!--
+
       <dependency>
          <groupId>fr.soleil.lib.Lima.Camera</groupId>
          <artifactId>LimaXpad-${aol}-shared-${mode}</artifactId>
@@ -77,9 +73,9 @@
 	<dependency>
          <groupId>fr.soleil.lib.Lima.Camera</groupId>
          <artifactId>LimaMarccd-${aol}-shared-${mode}</artifactId>
-         <version>1.0.4-SNAPSHOT</version>
+         <version>1.0.6-SNAPSHOT</version>
       </dependency>
-
+<!--
 	<dependency>
          <groupId>fr.soleil.lib.Lima.Camera</groupId>
          <artifactId>LimaAdsc-${aol}-shared-${mode}</artifactId>
@@ -91,7 +87,8 @@
 
       <dependency>
          <groupId>fr.soleil.lib</groupId>
-         <artifactId>GDShare-${aol}-${library}-${mode}</artifactId>   
+         <artifactId>GDShare-${aol}-${library}-${mode}</artifactId>
+        <version>1.18.4-SNAPSHOT</version>            
       </dependency>
       <dependency>
          <groupId>fr.soleil.lib</groupId>
@@ -127,20 +124,21 @@
                            <!-- define wich detector you need to ENABLE -->
                            <define>SIMULATOR_ENABLED</define>-->
                            <define>BASLER_ENABLED</define>
-                           <!--<define>XPAD_ENABLED</define>-->
+                           <define>XPAD_ENABLED</define>
 
-                           <!--<define>PILATUS_ENABLED</define>-->
-			   <!--<define>MARCCD_ENABLED</define>-->
+                           <define>PILATUS_ENABLED</define>
+			   <define>MARCCD_ENABLED</define>
 			   <!--<define>ADSC_ENABLED</define>-->
 
                         </defines>
 
                         <systemIncludePaths>
+                        <!--
 				<systemIncludePath>/home/informatique/ica/langlois/Lima/camera/adsc/include</systemIncludePath>
                             	<systemIncludePath>/home/informatique/ica/langlois/Lima/camera/adsc/sdk/adsc_sources/src_std/incl</systemIncludePath>
 				<systemIncludePath>/home/informatique/ica/langlois/Lima/camera/adsc/sdk/adsc_sources/src_std/detcon_lib_th</systemIncludePath>
 				<systemIncludePath>/home/informatique/ica/langlois/Lima/camera/adsc/sdk/adsc_sources/src_std/auxlib</systemIncludePath>
-                        
+                        -->
                            <systemIncludePath>${env.PYLON_ROOT}/include</systemIncludePath>
                            <systemIncludePath>${env.GENICAM_ROOT_V1_1}/include/genicam</systemIncludePath>
                            
@@ -148,12 +146,12 @@
 
                         <!-- exclude every detector who is NOT ENABLED -->
                         <excludes>
-                            <exclude>Simulator*.*</exclude>
+                            <!--<exclude>Simulator*.*</exclude>-->
                             <!--<exclude>Basler*.*</exclude>-->
-                            <exclude>Xpad*.*</exclude>
-                            <exclude>Pilat*.*</exclude>
-			    <exclude>Adsc*.*</exclude>
-			    <exclude>MarCCD*.*</exclude>
+                            <!--<exclude>Xpad*.*</exclude>-->
+                            <!--<exclude>Pilat*.*</exclude>-->
+                            <!--<exclude>MarCCD*.*</exclude>-->                          
+                            <exclude>Adsc*.*</exclude>
                         </excludes>
 
                         <!-- define less verbose mode for gcc-->

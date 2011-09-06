@@ -148,7 +148,7 @@ void PilatusPixelDetector::init_device()
         m_ct = ControlFactory::instance().get_control("PilatusPixelDetector");
         
         //- get interface to specific camera
-        m_hw = dynamic_cast<PilatusCpp::Interface*>(m_ct->hwInterface());
+        m_hw = dynamic_cast<Pilatus::Interface*>(m_ct->hwInterface());
         if(m_hw==0)
         {
             INFO_STREAM<<"Initialization Failed : Unable to get the interface of camera plugin "<<"("<<"PilatusPixelDetector"<<") !"<< endl;
@@ -574,15 +574,15 @@ void PilatusPixelDetector::write_gain(Tango::WAttribute &attr)
         //- THIS IS AN AVAILABLE TRIGER MODE
         m_gain = attr_gain_write;
 
-        Camera::Gain new_gain;
+        Pilatus::Camera::Gain new_gain;
         if(m_gain.compare("LOW")==0)
-            new_gain = Camera::LOW;
+            new_gain = Pilatus::Camera::LOW;
         else if(m_gain.compare("MID")==0)
-            new_gain = Camera::MID;
+            new_gain = Pilatus::Camera::MID;
         else if(m_gain.compare("HIGH")==0)
-            new_gain = Camera::HIGH;
+            new_gain = Pilatus::Camera::HIGH;
         else
-            new_gain = Camera::UHIGH;
+            new_gain = Pilatus::Camera::UHIGH;
 
         m_hw->setThresholdGain(m_hw->getThreshold(), new_gain);
     }
@@ -618,12 +618,12 @@ void PilatusPixelDetector::read_gain(Tango::Attribute &attr)
     DEBUG_STREAM << "PilatusPixelDetector::read_gain(Tango::Attribute &attr) entering... "<< endl;
     try
     {
-        Camera::Gain current_gain = m_hw->getGain();
+        Pilatus::Camera::Gain current_gain = m_hw->getGain();
         switch (current_gain)
         {
-            case Camera::LOW     : strcpy(*attr_gain_read, "LOW")    ;    break;
-            case Camera::MID     : strcpy(*attr_gain_read, "MID")    ;    break;
-            case Camera::HIGH    : strcpy(*attr_gain_read, "HIGH")    ;    break;
+            case Pilatus::Camera::LOW     : strcpy(*attr_gain_read, "LOW")    ;    break;
+            case Pilatus::Camera::MID     : strcpy(*attr_gain_read, "MID")    ;    break;
+            case Pilatus::Camera::HIGH    : strcpy(*attr_gain_read, "HIGH")    ;    break;
             default /*UHIGH*/           : strcpy(*attr_gain_read, "UHIGH")    ;    break;
         }
 
@@ -766,15 +766,15 @@ void PilatusPixelDetector::set_threshold_and_gain(const Tango::DevVarLongStringA
 
         int new_threshold = input_threshold;
 
-        Camera::Gain new_gain;
+        Pilatus::Camera::Gain new_gain;
         if(input_gain.compare("LOW")==0)
-            new_gain = Camera::LOW;
+            new_gain = Pilatus::Camera::LOW;
         else if(input_gain.compare("MID")==0)
-            new_gain = Camera::MID;
+            new_gain = Pilatus::Camera::MID;
         else if(input_gain.compare("HIGH")==0)
-            new_gain = Camera::HIGH;
+            new_gain = Pilatus::Camera::HIGH;
         else
-            new_gain = Camera::UHIGH;
+            new_gain = Pilatus::Camera::UHIGH;
 
         m_hw->setThresholdGain(new_threshold, new_gain);
     }

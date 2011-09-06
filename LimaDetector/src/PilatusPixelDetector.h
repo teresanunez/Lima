@@ -321,7 +321,7 @@ protected :
     string                  m_gain;    
     
     //LIMA objects
-    PilatusCpp::Interface*    m_hw;
+    Pilatus::Interface*    m_hw;
     CtControl*                m_ct;    
 };
 

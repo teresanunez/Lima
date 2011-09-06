@@ -195,7 +195,7 @@ void XpadPixelDetector::init_device()
 		}
 		
 		//- get interface to specific detector
-		m_hw = dynamic_cast<XpadInterface*>(m_ct->hwInterface());
+		m_hw = dynamic_cast<Xpad::Interface*>(m_ct->hwInterface());
 		if(m_hw==0)
 		{
 			INFO_STREAM<<"Initialization Failed : Unable to get the interface of camera plugin !"<<endl;
