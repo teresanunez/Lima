@@ -142,7 +142,7 @@ def get_control(cam_ip_address = "0",packet_size = 8000,**keys) :
     global _BaslerCam
     global _BaslerInterface
     if _BaslerCam is None:
-	_BaslerCam = BaslerAcq.Camera(cam_ip_addresse,packet_size)
+	_BaslerCam = BaslerAcq.Camera(cam_ip_address,packet_size)
 	_BaslerInterface = BaslerAcq.Interface(_BaslerCam)
     return Core.CtControl(_BaslerInterface)
 
