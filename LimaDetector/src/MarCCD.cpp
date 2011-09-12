@@ -183,7 +183,9 @@ void MarCCD::get_device_property()
 	Tango::DbData	dev_prop;
 	dev_prop.push_back(Tango::DbDatum("DetectorIP"));
 	dev_prop.push_back(Tango::DbDatum("DetectorPort"));
-	dev_prop.push_back(Tango::DbDatum("FullImagePathName"));
+	dev_prop.push_back(Tango::DbDatum("DetectorTargetPath"));
+	dev_prop.push_back(Tango::DbDatum("DetectorImageName"));
+	dev_prop.push_back(Tango::DbDatum("DirectoryWatcherPath"));
 
 	//	Call database and extract values
 	//--------------------------------------------
@@ -216,25 +218,48 @@ void MarCCD::get_device_property()
 	//	And try to extract DetectorPort value from database
 	if (dev_prop[i].is_empty()==false)	dev_prop[i]  >>  detectorPort;
 
-	//	Try to initialize FullImagePathName from class property
+	//	Try to initialize DetectorTargetPath from class property
 	cl_prop = ds_class->get_class_property(dev_prop[++i].name);
-	if (cl_prop.is_empty()==false)	cl_prop  >>  fullImagePathName;
+	if (cl_prop.is_empty()==false)	cl_prop  >>  detectorTargetPath;
 	else {
-		//	Try to initialize FullImagePathName from default device value
+		//	Try to initialize DetectorTargetPath from default device value
 		def_prop = ds_class->get_default_device_property(dev_prop[i].name);
-		if (def_prop.is_empty()==false)	def_prop  >>  fullImagePathName;
+		if (def_prop.is_empty()==false)	def_prop  >>  detectorTargetPath;
 	}
-	//	And try to extract FullImagePathName value from database
-	if (dev_prop[i].is_empty()==false)	dev_prop[i]  >>  fullImagePathName;
+	//	And try to extract DetectorTargetPath value from database
+	if (dev_prop[i].is_empty()==false)	dev_prop[i]  >>  detectorTargetPath;
+
+	//	Try to initialize DetectorImageName from class property
+	cl_prop = ds_class->get_class_property(dev_prop[++i].name);
+	if (cl_prop.is_empty()==false)	cl_prop  >>  detectorImageName;
+	else {
+		//	Try to initialize DetectorImageName from default device value
+		def_prop = ds_class->get_default_device_property(dev_prop[i].name);
+		if (def_prop.is_empty()==false)	def_prop  >>  detectorImageName;
+	}
+	//	And try to extract DetectorImageName value from database
+	if (dev_prop[i].is_empty()==false)	dev_prop[i]  >>  detectorImageName;
+
+	//	Try to initialize DirectoryWatcherPath from class property
+	cl_prop = ds_class->get_class_property(dev_prop[++i].name);
+	if (cl_prop.is_empty()==false)	cl_prop  >>  directoryWatcherPath;
+	else {
+		//	Try to initialize DirectoryWatcherPath from default device value
+		def_prop = ds_class->get_default_device_property(dev_prop[i].name);
+		if (def_prop.is_empty()==false)	def_prop  >>  directoryWatcherPath;
+	}
+	//	And try to extract DirectoryWatcherPath value from database
+	if (dev_prop[i].is_empty()==false)	dev_prop[i]  >>  directoryWatcherPath;
 
 
 
 	//	End of Automatic code generation
 	//------------------------------------------------------------------
 	create_property_if_empty(dev_prop,"127.0.0.1","DetectorIP");
-    create_property_if_empty(dev_prop,"-1","DetectorPort");
-	create_property_if_empty(dev_prop,"/no/path/defined/","FullImagePathName");
-
+  create_property_if_empty(dev_prop,"-1","DetectorPort");
+	create_property_if_empty(dev_prop,"/no/path/defined/","DetectorTargetPath");
+	create_property_if_empty(dev_prop,"imgRAW.00xx","DetectorImageName");
+  create_property_if_empty(dev_prop,"/no/path/defined/","DirectoryWatcherPath");
 }
 //+----------------------------------------------------------------------------
 //
@@ -399,6 +424,9 @@ int MarCCD::FindIndexFromPropertyName(Tango::DbData& dev_prop, string property_n
     if (i == iNbProperties) return -1;
     return i;
 }
+
+
+
 
 
 }	//	namespace

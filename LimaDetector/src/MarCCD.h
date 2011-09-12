@@ -105,9 +105,17 @@ public :
  */
 	Tango::DevULong	detectorPort;
 /**
- *	Path where detector will generate image(s).
+ *	Detector generated image(s) path.
  */
-	string	fullImagePathName;
+	string	detectorTargetPath;
+/**
+ *	Detector generated image name(s) 
+ */
+	string	detectorImageName;
+/**
+ *	Directory monitored by device , in  order to Reda/Display image.
+ */
+	string	directoryWatcherPath;
 //@}
 
 /**

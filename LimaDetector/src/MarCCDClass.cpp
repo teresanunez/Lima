@@ -248,6 +248,9 @@ void MarCCDClass::device_factory(const Tango::DevVarStringArray *devlist_ptr)
 
 
 
+
+
+
 //+----------------------------------------------------------------------------
 //
 // method : 		MarCCDClass::get_class_property()
@@ -323,10 +326,41 @@ void MarCCDClass::set_default_property()
 	else
 		add_wiz_dev_prop(prop_name, prop_desc);
 
-	prop_name = "FullImagePathName";
-	prop_desc = "Path where detector will generate image(s).";
-	prop_def  = "";
+	prop_name = "DetectorTargetPath";
+	prop_desc = "Detector generated image(s) path.";
+	prop_def  = "/no/path/defined/";
 	vect_data.clear();
+	vect_data.push_back("/no/path/defined/");
+	if (prop_def.length()>0)
+	{
+		Tango::DbDatum	data(prop_name);
+		data << vect_data ;
+		dev_def_prop.push_back(data);
+		add_wiz_dev_prop(prop_name, prop_desc,  prop_def);
+	}
+	else
+		add_wiz_dev_prop(prop_name, prop_desc);
+
+	prop_name = "DetectorImageName";
+	prop_desc = "Detector generated image name(s) ";
+	prop_def  = "imgRAW.00xx";
+	vect_data.clear();
+	vect_data.push_back("imgRAW.00xx");
+	if (prop_def.length()>0)
+	{
+		Tango::DbDatum	data(prop_name);
+		data << vect_data ;
+		dev_def_prop.push_back(data);
+		add_wiz_dev_prop(prop_name, prop_desc,  prop_def);
+	}
+	else
+		add_wiz_dev_prop(prop_name, prop_desc);
+
+	prop_name = "DirectoryWatcherPath";
+	prop_desc = "Directory monitored by device , in  order to Reda/Display image.";
+	prop_def  = "/no/path/defined/";
+	vect_data.clear();
+	vect_data.push_back("/no/path/defined/");
 	if (prop_def.length()>0)
 	{
 		Tango::DbDatum	data(prop_name);

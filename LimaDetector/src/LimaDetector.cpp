@@ -298,8 +298,8 @@ void LimaDetector::init_device()
         }
 
         //- soft reset of camera Interface, re-init some parameters
-        INFO_STREAM<<"Reset (soft) of camera."<<endl;
-        m_hw->reset(HwInterface::SoftReset);
+        ////@@@@INFO_STREAM<<"Reset (soft) of camera."<<endl;
+        ////@@@@m_hw->reset(HwInterface::SoftReset);
 
         //- prepare a listen (callback) to receive some notifications from framework
         INFO_STREAM<<"Prepare a callback to receive acquisition notifications."<<endl;
