@@ -201,7 +201,26 @@ class Pilatus(PyTango.Device_4Impl):
         
         communication = _PilatusIterface.communication()
         communication.set_hardware_trigger_delay(delay)
+
+#----------------------------------------------------------------------------
+#     Read nb exposure per frame attribute
+#----------------------------------------------------------------------------
+    def read_nb_exposure_per_frame(self,attr) :
+        communication = _PilatusIterface.communication()
+        nb_frames = communication.nb_exposure_per_frame()
+        attr.set_value(nb_frames)
+
+#----------------------------------------------------------------------------
+#     Write nb exposure per frame attribute
+#----------------------------------------------------------------------------
+    def write_nb_exposure_per_frame(self,attr) :
+        data = []
+        attr.get_write_value(data)
+        nb_frames = data[0]
         
+        communication = _PilatusIterface.communication()
+        communication.set_nb_exposure_per_frame(nb_frames)
+
 
 
 #------------------------------------------------------------------
@@ -274,6 +293,10 @@ class PilatusClass(PyTango.DeviceClass):
             PyTango.READ_WRITE]],
         'trigger_delay':
             [[PyTango.DevDouble,
+            PyTango.SCALAR,
+            PyTango.READ_WRITE]],
+        'nb_exposure_per_frame':
+            [[PyTango.DevLong,
             PyTango.SCALAR,
             PyTango.READ_WRITE]],
         }
