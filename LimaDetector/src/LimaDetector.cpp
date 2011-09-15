@@ -1561,7 +1561,7 @@ void LimaDetector::start()
         if(attr_fileGeneration_write == true)
         {
             //- throw exception
-            Tango::Except::throw_exception(    (const char*) ("CONFIGURATION_ERROR"),
+            Tango::Except::throw_exception( (const char*) ("CONFIGURATION_ERROR"),
                                             (const char*) ("Start command is not Available when 'fileGeneration' is enabled\n"),
                                             (const char*) ("LimaDetector::start"));
         }
@@ -1578,10 +1578,9 @@ void LimaDetector::start()
 
         //- print some infos
         print_acq_conf();
-
+        
         yat::Message* msg = yat::Message::allocate( DEVICE_START_MSG, DEFAULT_MSG_PRIORITY, true );
         m_acquisition_task->wait_msg_handled(msg, 5000);//to ensure that state was updated in lima
-
     }
     catch(Tango::DevFailed& df)
     {
@@ -1749,9 +1748,14 @@ Tango::DevState LimaDetector::dev_state()
                 }
                 else if(state.acq == AcqFault && state.det == DetFault)
                 {                 
+                    DeviceState=Tango::INIT;//INIT
+                    DeviceStatus<<"Acquisition is in Init\n"<<endl;
+                }
+                else if(state.acq == AcqFault && state.det == DetIdle)
+                {                 
                     DeviceState=Tango::FAULT;//FAULT
                     DeviceStatus<<"Acquisition is in Fault\n"<<endl;
-                }  
+                }
                 else
                 {
                     DeviceState=Tango::STANDBY;
@@ -1765,8 +1769,18 @@ Tango::DevState LimaDetector::dev_state()
             }
             else
             {      
-                DeviceState=Tango::FAULT;//FAULT
-                DeviceStatus<<"Acquisition is in Fault\n"<<endl;
+                HwInterface::StatusType state;
+                m_hw->getStatus(state); 
+                if(state.acq == AcqFault && state.det == DetFault)
+                {                 
+                    DeviceState=Tango::INIT;//INIT
+                    DeviceStatus<<"Acquisition is in Init\n"<<endl;
+                }
+                else
+                {
+                  DeviceState=Tango::FAULT;//FAULT
+                  DeviceStatus<<"Acquisition is in Fault\n"<<endl;
+                }
             }              
         }
         //DeviceStatus<< m_status_message.str();

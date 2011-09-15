@@ -321,8 +321,8 @@ protected :
     string                  m_gain;    
     
     //LIMA objects
-    Pilatus::Interface*    m_hw;
-    CtControl*                m_ct;    
+    Pilatus::Interface*     m_hw;
+    CtControl*              m_ct;    
 };
 
 }    // namespace_ns

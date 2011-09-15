@@ -680,10 +680,10 @@ Tango::DevState PilatusPixelDetector::dev_state()
     }
     else
     {
-        CtControl::Status status;
-        m_ct->getStatus(status);
-        if (status.AcquisitionStatus == lima::AcqReady)
-        {
+            CtControl::Status status;
+            m_ct->getStatus(status);
+            if (status.AcquisitionStatus == lima::AcqReady)
+            {
                 HwInterface::StatusType state;
                 m_hw->getStatus(state); 
 
@@ -694,25 +694,41 @@ Tango::DevState PilatusPixelDetector::dev_state()
                 }
                 else if(state.acq == AcqFault && state.det == DetFault)
                 {                 
+                    DeviceState=Tango::INIT;//INIT
+                    DeviceStatus<<"Acquisition is in Init\n"<<endl;
+                }
+                else if(state.acq == AcqFault && state.det == DetIdle)
+                {                 
                     DeviceState=Tango::FAULT;//FAULT
                     DeviceStatus<<"Acquisition is in Fault\n"<<endl;
-                }  
+                }
                 else
                 {
                     DeviceState=Tango::STANDBY;
                     DeviceStatus<<"Waiting for Request ...\n"<<endl;
                 }
-        }
-        else if(status.AcquisitionStatus == lima::AcqRunning)
-        {
-            DeviceState=Tango::RUNNING;
-            DeviceStatus<<"Acquisition is Running ...\n"<<endl;
-        }
-        else
-        {
-            DeviceState=Tango::FAULT;//FAULT
-            DeviceStatus<<"Acquisition is in Fault\n"<<endl;
-        }
+            }
+            else if(status.AcquisitionStatus == lima::AcqRunning)
+            {           
+                DeviceState=Tango::RUNNING;
+                DeviceStatus<<"Acquisition is Running ...\n"<<endl;
+            }
+            else
+            {      
+                HwInterface::StatusType state;
+                m_hw->getStatus(state); 
+                if(state.acq == AcqFault && state.det == DetFault)
+                {                 
+                    DeviceState=Tango::INIT;//INIT
+                    DeviceStatus<<"Acquisition is in Init\n"<<endl;
+                }
+                else
+                {
+                  DeviceState=Tango::FAULT;//FAULT
+                  DeviceStatus<<"Acquisition is in Fault\n"<<endl;
+                }
+            }
+        
     }
 
     set_state(DeviceState);

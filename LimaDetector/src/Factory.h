@@ -33,6 +33,10 @@
 #include <MarccdInterface.h>
 #endif
 
+#ifdef ADSC_ENABLED
+#include <AdscInterface.h>
+#endif
+
 using namespace lima;
 using namespace std;
 using namespace Tango;
@@ -69,6 +73,11 @@ private:
 #ifdef MARCCD_ENABLED      
 	Marccd::Camera*     			my_camera_marccd;  
 	Marccd::Interface*         		my_interface_marccd;  
+#endif
+
+#ifdef ADSC_ENABLED      
+	Adsc::Camera*     				my_camera_adsc;  
+	Adsc::Interface*         		my_interface_adsc;  
 #endif
 
 	CtControl*                     my_control;

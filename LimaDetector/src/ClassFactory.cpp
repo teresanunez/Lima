@@ -58,6 +58,10 @@ static const char *RcsId = "$Id:  $";
 	#include <MarCCDClass.h>
 #endif
 
+#ifdef ADSC_ENABLED
+	#include <AdscCCDClass.h>
+#endif
+
 #include <tango.h>
 
 
@@ -89,5 +93,9 @@ void Tango::DServer::class_factory()
 	add_class(MarCCD_ns::MarCCDClass::init("MarCCD"));
 #endif
 
+
+#ifdef ADSC_ENABLED	
+	add_class(AdscCCD_ns::AdscCCDClass::init("AdscCCD"));
+#endif
 }
 
