@@ -98,6 +98,71 @@ bool AdscCCD::is_imagePath_allowed(Tango::AttReqType type)
 	}
 	return true;
 }
+//+----------------------------------------------------------------------------
+//
+// method : 		AdscCCD::is_useStoredImageDark_allowed
+// 
+// description : 	Read/Write allowed for useStoredImageDark attribute.
+//
+//-----------------------------------------------------------------------------
+bool AdscCCD::is_useStoredImageDark_allowed(Tango::AttReqType type)
+{
+	if (get_state() == Tango::INIT	||
+		get_state() == Tango::RUNNING)
+	{
+		//	End of Generated Code
+		if ( (get_state()==Tango::RUNNING )&& type==Tango::READ_REQ )
+		{
+           return true;
+		}
+		//	Re-Start of Generated Code
+		return false;
+	}
+	return true;
+}
+//+----------------------------------------------------------------------------
+//
+// method : 		AdscCCD::is_imageKind_allowed
+// 
+// description : 	Read/Write allowed for imageKind attribute.
+//
+//-----------------------------------------------------------------------------
+bool AdscCCD::is_imageKind_allowed(Tango::AttReqType type)
+{
+	if (get_state() == Tango::INIT	||
+		get_state() == Tango::RUNNING)
+	{
+		//	End of Generated Code
+		if ( (get_state()==Tango::RUNNING )&& type==Tango::READ_REQ )
+		{
+           return true;
+		}
+		//	Re-Start of Generated Code
+		return false;
+	}
+	return true;
+}
+//+----------------------------------------------------------------------------
+//
+// method : 		AdscCCD::is_isLastImage_allowed
+// 
+// description : 	Read/Write allowed for isLastImage attribute.
+//
+//-----------------------------------------------------------------------------
+bool AdscCCD::is_isLastImage_allowed(Tango::AttReqType type)
+{
+	if (get_state() == Tango::INIT)
+	{
+		//	End of Generated Code
+		if ( (get_state()==Tango::RUNNING )&& type==Tango::READ_REQ )
+		{
+           return true;
+		}
+		//	Re-Start of Generated Code
+		return false;
+	}
+	return true;
+}
 
 //=================================================
 //		Commands Allowed Methods

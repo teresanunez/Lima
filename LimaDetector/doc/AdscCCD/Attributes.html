@@ -68,6 +68,15 @@ Revision:  - Author:
 <Tr><Td><b>fileName</b>: <Font Size=-1>Requested Image file name.</Font></Td>
 <Td><Center><Font Size=-1>DEV_STRING</Font></Center></Td><Td><Center><Font Size=-1>READ_WRITE</Font></Center></Td><Td><Center><Font Size=-1>No</Font></Center></Td></Tr>
 
+<Tr><Td><b>useStoredImageDark</b>: <Font Size=-1>Enable/Disable the use of the stored dark image of ADSC.</Font></Td>
+<Td><Center><Font Size=-1>DEV_BOOLEAN</Font></Center></Td><Td><Center><Font Size=-1>READ_WRITE</Font></Center></Td><Td><Center><Font Size=-1>No</Font></Center></Td></Tr>
+
+<Tr><Td><b>imageKind</b>: <Font Size=-1>Define the image kind while acquiring image or dark image on ADSC:<br> <br> if stroredDarkImage = true : <br> imageKind = 5 and an image is acquired using snap/stop<br> <br> if stroredDarkImage = false :  <br> imageKind = 0 and an image is acquired using snap/stop<br> imageKind = 1 and an image is acquired using snap/stop<br> </Font></Td>
+<Td><Center><Font Size=-1>DEV_USHORT</Font></Center></Td><Td><Center><Font Size=-1>READ_WRITE</Font></Center></Td><Td><Center><Font Size=-1>No</Font></Center></Td></Tr>
+
+<Tr><Td><b>isLastImage</b>: <Font Size=-1>Define if current acquisition is a sequence of images or only one image.<br> lastImage = 0 -> sequence of images is requested<br> lastImage = 1 -> only one image is requested<br></Font></Td>
+<Td><Center><Font Size=-1>DEV_BOOLEAN</Font></Center></Td><Td><Center><Font Size=-1>READ_WRITE</Font></Center></Td><Td><Center><Font Size=-1>No</Font></Center></Td></Tr>
+
 </Table>
 </Center>
 <Br><Br><Br><Br><Br>

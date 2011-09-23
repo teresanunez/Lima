@@ -9,7 +9,7 @@
 
    <groupId>fr.soleil.device</groupId>
    <artifactId>LimaDetector-${aol}-${mode}</artifactId>
-   <version>1.0.6-SNAPSHOT</version>
+   <version>1.0.7</version>
    <packaging>nar</packaging>
    <name>LimaDetector</name>
    <description>LimaDetector device</description>
@@ -43,55 +43,54 @@
       <dependency>
          <groupId>fr.soleil.lib.Lima</groupId>
          <artifactId>LimaControl-${aol}-shared-${mode}</artifactId>
-         <version>1.0.6-SNAPSHOT</version>
+         <version>1.0.7</version>
       </dependency>
-<!--
+
       <dependency>
          <groupId>fr.soleil.lib.Lima.Camera</groupId>
          <artifactId>LimaAdsc-${aol}-shared-${mode}</artifactId>
-         <version>1.0.6-SNAPSHOT</version>
+         <version>1.0.7</version>
       </dependency>
--->
+
       <dependency>
          <groupId>fr.soleil.lib.Lima.Camera</groupId>
          <artifactId>LimaBasler-${aol}-shared-${mode}</artifactId>
-         <version>1.0.6-SNAPSHOT</version>
+         <version>1.0.7</version>
       </dependency>
 
       <dependency>
          <groupId>fr.soleil.lib.Lima.Camera</groupId>
          <artifactId>LimaMarccd-${aol}-shared-${mode}</artifactId>
-         <version>1.0.6-SNAPSHOT</version>
+         <version>1.0.7</version>
       </dependency>
 
       <dependency>
          <groupId>fr.soleil.lib.Lima.Camera</groupId>
          <artifactId>LimaPilatus-${aol}-shared-${mode}</artifactId>
-         <version>1.0.6-SNAPSHOT</version>
+         <version>1.0.7</version>
       </dependency>
-<!--
+
       <dependency>
          <groupId>fr.soleil.lib.Lima.Camera</groupId>
          <artifactId>LimaProsilica-${aol}-shared-${mode}</artifactId>
-         <version>1.0.6-SNAPSHOT</version>
+         <version>1.0.7</version>
       </dependency>
--->
+
       <dependency>
          <groupId>fr.soleil.lib.Lima.Camera</groupId>
          <artifactId>LimaSimulator-${aol}-shared-${mode}</artifactId>
-         <version>1.0.6-SNAPSHOT</version>
+         <version>1.0.7</version>
       </dependency>
 
       <dependency>
          <groupId>fr.soleil.lib.Lima.Camera</groupId>
          <artifactId>LimaXpad-${aol}-shared-${mode}</artifactId>
-         <version>1.0.6-SNAPSHOT</version>
+         <version>1.0.7</version>
       </dependency>
 
       <dependency>
          <groupId>fr.soleil.lib</groupId>
-         <artifactId>GDShare-${aol}-${library}-${mode}</artifactId>
-        <version>1.18.4-SNAPSHOT</version>            
+         <artifactId>GDShare-${aol}-${library}-${mode}</artifactId>    
       </dependency>
 
       <dependency>
@@ -126,30 +125,37 @@
                            <define>USE_GIGE</define>
 
                            <!-- define wich detector you need to ENABLE -->
-                           <!--<define>ADSC_ENABLED</define>-->
+                           <define>ADSC_ENABLED</define>
                            <define>BASLER_ENABLED</define>
                            <define>MARCCD_ENABLED</define>
                            <define>PILATUS_ENABLED</define>
-                           <!--<define>PROSILICA_ENABLED</define>-->
+                           <define>PROSILICA_ENABLED</define>
                            <define>SIMULATOR_ENABLED</define>
                            <define>XPAD_ENABLED</define>
                         </defines>
 
                         <systemIncludePaths>
 
-                          <systemIncludePath>${env.PYLON_ROOT}/include</systemIncludePath>
-                          <systemIncludePath>${env.GENICAM_ROOT_V1_1}/include/genicam</systemIncludePath>
-                          </systemIncludePaths>
+                        	<systemIncludePath>${env.PYLON_ROOT}/include</systemIncludePath>                          
+                        	<systemIncludePath>${env.GENICAM_ROOT_V1_1}/include/genicam</systemIncludePath>
+
+							<systemIncludePath>${env.PROSILICA_ROOT}/include</systemIncludePath>           
+							
+							<systemIncludePath>${env.ADSC_ROOT}/src_std/incl</systemIncludePath>
+							<systemIncludePath>${env.ADSC_ROOT}/src_std/detcon_lib_th</systemIncludePath>
+							<systemIncludePath>${env.ADSC_ROOT}/src_std/auxlib</systemIncludePath>
+
+                        </systemIncludePaths>
 
                         <!-- exclude every detector who is NOT ENABLED -->
                         <excludes>
-                            <exclude>Adsc*.*</exclude>
+                            <!--<exclude>Adsc*.*</exclude>-->
                             <!--<exclude>Basler*.*</exclude>-->
-                            <!--<exclude>MarCCD*.*</exclude>--> 
-                            <!--<exclude>Pilat*.*</exclude>-->
-                            <exclude>Prosi*.*</exclude>
+                            <!--<exclude>MarCCD*.*</exclude>-->
+                            <!--<exclude>Pilatus*.*</exclude>-->
+                            <!--<exclude>Prosilica*.*</exclude>-->
                             <!--<exclude>Simulator*.*</exclude>-->
-                            <!--<exclude>Xpad*.*</exclude>-->                         
+                            <!--<exclude>Xpad*.*</exclude>-->
                         </excludes>
 
                         <!-- define less verbose mode for gcc-->
@@ -159,6 +165,18 @@
                      </cpp>   
                     <linker>
                         <libs>
+                            <lib>
+                                <name>PvAPI</name>
+                                <type>shared</type>
+                                <directory>${env.PROSILICA_ROOT}/bin/x86</directory>
+                            </lib>
+                            
+                            <lib>
+                                <name>auxlib</name>
+                                <type>shared</type>
+                                <directory>${env.ADSC_ROOT}/lib/linux</directory>
+                            </lib>
+                            
                         </libs>
                     </linker>                  
                  </configuration>

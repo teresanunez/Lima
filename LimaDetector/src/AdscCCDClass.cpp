@@ -293,6 +293,24 @@ void AdscCCDClass::attribute_factory(vector<Tango::Attr *> &att_list)
 	file_name->set_memorized_init(true);
 	att_list.push_back(file_name);
 
+	//	Attribute : useStoredImageDark
+	useStoredImageDarkAttrib	*use_stored_image_dark = new useStoredImageDarkAttrib();
+	use_stored_image_dark->set_memorized();
+	use_stored_image_dark->set_memorized_init(false);
+	att_list.push_back(use_stored_image_dark);
+
+	//	Attribute : imageKind
+	imageKindAttrib	*image_kind = new imageKindAttrib();
+	image_kind->set_memorized();
+	image_kind->set_memorized_init(false);
+	att_list.push_back(image_kind);
+
+	//	Attribute : isLastImage
+	isLastImageAttrib	*is_last_image = new isLastImageAttrib();
+	is_last_image->set_memorized();
+	is_last_image->set_memorized_init(false);
+	att_list.push_back(is_last_image);
+
 	//	End of Automatic code generation
 	//-------------------------------------------------------------
 }

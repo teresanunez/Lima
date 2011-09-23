@@ -37,6 +37,14 @@
 #include <AdscInterface.h>
 #endif
 
+#ifdef PROSILICA_ENABLED
+    #include <ProsilicaInterface.h>
+    #include <ProsilicaCamera.h>
+    #include <ProsilicaDetInfoCtrlObj.h>
+    #include <ProsilicaBufferCtrlObj.h>
+    #include <ProsilicaVideoCtrlObj.h>
+    #include <ProsilicaSyncCtrlObj.h>   
+#endif
 using namespace lima;
 using namespace std;
 using namespace Tango;
@@ -80,6 +88,10 @@ private:
 	Adsc::Interface*         		my_interface_adsc;  
 #endif
 
+#ifdef PROSILICA_ENABLED      
+  Prosilica::Camera*             my_camera_prosilica;  
+  Prosilica::Interface*          my_interface_prosilica;  
+#endif
 	CtControl*                     my_control;
 	static bool                    is_created;
 	string                         my_server_name;  

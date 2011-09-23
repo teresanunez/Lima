@@ -91,6 +91,12 @@ public :
 		Tango::DevString	attr_imagePath_write;
 		Tango::DevString	*attr_fileName_read;
 		Tango::DevString	attr_fileName_write;
+		Tango::DevBoolean	*attr_useStoredImageDark_read;
+		Tango::DevBoolean	attr_useStoredImageDark_write;
+		Tango::DevUShort	*attr_imageKind_read;
+		Tango::DevUShort	attr_imageKind_write;
+		Tango::DevBoolean	*attr_isLastImage_read;
+		Tango::DevBoolean	attr_isLastImage_write;
 //@}
 
 /**
@@ -187,6 +193,30 @@ public :
  */
 	virtual void write_fileName(Tango::WAttribute &attr);
 /**
+ *	Extract real attribute values for useStoredImageDark acquisition result.
+ */
+	virtual void read_useStoredImageDark(Tango::Attribute &attr);
+/**
+ *	Write useStoredImageDark attribute values to hardware.
+ */
+	virtual void write_useStoredImageDark(Tango::WAttribute &attr);
+/**
+ *	Extract real attribute values for imageKind acquisition result.
+ */
+	virtual void read_imageKind(Tango::Attribute &attr);
+/**
+ *	Write imageKind attribute values to hardware.
+ */
+	virtual void write_imageKind(Tango::WAttribute &attr);
+/**
+ *	Extract real attribute values for isLastImage acquisition result.
+ */
+	virtual void read_isLastImage(Tango::Attribute &attr);
+/**
+ *	Write isLastImage attribute values to hardware.
+ */
+	virtual void write_isLastImage(Tango::WAttribute &attr);
+/**
  *	Read/Write allowed for imagePath attribute.
  */
 	virtual bool is_imagePath_allowed(Tango::AttReqType type);
@@ -194,6 +224,18 @@ public :
  *	Read/Write allowed for fileName attribute.
  */
 	virtual bool is_fileName_allowed(Tango::AttReqType type);
+/**
+ *	Read/Write allowed for useStoredImageDark attribute.
+ */
+	virtual bool is_useStoredImageDark_allowed(Tango::AttReqType type);
+/**
+ *	Read/Write allowed for imageKind attribute.
+ */
+	virtual bool is_imageKind_allowed(Tango::AttReqType type);
+/**
+ *	Read/Write allowed for isLastImage attribute.
+ */
+	virtual bool is_isLastImage_allowed(Tango::AttReqType type);
 /**
  *	Execution allowed for SetHeaderParameters command.
  */
@@ -207,10 +249,10 @@ public :
 /**
  * Set crystallographic parameters reported in the image header. <br>
  *	
- *	[parm_name=value];[parm_name=value];...<br>
+ *	[parm_name=value]<CARRIAGE RETURN>[parm_name=value]<CARRIAGE RETURN>...<br>
  *	
  *	Possible values :<br>
- *	DISTANCE=300.5;PHI=88.5;...;WAVELENGTH=0.987<br>
+ *	DISTANCE=300\nPHI=88.5\n...\nWAVELENGTH=0.987\n\0<br>
  *	@param	argin	
  *	@exception DevFailed
  */

@@ -46,6 +46,7 @@
 #include "HwInterface.h"
 #include "CtControl.h"
 #include "CtAcquisition.h"
+#include <Simulator.h>
 #include <SimuHwInterface.h>
 #include "Factory.h"
 

@@ -35,15 +35,26 @@ static const char *RcsId = "$Id $";
 //=============================================================================
 
 #include <tango.h>
+
 #ifdef XPAD_ENABLED    
     //- Xpix
     #include <xpci_interface.h>
     #include <xpci_interface_expert.h>
     #include <xpci_time.h>
 #endif
+
+#if defined(ENABLE_CRASH_REPORT)
+# include <crashreporting/crash_report.h>
+#else
+# define DECLARE_CRASH_HANDLER
+# define INSTALL_CRASH_HANDLER
+#endif
+
+DECLARE_CRASH_HANDLER;
+
 int main(int argc,char *argv[])
 {
-
+	INSTALL_CRASH_HANDLER;
     
     Tango::Util *tg;
 #ifdef XPAD_ENABLED        
