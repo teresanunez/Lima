@@ -35,10 +35,6 @@
          <artifactId>Boost-libraries-${aol}-shared-${mode}</artifactId>
       </dependency>
 
-      <dependency>
-            <groupId>fr.in2p3</groupId>
-            <artifactId>Xpix-${aol}-static-release</artifactId>
-      </dependency>
 
       <dependency>
          <groupId>fr.soleil.lib.Lima</groupId>
