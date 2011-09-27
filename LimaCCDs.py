@@ -344,6 +344,8 @@ class LimaCCDs(PyTango.Device_4Impl) :
         status = self.__control.getStatus()
         state2string = {Core.CtControl.NoError : "No error",
                         Core.CtControl.SaveUnknownError : "Saving: unknown error",
+                        Core.CtControl.SaveOpenError : "Saving: file open error",
+                        Core.CtControl.SaveCloseError : "Saving: file close error",
                         Core.CtControl.SaveAccessError : "Saving: access error",
                         Core.CtControl.SaveOverwriteError : "Saving: overwrite error",
                         Core.CtControl.SaveDiskFull : "Saving: disk full",
