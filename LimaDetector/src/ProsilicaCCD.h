@@ -1,10 +1,10 @@
 //=============================================================================
 //
-// file :        SimulatorCCD.h
+// file :        ProsilicaCCD.h
 //
-// description : Include for the SimulatorCCD class.
+// description : Include for the ProsilicaCCD class.
 //
-// project :	
+// project :	Device specific for Prosilica CCD detector
 //
 // $Author:  $
 //
@@ -30,8 +30,8 @@
 //
 //         (c) - Software Engineering Group - ESRF
 //=============================================================================
-#ifndef _SIMULATORCCD_H
-#define _SIMULATORCCD_H
+#ifndef _PROSILICACCD_H
+#define _PROSILICACCD_H
 
 
 //using namespace Tango;
@@ -46,16 +46,18 @@
 #include "HwInterface.h"
 #include "CtControl.h"
 #include "CtAcquisition.h"
-#include <Simulator.h>
-#include <SimuHwInterface.h>
+#include "CtImage.h"
+#include <ProsilicaInterface.h>
+
 #include "Factory.h"
 
 #include <tango.h>
+#define MAX_ATTRIBUTE_STRING_LENGTH     256
 
 using namespace lima;
 using namespace std;
 
-namespace SimulatorCCD_ns
+namespace ProsilicaCCD_ns
 {
 
 /**
@@ -72,7 +74,7 @@ namespace SimulatorCCD_ns
  */
 
 
-class SimulatorCCD: public Tango::Device_4Impl
+class ProsilicaCCD: public Tango::Device_4Impl
 {
 public :
     //    Add your own data members here
@@ -86,8 +88,6 @@ public :
  *    Attribute member data.
  */
 //@{
-		Tango::DevDouble	*attr_exposureTime_read;
-		Tango::DevDouble	attr_exposureTime_write;
 //@}
 
 /**
@@ -95,6 +95,10 @@ public :
  * Device properties member data.
  */
 //@{
+/**
+ *	Ip Address of the Detector.
+ */
+	string	detectorIP;
 //@}
 
 /**
@@ -113,14 +117,14 @@ public :
  *    @param cl    Class.
  *    @param s     Device Name
  */
-    SimulatorCCD(Tango::DeviceClass *cl,string &s);
+    ProsilicaCCD(Tango::DeviceClass *cl,string &s);
 /**
  * Constructs a newly allocated Command object.
  *
  *    @param cl    Class.
  *    @param s     Device Name
  */
-    SimulatorCCD(Tango::DeviceClass *cl,const char *s);
+    ProsilicaCCD(Tango::DeviceClass *cl,const char *s);
 /**
  * Constructs a newly allocated Command object.
  *
@@ -128,7 +132,7 @@ public :
  *    @param s     Device name
  *    @param d    Device description.
  */
-    SimulatorCCD(Tango::DeviceClass *cl,const char *s,const char *d);
+    ProsilicaCCD(Tango::DeviceClass *cl,const char *s,const char *d);
 //@}
 
 /**@name Destructor
@@ -137,7 +141,7 @@ public :
 /**
  * The object destructor.
  */    
-    ~SimulatorCCD() {delete_device();};
+    ~ProsilicaCCD() {delete_device();};
 /**
  *    will be called at device destruction or at init command.
  */
@@ -159,7 +163,7 @@ public :
 //@}
 
 /**
- * @name SimulatorCCD methods prototypes
+ * @name ProsilicaCCD methods prototypes
  */
 
 //@{
@@ -167,18 +171,7 @@ public :
  *	Hardware acquisition for attributes.
  */
 	virtual void read_attr_hardware(vector<long> &attr_list);
-/**
- *	Extract real attribute values for exposureTime acquisition result.
- */
-	virtual void read_exposureTime(Tango::Attribute &attr);
-/**
- *	Write exposureTime attribute values to hardware.
- */
-	virtual void write_exposureTime(Tango::WAttribute &attr);
-/**
- *	Read/Write allowed for exposureTime attribute.
- */
-	virtual bool is_exposureTime_allowed(Tango::AttReqType type);
+    
 /**
  * This command gets the device state (stored in its <i>device_state</i> data member) and returns it to the caller.
  *	@return	State Code
@@ -201,14 +194,23 @@ protected :
     //    Add your own data members here
     //-----------------------------------------
     
-    bool                 m_is_device_initialized ;
-    stringstream        m_status_message;
+    //- Store the values into the property
+    //- Properties stuff    
+    int                FindIndexFromPropertyName(Tango::DbData& dev_prop, string property_name);
+    template <class T>
+    void            create_property_if_empty(Tango::DbData& dev_prop,T value, string property_name);    
+    template <class T>
+    void            store_value_as_property(T value, string property_name);
+	
+    //state & status stuff
+    bool                        m_is_device_initialized ;
+    stringstream                m_status_message;
+    //lima OBJECTS
+    Prosilica::Interface*       m_hw;
+    CtControl*                  m_ct;
     
-    //LIMA objects
-    SimuHwInterface*     m_hw;
-    CtControl*            m_ct;    
 };
 
 }    // namespace_ns
 
-#endif    // _SIMULATORCCD_H
+#endif    // _PROSILICACCD_H

@@ -55,10 +55,38 @@ namespace MarCCD_ns
 //		Attributes Allowed Methods
 //=================================================
 
+//+----------------------------------------------------------------------------
+//
+// method : 		MarCCD::is_binnig_allowed
+// 
+// description : 	Read/Write allowed for binnig attribute.
+//
+//-----------------------------------------------------------------------------
+bool MarCCD::is_binnig_allowed(Tango::AttReqType type)
+{
+		//	End of Generated Code
+
+		//	Re-Start of Generated Code
+	return true;
+}
 
 //=================================================
 //		Commands Allowed Methods
 //=================================================
 
+//+----------------------------------------------------------------------------
+//
+// method : 		MarCCD::is_TakeBackground_allowed
+// 
+// description : 	Execution allowed for TakeBackground command.
+//
+//-----------------------------------------------------------------------------
+bool MarCCD::is_TakeBackground_allowed(const CORBA::Any &any)
+{
+		//	End of Generated Code
+
+		//	Re-Start of Generated Code
+	return true;
+}
 
 }	// namespace MarCCD_ns

@@ -5,12 +5,12 @@ static const char *SvnPath    = "$HeadURL: $";
 static const char *HttpServer = "http://www.esrf.fr/computing/cs/tango/tango_doc/ds_doc/";
 //+=============================================================================
 //
-// file :        AdscCCDClass.cpp
+// file :        ProsilicaCCDClass.cpp
 //
-// description : C++ source for the AdscCCDClass. A singleton
+// description : C++ source for the ProsilicaCCDClass. A singleton
 //               class derived from DeviceClass. It implements the
 //               command list and all properties and methods required
-//               by the AdscCCD once per process.
+//               by the ProsilicaCCD once per process.
 //
 // project :     TANGO Device Server
 //
@@ -35,13 +35,13 @@ static const char *HttpServer = "http://www.esrf.fr/computing/cs/tango/tango_doc
 
 
 
-#include <AdscCCD.h>
-#include <AdscCCDClass.h>
+#include <ProsilicaCCD.h>
+#include <ProsilicaCCDClass.h>
 #include <tango.h>
 
 //+----------------------------------------------------------------------------
 /**
- *	Create AdscCCDClass singleton and return it in a C function for Python usage
+ *	Create ProsilicaCCDClass singleton and return it in a C function for Python usage
  */
 //+----------------------------------------------------------------------------
 extern "C" {
@@ -51,40 +51,14 @@ __declspec(dllexport)
 
 #endif
 
-	Tango::DeviceClass *_create_AdscCCD_class(const char *name) {
-		return AdscCCD_ns::AdscCCDClass::init(name);
+	Tango::DeviceClass *_create_ProsilicaCCD_class(const char *name) {
+		return ProsilicaCCD_ns::ProsilicaCCDClass::init(name);
 	}
 }
 
 
-namespace AdscCCD_ns
+namespace ProsilicaCCD_ns
 {
-//+----------------------------------------------------------------------------
-//
-// method : 		SetHeaderParametersCmd::execute()
-// 
-// description : 	method to trigger the execution of the command.
-//                PLEASE DO NOT MODIFY this method core without pogo   
-//
-// in : - device : The device on which the command must be executed
-//		- in_any : The command input data
-//
-// returns : The command output data (packed in the Any object)
-//
-//-----------------------------------------------------------------------------
-CORBA::Any *SetHeaderParametersCmd::execute(Tango::DeviceImpl *device,const CORBA::Any &in_any)
-{
-
-	cout2 << "SetHeaderParametersCmd::execute(): arrived" << endl;
-
-	Tango::DevString	argin;
-	extract(in_any, argin);
-
-	((static_cast<AdscCCD *>(device))->set_header_parameters(argin));
-	return new CORBA::Any();
-}
-
-
 
 
 //
@@ -92,43 +66,43 @@ CORBA::Any *SetHeaderParametersCmd::execute(Tango::DeviceImpl *device,const CORB
 //	Initialize pointer for singleton pattern
 //----------------------------------------------------------------
 //
-AdscCCDClass *AdscCCDClass::_instance = NULL;
+ProsilicaCCDClass *ProsilicaCCDClass::_instance = NULL;
 
 //+----------------------------------------------------------------------------
 //
-// method : 		AdscCCDClass::AdscCCDClass(string &s)
+// method : 		ProsilicaCCDClass::ProsilicaCCDClass(string &s)
 // 
-// description : 	constructor for the AdscCCDClass
+// description : 	constructor for the ProsilicaCCDClass
 //
 // in : - s : The class name
 //
 //-----------------------------------------------------------------------------
-AdscCCDClass::AdscCCDClass(string &s):DeviceClass(s)
+ProsilicaCCDClass::ProsilicaCCDClass(string &s):DeviceClass(s)
 {
 
-	cout2 << "Entering AdscCCDClass constructor" << endl;
+	cout2 << "Entering ProsilicaCCDClass constructor" << endl;
 	set_default_property();
 	get_class_property();
 	write_class_property();
 	
-	cout2 << "Leaving AdscCCDClass constructor" << endl;
+	cout2 << "Leaving ProsilicaCCDClass constructor" << endl;
 
 }
 //+----------------------------------------------------------------------------
 //
-// method : 		AdscCCDClass::~AdscCCDClass()
+// method : 		ProsilicaCCDClass::~ProsilicaCCDClass()
 // 
-// description : 	destructor for the AdscCCDClass
+// description : 	destructor for the ProsilicaCCDClass
 //
 //-----------------------------------------------------------------------------
-AdscCCDClass::~AdscCCDClass()
+ProsilicaCCDClass::~ProsilicaCCDClass()
 {
 	_instance = NULL;
 }
 
 //+----------------------------------------------------------------------------
 //
-// method : 		AdscCCDClass::instance
+// method : 		ProsilicaCCDClass::instance
 // 
 // description : 	Create the object if not already done. Otherwise, just
 //			return a pointer to the object
@@ -136,14 +110,14 @@ AdscCCDClass::~AdscCCDClass()
 // in : - name : The class name
 //
 //-----------------------------------------------------------------------------
-AdscCCDClass *AdscCCDClass::init(const char *name)
+ProsilicaCCDClass *ProsilicaCCDClass::init(const char *name)
 {
 	if (_instance == NULL)
 	{
 		try
 		{
 			string s(name);
-			_instance = new AdscCCDClass(s);
+			_instance = new ProsilicaCCDClass(s);
 		}
 		catch (bad_alloc)
 		{
@@ -153,7 +127,7 @@ AdscCCDClass *AdscCCDClass::init(const char *name)
 	return _instance;
 }
 
-AdscCCDClass *AdscCCDClass::instance()
+ProsilicaCCDClass *ProsilicaCCDClass::instance()
 {
 	if (_instance == NULL)
 	{
@@ -165,19 +139,14 @@ AdscCCDClass *AdscCCDClass::instance()
 
 //+----------------------------------------------------------------------------
 //
-// method : 		AdscCCDClass::command_factory
+// method : 		ProsilicaCCDClass::command_factory
 // 
 // description : 	Create the command object(s) and store them in the 
 //			command list
 //
 //-----------------------------------------------------------------------------
-void AdscCCDClass::command_factory()
+void ProsilicaCCDClass::command_factory()
 {
-	command_list.push_back(new SetHeaderParametersCmd("SetHeaderParameters",
-		Tango::DEV_STRING, Tango::DEV_VOID,
-		"",
-		"",
-		Tango::OPERATOR));
 
 	//	add polling if any
 	for (unsigned int i=0 ; i<command_list.size(); i++)
@@ -187,14 +156,14 @@ void AdscCCDClass::command_factory()
 
 //+----------------------------------------------------------------------------
 //
-// method : 		AdscCCDClass::get_class_property
+// method : 		ProsilicaCCDClass::get_class_property
 // 
 // description : 	Get the class property for specified name.
 //
 // in :		string	name : The property name
 //
 //+----------------------------------------------------------------------------
-Tango::DbDatum AdscCCDClass::get_class_property(string &prop_name)
+Tango::DbDatum ProsilicaCCDClass::get_class_property(string &prop_name)
 {
 	for (unsigned int i=0 ; i<cl_prop.size() ; i++)
 		if (cl_prop[i].name == prop_name)
@@ -204,12 +173,12 @@ Tango::DbDatum AdscCCDClass::get_class_property(string &prop_name)
 }
 //+----------------------------------------------------------------------------
 //
-// method : 		AdscCCDClass::get_default_device_property()
+// method : 		ProsilicaCCDClass::get_default_device_property()
 // 
 // description : 	Return the default value for device property.
 //
 //-----------------------------------------------------------------------------
-Tango::DbDatum AdscCCDClass::get_default_device_property(string &prop_name)
+Tango::DbDatum ProsilicaCCDClass::get_default_device_property(string &prop_name)
 {
 	for (unsigned int i=0 ; i<dev_def_prop.size() ; i++)
 		if (dev_def_prop[i].name == prop_name)
@@ -220,12 +189,12 @@ Tango::DbDatum AdscCCDClass::get_default_device_property(string &prop_name)
 
 //+----------------------------------------------------------------------------
 //
-// method : 		AdscCCDClass::get_default_class_property()
+// method : 		ProsilicaCCDClass::get_default_class_property()
 // 
 // description : 	Return the default value for class property.
 //
 //-----------------------------------------------------------------------------
-Tango::DbDatum AdscCCDClass::get_default_class_property(string &prop_name)
+Tango::DbDatum ProsilicaCCDClass::get_default_class_property(string &prop_name)
 {
 	for (unsigned int i=0 ; i<cl_def_prop.size() ; i++)
 		if (cl_def_prop[i].name == prop_name)
@@ -235,7 +204,7 @@ Tango::DbDatum AdscCCDClass::get_default_class_property(string &prop_name)
 }
 //+----------------------------------------------------------------------------
 //
-// method : 		AdscCCDClass::device_factory
+// method : 		ProsilicaCCDClass::device_factory
 // 
 // description : 	Create the device object(s) and store them in the 
 //			device list
@@ -243,7 +212,7 @@ Tango::DbDatum AdscCCDClass::get_default_class_property(string &prop_name)
 // in :		Tango::DevVarStringArray *devlist_ptr : The device name list
 //
 //-----------------------------------------------------------------------------
-void AdscCCDClass::device_factory(const Tango::DevVarStringArray *devlist_ptr)
+void ProsilicaCCDClass::device_factory(const Tango::DevVarStringArray *devlist_ptr)
 {
 
 	//	Create all devices.(Automatic code generation)
@@ -254,7 +223,7 @@ void AdscCCDClass::device_factory(const Tango::DevVarStringArray *devlist_ptr)
 						
 		// Create devices and add it into the device list
 		//----------------------------------------------------
-		device_list.push_back(new AdscCCD(this, (*devlist_ptr)[i]));							 
+		device_list.push_back(new ProsilicaCCD(this, (*devlist_ptr)[i]));							 
 
 		// Export device to the outside world
 		// Check before if database used.
@@ -268,63 +237,30 @@ void AdscCCDClass::device_factory(const Tango::DevVarStringArray *devlist_ptr)
 	//-------------------------------------------------------------
 
 }
-//+----------------------------------------------------------------------------
-//	Method: AdscCCDClass::attribute_factory(vector<Tango::Attr *> &att_list)
-//-----------------------------------------------------------------------------
-void AdscCCDClass::attribute_factory(vector<Tango::Attr *> &att_list)
-{
-	//	Attribute : imagePath
-	imagePathAttrib	*image_path = new imagePathAttrib();
-	Tango::UserDefaultAttrProp	image_path_prop;
-	image_path_prop.set_format("%s");
-	image_path_prop.set_description("Change the image path.<br>\n<br>\nIf the directory does not exist, it will be created if possible according to permissions.<br>\nA path relative to the current path is accepted.<br>");
-	image_path->set_default_properties(image_path_prop);
-	image_path->set_memorized();
-	image_path->set_memorized_init(true);
-	att_list.push_back(image_path);
 
-	//	Attribute : fileName
-	fileNameAttrib	*file_name = new fileNameAttrib();
-	Tango::UserDefaultAttrProp	file_name_prop;
-	file_name_prop.set_format("%s");
-	file_name_prop.set_description("Requested Image file name.");
-	file_name->set_default_properties(file_name_prop);
-	file_name->set_memorized();
-	file_name->set_memorized_init(true);
-	att_list.push_back(file_name);
 
-	//	Attribute : useStoredImageDark
-	useStoredImageDarkAttrib	*use_stored_image_dark = new useStoredImageDarkAttrib();
-	use_stored_image_dark->set_memorized();
-	use_stored_image_dark->set_memorized_init(false);
-	att_list.push_back(use_stored_image_dark);
 
-	//	Attribute : imageKind
-	imageKindAttrib	*image_kind = new imageKindAttrib();
-	image_kind->set_memorized();
-	image_kind->set_memorized_init(false);
-	att_list.push_back(image_kind);
 
-	//	Attribute : isLastImage
-	isLastImageAttrib	*is_last_image = new isLastImageAttrib();
-	is_last_image->set_memorized();
-	is_last_image->set_memorized_init(false);
-	att_list.push_back(is_last_image);
 
-	//	End of Automatic code generation
-	//-------------------------------------------------------------
-}
+
+
+
+
+
+
+
+
 
 
 
 //+----------------------------------------------------------------------------
 //
-// method : 		AdscCCDClass::get_class_property()
+// method : 		ProsilicaCCDClass::get_class_property()
 // 
 // description : 	Read the class properties from database.
 //
 //-----------------------------------------------------------------------------
-void AdscCCDClass::get_class_property()
+void ProsilicaCCDClass::get_class_property()
 {
 	//	Initialize your default values here (if not done with  POGO).
 	//------------------------------------------------------------------
@@ -347,7 +283,7 @@ void AdscCCDClass::get_class_property()
 
 //+----------------------------------------------------------------------------
 //
-// method : 	AdscCCDClass::set_default_property
+// method : 	ProsilicaCCDClass::set_default_property
 // 
 // description: Set default property (class and device) for wizard.
 //              For each property, add to wizard property name and description
@@ -355,7 +291,7 @@ void AdscCCDClass::get_class_property()
 //              store it in a DbDatum.
 //
 //-----------------------------------------------------------------------------
-void AdscCCDClass::set_default_property()
+void ProsilicaCCDClass::set_default_property()
 {
 	string	prop_name;
 	string	prop_desc;
@@ -364,15 +300,30 @@ void AdscCCDClass::set_default_property()
 	vector<string>	vect_data;
 	//	Set Default Class Properties
 	//	Set Default Device Properties
+	prop_name = "DetectorIP";
+	prop_desc = "Ip Address of the Detector.";
+	prop_def  = "127.0.0.1";
+	vect_data.clear();
+	vect_data.push_back("127.0.0.1");
+	if (prop_def.length()>0)
+	{
+		Tango::DbDatum	data(prop_name);
+		data << vect_data ;
+		dev_def_prop.push_back(data);
+		add_wiz_dev_prop(prop_name, prop_desc,  prop_def);
+	}
+	else
+		add_wiz_dev_prop(prop_name, prop_desc);
+
 }
 //+----------------------------------------------------------------------------
 //
-// method : 		AdscCCDClass::write_class_property
+// method : 		ProsilicaCCDClass::write_class_property
 // 
 // description : 	Set class description as property in database
 //
 //-----------------------------------------------------------------------------
-void AdscCCDClass::write_class_property()
+void ProsilicaCCDClass::write_class_property()
 {
 	//	First time, check if database used
 	//--------------------------------------------
@@ -386,7 +337,7 @@ void AdscCCDClass::write_class_property()
 
 	//	Put title
 	Tango::DbDatum	title("ProjectTitle");
-	string	str_title("Adsc CCD detector from Lima");
+	string	str_title("Device specific for Prosilica CCD detector");
 	title << str_title;
 	data.push_back(title);
 

@@ -80,13 +80,20 @@ CtControl* ControlFactory::get_control( const string& detector_type)
                 DbData db_data;
                 db_data.push_back(DbDatum("DetectorIP"));
                 db_data.push_back(DbDatum("DetectorPort"));
+                db_data.push_back(DbDatum("UseReader"));
                 (Tango::Util::instance()->get_database())->get_device_property(my_device_name, db_data);
                 string camera_ip;
                 long camera_port;
+                bool use_reader;
                 db_data[0] >> camera_ip;
                 db_data[1] >> camera_port;
+                db_data[2] >> use_reader;
                 
                 my_camera_pilatus           = new Pilatus::Camera(camera_ip.c_str(), camera_port);
+                if(my_camera_pilatus && use_reader)
+                	my_camera_pilatus->enableDirectoryWatcher();
+                if(my_camera_pilatus && !use_reader)
+                	my_camera_pilatus->disableDirectoryWatcher();
                 my_interface_pilatus        = new Pilatus::Interface(*my_camera_pilatus);
                 my_control                  = new CtControl(my_interface_pilatus);
                 ControlFactory::is_created  = true;
@@ -143,6 +150,28 @@ CtControl* ControlFactory::get_control( const string& detector_type)
             }
         }
 #endif        
+
+#ifdef PROSILICA_ENABLED
+        if (detector_type.compare("ProsilicaCCD")== 0)
+        {    
+        
+            if(!ControlFactory::is_created)
+            {				
+				DbData db_data;
+				db_data.push_back(DbDatum("DetectorIP"));
+				(Tango::Util::instance()->get_database())->get_device_property(my_device_name, db_data);
+				string camera_ip;
+				long camera_port;
+				db_data[0] >> camera_ip;
+				
+				my_camera_prosilica           	= new Prosilica::Camera(camera_ip.c_str());
+                my_interface_prosilica        	= new Prosilica::Interface(my_camera_prosilica);
+                my_control                  	= new CtControl(my_interface_prosilica);
+                ControlFactory::is_created  	= true;
+                return my_control;
+            }
+        }
+#endif
         if(!ControlFactory::is_created)
             throw LIMA_HW_EXC(Error, "Unable to create the lima control object : Unknown Detector Type");
         
@@ -225,6 +254,14 @@ void ControlFactory::reset(const string& detector_type )
                 delete my_camera_adsc;        my_camera_adsc = 0;
                 delete my_interface_adsc;     my_interface_adsc = 0;
             }
+#endif
+
+#ifdef PROSILICA_ENABLED
+        if (detector_type.compare("ProsilicaCCD")==0)
+        {          
+            delete my_camera_prosilica;        my_camera_prosilica = 0;
+            delete my_interface_prosilica;     my_interface_prosilica = 0;
+        }
 #endif
         }
     }

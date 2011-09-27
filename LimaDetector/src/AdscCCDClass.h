@@ -45,6 +45,48 @@ namespace AdscCCD_ns
 {//=====================================
 //	Define classes for attributes
 //=====================================
+class isLastImageAttrib: public Tango::Attr
+{
+public:
+	isLastImageAttrib():Attr("isLastImage", Tango::DEV_BOOLEAN, Tango::READ_WRITE) {};
+	~isLastImageAttrib() {};
+	
+	virtual void read(Tango::DeviceImpl *dev,Tango::Attribute &att)
+	{(static_cast<AdscCCD *>(dev))->read_isLastImage(att);}
+	virtual void write(Tango::DeviceImpl *dev,Tango::WAttribute &att)
+	{(static_cast<AdscCCD *>(dev))->write_isLastImage(att);}
+	virtual bool is_allowed(Tango::DeviceImpl *dev,Tango::AttReqType ty)
+	{return (static_cast<AdscCCD *>(dev))->is_isLastImage_allowed(ty);}
+};
+
+class imageKindAttrib: public Tango::Attr
+{
+public:
+	imageKindAttrib():Attr("imageKind", Tango::DEV_USHORT, Tango::READ_WRITE) {};
+	~imageKindAttrib() {};
+	
+	virtual void read(Tango::DeviceImpl *dev,Tango::Attribute &att)
+	{(static_cast<AdscCCD *>(dev))->read_imageKind(att);}
+	virtual void write(Tango::DeviceImpl *dev,Tango::WAttribute &att)
+	{(static_cast<AdscCCD *>(dev))->write_imageKind(att);}
+	virtual bool is_allowed(Tango::DeviceImpl *dev,Tango::AttReqType ty)
+	{return (static_cast<AdscCCD *>(dev))->is_imageKind_allowed(ty);}
+};
+
+class useStoredImageDarkAttrib: public Tango::Attr
+{
+public:
+	useStoredImageDarkAttrib():Attr("useStoredImageDark", Tango::DEV_BOOLEAN, Tango::READ_WRITE) {};
+	~useStoredImageDarkAttrib() {};
+	
+	virtual void read(Tango::DeviceImpl *dev,Tango::Attribute &att)
+	{(static_cast<AdscCCD *>(dev))->read_useStoredImageDark(att);}
+	virtual void write(Tango::DeviceImpl *dev,Tango::WAttribute &att)
+	{(static_cast<AdscCCD *>(dev))->write_useStoredImageDark(att);}
+	virtual bool is_allowed(Tango::DeviceImpl *dev,Tango::AttReqType ty)
+	{return (static_cast<AdscCCD *>(dev))->is_useStoredImageDark_allowed(ty);}
+};
+
 class fileNameAttrib: public Tango::Attr
 {
 public:

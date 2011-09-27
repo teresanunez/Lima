@@ -60,6 +60,28 @@ __declspec(dllexport)
 
 namespace MarCCD_ns
 {
+//+----------------------------------------------------------------------------
+//
+// method : 		TakeBackgroundClass::execute()
+// 
+// description : 	method to trigger the execution of the command.
+//                PLEASE DO NOT MODIFY this method core without pogo   
+//
+// in : - device : The device on which the command must be executed
+//		- in_any : The command input data
+//
+// returns : The command output data (packed in the Any object)
+//
+//-----------------------------------------------------------------------------
+CORBA::Any *TakeBackgroundClass::execute(Tango::DeviceImpl *device,const CORBA::Any &in_any)
+{
+
+	cout2 << "TakeBackgroundClass::execute(): arrived" << endl;
+
+	((static_cast<MarCCD *>(device))->take_background());
+	return new CORBA::Any();
+}
+
 
 
 
@@ -152,6 +174,11 @@ MarCCDClass *MarCCDClass::instance()
 //-----------------------------------------------------------------------------
 void MarCCDClass::command_factory()
 {
+	command_list.push_back(new TakeBackgroundClass("TakeBackground",
+		Tango::DEV_VOID, Tango::DEV_VOID,
+		"no argin",
+		"no argout",
+		Tango::OPERATOR));
 
 	//	add polling if any
 	for (unsigned int i=0 ; i<command_list.size(); i++)
@@ -241,6 +268,28 @@ void MarCCDClass::device_factory(const Tango::DevVarStringArray *devlist_ptr)
 	//	End of Automatic code generation
 	//-------------------------------------------------------------
 
+}
+//+----------------------------------------------------------------------------
+//	Method: MarCCDClass::attribute_factory(vector<Tango::Attr *> &att_list)
+//-----------------------------------------------------------------------------
+void MarCCDClass::attribute_factory(vector<Tango::Attr *> &att_list)
+{
+	//	Attribute : binnig
+	binnigAttrib	*binnig = new binnigAttrib();
+	Tango::UserDefaultAttrProp	binnig_prop;
+	binnig_prop.set_label("binning");
+	binnig_prop.set_unit(" ");
+	binnig_prop.set_standard_unit(" ");
+	binnig_prop.set_display_unit(" ");
+	binnig_prop.set_format("%1d");
+	binnig_prop.set_max_value("4");
+	binnig_prop.set_min_value("0");
+	binnig_prop.set_description("Choose binning : lower binning yelds higher resolution data frames. <Br>\nPossible values :  <Br>\n0 -> 1x1  <Br>\n1 -> 2x2  <Br>\n2 -> 3x3  <Br>\n3 -> 4x4  <Br>\n4 -> 8x8  <Br>");
+	binnig->set_default_properties(binnig_prop);
+	att_list.push_back(binnig);
+
+	//	End of Automatic code generation
+	//-------------------------------------------------------------
 }
 
 
@@ -342,7 +391,7 @@ void MarCCDClass::set_default_property()
 		add_wiz_dev_prop(prop_name, prop_desc);
 
 	prop_name = "DetectorImageName";
-	prop_desc = "Detector generated image name(s) ";
+	prop_desc = "Detector generated image name(s)";
 	prop_def  = "imgRAW.00xx";
 	vect_data.clear();
 	vect_data.push_back("imgRAW.00xx");

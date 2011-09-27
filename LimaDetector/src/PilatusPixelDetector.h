@@ -114,6 +114,11 @@ public :
  *	Socket Port of the Detector .
  */
 	string	detectorIP;
+/**
+ *	Enable/Disable monitoring of directory receiving image files.
+ *	[default = enable reading directory]
+ */
+	Tango::DevBoolean	useReader;
 //@}
 
 /**

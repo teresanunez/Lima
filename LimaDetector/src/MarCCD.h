@@ -45,6 +45,7 @@
  //-----------------------------------------------
 #include "HwInterface.h"
 #include "CtControl.h"
+#include "CtImage.h"
 #include "CtAcquisition.h"
 #include <MarccdCamera.h>
 #include <MarccdInterface.h>
@@ -89,6 +90,8 @@ public :
  *	Attribute member data.
  */
 //@{
+		Tango::DevUShort	*attr_binnig_read;
+		Tango::DevUShort	attr_binnig_write;
 //@}
 
 /**
@@ -109,7 +112,7 @@ public :
  */
 	string	detectorTargetPath;
 /**
- *	Detector generated image name(s) 
+ *	Detector generated image name(s)
  */
 	string	detectorImageName;
 /**
@@ -185,11 +188,36 @@ public :
 
 //@{
 /**
+ *	Hardware acquisition for attributes.
+ */
+	virtual void read_attr_hardware(vector<long> &attr_list);
+/**
+ *	Extract real attribute values for binnig acquisition result.
+ */
+	virtual void read_binnig(Tango::Attribute &attr);
+/**
+ *	Write binnig attribute values to hardware.
+ */
+	virtual void write_binnig(Tango::WAttribute &attr);
+/**
+ *	Read/Write allowed for binnig attribute.
+ */
+	virtual bool is_binnig_allowed(Tango::AttReqType type);
+/**
+ *	Execution allowed for TakeBackground command.
+ */
+	virtual bool is_TakeBackground_allowed(const CORBA::Any &any);
+/**
  * This command gets the device state (stored in its <i>device_state</i> data member) and returns it to the caller.
  *	@return	State Code
  *	@exception DevFailed
  */
 	virtual Tango::DevState	dev_state();
+/**
+ * Command to force the MarCCD detector to get a background frame.
+ *	@exception DevFailed
+ */
+	void	take_background();
 
 /**
  *	Read the device properties from database

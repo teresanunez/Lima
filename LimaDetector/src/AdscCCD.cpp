@@ -98,15 +98,18 @@ AdscCCD::AdscCCD(Tango::DeviceClass *cl,const char *s,const char *d)
 //-----------------------------------------------------------------------------
 void AdscCCD::delete_device()
 {
-  DELETE_DEVSTRING_ATTRIBUTE(attr_imagePath_read);
-  DELETE_DEVSTRING_ATTRIBUTE(attr_fileName_read);   
-  //	Delete device allocated objects
-  //!!!! ONLY LimaDetector device can do this !!!!
-  //if(m_ct!=0)
-  //{
-  //    ControlFactory::instance().reset("AdscCCD");
-  //    m_ct = 0;
-  //}
+    DELETE_DEVSTRING_ATTRIBUTE(attr_imagePath_read);
+    DELETE_DEVSTRING_ATTRIBUTE(attr_fileName_read);   
+    DELETE_SCALAR_ATTRIBUTE(attr_useStoredImageDark_read);
+    DELETE_SCALAR_ATTRIBUTE(attr_imageKind_read);
+    DELETE_SCALAR_ATTRIBUTE(attr_isLastImage_read);        
+    //	Delete device allocated objects
+    //!!!! ONLY LimaDetector device can do this !!!!
+    //if(m_ct!=0)
+    //{
+    //    ControlFactory::instance().reset("AdscCCD");
+    //    m_ct = 0;
+    //}
 }
 
 //+----------------------------------------------------------------------------
@@ -122,45 +125,48 @@ void AdscCCD::init_device()
 
 	// Initialise variables to default values
 	//--------------------------------------------
-  CREATE_DEVSTRING_ATTRIBUTE(attr_imagePath_read,MAX_ATTRIBUTE_STRING_LENGTH);
-  CREATE_DEVSTRING_ATTRIBUTE(attr_fileName_read,MAX_ATTRIBUTE_STRING_LENGTH);    
-  m_is_device_initialized = false;
-  m_status_message.str("");
+    CREATE_DEVSTRING_ATTRIBUTE(attr_imagePath_read,MAX_ATTRIBUTE_STRING_LENGTH);
+    CREATE_DEVSTRING_ATTRIBUTE(attr_fileName_read,MAX_ATTRIBUTE_STRING_LENGTH);
+    CREATE_SCALAR_ATTRIBUTE(attr_useStoredImageDark_read);
+    CREATE_SCALAR_ATTRIBUTE(attr_imageKind_read);
+    CREATE_SCALAR_ATTRIBUTE(attr_isLastImage_read);    
+	m_is_device_initialized = false;
+	m_status_message.str("");
 
   try
   {
-    //- get the main object used to pilot the lima framework
-    //in fact LimaDetector is create the singleton control objet
-    //so this call, will only return existing object!!
-    m_ct = ControlFactory::instance().get_control("AdscCCD");
-    
-    //- get interface to specific camera
-    m_hw = dynamic_cast<Adsc::Interface*>(m_ct->hwInterface());
-    if(m_hw==0)
-    {
-      INFO_STREAM<<"Initialization Failed : Unable to get the interface of camera plugin "<<"("<<"AdscCCD"<<") !"<< endl;
-      m_status_message <<"Initialization Failed : Unable to get the interface of camera plugin "<<"("<<"AdscCCD"<<") !"<< endl;
-      m_is_device_initialized = false;
-      set_state(Tango::INIT);
-      return;
-    }
+      //- get the main object used to pilot the lima framework
+      //in fact LimaDetector is create the singleton control objet
+      //so this call, will only return existing object, no need to give it the ip !!
+      m_ct = ControlFactory::instance().get_control("AdscCCD");
+      
+      //- get interface to specific camera
+      m_hw = dynamic_cast<Adsc::Interface*>(m_ct->hwInterface());
+      if(m_hw==0)
+      {
+          INFO_STREAM<<"Initialization Failed : Unable to get the interface of camera plugin "<<"("<<"AdscCCD"<<") !"<< endl;
+          m_status_message <<"Initialization Failed : Unable to get the interface of camera plugin "<<"("<<"AdscCCD"<<") !"<< endl;
+          m_is_device_initialized = false;
+          set_state(Tango::INIT);
+          return;
+      }
 
   }
   catch(Exception& e)
   {
-    INFO_STREAM<<"Initialization Failed : "<<e.getErrMsg()<<endl;
-    m_status_message <<"Initialization Failed : "<<e.getErrMsg( )<< endl;
-    m_is_device_initialized = false;
-    set_state(Tango::INIT);
-    return;
+      INFO_STREAM<<"Initialization Failed : "<<e.getErrMsg()<<endl;
+      m_status_message <<"Initialization Failed : "<<e.getErrMsg( )<< endl;
+      m_is_device_initialized = false;
+      set_state(Tango::INIT);
+      return;
   }
   catch(...)
   {
-    INFO_STREAM<<"Initialization Failed : UNKNOWN"<<endl;
-    m_status_message <<"Initialization Failed : UNKNOWN"<< endl;
-    set_state(Tango::INIT);
-    m_is_device_initialized = false;
-    return;
+      INFO_STREAM<<"Initialization Failed : UNKNOWN"<<endl;
+      m_status_message <<"Initialization Failed : UNKNOWN"<< endl;
+      set_state(Tango::INIT);
+      m_is_device_initialized = false;
+      return;
   }
   m_is_device_initialized = true;
   set_state(Tango::STANDBY);
@@ -192,6 +198,165 @@ void AdscCCD::read_attr_hardware(vector<long> &attr_list)
 }
 //+----------------------------------------------------------------------------
 //
+// method : 		AdscCCD::read_useStoredImageDark
+// 
+// description : 	Extract real attribute values for useStoredImageDark acquisition result.
+//
+//-----------------------------------------------------------------------------
+void AdscCCD::read_useStoredImageDark(Tango::Attribute &attr)
+{
+	DEBUG_STREAM << "AdscCCD::read_useStoredImageDark(Tango::Attribute &attr) entering... "<< endl;
+    try
+    {
+        
+        *attr_useStoredImageDark_read = m_hw->getStoredImageDark();
+        attr.set_value(attr_useStoredImageDark_read);
+    }
+    catch(Tango::DevFailed& df)
+    {
+        ERROR_STREAM << df << endl;
+        //- rethrow exception
+        Tango::Except::re_throw_exception(df,
+                    static_cast<const char*> ("TANGO_DEVICE_ERROR"),
+                    static_cast<const char*> (string(df.errors[0].desc).c_str()),
+                    static_cast<const char*> ("AdscCCD::read_useStoredImageDark"));
+    }	
+}
+
+//+----------------------------------------------------------------------------
+//
+// method : 		AdscCCD::write_useStoredImageDark
+// 
+// description : 	Write useStoredImageDark attribute values to hardware.
+//
+//-----------------------------------------------------------------------------
+void AdscCCD::write_useStoredImageDark(Tango::WAttribute &attr)
+{
+	DEBUG_STREAM << "AdscCCD::write_useStoredImageDark(Tango::WAttribute &attr) entering... "<< endl;
+    try
+    {
+        attr.get_write_value(attr_useStoredImageDark_write);
+        m_hw->setStoredImageDark(attr_useStoredImageDark_write);
+    }
+    catch(Tango::DevFailed& df)
+    {
+        ERROR_STREAM << df << endl;
+        //- rethrow exception
+        Tango::Except::re_throw_exception(df,
+                    static_cast<const char*> ("TANGO_DEVICE_ERROR"),
+                    static_cast<const char*> (string(df.errors[0].desc).c_str()),
+                    static_cast<const char*> ("AdscCCD::write_useStoredImageDark"));
+    }
+}
+
+//+----------------------------------------------------------------------------
+//
+// method : 		AdscCCD::read_imageKind
+// 
+// description : 	Extract real attribute values for imageKind acquisition result.
+//
+//-----------------------------------------------------------------------------
+void AdscCCD::read_imageKind(Tango::Attribute &attr)
+{
+	DEBUG_STREAM << "AdscCCD::read_imageKind(Tango::Attribute &attr) entering... "<< endl;
+    try
+    {
+        
+        *attr_imageKind_read = m_hw->getImageKind();
+        attr.set_value(attr_imageKind_read);
+    }
+    catch(Tango::DevFailed& df)
+    {
+        ERROR_STREAM << df << endl;
+        //- rethrow exception
+        Tango::Except::re_throw_exception(df,
+                    static_cast<const char*> ("TANGO_DEVICE_ERROR"),
+                    static_cast<const char*> (string(df.errors[0].desc).c_str()),
+                    static_cast<const char*> ("AdscCCD::read_useStoredImageDark"));
+    }		
+}
+
+//+----------------------------------------------------------------------------
+//
+// method : 		AdscCCD::write_imageKind
+// 
+// description : 	Write imageKind attribute values to hardware.
+//
+//-----------------------------------------------------------------------------
+void AdscCCD::write_imageKind(Tango::WAttribute &attr)
+{
+	DEBUG_STREAM << "AdscCCD::write_imageKind(Tango::WAttribute &attr) entering... "<< endl;
+    try
+    {
+        attr.get_write_value(attr_imageKind_write);
+        m_hw->setImageKind(attr_imageKind_write);
+    }
+    catch(Tango::DevFailed& df)
+    {
+        ERROR_STREAM << df << endl;
+        //- rethrow exception
+        Tango::Except::re_throw_exception(df,
+                    static_cast<const char*> ("TANGO_DEVICE_ERROR"),
+                    static_cast<const char*> (string(df.errors[0].desc).c_str()),
+                    static_cast<const char*> ("AdscCCD::write_imageKind"));
+    }	
+}
+
+//+----------------------------------------------------------------------------
+//
+// method : 		AdscCCD::read_isLastImage
+// 
+// description : 	Extract real attribute values for isLastImage acquisition result.
+//
+//-----------------------------------------------------------------------------
+void AdscCCD::read_isLastImage(Tango::Attribute &attr)
+{
+	DEBUG_STREAM << "AdscCCD::read_isLastImage(Tango::Attribute &attr) entering... "<< endl;
+    try
+    {
+        
+        *attr_isLastImage_read = m_hw->getLastImage();
+        attr.set_value(attr_isLastImage_read);
+    }
+    catch(Tango::DevFailed& df)
+    {
+        ERROR_STREAM << df << endl;
+        //- rethrow exception
+        Tango::Except::re_throw_exception(df,
+                    static_cast<const char*> ("TANGO_DEVICE_ERROR"),
+                    static_cast<const char*> (string(df.errors[0].desc).c_str()),
+                    static_cast<const char*> ("AdscCCD::read_isLastImage"));
+    }		
+}
+
+//+----------------------------------------------------------------------------
+//
+// method : 		AdscCCD::write_isLastImage
+// 
+// description : 	Write isLastImage attribute values to hardware.
+//
+//-----------------------------------------------------------------------------
+void AdscCCD::write_isLastImage(Tango::WAttribute &attr)
+{
+	DEBUG_STREAM << "AdscCCD::write_isLastImage(Tango::WAttribute &attr) entering... "<< endl;
+    try
+    {
+        attr.get_write_value(attr_isLastImage_write);
+        m_hw->setLastImage(attr_isLastImage_write);
+    }
+    catch(Tango::DevFailed& df)
+    {
+        ERROR_STREAM << df << endl;
+        //- rethrow exception
+        Tango::Except::re_throw_exception(df,
+                    static_cast<const char*> ("TANGO_DEVICE_ERROR"),
+                    static_cast<const char*> (string(df.errors[0].desc).c_str()),
+                    static_cast<const char*> ("AdscCCD::write_isLastImage"));
+    }	
+}
+
+//+----------------------------------------------------------------------------
+//
 // method : 		AdscCCD::read_imagePath
 // 
 // description : 	Extract real attribute values for imagePath acquisition result.
@@ -200,29 +365,29 @@ void AdscCCD::read_attr_hardware(vector<long> &attr_list)
 void AdscCCD::read_imagePath(Tango::Attribute &attr)
 {
 	DEBUG_STREAM << "AdscCCD::read_imagePath(Tango::Attribute &attr) entering... "<< endl;
-  try
-  {
-    strcpy(*attr_imagePath_read, m_hw->getImagePath().c_str());
-    attr.set_value(attr_imagePath_read);
-  }
-  catch(Tango::DevFailed& df)
-  {
-    ERROR_STREAM << df << endl;
-    //- rethrow exception
-    Tango::Except::re_throw_exception(df,
-                 static_cast<const char*> ("TANGO_DEVICE_ERROR"),
-                 static_cast<const char*> (string(df.errors[0].desc).c_str()),
-                 static_cast<const char*> ("AdscCCD::read_imagePath"));
-  }
-  catch(Exception& e)
-  {
-    ERROR_STREAM << e.getErrMsg() << endl;
-    //- throw exception
-    Tango::Except::throw_exception(
-                 static_cast<const char*> ("TANGO_DEVICE_ERROR"),
-                 static_cast<const char*> (e.getErrMsg().c_str()),
-                 static_cast<const char*> ("AdscCCD::read_imagePath"));
-  }  
+    try
+    {
+        strcpy(*attr_imagePath_read, m_hw->getImagePath().c_str());
+        attr.set_value(attr_imagePath_read);
+    }
+    catch(Tango::DevFailed& df)
+    {
+        ERROR_STREAM << df << endl;
+        //- rethrow exception
+        Tango::Except::re_throw_exception(df,
+                     static_cast<const char*> ("TANGO_DEVICE_ERROR"),
+                     static_cast<const char*> (string(df.errors[0].desc).c_str()),
+                     static_cast<const char*> ("AdscCCD::read_imagePath"));
+    }
+    catch(Exception& e)
+    {
+        ERROR_STREAM << e.getErrMsg() << endl;
+        //- throw exception
+        Tango::Except::throw_exception(
+                     static_cast<const char*> ("TANGO_DEVICE_ERROR"),
+                     static_cast<const char*> (e.getErrMsg().c_str()),
+                     static_cast<const char*> ("AdscCCD::read_imagePath"));
+    }  
 }
 
 //+----------------------------------------------------------------------------
@@ -235,29 +400,29 @@ void AdscCCD::read_imagePath(Tango::Attribute &attr)
 void AdscCCD::write_imagePath(Tango::WAttribute &attr)
 {
 	DEBUG_STREAM << "AdscCCD::write_imagePath(Tango::WAttribute &attr) entering... "<< endl;
-  try
-  {
-    attr.get_write_value(attr_imagePath_write);
-    m_hw->setImagePath(attr_imagePath_write);
-  }
-  catch(Tango::DevFailed& df)
-  {
-    ERROR_STREAM << df << endl;
-    //- rethrow exception
-    Tango::Except::re_throw_exception(df,
-                 static_cast<const char*> ("TANGO_DEVICE_ERROR"),
-                 static_cast<const char*> (string(df.errors[0].desc).c_str()),
-                 static_cast<const char*> ("AdscCCD::write_imagePath"));
-  }
-  catch(Exception& e)
-  {
-    ERROR_STREAM << e.getErrMsg() << endl;
-    //- throw exception
-    Tango::Except::throw_exception(
-                 static_cast<const char*> ("TANGO_DEVICE_ERROR"),
-                 static_cast<const char*> (e.getErrMsg().c_str()),
-                 static_cast<const char*> ("AdscCCD::write_imagePath"));
-  }   
+    try
+    {
+        attr.get_write_value(attr_imagePath_write);
+        m_hw->setImagePath(attr_imagePath_write);
+    }
+    catch(Tango::DevFailed& df)
+    {
+        ERROR_STREAM << df << endl;
+        //- rethrow exception
+        Tango::Except::re_throw_exception(df,
+                     static_cast<const char*> ("TANGO_DEVICE_ERROR"),
+                     static_cast<const char*> (string(df.errors[0].desc).c_str()),
+                     static_cast<const char*> ("AdscCCD::write_imagePath"));
+    }
+    catch(Exception& e)
+    {
+        ERROR_STREAM << e.getErrMsg() << endl;
+        //- throw exception
+        Tango::Except::throw_exception(
+                     static_cast<const char*> ("TANGO_DEVICE_ERROR"),
+                     static_cast<const char*> (e.getErrMsg().c_str()),
+                     static_cast<const char*> ("AdscCCD::write_imagePath"));
+    }   
 }
 
 
@@ -271,29 +436,29 @@ void AdscCCD::write_imagePath(Tango::WAttribute &attr)
 void AdscCCD::read_fileName(Tango::Attribute &attr)
 {
 	DEBUG_STREAM << "AdscCCD::read_fileName(Tango::Attribute &attr) entering... "<< endl;
-  try
-  {
-    strcpy(*attr_fileName_read, m_hw->getFileName().c_str());
-    attr.set_value(attr_fileName_read);
-  }
-  catch(Tango::DevFailed& df)
-  {
-    ERROR_STREAM << df << endl;
-    //- rethrow exception
-    Tango::Except::re_throw_exception(df,
-                 static_cast<const char*> ("TANGO_DEVICE_ERROR"),
-                 static_cast<const char*> (string(df.errors[0].desc).c_str()),
-                 static_cast<const char*> ("AdscCCD::read_fileName"));
-  }
-  catch(Exception& e)
-  {
-    ERROR_STREAM << e.getErrMsg() << endl;
-    //- throw exception
-    Tango::Except::throw_exception(
-                 static_cast<const char*> ("TANGO_DEVICE_ERROR"),
-                 static_cast<const char*> (e.getErrMsg().c_str()),
-                 static_cast<const char*> ("AdscCCD::read_fileName"));
-  }    
+    try
+    {
+        strcpy(*attr_fileName_read, m_hw->getFileName().c_str());
+        attr.set_value(attr_fileName_read);
+    }
+    catch(Tango::DevFailed& df)
+    {
+        ERROR_STREAM << df << endl;
+        //- rethrow exception
+        Tango::Except::re_throw_exception(df,
+                     static_cast<const char*> ("TANGO_DEVICE_ERROR"),
+                     static_cast<const char*> (string(df.errors[0].desc).c_str()),
+                     static_cast<const char*> ("AdscCCD::read_fileName"));
+    }
+    catch(Exception& e)
+    {
+        ERROR_STREAM << e.getErrMsg() << endl;
+        //- throw exception
+        Tango::Except::throw_exception(
+                     static_cast<const char*> ("TANGO_DEVICE_ERROR"),
+                     static_cast<const char*> (e.getErrMsg().c_str()),
+                     static_cast<const char*> ("AdscCCD::read_fileName"));
+    }    
 }
 
 //+----------------------------------------------------------------------------
@@ -306,77 +471,32 @@ void AdscCCD::read_fileName(Tango::Attribute &attr)
 void AdscCCD::write_fileName(Tango::WAttribute &attr)
 {
 	DEBUG_STREAM << "AdscCCD::write_fileName(Tango::WAttribute &attr) entering... "<< endl;
-  try
-  {
-    attr.get_write_value(attr_fileName_write);
-    m_hw->setFileName(attr_fileName_write);
-  }
-  catch(Tango::DevFailed& df)
-  {
-    ERROR_STREAM << df << endl;
-    //- rethrow exception
-    Tango::Except::re_throw_exception(df,
-                 static_cast<const char*> ("TANGO_DEVICE_ERROR"),
-                 static_cast<const char*> (string(df.errors[0].desc).c_str()),
-                 static_cast<const char*> ("AdscCCD::write_fileName"));
-  }
-  catch(Exception& e)
-  {
-    ERROR_STREAM << e.getErrMsg() << endl;
-    //- throw exception
-    Tango::Except::throw_exception(
-                 static_cast<const char*> ("TANGO_DEVICE_ERROR"),
-                 static_cast<const char*> (e.getErrMsg().c_str()),
-                 static_cast<const char*> ("AdscCCD::write_fileName"));
-  }   
+    try
+    {
+        attr.get_write_value(attr_fileName_write);
+        m_hw->setFileName(attr_fileName_write);
+    }
+    catch(Tango::DevFailed& df)
+    {
+        ERROR_STREAM << df << endl;
+        //- rethrow exception
+        Tango::Except::re_throw_exception(df,
+                     static_cast<const char*> ("TANGO_DEVICE_ERROR"),
+                     static_cast<const char*> (string(df.errors[0].desc).c_str()),
+                     static_cast<const char*> ("AdscCCD::write_fileName"));
+    }
+    catch(Exception& e)
+    {
+        ERROR_STREAM << e.getErrMsg() << endl;
+        //- throw exception
+        Tango::Except::throw_exception(
+                     static_cast<const char*> ("TANGO_DEVICE_ERROR"),
+                     static_cast<const char*> (e.getErrMsg().c_str()),
+                     static_cast<const char*> ("AdscCCD::write_fileName"));
+    }   
 }
 
 
-//+------------------------------------------------------------------
-/**
- *	method:	AdscCCD::set_header_parameters
- *
- *	description:	method to execute "SetHeaderParameters"
- *	Set crystallographic parameters reported in the image header. <br>
- *	
- *	[parm_name=value];[parm_name=value];...<br>
- *	
- *	Possible values :<br>
- *	DISTANCE=300.5;PHI=88.5;...;WAVELENGTH=0.987<br>
- *
- * @param	argin	
- *
- */
-//+------------------------------------------------------------------
-void AdscCCD::set_header_parameters(Tango::DevString argin)
-{
-	DEBUG_STREAM << "AdscCCD::set_header_parameters(): entering... !" << endl;
-
-	//	Add your own code to control device here
-  try
-  {
-    std::string str_header_parameters = argin;
-    m_hw->setHeaderParameters(str_header_parameters);
-  }
-  catch(Tango::DevFailed& df)
-  {
-    ERROR_STREAM << df << endl;
-    //- rethrow exception
-    Tango::Except::re_throw_exception(df,
-                 static_cast<const char*> ("TANGO_DEVICE_ERROR"),
-                 static_cast<const char*> (string(df.errors[0].desc).c_str()),
-                 static_cast<const char*> ("AdscCCD::set_header_parameters"));
-  }
-  catch(Exception& e)
-  {
-    ERROR_STREAM << e.getErrMsg() << endl;
-    //- throw exception
-    Tango::Except::throw_exception(
-                 static_cast<const char*> ("TANGO_DEVICE_ERROR"),
-                 static_cast<const char*> (e.getErrMsg().c_str()),
-                 static_cast<const char*> ("AdscCCD::set_header_parameters"));
-  }
-}
 
 
 //+------------------------------------------------------------------
@@ -397,76 +517,132 @@ Tango::DevState AdscCCD::dev_state()
 
 	//	Add your own code to control device here
 
-  stringstream    DeviceStatus;
-  DeviceStatus     << "";
-  Tango::DevState DeviceState    = Tango::STANDBY;
-  if(!m_is_device_initialized )
-  {
-    DeviceState            = Tango::INIT;
-    DeviceStatus        << m_status_message.str();
-  }
-  else if (m_ct==0)
-  {
-    DeviceState            = Tango::INIT;
-    DeviceStatus        <<"Initialization Failed : Unable to get the lima control object !\n\n";
-  }
-  else
-  {
-    CtControl::Status status;
-    m_ct->getStatus(status);
-    if (status.AcquisitionStatus == lima::AcqReady)
+    stringstream    DeviceStatus;
+    DeviceStatus     << "";
+    Tango::DevState DeviceState    = Tango::STANDBY;
+    if(!m_is_device_initialized )
     {
-      HwInterface::StatusType state;
-      m_hw->getStatus(state); 
-
-      if(state.acq == AcqRunning && state.det == DetExposure)
-      {
-        DeviceState=Tango::RUNNING;
-        DeviceStatus<<"Acquisition is Running ...\n"<<endl;
-      }
-      else if(state.acq == AcqFault && state.det == DetFault)
-      {                 
-        DeviceState=Tango::INIT;//INIT
-        DeviceStatus<<"Acquisition is in Init\n"<<endl;
-      }
-      else if(state.acq == AcqFault && state.det == DetIdle)
-      {                 
-        DeviceState=Tango::FAULT;//FAULT
-        DeviceStatus<<"Acquisition is in Fault\n"<<endl;
-      }
-      else
-      {
-        DeviceState=Tango::STANDBY;
-        DeviceStatus<<"Waiting for Request ...\n"<<endl;
-      }
+        DeviceState            = Tango::INIT;
+        DeviceStatus        << m_status_message.str();
     }
-    else if(status.AcquisitionStatus == lima::AcqRunning)
-    {           
-      DeviceState=Tango::RUNNING;
-      DeviceStatus<<"Acquisition is Running ...\n"<<endl;
+    else if (m_ct==0)
+    {
+        DeviceState            = Tango::INIT;
+        DeviceStatus        <<"Initialization Failed : Unable to get the lima control object !\n\n";
     }
     else
-    {      
-      HwInterface::StatusType state;
-      m_hw->getStatus(state); 
-      if(state.acq == AcqFault && state.det == DetFault)
-      {                 
-        DeviceState=Tango::INIT;//INIT
-        DeviceStatus<<"Acquisition is in Init\n"<<endl;
-      }
-      else
-      {
-        DeviceState=Tango::FAULT;//FAULT
-        DeviceStatus<<"Acquisition is in Fault\n"<<endl;
-      }
+    {
+            CtControl::Status status;
+            m_ct->getStatus(status);
+            if (status.AcquisitionStatus == lima::AcqReady)
+            {
+                HwInterface::StatusType state;
+                m_hw->getStatus(state); 
+
+                if(state.acq == AcqRunning && state.det == DetExposure)
+                {
+                    DeviceState=Tango::RUNNING;
+                    DeviceStatus<<"Acquisition is Running ...\n"<<endl;
+                }
+                else if(state.acq == AcqFault && state.det == DetFault)
+                {                 
+                    DeviceState=Tango::INIT;//INIT
+                    DeviceStatus<<"Acquisition is in Init\n"<<endl;
+                }
+                else if(state.acq == AcqFault && state.det == DetIdle)
+                {                 
+                    DeviceState=Tango::FAULT;//FAULT
+                    DeviceStatus<<"Acquisition is in Fault\n"<<endl;
+                }
+                else
+                {
+                    DeviceState=Tango::STANDBY;
+                    DeviceStatus<<"Waiting for Request ...\n"<<endl;
+                }
+            }
+            else if(status.AcquisitionStatus == lima::AcqRunning)
+            {           
+                DeviceState=Tango::RUNNING;
+                DeviceStatus<<"Acquisition is Running ...\n"<<endl;
+            }
+            else
+            {      
+                HwInterface::StatusType state;
+                m_hw->getStatus(state); 
+                if(state.acq == AcqFault && state.det == DetFault)
+                {                 
+                    DeviceState=Tango::INIT;//INIT
+                    DeviceStatus<<"Acquisition is in Init\n"<<endl;
+                }
+                else
+                {
+                  DeviceState=Tango::FAULT;//FAULT
+                  DeviceStatus<<"Acquisition is in Fault\n"<<endl;
+                }
+            }
+        
     }
-  }
 
-  set_state(DeviceState);
-  set_status(DeviceStatus.str());
+    set_state(DeviceState);
+    set_status(DeviceStatus.str());
 
-  argout = DeviceState;
-  return argout;
+    argout = DeviceState;
+    return argout;
 }
+
+
+
+
+
+
+//+------------------------------------------------------------------
+/**
+ *	method:	AdscCCD::set_header_parameters
+ *
+ *	description:	method to execute "SetHeaderParameters"
+ *	Set crystallographic parameters reported in the image header. <br>
+ *	
+ *	[parm_name=value]<CARRIAGE RETURN>[parm_name=value]<CARRIAGE RETURN>...<br>
+ *	
+ *	Possible values :<br>
+ *	DISTANCE=300\nPHI=88.5\n...\nWAVELENGTH=0.987\n\0<br>
+ *
+ * @param	argin	
+ *
+ */
+//+------------------------------------------------------------------
+void AdscCCD::set_header_parameters(Tango::DevString argin)
+{
+	DEBUG_STREAM << "AdscCCD::set_header_parameters(): entering... !" << endl;
+
+	//	Add your own code to control device here
+    try
+    {
+        std::string str_header_parameters = argin;
+        m_hw->setHeaderParameters(str_header_parameters);
+    }
+    catch(Tango::DevFailed& df)
+    {
+        ERROR_STREAM << df << endl;
+        //- rethrow exception
+        Tango::Except::re_throw_exception(df,
+                     static_cast<const char*> ("TANGO_DEVICE_ERROR"),
+                     static_cast<const char*> (string(df.errors[0].desc).c_str()),
+                     static_cast<const char*> ("AdscCCD::set_header_parameters"));
+    }
+    catch(Exception& e)
+    {
+        ERROR_STREAM << e.getErrMsg() << endl;
+        //- throw exception
+        Tango::Except::throw_exception(
+                     static_cast<const char*> ("TANGO_DEVICE_ERROR"),
+                     static_cast<const char*> (e.getErrMsg().c_str()),
+                     static_cast<const char*> ("AdscCCD::set_header_parameters"));
+    }
+}
+
+
+
+
 
 }	//	namespace
