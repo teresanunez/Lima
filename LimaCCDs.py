@@ -336,6 +336,11 @@ class LimaCCDs(PyTango.Device_4Impl) :
         state2string = {Core.AcqReady : "Ready",
                         Core.AcqRunning : "Running",
                         Core.AcqFault : "Fault"}
+        try:
+            state2string[Core.AcqConfig] = "Configuration"
+        except AttributeError:
+            pass
+
         attr.set_value(state2string.get(status.AcquisitionStatus,"?"))
     ## @brief get the errir message when acq_status is in Fault stat
     #
