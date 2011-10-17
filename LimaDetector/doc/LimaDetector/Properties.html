@@ -43,7 +43,7 @@
 <Br>
 <center>
 <h1>
-		<Br>
+LimaDetector		<Br>
 Properties Description 		<Br> <Br>
 LimaDetector Class	<Br>
 </h1>
@@ -64,30 +64,60 @@ Revision:  - Author:
 <Td><Center><b>Description</b></td></Center>
 <Tr><Td><b><a href=#Dev_DefaultValues>DetectorDescription </a></b></Td>
 <Td><Font Size=-1>Tango::DEV_STRING</Font></Td>
-<Td><Font Size=-1>A simple user free text intented to identify the Detector.</Font></Td></Tr>
+<Td><Font Size=-1>Detector user-defined text to identify the engine.</Font></Td></Tr>
 
 <Tr><Td><b><a href=#Dev_DefaultValues>DetectorType </a></b></Td>
 <Td><Font Size=-1>Tango::DEV_STRING</Font></Td>
 <Td><Font Size=-1>Define the type of the connected Detector .<BR>
 Availables types :<BR>
-AdscCCD<BR>
-BaslerCCD<BR>
-MarCCD<br>
-PilatusPixelDetector<BR>
-ProsilicaCCD<br>
-SimulatorCCD<BR>
-XpadPixelDetector<BR>
-
+- AdscCCD<BR>
+- BaslerCCD<BR>
+- MarCCD<BR>
+- PilatusPixelDetector<BR>
+- ProsilicaCCD<BR>
+- SimulatorCCD<BR>
+- XpadPixelDetector<BR>
 
 </Font></Td></Tr>
 
 <Tr><Td><b><a href=#Dev_DefaultValues>DetectorPixelDepth </a></b></Td>
 <Td><Font Size=-1>Tango::DEV_USHORT</Font></Td>
-<Td><Font Size=-1>Define the pixel depth of the detector (8, 16, 32).</Font></Td></Tr>
+<Td><Font Size=-1>Define the pixel depth of the detector : <br>
+Availables values : <br>
+- 8 <br>
+- 16<br>
+- 32<br></Font></Td></Tr>
+
+<Tr><Td><b><a href=#Dev_DefaultValues>DetectorVideoMode </a></b></Td>
+<Td><Font Size=-1>Tango::DEV_STRING</Font></Td>
+<Td><Font Size=-1>Define the format of video stream: <br>
+Availables values :<br>
+- NONE<BR>
+- Y8 <BR>
+- Y16<BR>
+- Y32<BR>
+- Y64<BR>
+- RGB555<BR>
+- RGB565<BR>
+- RGB24<BR>
+- RGB32<BR>
+- BGR24<BR>
+- BGR32<BR>
+- BAYER_RG8<BR>
+- BAYER_RG16<BR>
+- I420<BR>
+- YUV411<BR>
+- YUV422<BR>
+- YUV444<BR>
+<br>
+Nota:<br>
+This property is usefull only for detectors having video capabilities.<BR>
+Otherwise, use only NONE.</Font></Td></Tr>
 
 <Tr><Td><b><a href=#Dev_DefaultValues>FileFormat </a></b></Td>
 <Td><Font Size=-1>Tango::DEV_STRING</Font></Td>
 <Td><Font Size=-1>Define the format of image files :<BR>
+Availables values :<br>
 - EDF<BR>
 - NXS<BR>
 - RAW<BR>
@@ -99,14 +129,15 @@ XpadPixelDetector<BR>
 
 <Tr><Td><b><a href=#Dev_DefaultValues>FileIndexPattern </a></b></Td>
 <Td><Font Size=-1>Tango::DEV_STRING</Font></Td>
-<Td><Font Size=-1>Define the pattern of the index used for image files names.
-i.e:
+<Td><Font Size=-1>Define the pattern of the index used for image files names.<br>
+<br>
+Nota :<br>
 %04d mean that file name index will be end with exactly  4 digits filled by '0' if necessary .<br>
 </Font></Td></Tr>
 
 <Tr><Td><b><a href=#Dev_DefaultValues>FileNbFrames </a></b></Td>
 <Td><Font Size=-1>Tango::DEV_SHORT</Font></Td>
-<Td><Font Size=-1>Define the number of frames per file.</Font></Td></Tr>
+<Td><Font Size=-1>Define the amount of frames stored in the target file.</Font></Td></Tr>
 
 <Tr><Td><b><a href=#Dev_DefaultValues>FileTargetPath </a></b></Td>
 <Td><Font Size=-1>Tango::DEV_STRING</Font></Td>
@@ -116,37 +147,58 @@ i.e:
 
 <Tr><Td><b><a href=#Dev_DefaultValues>DebugModules </a></b></Td>
 <Td><Font Size=-1>Array of string</Font></Td>
-<Td><Font Size=-1>Define Lima Modules for which we need some traces in the console.<BR>
+<Td><Font Size=-1>Define modules that we need to have some debug traces.<BR>
 Availables values :<BR>
-None<BR>
-Hardware<BR>
-Control<BR>
-Common<BR>
-Camera<BR></Font></Td></Tr>
+- None<BR>
+- Hardware<BR>
+- Control<BR>
+- Common<BR>
+- Camera<BR></Font></Td></Tr>
 
 <Tr><Td><b><a href=#Dev_DefaultValues>DebugLevels </a></b></Td>
 <Td><Font Size=-1>Array of string</Font></Td>
-<Td><Font Size=-1>Define Lima verbose level of traces in the console.<BR>
+<Td><Font Size=-1>Define Lima verbose level of traces.<BR>
 Availables values :<BR>
-Fatal<BR>
-Error<BR>
-Warning<BR>
-Trace<BR>
-Funct<BR>
-Param<BR>
-Return<BR>
-Always<BR></Font></Td></Tr>
+- Fatal<BR>
+- Error<BR>
+- Warning<BR>
+- Trace<BR>
+- Funct<BR>
+- Param<BR>
+- Return<BR>
+- Always<BR></Font></Td></Tr>
 
 <Tr><Td><b><a href=#Dev_DefaultValues>DebugFormats </a></b></Td>
 <Td><Font Size=-1>Array of string</Font></Td>
-<Td><Font Size=-1>Define Lima message format in the console.<BR>
+<Td><Font Size=-1>Define Lima traces format.<BR>
 Availables values :<BR>
-DateTime<BR>
-Thread<BR>
-Module<BR>
-Obj<BR>
-Funct<BR>
-FileLine<BR></Font></Td></Tr>
+- DateTime<BR>
+- Thread<BR>
+- Module<BR>
+- Obj<BR>
+- Funct<BR>
+- FileLine<BR></Font></Td></Tr>
+
+<Tr><Td><b><a href=#Dev_DefaultValues>Roi </a></b></Td>
+<Td><Font Size=-1>Array of short</Font></Td>
+<Td><Font Size=-1>Define the Region of Interest of the Acquisition: <br>
+origin X<br>
+origin Y<br>
+Width<br>
+Height<br>
+<br>
+Nota:<br>
+if any roi value is <0, then we consider all detector area as Roi.</Font></Td></Tr>
+
+<Tr><Td><b><a href=#Dev_DefaultValues>Binning </a></b></Td>
+<Td><Font Size=-1>Tango::DEV_USHORT</Font></Td>
+<Td><Font Size=-1>Define the Binning value of the Acquisition<br>
+Availables values :<br>
+- 1<br>
+- 2<br>
+- 3<br>
+- 4<br>
+- 8<br></Font></Td></Tr>
 
 </Table>
 
@@ -172,6 +224,10 @@ FileLine<BR></Font></Td></Tr>
     <Tr>
         <Td>DetectorPixelDepth</Td>
         <td>16</td>
+    </Tr>
+    <Tr>
+        <Td>DetectorVideoMode</Td>
+        <td>NONE</td>
     </Tr>
     <Tr>
         <Td>FileFormat</Td>
@@ -210,6 +266,14 @@ FileLine<BR></Font></Td></Tr>
         <Td>DebugFormats</Td>
         <td>	DateTime<Br>
 	Funct</td>
+    </Tr>
+    <Tr>
+        <Td>Roi</Td>
+        <td>-1, -1, -1, -1</td>
+    </Tr>
+    <Tr>
+        <Td>Binning</Td>
+        <td>1</td>
     </Tr>
 </Table>
 

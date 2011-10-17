@@ -240,12 +240,13 @@ void BaslerCCD::always_executed_hook()
 
     try
     {
-        //- get the singleton control objet used to pilot the lima framework
+    	//- get the singleton control objet used to pilot the lima framework
         m_ct = ControlFactory::instance().get_control("BaslerCCD");
-        
+
         //- get interface to specific detector
         if(m_ct!=0)
             m_hw = dynamic_cast<Basler::Interface*>(m_ct->hwInterface());
+
     }
     catch(Exception& e)
     {
@@ -254,8 +255,8 @@ void BaslerCCD::always_executed_hook()
         Tango::Except::throw_exception(
                     static_cast<const char*> ("TANGO_DEVICE_ERROR"),
                     static_cast<const char*> (e.getErrMsg().c_str()),
-                    static_cast<const char*> ("BaslerCCD::read_frameRate"));
-    }    
+                    static_cast<const char*> ("BaslerCCD::always_executed_hook"));
+    }
 }
 //+----------------------------------------------------------------------------
 //
@@ -344,38 +345,53 @@ Tango::DevState BaslerCCD::dev_state()
     }
     else
     {
-        CtControl::Status status;
-        m_ct->getStatus(status);
-        if (status.AcquisitionStatus == lima::AcqReady)
-        {
-            HwInterface::StatusType state;
-            m_hw->getStatus(state); 
-            if(state.acq == AcqRunning && state.det == DetExposure)
-            {
-                DeviceState=Tango::RUNNING;
-                DeviceStatus<<"Acquisition is Running ...\n"<<endl;
-            }
-            else if(state.acq == AcqFault && state.det == DetFault)
-            {                 
-                DeviceState=Tango::FAULT;//FAULT
-                DeviceStatus<<"Acquisition is in Fault\n"<<endl;
-            }  
-            else
-            {
-                DeviceState=Tango::STANDBY;
-                DeviceStatus<<"Waiting for Request ...\n"<<endl;
-            }
-        }
-        else if(status.AcquisitionStatus == lima::AcqRunning)
-        {
-            DeviceState=Tango::RUNNING;
-            DeviceStatus<<"Acquisition is Running ...\n"<<endl;
-        }
-        else
-        {
-            DeviceState=Tango::FAULT;//FAULT
-            DeviceStatus<<"Acquisition is in Fault\n"<<endl;
-        }
+    	CtControl::Status status;
+		m_ct->getStatus(status);
+		if (status.AcquisitionStatus == lima::AcqReady)
+		{
+			HwInterface::StatusType state;
+			m_hw->getStatus(state);
+			if(state.acq == AcqRunning && state.det == DetExposure)
+			{
+				DeviceState=Tango::RUNNING;
+				DeviceStatus<<"Acquisition is Running ...\n"<<endl;
+			}
+			else if(state.acq == AcqFault && state.det == DetFault)
+			{
+				DeviceState=Tango::INIT;//INIT
+				DeviceStatus<<"Acquisition is in Init\n"<<endl;
+			}
+			else if(state.acq == AcqFault && state.det == DetIdle)
+			{
+				DeviceState=Tango::FAULT;//FAULT
+				DeviceStatus<<"Acquisition is in Fault\n"<<endl;
+			}
+			else
+			{
+				DeviceState=Tango::STANDBY;
+				DeviceStatus<<"Waiting for Request ...\n"<<endl;
+			}
+		}
+		else if(status.AcquisitionStatus == lima::AcqRunning)
+		{
+			DeviceState=Tango::RUNNING;
+			DeviceStatus<<"Acquisition is Running ...\n"<<endl;
+		}
+		else
+		{
+			HwInterface::StatusType state;
+			m_hw->getStatus(state);
+			if(state.acq == AcqFault && state.det == DetFault)
+			{
+				DeviceState=Tango::INIT;//INIT
+				DeviceStatus<<"Acquisition is in Init\n"<<endl;
+			}
+			else
+			{
+			  DeviceState=Tango::FAULT;//FAULT
+			  DeviceStatus<<"Acquisition is in Fault\n"<<endl;
+			}
+		}
     }
 
     set_state(DeviceState);
@@ -464,10 +480,6 @@ int BaslerCCD::FindIndexFromPropertyName(Tango::DbData& dev_prop, string propert
     if (i == iNbProperties) return -1;
     return i;
 }
-
-
-
-
 
 
 }	//	namespace

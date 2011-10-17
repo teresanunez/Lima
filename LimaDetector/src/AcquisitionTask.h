@@ -47,7 +47,6 @@ const size_t DEVICE_STOP_MSG                        = yat::FIRST_USER_MSG + 200;
 const size_t DEVICE_SNAP_MSG                        = yat::FIRST_USER_MSG + 201;
 const size_t DEVICE_START_MSG                        = yat::FIRST_USER_MSG + 202;
 const size_t DEVICE_ABORT_MSG                        = yat::FIRST_USER_MSG + 203;
-const size_t DEVICE_DELETE_FILES_MSG                = yat::FIRST_USER_MSG + 204;
 
 
 //--
@@ -63,7 +62,7 @@ namespace LimaDetector_ns
         AcquisitionTask( Tango::DeviceImpl* dev );
         
         //- [dtor]
-        ~AcquisitionTask();
+        virtual ~AcquisitionTask();
         
         //- returns the last state of the task
         Tango::DevState get_state(void) ;

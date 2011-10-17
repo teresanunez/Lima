@@ -86,6 +86,66 @@ public:
 	{return (static_cast<LimaDetector *>(dev))->is_nbFrames_allowed(ty);}
 };
 
+class binningAttrib: public Tango::Attr
+{
+public:
+	binningAttrib():Attr("binning", Tango::DEV_SHORT, Tango::READ) {};
+	~binningAttrib() {};
+	
+	virtual void read(Tango::DeviceImpl *dev,Tango::Attribute &att)
+	{(static_cast<LimaDetector *>(dev))->read_binning(att);}
+	virtual bool is_allowed(Tango::DeviceImpl *dev,Tango::AttReqType ty)
+	{return (static_cast<LimaDetector *>(dev))->is_binning_allowed(ty);}
+};
+
+class heightAttrib: public Tango::Attr
+{
+public:
+	heightAttrib():Attr("height", Tango::DEV_USHORT, Tango::READ) {};
+	~heightAttrib() {};
+	
+	virtual void read(Tango::DeviceImpl *dev,Tango::Attribute &att)
+	{(static_cast<LimaDetector *>(dev))->read_height(att);}
+	virtual bool is_allowed(Tango::DeviceImpl *dev,Tango::AttReqType ty)
+	{return (static_cast<LimaDetector *>(dev))->is_height_allowed(ty);}
+};
+
+class widthAttrib: public Tango::Attr
+{
+public:
+	widthAttrib():Attr("width", Tango::DEV_USHORT, Tango::READ) {};
+	~widthAttrib() {};
+	
+	virtual void read(Tango::DeviceImpl *dev,Tango::Attribute &att)
+	{(static_cast<LimaDetector *>(dev))->read_width(att);}
+	virtual bool is_allowed(Tango::DeviceImpl *dev,Tango::AttReqType ty)
+	{return (static_cast<LimaDetector *>(dev))->is_width_allowed(ty);}
+};
+
+class yAttrib: public Tango::Attr
+{
+public:
+	yAttrib():Attr("y", Tango::DEV_USHORT, Tango::READ) {};
+	~yAttrib() {};
+	
+	virtual void read(Tango::DeviceImpl *dev,Tango::Attribute &att)
+	{(static_cast<LimaDetector *>(dev))->read_y(att);}
+	virtual bool is_allowed(Tango::DeviceImpl *dev,Tango::AttReqType ty)
+	{return (static_cast<LimaDetector *>(dev))->is_y_allowed(ty);}
+};
+
+class xAttrib: public Tango::Attr
+{
+public:
+	xAttrib():Attr("x", Tango::DEV_USHORT, Tango::READ) {};
+	~xAttrib() {};
+	
+	virtual void read(Tango::DeviceImpl *dev,Tango::Attribute &att)
+	{(static_cast<LimaDetector *>(dev))->read_x(att);}
+	virtual bool is_allowed(Tango::DeviceImpl *dev,Tango::AttReqType ty)
+	{return (static_cast<LimaDetector *>(dev))->is_x_allowed(ty);}
+};
+
 class exposureAccTimeAttrib: public Tango::Attr
 {
 public:
@@ -217,6 +277,30 @@ public:
 //=========================================
 //	Define classes for commands
 //=========================================
+class SetBinCmd : public Tango::Command
+{
+public:
+	SetBinCmd(const char   *name,
+	               Tango::CmdArgType in,
+				   Tango::CmdArgType out,
+				   const char        *in_desc,
+				   const char        *out_desc,
+				   Tango::DispLevel  level)
+	:Command(name,in,out,in_desc,out_desc, level)	{};
+
+	SetBinCmd(const char   *name,
+	               Tango::CmdArgType in,
+				   Tango::CmdArgType out)
+	:Command(name,in,out)	{};
+	~SetBinCmd() {};
+	
+	virtual CORBA::Any *execute (Tango::DeviceImpl *dev, const CORBA::Any &any);
+	virtual bool is_allowed (Tango::DeviceImpl *dev, const CORBA::Any &any)
+	{return (static_cast<LimaDetector *>(dev))->is_SetBin_allowed(any);}
+};
+
+
+
 class SetROICmd : public Tango::Command
 {
 public:
@@ -309,30 +393,6 @@ public:
 	virtual CORBA::Any *execute (Tango::DeviceImpl *dev, const CORBA::Any &any);
 	virtual bool is_allowed (Tango::DeviceImpl *dev, const CORBA::Any &any)
 	{return (static_cast<LimaDetector *>(dev))->is_Snap_allowed(any);}
-};
-
-
-
-class DeleteRemainingFilesCmd : public Tango::Command
-{
-public:
-	DeleteRemainingFilesCmd(const char   *name,
-	               Tango::CmdArgType in,
-				   Tango::CmdArgType out,
-				   const char        *in_desc,
-				   const char        *out_desc,
-				   Tango::DispLevel  level)
-	:Command(name,in,out,in_desc,out_desc, level)	{};
-
-	DeleteRemainingFilesCmd(const char   *name,
-	               Tango::CmdArgType in,
-				   Tango::CmdArgType out)
-	:Command(name,in,out)	{};
-	~DeleteRemainingFilesCmd() {};
-	
-	virtual CORBA::Any *execute (Tango::DeviceImpl *dev, const CORBA::Any &any);
-	virtual bool is_allowed (Tango::DeviceImpl *dev, const CORBA::Any &any)
-	{return (static_cast<LimaDetector *>(dev))->is_DeleteRemainingFiles_allowed(any);}
 };
 
 

@@ -90,8 +90,6 @@ public :
  *	Attribute member data.
  */
 //@{
-		Tango::DevUShort	*attr_binnig_read;
-		Tango::DevUShort	attr_binnig_write;
 //@}
 
 /**
@@ -187,22 +185,6 @@ public :
  */
 
 //@{
-/**
- *	Hardware acquisition for attributes.
- */
-	virtual void read_attr_hardware(vector<long> &attr_list);
-/**
- *	Extract real attribute values for binnig acquisition result.
- */
-	virtual void read_binnig(Tango::Attribute &attr);
-/**
- *	Write binnig attribute values to hardware.
- */
-	virtual void write_binnig(Tango::WAttribute &attr);
-/**
- *	Read/Write allowed for binnig attribute.
- */
-	virtual bool is_binnig_allowed(Tango::AttReqType type);
 /**
  *	Execution allowed for TakeBackground command.
  */

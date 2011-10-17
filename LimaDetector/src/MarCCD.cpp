@@ -100,14 +100,13 @@ MarCCD::MarCCD(Tango::DeviceClass *cl,const char *s,const char *d)
 void MarCCD::delete_device()
 {
 	//	Delete device allocated objects
-	DELETE_SCALAR_ATTRIBUTE(attr_binnig_read);
 
     //!!!! ONLY LimaDetector device can do this !!!!
     //if(m_ct!=0)
     //{
-    //    ControlFactory::instance().reset("PilatusPixelDetector");
+    //    ControlFactory::instance().reset("MarCCD");
     //    m_ct = 0;
-    //}
+    //}    
 }
 
 //+----------------------------------------------------------------------------
@@ -125,11 +124,10 @@ void MarCCD::init_device()
 	//--------------------------------------------
 	get_device_property();
 
-	CREATE_SCALAR_ATTRIBUTE(attr_binnig_read);
-
+	
 	m_is_device_initialized = false;
 	m_status_message.str("");
-
+	
 	try
 	{
 		//- get the main object used to pilot the lima framework
@@ -144,17 +142,17 @@ void MarCCD::init_device()
 			INFO_STREAM<<"Initialization Failed : Unable to get the interface of camera plugin !" << std::endl;
 			m_status_message <<"Initialization Failed : Unable to get the interface of camera plugin !" << std::endl;
 			m_is_device_initialized = false;
-			set_state(Tango::INIT);
-			return;
+			set_state(Tango::INIT);		
+			return;			
 		}
-
+		
 	}
 	catch(Exception& e)
 	{
 		INFO_STREAM<<"Initialization Failed : " << e.getErrMsg() << std::endl;
 		m_status_message <<"Initialization Failed : " << e.getErrMsg( ) << std::endl;
 		m_is_device_initialized = false;
-		set_state(Tango::INIT);
+		set_state(Tango::INIT);		
 		return;
 	}
 	catch(...)
@@ -166,8 +164,8 @@ void MarCCD::init_device()
 		return;
 	}
 	m_is_device_initialized = true;
-	set_state(Tango::STANDBY);
-	this->dev_state();
+	set_state(Tango::STANDBY);	
+	this->dev_state();	
 }
 
 
@@ -261,10 +259,10 @@ void MarCCD::get_device_property()
 	//	End of Automatic code generation
 	//------------------------------------------------------------------
 	create_property_if_empty(dev_prop,"127.0.0.1","DetectorIP");
-  create_property_if_empty(dev_prop,"-1","DetectorPort");
+	create_property_if_empty(dev_prop,"-1","DetectorPort");
 	create_property_if_empty(dev_prop,"/no/path/defined/","DetectorTargetPath");
 	create_property_if_empty(dev_prop,"imgRAW.00xx","DetectorImageName");
-  create_property_if_empty(dev_prop,"/no/path/defined/","DirectoryWatcherPath");
+	create_property_if_empty(dev_prop,"/no/path/defined/","DirectoryWatcherPath");
 }
 //+----------------------------------------------------------------------------
 //
@@ -275,144 +273,26 @@ void MarCCD::get_device_property()
 //-----------------------------------------------------------------------------
 void MarCCD::always_executed_hook()
 {
+    try
+    {
+    	//- get the singleton control objet used to pilot the lima framework
+        m_ct = ControlFactory::instance().get_control("MarCCD");
 
+        //- get interface to specific detector
+        if(m_ct!=0)
+            m_hw = dynamic_cast<Marccd::Interface*>(m_ct->hwInterface());
+
+    }
+    catch(Exception& e)
+    {
+        ERROR_STREAM << e.getErrMsg() << endl;
+        //- throw exception
+        Tango::Except::throw_exception(
+                    static_cast<const char*> ("TANGO_DEVICE_ERROR"),
+                    static_cast<const char*> (e.getErrMsg().c_str()),
+                    static_cast<const char*> ("MarCCD::always_executed_hook"));
+    }	
 }
-//+----------------------------------------------------------------------------
-//
-// method : 		MarCCD::read_attr_hardware
-// 
-// description : 	Hardware acquisition for attributes.
-//
-//-----------------------------------------------------------------------------
-void MarCCD::read_attr_hardware(vector<long> &attr_list)
-{
-	DEBUG_STREAM << "MarCCD::read_attr_hardware(vector<long> &attr_list) entering... "<< endl;
-	//	Add your own code here
-}
-
-//+----------------------------------------------------------------------------
-//
-// method : 		MarCCD::read_binnig
-// 
-// description : 	Extract real attribute values for binnig acquisition result.
-//
-//-----------------------------------------------------------------------------
-void MarCCD::read_binnig(Tango::Attribute &attr)
-{
-	DEBUG_STREAM << "MarCCD::read_binnig(Tango::Attribute &attr) entering... "<< endl;
-	if(m_ct!=0)
-	{
-		try
-		{
-
-			Bin marBin;
-			m_ct->image()->getBin(marBin);
-			switch(marBin.getX())
-			{
-			case 1 : *attr_binnig_read = 0;
-				break;
-			case 2 : *attr_binnig_read = 1;
-				break;
-			case 3 : *attr_binnig_read = 2;
-				break;
-			case 4 : *attr_binnig_read = 3;
-				break;
-			case 8 : *attr_binnig_read = 4;
-				break;
-			}
-			attr.set_value(attr_binnig_read);
-		}
-		catch(Tango::DevFailed& df)
-		{
-			ERROR_STREAM << df << endl;
-			//- rethrow exception
-			Tango::Except::re_throw_exception(df,
-				static_cast<const char*> ("TANGO_DEVICE_ERROR"),
-				static_cast<const char*> (string(df.errors[0].desc).c_str()),
-				static_cast<const char*> ("MarCCD::read_binnig"));
-		}
-		catch(Exception& e)
-		{
-			ERROR_STREAM << e.getErrMsg() << endl;
-			//- throw exception
-			Tango::Except::throw_exception(
-				static_cast<const char*> ("TANGO_DEVICE_ERROR"),
-				static_cast<const char*> (e.getErrMsg().c_str()),
-				static_cast<const char*> ("MarCCD::read_binnig"));
-		}
-		catch(...)
-		{
-			ERROR_STREAM << "MarCCD::read_binnig -> caught [...]" << endl;
-			//- throw exception
-			Tango::Except::throw_exception(
-				static_cast<const char*> ("UNKNOWN_ERROR"),
-				static_cast<const char*> ("MarCCD::read_binnig -> caught [...]"),
-				static_cast<const char*> ("MarCCD::read_binnig"));
-		}
-	}
-}
-
-//+----------------------------------------------------------------------------
-//
-// method : 		MarCCD::write_binnig
-// 
-// description : 	Write binnig attribute values to hardware.
-//
-//-----------------------------------------------------------------------------
-void MarCCD::write_binnig(Tango::WAttribute &attr)
-{
-	DEBUG_STREAM << "MarCCD::write_binnig(Tango::WAttribute &attr) entering... "<< endl;
-	if(m_ct!=0)
-	{
-		try
-		{
-			Bin newBin;
-			attr.get_write_value(attr_binnig_write);
-			switch(attr_binnig_write)
-			{
-			case 0 : newBin = Bin(1,1); std::cout << "MarCCD::write_binnig -> 1" << std::endl;
-				break;
-			case 1 : newBin = Bin(2,2);std::cout << "MarCCD::write_binnig -> 2" << std::endl;
-				break;
-			case 2 : newBin = Bin(3,3);std::cout << "MarCCD::write_binnig -> 3" << std::endl;
-				break;
-			case 3 : newBin = Bin(4,4);std::cout << "MarCCD::write_binnig -> 4" << std::endl;
-				break;
-			case 4 : newBin = Bin(8,8);std::cout << "MarCCD::write_binnig -> 8" << std::endl;
-				break;
-			}
-			m_ct->image()->setBin(newBin);
-		}
-		catch(Tango::DevFailed& df)
-		{
-			ERROR_STREAM << df << endl;
-			//- rethrow exception
-			Tango::Except::re_throw_exception(df,
-				static_cast<const char*> ("TANGO_DEVICE_ERROR"),
-				static_cast<const char*> (string(df.errors[0].desc).c_str()),
-				static_cast<const char*> ("MarCCD::write_binnig"));
-		}
-		catch(Exception& e)
-		{
-			ERROR_STREAM << e.getErrMsg() << endl;
-			//- throw exception
-			Tango::Except::throw_exception(
-				static_cast<const char*> ("TANGO_DEVICE_ERROR"),
-				static_cast<const char*> (e.getErrMsg().c_str()),
-				static_cast<const char*> ("MarCCD::write_binnig"));
-		}
-		catch(...)
-		{
-			ERROR_STREAM << "MarCCD::write_binnig -> caught [...]" << endl;
-			//- throw exception
-			Tango::Except::throw_exception(
-				static_cast<const char*> ("UNKNOWN_ERROR"),
-				static_cast<const char*> ("MarCCD::write_binnig -> caught [...]"),
-				static_cast<const char*> ("MarCCD::write_binnig"));
-		}
-	}
-}
-
 
 
 //+------------------------------------------------------------------
@@ -429,7 +309,7 @@ void MarCCD::write_binnig(Tango::WAttribute &attr)
 Tango::DevState MarCCD::dev_state()
 {
 	Tango::DevState	argout = DeviceImpl::dev_state();
-	DEBUG_STREAM << "MarCCD::dev_state(): entering... !" << endl;
+	DEBUG_STREAM << "MarCCD::dev_state(): entering... !" << endl;	
 	//	Add your own code to control device here
 	stringstream    DeviceStatus;
 	DeviceStatus 	<< "";
@@ -442,32 +322,36 @@ Tango::DevState MarCCD::dev_state()
 	else if ( !m_ct )
 	{
 		DeviceState			= Tango::INIT;
-		DeviceStatus		<<"Initialization Failed : Unable to get the lima control object !\n\n";
+		DeviceStatus		<<"Initialization Failed : Unable to get the lima control object !\n\n";				
 	}
 	else
 	{
-		 CtControl::Status status;
+        CtControl::Status status;
         m_ct->getStatus(status);
         if (status.AcquisitionStatus == lima::AcqReady)
         {
-                HwInterface::StatusType state;
-                m_hw->getStatus(state);
-
-                if(state.acq == AcqRunning && state.det == DetExposure)
-                {
-                    DeviceState=Tango::RUNNING;
-                    DeviceStatus<<"Acquisition is Running ...\n"<<endl;
-                }
-                else if(state.acq == AcqFault && state.det == DetFault)
-                {
-                    DeviceState=Tango::FAULT;//FAULT
-                    DeviceStatus<<"Acquisition is in Fault\n"<<endl;
-                }
-                else
-                {
-                    DeviceState=Tango::STANDBY;
-                    DeviceStatus<<"Waiting for Request ...\n"<<endl;
-                }
+            HwInterface::StatusType state;
+            m_hw->getStatus(state);
+            if(state.acq == AcqRunning && state.det == DetExposure)
+            {
+                DeviceState=Tango::RUNNING;
+                DeviceStatus<<"Acquisition is Running ...\n"<<endl;
+            }
+            else if(state.acq == AcqFault && state.det == DetFault)
+            {
+                DeviceState=Tango::INIT;//INIT
+                DeviceStatus<<"Acquisition is in Init\n"<<endl;
+            }
+            else if(state.acq == AcqFault && state.det == DetIdle)
+            {
+                DeviceState=Tango::FAULT;//FAULT
+                DeviceStatus<<"Acquisition is in Fault\n"<<endl;
+            }
+            else
+            {
+                DeviceState=Tango::STANDBY;
+                DeviceStatus<<"Waiting for Request ...\n"<<endl;
+            }
         }
         else if(status.AcquisitionStatus == lima::AcqRunning)
         {
@@ -476,11 +360,21 @@ Tango::DevState MarCCD::dev_state()
         }
         else
         {
-            DeviceState=Tango::FAULT;//FAULT
-            DeviceStatus<<"Acquisition is in Fault\n"<<endl;
+            HwInterface::StatusType state;
+            m_hw->getStatus(state);
+            if(state.acq == AcqFault && state.det == DetFault)
+            {
+                DeviceState=Tango::INIT;//INIT
+                DeviceStatus<<"Acquisition is in Init\n"<<endl;
+            }
+            else
+            {
+              DeviceState=Tango::FAULT;//FAULT
+              DeviceStatus<<"Acquisition is in Fault\n"<<endl;
+            }
         }
 	}
-
+	
 	set_state(DeviceState);
 	set_status(DeviceStatus.str());
 
@@ -515,7 +409,6 @@ void MarCCD::store_value_as_property (T value, string property_name)
     }
 
 }
-
 
 /*-------------------------------------------------------------------------
 //       MarCCD::create_property_if_empty
@@ -565,10 +458,6 @@ int MarCCD::FindIndexFromPropertyName(Tango::DbData& dev_prop, string property_n
     if (i == iNbProperties) return -1;
     return i;
 }
-
-
-
-
 
 
 //+------------------------------------------------------------------
@@ -623,7 +512,5 @@ void MarCCD::take_background()
 	}
 
 }
-
-
 
 }	//	namespace

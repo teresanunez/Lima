@@ -46,20 +46,6 @@ namespace MarCCD_ns
 {//=====================================
 //	Define classes for attributes
 //=====================================
-class binnigAttrib: public Tango::Attr
-{
-public:
-	binnigAttrib():Attr("binnig", Tango::DEV_USHORT, Tango::READ_WRITE) {};
-	~binnigAttrib() {};
-	
-	virtual void read(Tango::DeviceImpl *dev,Tango::Attribute &att)
-	{(static_cast<MarCCD *>(dev))->read_binnig(att);}
-	virtual void write(Tango::DeviceImpl *dev,Tango::WAttribute &att)
-	{(static_cast<MarCCD *>(dev))->write_binnig(att);}
-	virtual bool is_allowed(Tango::DeviceImpl *dev,Tango::AttReqType ty)
-	{return (static_cast<MarCCD *>(dev))->is_binnig_allowed(ty);}
-};
-
 //=========================================
 //	Define classes for commands
 //=========================================
@@ -121,7 +107,6 @@ protected:
 	static MarCCDClass *_instance;
 	void command_factory();
 	void get_class_property();
-	void attribute_factory(vector<Tango::Attr *> &);
 	void write_class_property();
 	void set_default_property();
 	string get_cvstag();

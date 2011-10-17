@@ -55,20 +55,6 @@ namespace MarCCD_ns
 //		Attributes Allowed Methods
 //=================================================
 
-//+----------------------------------------------------------------------------
-//
-// method : 		MarCCD::is_binnig_allowed
-// 
-// description : 	Read/Write allowed for binnig attribute.
-//
-//-----------------------------------------------------------------------------
-bool MarCCD::is_binnig_allowed(Tango::AttReqType type)
-{
-		//	End of Generated Code
-
-		//	Re-Start of Generated Code
-	return true;
-}
 
 //=================================================
 //		Commands Allowed Methods

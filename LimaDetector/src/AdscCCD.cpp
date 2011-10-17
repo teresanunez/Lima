@@ -125,6 +125,7 @@ void AdscCCD::init_device()
 
 	// Initialise variables to default values
 	//--------------------------------------------
+	get_device_property();
     CREATE_DEVSTRING_ATTRIBUTE(attr_imagePath_read,MAX_ATTRIBUTE_STRING_LENGTH);
     CREATE_DEVSTRING_ATTRIBUTE(attr_fileName_read,MAX_ATTRIBUTE_STRING_LENGTH);
     CREATE_SCALAR_ATTRIBUTE(attr_useStoredImageDark_read);
@@ -173,6 +174,51 @@ void AdscCCD::init_device()
   this->dev_state();
 }
 
+
+//+----------------------------------------------------------------------------
+//
+// method : 		AdscCCD::get_device_property()
+// 
+// description : 	Read the device properties from database.
+//
+//-----------------------------------------------------------------------------
+void AdscCCD::get_device_property()
+{
+	//	Initialize your default values here (if not done with  POGO).
+	//------------------------------------------------------------------
+
+	//	Read device properties from database.(Automatic code generation)
+	//------------------------------------------------------------------
+	Tango::DbData	dev_prop;
+	dev_prop.push_back(Tango::DbDatum("UseReader"));
+
+	//	Call database and extract values
+	//--------------------------------------------
+	if (Tango::Util::instance()->_UseDb==true)
+		get_db_device()->get_property(dev_prop);
+	Tango::DbDatum	def_prop, cl_prop;
+	AdscCCDClass	*ds_class =
+		(static_cast<AdscCCDClass *>(get_device_class()));
+	int	i = -1;
+
+	//	Try to initialize UseReader from class property
+	cl_prop = ds_class->get_class_property(dev_prop[++i].name);
+	if (cl_prop.is_empty()==false)	cl_prop  >>  useReader;
+	else {
+		//	Try to initialize UseReader from default device value
+		def_prop = ds_class->get_default_device_property(dev_prop[i].name);
+		if (def_prop.is_empty()==false)	def_prop  >>  useReader;
+	}
+	//	And try to extract UseReader value from database
+	if (dev_prop[i].is_empty()==false)	dev_prop[i]  >>  useReader;
+
+
+
+	//	End of Automatic code generation
+	//------------------------------------------------------------------
+    create_property_if_empty(dev_prop,"true","UseReader");
+
+}
 //+----------------------------------------------------------------------------
 //
 // method : 		AdscCCD::always_executed_hook()
@@ -182,7 +228,26 @@ void AdscCCD::init_device()
 //-----------------------------------------------------------------------------
 void AdscCCD::always_executed_hook()
 {
-	
+
+    try
+    {
+    	//- get the singleton control objet used to pilot the lima framework
+        m_ct = ControlFactory::instance().get_control("AdscCCD");
+
+        //- get interface to specific detector
+        if(m_ct!=0)
+            m_hw = dynamic_cast<Adsc::Interface*>(m_ct->hwInterface());
+
+    }
+    catch(Exception& e)
+    {
+        ERROR_STREAM << e.getErrMsg() << endl;
+        //- throw exception
+        Tango::Except::throw_exception(
+                    static_cast<const char*> ("TANGO_DEVICE_ERROR"),
+                    static_cast<const char*> (e.getErrMsg().c_str()),
+                    static_cast<const char*> ("AdscCCD::always_executed_hook"));
+    }	
 }
 //+----------------------------------------------------------------------------
 //
@@ -641,6 +706,83 @@ void AdscCCD::set_header_parameters(Tango::DevString argin)
     }
 }
 
+
+/*-------------------------------------------------------------------------
+//       LimaDetector::store_value_as_property
+/-------------------------------------------------------------------------*/
+template <class T>
+void AdscCCD::store_value_as_property (T value, string property_name)
+{
+    Tango::DbDatum current_value(property_name);
+    current_value << value;
+    Tango::DbData db_data;
+    db_data.push_back(current_value);
+    try
+    {
+        get_db_device()->put_property(db_data);
+    }
+    catch(Tango::DevFailed &df)
+    {
+        string message= "Error in storing " + property_name + " in Configuration DataBase ";
+        LOG_ERROR((message));
+        ERROR_STREAM<<df<<endl;
+        //- rethrow exception
+        Tango::Except::re_throw_exception(df,
+                    static_cast<const char*> ("TANGO_DEVICE_ERROR"),
+                    static_cast<const char*> (string(df.errors[0].desc).c_str()),
+                    static_cast<const char*> ("LimaDetector::store_value_as_property"));
+    }
+
+}
+
+/*-------------------------------------------------------------------------
+//       LimaDetector::create_property_if_empty
+/-------------------------------------------------------------------------*/
+template <class T>
+void AdscCCD::create_property_if_empty(Tango::DbData& dev_prop,T value,string property_name)
+{
+    int iPropertyIndex = FindIndexFromPropertyName(dev_prop,property_name);
+    if (iPropertyIndex == -1) return;
+    if (dev_prop[iPropertyIndex].is_empty())
+    {
+        Tango::DbDatum current_value(dev_prop[iPropertyIndex].name);
+        current_value << value;
+        Tango::DbData db_data;
+        db_data.push_back(current_value);
+
+        try
+        {
+            get_db_device()->put_property(db_data);
+        }
+        catch(Tango::DevFailed &df)
+        {
+            string message= "Error in storing " + property_name + " in Configuration DataBase ";
+            LOG_ERROR((message));
+            ERROR_STREAM<<df<<endl;
+            //- rethrow exception
+            Tango::Except::re_throw_exception(df,
+                        static_cast<const char*> ("TANGO_DEVICE_ERROR"),
+                        static_cast<const char*> (string(df.errors[0].desc).c_str()),
+                        static_cast<const char*> ("LimaDetector::create_property_if_empty"));
+        }
+    }
+}
+
+/*-------------------------------------------------------------------------
+//       LimaDetector::FindIndexFromPropertyName
+/-------------------------------------------------------------------------*/
+int AdscCCD::FindIndexFromPropertyName(Tango::DbData& dev_prop, string property_name)
+{
+    size_t iNbProperties = dev_prop.size();
+    unsigned int i;
+    for (i=0;i<iNbProperties;i++)
+    {
+        string sPropertyName(dev_prop[i].name);
+        if (sPropertyName == property_name) return i;
+    }
+    if (i == iNbProperties) return -1;
+    return i;
+}
 
 
 

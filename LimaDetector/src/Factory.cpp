@@ -142,7 +142,16 @@ CtControl* ControlFactory::get_control( const string& detector_type)
         
             if(!ControlFactory::is_created)
             {
-                my_camera_adsc                = new Adsc::Camera();
+                DbData db_data;
+                db_data.push_back(DbDatum("UseReader"));
+                (Tango::Util::instance()->get_database())->get_device_property(my_device_name, db_data);
+                bool use_reader;
+                db_data[0] >> use_reader;
+            	my_camera_adsc                = new Adsc::Camera();
+                if(my_camera_adsc && use_reader)
+                	my_camera_adsc->enableDirectoryWatcher();
+                if(my_camera_adsc && !use_reader)
+                	my_camera_adsc->disableDirectoryWatcher();
                 my_interface_adsc             = new Adsc::Interface(*my_camera_adsc);
                 my_control                    = new CtControl(my_interface_adsc);
                 ControlFactory::is_created    = true;
@@ -201,7 +210,7 @@ void ControlFactory::reset(const string& detector_type )
     {
         if(ControlFactory::is_created)
         {    
-            ControlFactory::is_created = false;        
+            ControlFactory::is_created = false;
             delete my_control;                my_control = 0;     
              
 #ifdef SIMULATOR_ENABLED

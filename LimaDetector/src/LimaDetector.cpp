@@ -45,15 +45,15 @@ static const char *RcsId = "$Id:  $";
 //	The following table gives the correspondence
 //	between commands and method name.
 //
-//  Command name          |  Method name
+//  Command name|  Method name
 //	----------------------------------------
-//  State                 |  dev_state()
-//  Status                |  dev_status()
-//  DeleteRemainingFiles  |  delete_remaining_files()
-//  Snap                  |  snap()
-//  Start                 |  start()
-//  Stop                  |  stop()
-//  SetROI                |  set_roi()
+//  State   |  dev_state()
+//  Status  |  dev_status()
+//  Snap    |  snap()
+//  Start   |  start()
+//  Stop    |  stop()
+//  SetROI  |  set_roi()
+//  SetBin  |  set_bin()
 //
 //===================================================================
 
@@ -67,14 +67,12 @@ static const char *RcsId = "$Id:  $";
 
 #define MAX_ATTRIBUTE_STRING_LENGTH     256
 
-using namespace std;
-
 
 
 namespace LimaDetector_ns
 {
 
-bool  LimaDetector::is_created = false;
+bool  LimaDetector::m_is_created = false;
 
 //+----------------------------------------------------------------------------
 //
@@ -87,22 +85,19 @@ bool  LimaDetector::is_created = false;
 //
 //-----------------------------------------------------------------------------
 LimaDetector::LimaDetector(Tango::DeviceClass *cl,string &s)
-:Tango::Device_4Impl(cl,s.c_str()),
-m_dam(this)
+:Tango::Device_4Impl(cl,s.c_str())
 {
-    init_device();
+	init_device();
 }
 
 LimaDetector::LimaDetector(Tango::DeviceClass *cl,const char *s)
-:Tango::Device_4Impl(cl,s),
-m_dam(this)
+:Tango::Device_4Impl(cl,s)
 {
     init_device();
 }
 
 LimaDetector::LimaDetector(Tango::DeviceClass *cl,const char *s,const char *d)
-:Tango::Device_4Impl(cl,s,d),
-m_dam(this)
+:Tango::Device_4Impl(cl,s,d)
 {
     init_device();
 }
@@ -131,24 +126,31 @@ void LimaDetector::delete_device()
     DELETE_DEVSTRING_ATTRIBUTE(attr_detectorModel_read);
     DELETE_DEVSTRING_ATTRIBUTE(attr_acquisitionMode_read);
     DELETE_DEVSTRING_ATTRIBUTE(attr_triggerMode_read);
+    DELETE_SCALAR_ATTRIBUTE(attr_x_read);
+    DELETE_SCALAR_ATTRIBUTE(attr_y_read);
+    DELETE_SCALAR_ATTRIBUTE(attr_width_read);
+    DELETE_SCALAR_ATTRIBUTE(attr_height_read);
+    DELETE_SCALAR_ATTRIBUTE(attr_binning_read);
 
     //remove attributes from dam
-    m_dam.remove_attributes();
-
+    INFO_STREAM<<"Remove image dynamic attribute."<<endl;
+    if(m_dam!=0)
+    {
+    	m_dam->remove_attributes();
+    	delete m_dam;
+    	m_dam = 0;
+    }
     // Delete control object via the factory
+    INFO_STREAM<<"Delete the main control object via the factory."<<endl;
     if(m_ct!=0)
     {
-        if(m_img_status_cb!=0)
-        {
-            m_ct->unregisterImageStatusCallback(*m_img_status_cb);
-            m_img_status_cb = 0;
-        }
         ControlFactory::instance().reset(detectorType);
         m_ct = 0;
         m_hw = 0;
     }
 
     // Exit acquisition task
+    INFO_STREAM<<"Exit acquisition yat::DeviceTask."<<endl;
     if (m_acquisition_task)
     {
         //- ask the task to quit
@@ -159,6 +161,7 @@ void LimaDetector::delete_device()
     }
 
     //- remove the inner-appender
+    INFO_STREAM<<"Remove the inner-appender."<<endl;
     yat4tango::InnerAppender::release(this);
 
 }
@@ -180,13 +183,15 @@ void LimaDetector::init_device()
     // init some data members
     m_ct = 0;
     m_hw = 0;
+    m_acquisition_task = 0;
     m_is_device_initialized = false;
     m_status_message.str("");
 
-    //- instanciate the appender in order ton manage logs
+    //- instanciate the appender in order to manage logs
     try
     {
         //- specify both the associated device and the log buffer depth
+        INFO_STREAM<<"Create the inner-appender in order to manage logs."<<endl;
         yat4tango::InnerAppender::initialize(this, 512);
     }
     catch( Tango::DevFailed& df )
@@ -215,6 +220,12 @@ void LimaDetector::init_device()
     CREATE_DEVSTRING_ATTRIBUTE(attr_detectorModel_read,MAX_ATTRIBUTE_STRING_LENGTH);
     CREATE_DEVSTRING_ATTRIBUTE(attr_acquisitionMode_read,MAX_ATTRIBUTE_STRING_LENGTH);
     CREATE_DEVSTRING_ATTRIBUTE(attr_triggerMode_read,MAX_ATTRIBUTE_STRING_LENGTH);
+    CREATE_SCALAR_ATTRIBUTE(attr_x_read);
+    CREATE_SCALAR_ATTRIBUTE(attr_y_read);
+    CREATE_SCALAR_ATTRIBUTE(attr_width_read);
+    CREATE_SCALAR_ATTRIBUTE(attr_height_read);
+    CREATE_SCALAR_ATTRIBUTE(attr_binning_read);
+
 
 
     //----------------------------------------------------------------------------------
@@ -233,31 +244,39 @@ void LimaDetector::init_device()
         {
             case 8    :     dai.tai.data_type = Tango::DEV_UCHAR;
                 break;
+            case 16    :    dai.tai.data_type = Tango::DEV_USHORT;
+                break;
+
             case 32    :    dai.tai.data_type = Tango::DEV_ULONG;
                 break;
-            default    :    //by default 16 bits
-                            dai.tai.data_type = Tango::DEV_USHORT;
-                break;
+            default    :    //ERROR
+							INFO_STREAM<<"Initialization Failed : DetectorPixelDepth "<<"("<<detectorPixelDepth<<") is not supported!"<< endl;
+							m_status_message <<"Initialization Failed : DetectorPixelDepth "<<"("<<detectorPixelDepth<<") is not supported!"<< endl;
+							m_is_device_initialized = false;
+							set_state(Tango::INIT);
+				return;
         }
+
         dai.tai.writable = Tango::READ;
         dai.tai.disp_level = Tango::OPERATOR;
+
         dai.rcb = DynamicAttributeReadCallback::instanciate(*this, &LimaDetector::read_image_callback);
         //- add the attribute to the dam
-        m_dam.add_attribute(dai);
+        m_dam = new DynamicAttributeManager(this);
+        m_dam->add_attribute(dai);
 
-
-        ////- Manage LIMA logs verbose
+        //- Manage LIMA logs verbose
         DebParams::setModuleFlagsNameList(debugModules);
         DebParams::setTypeFlagsNameList(debugLevels);
         DebParams::setFormatFlagsNameList(debugFormats);
 
         
         //- get the main object used to pilot the lima framework
-        INFO_STREAM<<"Get the main object used to pilot/control detector through Lima."<<endl;
+        INFO_STREAM<<"Get the main control object in order to pilot the detector."<<endl;
         m_ct = ControlFactory::instance().get_control(detectorType);
 
         //- get interface to specific camera
-        INFO_STREAM<<"Get Interface to a specific camera."<<endl;
+        INFO_STREAM<<"Get Interface to the specific detector defined in DetectorType property."<<endl;
         m_hw = dynamic_cast<HwInterface*>(m_ct->hwInterface());
         if(m_hw==0)
         {
@@ -268,20 +287,8 @@ void LimaDetector::init_device()
             return;
         }
 
-
-        //To ensure that the real ROI will be used at startup
-        INFO_STREAM<<"Reload hard ROI of detector."<<endl;
-        Roi roi;
-        HwRoiCtrlObj *hw_roi;
-        m_hw->getHwCtrlObj(hw_roi);
-        if(hw_roi)
-        {
-            hw_roi->getRoi(roi);
-            m_ct->image()->setRoi(roi);
-        }
-
         //- define currentImageType of detector (16 bits, 32 bits, ...) according to "DetectorPixelDepth" device property
-        INFO_STREAM<<"Define ImageType of detector (16 bits, 32 bits, ...)."<<endl;
+        INFO_STREAM<<"Define ImageType of detector (16 bits, 32 bits, ...) according to DetectorPixelDepth property."<<endl;
         HwDetInfoCtrlObj *hw_det_info;
         m_hw->getHwCtrlObj(hw_det_info);
         switch(detectorPixelDepth)
@@ -289,28 +296,49 @@ void LimaDetector::init_device()
             case 8    :
                 hw_det_info->setCurrImageType(Bpp8);
                 break;
+            case 16    :
+                hw_det_info->setCurrImageType(Bpp16);
+                break;
             case 32    :
                 hw_det_info->setCurrImageType(Bpp32);
                 break;
-            default    :     //by default 16 bits
-                hw_det_info->setCurrImageType(Bpp16);
-                break;
+            default    :     //ERROR
+				INFO_STREAM<<"Initialization Failed : DetectorPixelDepth "<<"("<<detectorPixelDepth<<") is not supported!"<< endl;
+				m_status_message <<"Initialization Failed : DetectorPixelDepth "<<"("<<detectorPixelDepth<<") is not supported!"<< endl;
+				m_is_device_initialized = false;
+				set_state(Tango::INIT);
+				return;
         }
 
-        //- soft reset of camera Interface, re-init some parameters
-        ////@@@@INFO_STREAM<<"Reset (soft) of camera."<<endl;
-        ////@@@@m_hw->reset(HwInterface::SoftReset);
+        //- reset image, allow to redefine type image according to  CurrentImageType of the HwDetInfoCtrlObj
+        m_ct->image()->reset();
 
-        //- prepare a listen (callback) to receive some notifications from framework
-        INFO_STREAM<<"Prepare a callback to receive acquisition notifications."<<endl;
-        m_img_status_cb    = new ImageStatusCallback(*m_ct);
-        m_ct->registerImageStatusCallback(*m_img_status_cb);
+        //- reload Roi from property
+        INFO_STREAM<<"Reload ROI of detector from Roi property."<<endl;
+        Roi myRoi(0,0,0,0);
+        if((roi.at(0)<0) || (roi.at(1)<0) || (roi.at(2)<=0) || (roi.at(3)<=0)) //Roi not initialized, then we consider all detector area as Roi
+        {
+            Size size;
+            hw_det_info->getDetectorImageSize(size);
+        	myRoi= Roi(0, 0,size.getWidth(),size.getHeight());
+        }
+        else 																	//Roi is initialized, then we consider all roi property values as Roi
+        {
+        	myRoi = Roi(roi.at(0), roi.at(1),roi.at(2),roi.at(3));
+        }
+        m_ct->image()->setRoi(myRoi);
 
-        //- default nb frames of acquisition at start-up
+        //- reload Binning from property
+        INFO_STREAM<<"Reload BIN of detector from Binning property."<<endl;
+        Bin myBin(binning, binning);
+        m_ct->image()->setBin(myBin);
+
+        //- Set default nb frames of acquisition at start-up
+        INFO_STREAM<<"Set default nb. frames of acquisition at start-up to "<<attr_nbFrames_write<<"."<<endl;
         m_ct->acquisition()->setAcqNbFrames(attr_nbFrames_write);
 
-        //- parameters of ctSaving object used to store image in files
-        INFO_STREAM<<"Define parameters to store image in files."<<endl;
+        //- define parameters of ctSaving object used to store image in files
+        INFO_STREAM<<"Define parameters used to save image into a file."<<endl;
         ImageType image_type;
         hw_det_info->getCurrImageType(image_type);
         m_saving_par.directory         = fileTargetPath;
@@ -318,24 +346,23 @@ void LimaDetector::init_device()
         m_saving_par.imageType         = image_type;
         m_saving_par.indexFormat       = fileIndexPattern;
         m_saving_par.nextNumber        = 1;
-        m_saving_par.savingMode        = CtSaving::AutoFrame;
+        m_saving_par.savingMode        = CtSaving::Manual;
         m_saving_par.framesPerFile     = fileNbFrames;
         m_saving_par.nbframes          = attr_nbFrames_write;
 
-        string strFileFormat(fileFormat);
-        transform(strFileFormat.begin(), strFileFormat.end(),strFileFormat.begin(), ::toupper);
+        transform(fileFormat.begin(), fileFormat.end(),fileFormat.begin(), ::toupper);
 
-        if (strFileFormat.compare("NXS") == 0)
+        if (fileFormat.compare("NXS") == 0)
         {
             m_saving_par.fileFormat = CtSaving::NXS;
             m_saving_par.suffix = ".nxs";
         }
-        else if(strFileFormat.compare("EDF") == 0)
+        else if(fileFormat.compare("EDF") == 0)
         {
             m_saving_par.fileFormat = CtSaving::EDF;
             m_saving_par.suffix = ".edf";
         }
-        else if(strFileFormat.compare("CBF") == 0)
+        else if(fileFormat.compare("CBF") == 0)
         {
             m_saving_par.fileFormat = CtSaving::CBFFormat;
             m_saving_par.suffix = ".cbf";
@@ -345,16 +372,53 @@ void LimaDetector::init_device()
             m_saving_par.fileFormat = CtSaving::RAW;
             m_saving_par.suffix = ".raw";
         }
-
         m_ct->saving()->setParameters(m_saving_par);
 
-        //ensure to call this, only when sub device is already created by ClassFactory
-        if(LimaDetector::is_created)
-        {
-            //- force Init() on the specific sub device.
-            INFO_STREAM<<"Force Initialization on the specific sub device."<<endl;
-            ControlFactory::instance().init_specific_device(detectorType);
+        //video stuff
+        INFO_STREAM<<"Initialize video mode according to VideoMode property."<<endl;
+        std::map<string,VideoMode> 	mMyVideoMode;
+        mMyVideoMode["Y8"] 			= Y8;
+        mMyVideoMode["Y16"] 		= Y16;
+        mMyVideoMode["Y32"] 		= Y32;
+        mMyVideoMode["Y64"] 		= Y64;
+        mMyVideoMode["RGB555"] 		= RGB555;
+        mMyVideoMode["RGB565"] 		= RGB565;
+        ////@@@@ TODO resolve compatibility with tango
+        //mMyVideoMode["RGB24"] 	= lima::RGB24;
+        mMyVideoMode["RGB32"] 		= RGB32;
+        mMyVideoMode["BGR24"] 		= BGR24;
+        mMyVideoMode["BGR32"] 		= BGR32;
+        mMyVideoMode["BAYER_RG8"] 	= BAYER_RG8;
+        mMyVideoMode["BAYER_RG16"] 	= BAYER_RG16;
+        mMyVideoMode["I420"] 		= I420;
+        mMyVideoMode["YUV411"] 		= YUV411;
+        mMyVideoMode["YUV422"] 		= YUV422;
+        mMyVideoMode["YUV444"] 		= YUV444;
+
+        transform(detectorVideoMode.begin(), detectorVideoMode.end(),detectorVideoMode.begin(), ::toupper);
+        if(detectorVideoMode.compare("NONE") ==0)
+        {/*NOP*/
         }
+        else
+        {
+            map<string,VideoMode>::iterator it = mMyVideoMode.find(detectorVideoMode);
+    		if(it!= mMyVideoMode.end())
+    		{
+    			m_ct->video()->setMode(it->second);
+    		}
+    		else
+    		{
+    			INFO_STREAM<<"Initialization Failed : VideoMode "<<"("<<detectorVideoMode<<") is not supported!"<< endl;
+    			m_status_message<<"Initialization Failed : VideoMode "<<"("<<detectorVideoMode<<") is not supported!"<< endl;
+    			m_is_device_initialized = false;
+    			set_state(Tango::INIT);
+    			return;
+    		}
+
+        }
+        //- Activate video mode in order to get notification associated to image acquisition
+        INFO_STREAM<<"Activate video mode in order to get notification for each acquired image."<< endl;
+        m_ct->video()->setActive(true);
     }
     catch(Exception& e)
     {
@@ -374,7 +438,8 @@ void LimaDetector::init_device()
     }
 
     //----------------------------------------------------------------------------------
-    //- Create acqusisition Task, State = INIT if Task could not be created !
+    //- Create acquisition Task, State = INIT if Task could not be created !
+    INFO_STREAM<<"Create acquisition yat::DeviceTask."<<endl;
     if(create_acquisition_task() == false )
     {
         set_state(Tango::INIT);
@@ -382,11 +447,20 @@ void LimaDetector::init_device()
         return;
     }
 
+    //- Ensure to call this, only when sub device is already created by ClassFactory
+    if(LimaDetector::m_is_created)
+    {
+        //- force Init() on the specific sub device.
+        INFO_STREAM<<"Force Initialization on the specific sub device."<<endl;
+        ControlFactory::instance().init_specific_device(detectorType);
+    }
+
     // everything seems ok
     m_is_device_initialized = true;
+    LimaDetector::m_is_created = true;
     set_state(Tango::STANDBY);
     this->dev_state();
-    LimaDetector::is_created = true;
+
 }
 
 
@@ -408,6 +482,7 @@ void LimaDetector::get_device_property()
 	dev_prop.push_back(Tango::DbDatum("DetectorDescription"));
 	dev_prop.push_back(Tango::DbDatum("DetectorType"));
 	dev_prop.push_back(Tango::DbDatum("DetectorPixelDepth"));
+	dev_prop.push_back(Tango::DbDatum("DetectorVideoMode"));
 	dev_prop.push_back(Tango::DbDatum("FileFormat"));
 	dev_prop.push_back(Tango::DbDatum("FilePrefix"));
 	dev_prop.push_back(Tango::DbDatum("FileIndexPattern"));
@@ -416,6 +491,8 @@ void LimaDetector::get_device_property()
 	dev_prop.push_back(Tango::DbDatum("DebugModules"));
 	dev_prop.push_back(Tango::DbDatum("DebugLevels"));
 	dev_prop.push_back(Tango::DbDatum("DebugFormats"));
+	dev_prop.push_back(Tango::DbDatum("Roi"));
+	dev_prop.push_back(Tango::DbDatum("Binning"));
 
 	//	Call database and extract values
 	//--------------------------------------------
@@ -458,6 +535,17 @@ void LimaDetector::get_device_property()
 	}
 	//	And try to extract DetectorPixelDepth value from database
 	if (dev_prop[i].is_empty()==false)	dev_prop[i]  >>  detectorPixelDepth;
+
+	//	Try to initialize DetectorVideoMode from class property
+	cl_prop = ds_class->get_class_property(dev_prop[++i].name);
+	if (cl_prop.is_empty()==false)	cl_prop  >>  detectorVideoMode;
+	else {
+		//	Try to initialize DetectorVideoMode from default device value
+		def_prop = ds_class->get_default_device_property(dev_prop[i].name);
+		if (def_prop.is_empty()==false)	def_prop  >>  detectorVideoMode;
+	}
+	//	And try to extract DetectorVideoMode value from database
+	if (dev_prop[i].is_empty()==false)	dev_prop[i]  >>  detectorVideoMode;
 
 	//	Try to initialize FileFormat from class property
 	cl_prop = ds_class->get_class_property(dev_prop[++i].name);
@@ -547,6 +635,28 @@ void LimaDetector::get_device_property()
 	//	And try to extract DebugFormats value from database
 	if (dev_prop[i].is_empty()==false)	dev_prop[i]  >>  debugFormats;
 
+	//	Try to initialize Roi from class property
+	cl_prop = ds_class->get_class_property(dev_prop[++i].name);
+	if (cl_prop.is_empty()==false)	cl_prop  >>  roi;
+	else {
+		//	Try to initialize Roi from default device value
+		def_prop = ds_class->get_default_device_property(dev_prop[i].name);
+		if (def_prop.is_empty()==false)	def_prop  >>  roi;
+	}
+	//	And try to extract Roi value from database
+	if (dev_prop[i].is_empty()==false)	dev_prop[i]  >>  roi;
+
+	//	Try to initialize Binning from class property
+	cl_prop = ds_class->get_class_property(dev_prop[++i].name);
+	if (cl_prop.is_empty()==false)	cl_prop  >>  binning;
+	else {
+		//	Try to initialize Binning from default device value
+		def_prop = ds_class->get_default_device_property(dev_prop[i].name);
+		if (def_prop.is_empty()==false)	def_prop  >>  binning;
+	}
+	//	And try to extract Binning value from database
+	if (dev_prop[i].is_empty()==false)	dev_prop[i]  >>  binning;
+
 
 
     //    End of Automatic code generation
@@ -556,6 +666,7 @@ void LimaDetector::get_device_property()
     create_property_if_empty(dev_prop,"This is my simulator","DetectorDescription");
     create_property_if_empty(dev_prop,"SimulatorCCD","DetectorType");
     create_property_if_empty(dev_prop,"16","DetectorPixelDepth");
+    create_property_if_empty(dev_prop,"NONE","DetectorVideoMode");
     create_property_if_empty(dev_prop,"NXS","FileFormat");
     create_property_if_empty(dev_prop,"Image","FilePrefix");
     create_property_if_empty(dev_prop,"%06d","FileIndexPattern");
@@ -580,6 +691,17 @@ void LimaDetector::get_device_property()
     myVector.push_back("Module");
     myVector.push_back("Type");
     create_property_if_empty(dev_prop,myVector,"DebugFormats");
+
+
+
+	myVector.clear();
+	myVector.push_back("-1");
+	myVector.push_back("-1");
+	myVector.push_back("-1");
+	myVector.push_back("-1");
+	create_property_if_empty(dev_prop,myVector,"Roi");
+	
+	create_property_if_empty(dev_prop,"1","Binning");	
 
 }
 //+----------------------------------------------------------------------------
@@ -851,10 +973,7 @@ void LimaDetector::read_triggerMode(Tango::Attribute &attr)
     try
     {
         TrigMode trig_mode = IntTrig;
-
-        HwSyncCtrlObj *hw_sync;
-        m_hw->getHwCtrlObj(hw_sync);
-        hw_sync->getTrigMode(trig_mode);
+        m_ct->acquisition()->getTriggerMode(trig_mode);
 
         if (trig_mode == IntTrig)
             strcpy(*attr_triggerMode_read, "INTERNAL_SINGLE");
@@ -1016,12 +1135,70 @@ void LimaDetector::write_acquisitionMode(Tango::WAttribute &attr)
 
         //- THIS IS AN AVAILABLE ACQUISITION MODE
         m_acquisition_mode = attr_acquisitionMode_write;
-
         if(m_acquisition_mode.compare("SINGLE")==0)
+        {
             m_ct->acquisition()->setAcqMode(Single);
+        }
 
         if(m_acquisition_mode.compare("ACCUMULATION")==0)
+        {
             m_ct->acquisition()->setAcqMode(Accumulation);
+        }
+
+        if(previous.compare(m_acquisition_mode)==0)//if acquisition mode is the same than the previous one -> no need to recreate again image dynmaic attribute
+        	return;//Nothing to do .
+
+        //////*** Everytime we change acquisition mode, we have to adapt dynamic image attribute type ***//////
+        //this is due to Lima/control/Accumulation.cpp module implementation: in ACCUMULATION image type is always 32 bits
+
+        //- reset image number (this will disable the refresh of image attribute)
+        m_ct->resetStatus(false);
+
+        //remove attributes from dam
+        INFO_STREAM<<"Remove image dynamic attribute."<<endl;
+        if(m_dam!=0)
+        {
+        	m_dam->remove_attributes();
+        	delete m_dam;
+        	m_dam = 0;
+        }
+
+        //- add image dynamic attribute
+		//- create image dyn attr (UChar, UShort or ULong)
+		INFO_STREAM<<"Add image dynamic attribute."<<endl;
+		DynamicAttributeInfo dai;
+		dai.dev = this;
+		dai.tai.name = "image";
+		dai.tai.data_format = Tango::IMAGE;
+
+
+        if(m_acquisition_mode.compare("SINGLE")==0)
+        {
+            switch(detectorPixelDepth)
+            {
+                case 8    :     dai.tai.data_type = Tango::DEV_UCHAR;
+                    break;
+                case 16    :    dai.tai.data_type = Tango::DEV_USHORT;
+                    break;
+
+                case 32    :    dai.tai.data_type = Tango::DEV_ULONG;
+                    break;
+            }
+        }
+
+        if(m_acquisition_mode.compare("ACCUMULATION")==0)
+        {
+            dai.tai.data_type = Tango::DEV_ULONG;//force to 32 bits if ACCUMULATION MODE, this is due to Lima core.
+        }
+
+        dai.tai.writable = Tango::READ;
+        dai.tai.disp_level = Tango::OPERATOR;
+        dai.rcb = DynamicAttributeReadCallback::instanciate(*this, &LimaDetector::read_image_callback);
+
+        //- add the attribute to the dam
+        m_dam = new DynamicAttributeManager(this);
+        m_dam->add_attribute(dai);
+        //////*******************************************************************************************//////
     }
     catch(Tango::DevFailed& df)
     {
@@ -1056,11 +1233,7 @@ void LimaDetector::read_exposureTime(Tango::Attribute &attr)
     try
     {
         double exposure;
-
-        HwSyncCtrlObj *hw_sync;
-        m_hw->getHwCtrlObj(hw_sync);
-        hw_sync->getExpTime(exposure);
-
+        m_ct->acquisition()->getAcqExpoTime(exposure);
         *attr_exposureTime_read = (Tango::DevDouble)(exposure*1000.0);//exposure USER OUTPUT is in millisec
         attr.set_value(attr_exposureTime_read);
     }
@@ -1098,6 +1271,7 @@ void LimaDetector::write_exposureTime(Tango::WAttribute &attr)
     {
         attr.get_write_value(attr_exposureTime_write);
         m_ct->acquisition()->setAcqExpoTime((double)(attr_exposureTime_write/1000.0));//exposure USER INPUT is in millisec
+        m_ct->video()->setExposure((double)(attr_exposureTime_write/1000.0));//exposure USER INPUT is in millisec
     }
     catch(Tango::DevFailed& df)
     {
@@ -1202,6 +1376,192 @@ void LimaDetector::write_exposureAccTime(Tango::WAttribute &attr)
 
 //+----------------------------------------------------------------------------
 //
+// method : 		LimaDetector::read_x
+//
+// description : 	Extract real attribute values for x acquisition result.
+//
+//-----------------------------------------------------------------------------
+void LimaDetector::read_x(Tango::Attribute &attr)
+{
+	DEBUG_STREAM << "LimaDetector::read_x(Tango::Attribute &attr) entering... "<< endl;
+	try
+	{
+		Roi roi;
+		m_ct->image()->getRoi(roi);
+		*attr_x_read = roi.getTopLeft().x;
+		attr.set_value(attr_x_read);
+	}
+	catch(Tango::DevFailed& df)
+	{
+		ERROR_STREAM << df << endl;
+		//- rethrow exception
+		Tango::Except::re_throw_exception(df,
+					static_cast<const char*> ("TANGO_DEVICE_ERROR"),
+					static_cast<const char*> (string(df.errors[0].desc).c_str()),
+					static_cast<const char*> ("LimaDetector::read_x"));
+	}
+	catch(Exception& e)
+	{
+		ERROR_STREAM << e.getErrMsg() << endl;
+		//- throw exception
+		Tango::Except::throw_exception(
+					static_cast<const char*> ("TANGO_DEVICE_ERROR"),
+					static_cast<const char*> (e.getErrMsg().c_str()),
+					static_cast<const char*> ("LimaDetector::read_x"));
+	}
+}
+
+//+----------------------------------------------------------------------------
+//
+// method : 		LimaDetector::read_y
+//
+// description : 	Extract real attribute values for y acquisition result.
+//
+//-----------------------------------------------------------------------------
+void LimaDetector::read_y(Tango::Attribute &attr)
+{
+	DEBUG_STREAM << "LimaDetector::read_y(Tango::Attribute &attr) entering... "<< endl;
+	try
+	{
+		Roi roi;
+		m_ct->image()->getRoi(roi);
+		*attr_y_read = roi.getTopLeft().y;
+		attr.set_value(attr_y_read);
+	}
+	catch(Tango::DevFailed& df)
+	{
+		ERROR_STREAM << df << endl;
+		//- rethrow exception
+		Tango::Except::re_throw_exception(df,
+					static_cast<const char*> ("TANGO_DEVICE_ERROR"),
+					static_cast<const char*> (string(df.errors[0].desc).c_str()),
+					static_cast<const char*> ("LimaDetector::read_y"));
+	}
+	catch(Exception& e)
+	{
+		ERROR_STREAM << e.getErrMsg() << endl;
+		//- throw exception
+		Tango::Except::throw_exception(
+					static_cast<const char*> ("TANGO_DEVICE_ERROR"),
+					static_cast<const char*> (e.getErrMsg().c_str()),
+					static_cast<const char*> ("LimaDetector::read_y"));
+	}
+}
+
+//+----------------------------------------------------------------------------
+//
+// method : 		LimaDetector::read_width
+//
+// description : 	Extract real attribute values for width acquisition result.
+//
+//-----------------------------------------------------------------------------
+void LimaDetector::read_width(Tango::Attribute &attr)
+{
+	DEBUG_STREAM << "LimaDetector::read_width(Tango::Attribute &attr) entering... "<< endl;
+	try
+	{
+		Roi roi;
+		m_ct->image()->getRoi(roi);
+		*attr_width_read = roi.getSize().getWidth();
+		attr.set_value(attr_width_read);
+	}
+	catch(Tango::DevFailed& df)
+	{
+		ERROR_STREAM << df << endl;
+		//- rethrow exception
+		Tango::Except::re_throw_exception(df,
+					static_cast<const char*> ("TANGO_DEVICE_ERROR"),
+					static_cast<const char*> (string(df.errors[0].desc).c_str()),
+					static_cast<const char*> ("LimaDetector::read_width"));
+	}
+	catch(Exception& e)
+	{
+		ERROR_STREAM << e.getErrMsg() << endl;
+		//- throw exception
+		Tango::Except::throw_exception(
+					static_cast<const char*> ("TANGO_DEVICE_ERROR"),
+					static_cast<const char*> (e.getErrMsg().c_str()),
+					static_cast<const char*> ("LimaDetector::read_width"));
+	}
+}
+
+//+----------------------------------------------------------------------------
+//
+// method : 		LimaDetector::read_height
+//
+// description : 	Extract real attribute values for height acquisition result.
+//
+//-----------------------------------------------------------------------------
+void LimaDetector::read_height(Tango::Attribute &attr)
+{
+	DEBUG_STREAM << "LimaDetector::read_height(Tango::Attribute &attr) entering... "<< endl;
+	try
+	{
+		Roi roi;
+		m_ct->image()->getRoi(roi);
+		*attr_height_read = roi.getSize().getHeight();
+		attr.set_value(attr_height_read);
+	}
+	catch(Tango::DevFailed& df)
+	{
+		ERROR_STREAM << df << endl;
+		//- rethrow exception
+		Tango::Except::re_throw_exception(df,
+					static_cast<const char*> ("TANGO_DEVICE_ERROR"),
+					static_cast<const char*> (string(df.errors[0].desc).c_str()),
+					static_cast<const char*> ("LimaDetector::read_height"));
+	}
+	catch(Exception& e)
+	{
+		ERROR_STREAM << e.getErrMsg() << endl;
+		//- throw exception
+		Tango::Except::throw_exception(
+					static_cast<const char*> ("TANGO_DEVICE_ERROR"),
+					static_cast<const char*> (e.getErrMsg().c_str()),
+					static_cast<const char*> ("LimaDetector::read_height"));
+	}
+}
+
+//+----------------------------------------------------------------------------
+//
+// method : 		LimaDetector::read_binning
+//
+// description : 	Extract real attribute values for binning acquisition result.
+//
+//-----------------------------------------------------------------------------
+void LimaDetector::read_binning(Tango::Attribute &attr)
+{
+	DEBUG_STREAM << "LimaDetector::read_binning(Tango::Attribute &attr) entering... "<< endl;
+	try
+	{
+		Bin bin;
+		m_ct->image()->getBin(bin);
+		*attr_binning_read = bin.getX();
+		attr.set_value(attr_binning_read);
+	}
+	catch(Tango::DevFailed& df)
+	{
+		ERROR_STREAM << df << endl;
+		//- rethrow exception
+		Tango::Except::re_throw_exception(df,
+					static_cast<const char*> ("TANGO_DEVICE_ERROR"),
+					static_cast<const char*> (string(df.errors[0].desc).c_str()),
+					static_cast<const char*> ("LimaDetector::read_binning"));
+	}
+	catch(Exception& e)
+	{
+		ERROR_STREAM << e.getErrMsg() << endl;
+		//- throw exception
+		Tango::Except::throw_exception(
+					static_cast<const char*> ("TANGO_DEVICE_ERROR"),
+					static_cast<const char*> (e.getErrMsg().c_str()),
+					static_cast<const char*> ("LimaDetector::read_binning"));
+	}
+}
+
+
+//+----------------------------------------------------------------------------
+//
 // method :         LimaDetector::read_nbFrames
 //
 // description :     Extract real attribute values for nbFrames acquisition result.
@@ -1284,7 +1644,7 @@ void LimaDetector::read_currentFrame(Tango::Attribute &attr)
     DEBUG_STREAM << "LimaDetector::read_currentFrame(Tango::Attribute &attr) entering... "<< endl;
     try
     {
-        *attr_currentFrame_read = m_img_status_cb->get_image_number();
+        *attr_currentFrame_read = get_last_image_counter()+1;
         attr.set_value(attr_currentFrame_read);
     }
     catch(Tango::DevFailed& df)
@@ -1309,6 +1669,31 @@ void LimaDetector::read_currentFrame(Tango::Attribute &attr)
 
 //+----------------------------------------------------------------------------
 //
+// method :         LimaDetector::get_last_image_counter
+//
+//-----------------------------------------------------------------------------
+int LimaDetector::get_last_image_counter(void)
+{
+    DEBUG_STREAM << "LimaDetector::get_last_image_counter()"<<endl;
+	long long last_image_counter = 0;
+    try
+    {
+    	m_ct->video()->getLastImageCounter(last_image_counter);
+    }
+    catch(Exception& e)
+    {
+        ERROR_STREAM << e.getErrMsg() << endl;
+        //- throw exception
+        Tango::Except::throw_exception(
+                    static_cast<const char*> ("TANGO_DEVICE_ERROR"),
+                    static_cast<const char*> (e.getErrMsg().c_str()),
+                    static_cast<const char*> ("LimaDetector::get_last_image_counter"));
+	}
+	return (last_image_counter);
+}
+
+//+----------------------------------------------------------------------------
+//
 // method :         LimaDetector::read_image_callback()
 //
 // description :
@@ -1319,29 +1704,52 @@ void LimaDetector::read_image_callback(yat4tango::DynamicAttributeReadCallbackDa
     DEBUG_STREAM << "LimaDetector::read_image_callback()"<<endl;//  << cbd.dya->get_name() << endl;
     try
     {
-        if(!m_ct || !m_hw || !m_img_status_cb)
+    	if(!m_ct || !m_hw)
             return; //NOP
+    	int counter = get_last_image_counter();
 
-        //@@TODO Template this code later .
-        if((m_img_status_cb->get_last_image()->data())!=0 && (m_img_status_cb->get_image_number())>0)
-        {
-            switch (cbd.dya->get_tango_data_type())
-            {
-                case  TangoTraits<Tango::DevUChar>::type_id :     cbd.tga->set_value((Tango::DevUChar*)m_img_status_cb->get_last_image()->data(),
-                                                                                    m_img_status_cb->get_last_image()->dimensions[0],//- width
-                                                                                    m_img_status_cb->get_last_image()->dimensions[1]);//- height
-                break;
-                case  TangoTraits<Tango::DevULong>::type_id :     cbd.tga->set_value( (Tango::DevULong*)m_img_status_cb->get_last_image()->data(),
-                                                                                    m_img_status_cb->get_last_image()->dimensions[0],//- width
-                                                                                    m_img_status_cb->get_last_image()->dimensions[1]);//- height
-                break;
-                //by default 16 bits
-                default    :                                      cbd.tga->set_value( (Tango::DevUShort*)m_img_status_cb->get_last_image()->data(),
-                                                                                    m_img_status_cb->get_last_image()->dimensions[0],//- width
-                                                                                    m_img_status_cb->get_last_image()->dimensions[1]);//- height
-                break;
-            }
-        }
+    	if(counter >= 0)
+    	{
+        	DEBUG_STREAM<<"last_image_counter -> "<<counter<<endl;
+    		m_ct->video()->getLastImage(m_last_image);
+			if(m_last_image.buffer()!=0)
+			{
+				switch (cbd.dya->get_tango_data_type())
+				{
+					//8 bits
+					DEBUG_STREAM<<"image->set_value() : DevUChar"<<endl;
+					case  TangoTraits<Tango::DevUChar>::type_id :     cbd.tga->set_value(	(Tango::DevUChar*)m_last_image.buffer(),
+																							m_last_image.width(),//- width
+																							m_last_image.height()//- height
+																						);
+					break;
+
+					//16 bits
+					DEBUG_STREAM<<"image->set_value() : DevUShort"<<endl;
+					case  TangoTraits<Tango::DevUShort>::type_id :     cbd.tga->set_value( 	(Tango::DevUShort*)m_last_image.buffer(),
+																							m_last_image.width(),//- width
+																							m_last_image.height()//- height
+																						);
+					break;
+
+					//32 bits
+					DEBUG_STREAM<<"image->set_value() : DevULong"<<endl;
+					case  TangoTraits<Tango::DevULong>::type_id :     cbd.tga->set_value( 	(Tango::DevULong*)m_last_image.buffer(),
+																							m_last_image.width(),//- width
+																							m_last_image.height()//- height
+																						);
+					break;
+
+					//ERROR : resolution not supported
+					default    :
+			            //- throw exception
+			            Tango::Except::throw_exception( (const char*) ("CONFIGURATION_ERROR"),
+			                                            (const char*) ("Tango data type of image DynamicAttribute, is not supported!\n"),
+			                                            (const char*) ("LimaDetector::read_image_callback"));
+					break;
+				}
+			}
+    	}
     }
     catch(Tango::DevFailed& df)
     {
@@ -1424,51 +1832,6 @@ void LimaDetector::write_fileGeneration(Tango::WAttribute &attr)
     }
 }
 
-
-//+------------------------------------------------------------------
-/**
- *	method:	LimaDetector::delete_remaining_files
- *
- *	description:	method to execute "DeleteRemainingFiles"
- *	Remove all files in the directory defined by the property FileTargetPath
- *
- *
- */
-//+------------------------------------------------------------------
-void LimaDetector::delete_remaining_files()
-{
-    DEBUG_STREAM << "LimaDetector::delete_remaining_files(): entering... !" << endl;
-
-    //    Add your own code to control device here
-
-    try
-    {
-        yat::Message* msg = yat::Message::allocate( DEVICE_DELETE_FILES_MSG, DEFAULT_MSG_PRIORITY, true );
-        m_acquisition_task->post(msg);
-        //restart at index 1
-        if(m_ct->saving())
-            m_ct->saving()->setNextNumber(1);
-    }
-    catch(Tango::DevFailed& df)
-    {
-        ERROR_STREAM << df << endl;
-        //- rethrow exception
-        Tango::Except::re_throw_exception(df,
-                    static_cast<const char*> ("TANGO_DEVICE_ERROR"),
-                    static_cast<const char*> (string(df.errors[0].desc).c_str()),
-                    static_cast<const char*> ("LimaDetector::delete_remaining_files"));
-    }
-    catch(Exception& e)
-    {
-        ERROR_STREAM << e.getErrMsg() << endl;
-        //- throw exception
-        Tango::Except::throw_exception(
-                    static_cast<const char*> ("TANGO_DEVICE_ERROR"),
-                    static_cast<const char*> (e.getErrMsg().c_str()),
-                    static_cast<const char*> ("LimaDetector::delete_remaining_files"));
-    }
-}
-
 //+------------------------------------------------------------------
 /**
  *	method:	LimaDetector::snap
@@ -1489,7 +1852,7 @@ void LimaDetector::snap()
         if(attr_nbFrames_write == 0)
         {
             //- throw exception
-            Tango::Except::throw_exception(    (const char*) ("CONFIGURATION_ERROR"),
+            Tango::Except::throw_exception( (const char*) ("CONFIGURATION_ERROR"),
                                             (const char*) ("Snap command is not Available when 'nbFrames' is 0\nUse Start command to diplay a 'video' stream.\n"),
                                             (const char*) ("LimaDetector::snap"));
         }
@@ -1497,18 +1860,16 @@ void LimaDetector::snap()
         m_saving_par.nbframes         = attr_nbFrames_write;
         if(attr_fileGeneration_write)
         {
-            m_ct->saving()->setSavingMode(CtSaving::AutoFrame);
-            m_ct->saving()->setParameters(m_saving_par);
+            m_saving_par.savingMode        = CtSaving::AutoFrame;
         }
         else
         {
-            m_ct->saving()->setSavingMode(CtSaving::Manual);
+            m_saving_par.savingMode        = CtSaving::Manual;
         }
+        m_ct->saving()->setParameters(m_saving_par);
 
         //- in SNAP mode, we request attr_nbFrames_write frames
         m_ct->acquisition()->setAcqNbFrames(attr_nbFrames_write);
-
-        m_img_status_cb->reset_image_number();
 
         //- print some infos
         print_acq_conf();
@@ -1569,18 +1930,18 @@ void LimaDetector::start()
         m_saving_par.nbframes         = 0;
 
         //- force NO saving files in continuous mode !
-        m_ct->saving()->setSavingMode(CtSaving::Manual);
+        m_saving_par.savingMode        = CtSaving::Manual;
+        m_ct->saving()->setParameters(m_saving_par);
 
         //- in START "LIVE" mode, we request (0) as frames number
         m_ct->acquisition()->setAcqNbFrames(0);
 
-        m_img_status_cb->reset_image_number();
-
         //- print some infos
         print_acq_conf();
-        
         yat::Message* msg = yat::Message::allocate( DEVICE_START_MSG, DEFAULT_MSG_PRIORITY, true );
         m_acquisition_task->wait_msg_handled(msg, 5000);//to ensure that state was updated in lima
+
+     	m_ct->video()->setLive(true);
     }
     catch(Tango::DevFailed& df)
     {
@@ -1619,7 +1980,8 @@ void LimaDetector::stop()
     //    Add your own code to control device here
     try
     {
-        yat::Message* msg = yat::Message::allocate( DEVICE_STOP_MSG, DEFAULT_MSG_PRIORITY, true );
+    	m_ct->video()->setLive(false);
+    	yat::Message* msg = yat::Message::allocate( DEVICE_STOP_MSG, DEFAULT_MSG_PRIORITY, true );
         m_acquisition_task->wait_msg_handled(msg, 5000);//to ensure that state was updated in lima
     }
     catch(Tango::DevFailed& df)
@@ -1663,9 +2025,9 @@ void LimaDetector::set_roi(const Tango::DevVarLongArray *argin)
         if(argin->length()!= 4)
         {
             //- throw exception
-            Tango::Except::throw_exception(    (const char*) ("TANGO_DEVICE_ERROR"),
+            Tango::Except::throw_exception( (const char*) ("TANGO_DEVICE_ERROR"),
                                             (const char*) ("Invalid number of parameters. Check input parameters (x, y, width, height)\n"),
-                                            (const char*) ("PilatusPixelDetector::set_roi"));
+                                            (const char*) ("LimaDetector::set_roi"));
         }
 
         unsigned long x      = (*argin)[0];
@@ -1673,10 +2035,21 @@ void LimaDetector::set_roi(const Tango::DevVarLongArray *argin)
         unsigned long width  = (*argin)[2];
         unsigned long height = (*argin)[3];
 
+        //- reset image number (this will disable the refresh of image attribute)
+        m_ct->resetStatus(false);
+
         //- set the new ROI
         Roi roi(Point(x, y), Size(width,height));
-        m_ct->image()->resetRoi();
         m_ct->image()->setRoi(roi);
+
+        //- update Roi property
+        vector<short> myVector;
+    	myVector.clear();
+    	myVector.push_back(roi.getTopLeft().x);
+    	myVector.push_back(roi.getTopLeft().y);
+    	myVector.push_back(roi.getSize().getWidth());
+    	myVector.push_back(roi.getSize().getHeight());
+		store_value_as_property(myVector,"Roi");
     }
     catch(Tango::DevFailed& df)
     {
@@ -1698,6 +2071,69 @@ void LimaDetector::set_roi(const Tango::DevVarLongArray *argin)
     }
 
 }
+
+
+//+------------------------------------------------------------------
+/**
+ *	method:	LimaDetector::set_bin
+ *
+ *	description:	method to execute "SetBin"
+ *	Define a binning to the image. <br>
+ *	Availables values are  :<br>
+ *	1->binning(1,1)<br>
+ *	2->binning(2,2)<br>
+ *	3->binning(3,3)<br>
+ *	4->binning(4,4)<br>
+ *	8->binning(8,8)<br>
+ *
+ * @param	argin	
+ *
+ */
+//+------------------------------------------------------------------
+void LimaDetector::set_bin(Tango::DevUShort argin)
+{
+	DEBUG_STREAM << "LimaDetector::set_bin(): entering... !" << endl;
+
+	//	Add your own code to control device here
+	try
+	{
+		if(argin != 1 && argin !=2 && argin!=3 && argin!=4 && argin!=8)
+		{
+			//- throw exception
+			Tango::Except::throw_exception( (const char*) ("TANGO_DEVICE_ERROR"),
+											(const char*) ("Availables values are : 1, 2, 3, 4 or 8\n"),
+											(const char*) ("LimaDetector::set_bin"));
+		}
+
+        //- reset image number (this will disable the refresh of image attribute)
+        m_ct->resetStatus(false);
+
+		//- set the new BIN
+		Bin bin(argin, argin);
+		m_ct->image()->setBin(bin);
+		store_value_as_property(argin,"Binning");
+	}
+	catch(Tango::DevFailed& df)
+	{
+		ERROR_STREAM << df << endl;
+		//- rethrow exception
+		Tango::Except::re_throw_exception(df,
+					static_cast<const char*> ("TANGO_DEVICE_ERROR"),
+					static_cast<const char*> (string(df.errors[0].desc).c_str()),
+					static_cast<const char*> ("LimaDetector::set_bin"));
+	}
+	catch(Exception& e)
+	{
+		ERROR_STREAM << e.getErrMsg() << endl;
+		//- throw exception
+		Tango::Except::throw_exception(
+					static_cast<const char*> ("TANGO_DEVICE_ERROR"),
+					static_cast<const char*> (e.getErrMsg().c_str()),
+					static_cast<const char*> ("LimaDetector::set_bin"));
+	}
+
+}
+
 //+------------------------------------------------------------------
 /**
  *    method:    LimaDetector::dev_state
@@ -1860,38 +2296,34 @@ bool LimaDetector::create_acquisition_task(void)
 //-----------------------------------------------------------------------------
 void LimaDetector::print_acq_conf(void)
 {
-    INFO_STREAM<<"-----------------------------------------------"<<endl;
+    INFO_STREAM<<"-------------------------------------------------------"<<endl;
+    VideoMode videomode;
+    m_ct->video()->getMode(videomode);
+    INFO_STREAM<<"pixelDepth\t  = "         <<detectorPixelDepth<<endl;
+    INFO_STREAM<<"videoMode\t  = "          <<videomode<<endl;
+    INFO_STREAM<<"triggerMode\t  = "        <<m_trigger_mode<<endl;
+    INFO_STREAM<<"acquisitionMode\t  = "    <<m_acquisition_mode<<endl;
+    INFO_STREAM<<"exposureTime\t  = "       <<attr_exposureTime_write<<endl;
+    INFO_STREAM<<"exposureAccTime= "       <<attr_exposureAccTime_write<<endl;
+    INFO_STREAM<<"directory\t  = "          <<m_saving_par.directory<<endl;
+    INFO_STREAM<<"prefix\t  = "             <<m_saving_par.prefix<<endl;
+    INFO_STREAM<<"suffix\t  = "             <<m_saving_par.suffix<<endl;
+    INFO_STREAM<<"imageType\t  = "          <<m_saving_par.imageType<<endl;
+    INFO_STREAM<<"indexFormat\t  = "        <<m_saving_par.indexFormat<<endl;
+    INFO_STREAM<<"framesPerFile\t  = "      <<m_saving_par.framesPerFile<<endl;
+    INFO_STREAM<<"nbframes\t  = "           <<m_saving_par.nbframes<<endl;
+    INFO_STREAM<<"fileGeneration\t  = "     <<attr_fileGeneration_write<<endl;
 
+    //display BIN
+	Bin bin;
+	m_ct->image()->getBin(bin);
+	INFO_STREAM <<"Bin\t  = ("<<bin.getX()<<" , "<<bin.getX()<<")"<<endl;
 
-    INFO_STREAM<<"pixelDepth\t\t = "         <<detectorPixelDepth<<endl;
-    INFO_STREAM<<"triggerMode\t\t = "        <<m_trigger_mode<<endl;
-    INFO_STREAM<<"acquisitionMode\t\t = "    <<m_acquisition_mode<<endl;
-    INFO_STREAM<<"exposureTime\t\t = "       <<attr_exposureTime_write<<endl;
-    INFO_STREAM<<"exposureAccTime\t = "      <<attr_exposureAccTime_write<<endl;
-    INFO_STREAM<<"directory\t\t = "          <<m_saving_par.directory<<endl;
-    INFO_STREAM<<"prefix\t\t = "             <<m_saving_par.prefix<<endl;
-    INFO_STREAM<<"suffix\t\t = "             <<m_saving_par.suffix<<endl;
-    INFO_STREAM<<"imageType\t\t = "          <<m_saving_par.imageType<<endl;
-    INFO_STREAM<<"indexFormat\t\t = "        <<m_saving_par.indexFormat<<endl;
-    INFO_STREAM<<"framesPerFile\t\t = "      <<m_saving_par.framesPerFile<<endl;
-    INFO_STREAM<<"nbframes\t\t = "           <<m_saving_par.nbframes<<endl;
-    INFO_STREAM<<"fileGeneration\t\t = "     <<attr_fileGeneration_write<<endl;
-
+    //display ROI
     Roi roi;
-    HwRoiCtrlObj *hw_roi;
-    m_hw->getHwCtrlObj(hw_roi);
-    if(hw_roi)
-    {
-        hw_roi->getRoi(roi);
-        INFO_STREAM <<"Roi\t\t = ["  <<roi.getTopLeft().x       <<" , "
-                                    <<roi.getTopLeft().y        <<" , "
-                                    <<roi.getSize().getWidth()  <<" , "
-                                    <<roi.getSize().getHeight() <<
-                                "]"
-                    <<endl;
-    }
-
-    INFO_STREAM<<"-----------------------------------------------"<<endl;
+	m_ct->image()->getRoi(roi);
+	INFO_STREAM <<"Roi\t  = [" <<roi.getTopLeft().x<<" , "<<roi.getTopLeft().y <<" , "<<roi.getSize().getWidth()<<" , "<<roi.getSize().getHeight()<<"]"<<endl;
+    INFO_STREAM<<"-------------------------------------------------------"<<endl;
 }
 
 /*-------------------------------------------------------------------------
@@ -1970,5 +2402,21 @@ int LimaDetector::FindIndexFromPropertyName(Tango::DbData& dev_prop, string prop
     if (i == iNbProperties) return -1;
     return i;
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 }	//	namespace
