@@ -254,10 +254,14 @@ public :
 /**
  * Set crystallographic parameters reported in the image header. <br>
  *	
- *	[parm_name=value]<CARRIAGE RETURN>[parm_name=value]<CARRIAGE RETURN>...<br>
+ *	[param_name=value]<CARRIAGE RETURN>[param_name=value]<CARRIAGE RETURN>...<br>
  *	
- *	Possible values :<br>
+ *	sample :<br>
  *	DISTANCE=300\nPHI=88.5\n...\nWAVELENGTH=0.987\n\0<br>
+ *	
+ *	List of availables param_name :<br>
+ *	
+ *	
  *	@param	argin	
  *	@exception DevFailed
  */

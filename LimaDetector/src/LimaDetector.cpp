@@ -383,7 +383,7 @@ void LimaDetector::init_device()
         mMyVideoMode["Y64"] 		= Y64;
         mMyVideoMode["RGB555"] 		= RGB555;
         mMyVideoMode["RGB565"] 		= RGB565;
-        ////@@@@ TODO resolve compatibility with tango
+        ////TODO resolve compatibility with tango
         //mMyVideoMode["RGB24"] 	= lima::RGB24;
         mMyVideoMode["RGB32"] 		= RGB32;
         mMyVideoMode["BGR24"] 		= BGR24;
@@ -2402,20 +2402,6 @@ int LimaDetector::FindIndexFromPropertyName(Tango::DbData& dev_prop, string prop
     if (i == iNbProperties) return -1;
     return i;
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 

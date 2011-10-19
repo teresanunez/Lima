@@ -301,6 +301,9 @@ void AdscCCDClass::attribute_factory(vector<Tango::Attr *> &att_list)
 
 	//	Attribute : imageKind
 	imageKindAttrib	*image_kind = new imageKindAttrib();
+	Tango::UserDefaultAttrProp	image_kind_prop;
+	image_kind_prop.set_description("imageKind = 0,1, 5 if  useStoredImageDark = 0<br>\nimageKind = 5 if  useStoredImageDark = 1<br>");
+	image_kind->set_default_properties(image_kind_prop);
 	image_kind->set_memorized();
 	image_kind->set_memorized_init(false);
 	att_list.push_back(image_kind);

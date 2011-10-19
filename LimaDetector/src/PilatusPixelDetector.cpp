@@ -852,9 +852,9 @@ void PilatusPixelDetector::set_threshold_and_gain(const Tango::DevVarLongStringA
  *	description:	method to execute "SetMxSettings"
  *	Set crystallographic parameters reported in the image header. <br>
  *	
- *	[parm_name value] [parm_name value] ... <br>
+ *	[param_name value] [param_name value] ... <br>
  *	
- *	Possible values :<br>
+ *	List of availables param_name :<br>
  *	Wavelength, Energy_range, Detector_distance, Detector_Voffset, Beam_xy, <br>
  *	Beam_x, Beam_y, Flux, Filter_transmission, Start_angle, Angle_increment, <br>
  *	Detector_2theta, Polarization, Alpha, Kappa, Phi, Phi_increment, Chi, <br>
@@ -903,7 +903,7 @@ void PilatusPixelDetector::set_mx_settings(Tango::DevString argin)
  *	method:	PilatusPixelDetector::send_any_command
  *
  *	description:	method to execute "SendAnyCommand"
- *	Allow to send any commad to Camserver.<br>
+ *	Allow to send any command to Camserver.<br>
  *	See documentation of Pilatus/Camserver.
  *
  * @param	argin	
@@ -1018,6 +1018,8 @@ int PilatusPixelDetector::FindIndexFromPropertyName(Tango::DbData& dev_prop, str
     if (i == iNbProperties) return -1;
     return i;
 }
+
+
 
 
 
