@@ -2296,7 +2296,8 @@ bool LimaDetector::create_acquisition_task(void)
 //-----------------------------------------------------------------------------
 void LimaDetector::print_acq_conf(void)
 {
-    INFO_STREAM<<"-------------------------------------------------------"<<endl;
+	INFO_STREAM<<"\n"<<endl;
+	INFO_STREAM<<"-------------------------------------------------------"<<endl;
     VideoMode videomode;
     m_ct->video()->getMode(videomode);
     INFO_STREAM<<"pixelDepth\t  = "         <<detectorPixelDepth<<endl;

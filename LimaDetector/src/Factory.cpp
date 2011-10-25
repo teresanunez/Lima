@@ -42,11 +42,13 @@ CtControl* ControlFactory::get_control( const string& detector_type)
             {                
                 DbData db_data;
                 db_data.push_back(DbDatum("DetectorIP"));
+                db_data.push_back(DbDatum("DetectorPacketSize"));
                 (Tango::Util::instance()->get_database())->get_device_property(my_device_name, db_data);
                 string camera_ip;
                 db_data[0] >> camera_ip;
-                
-                my_camera_basler            = new Basler::Camera(camera_ip);
+                long packet_size = -1;
+                db_data[1] >> packet_size;
+                my_camera_basler            = new Basler::Camera(camera_ip, packet_size);
                 my_interface_basler         = new Basler::Interface(*my_camera_basler);
                 my_control                  = new CtControl(my_interface_basler);
                 ControlFactory::is_created  = true;                

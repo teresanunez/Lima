@@ -188,6 +188,7 @@ void BaslerCCD::get_device_property()
 	Tango::DbData	dev_prop;
 	dev_prop.push_back(Tango::DbDatum("DetectorIP"));
 	dev_prop.push_back(Tango::DbDatum("DetectorTimeout"));
+	dev_prop.push_back(Tango::DbDatum("DetectorPacketSize"));
 
 	//	Call database and extract values
 	//--------------------------------------------
@@ -220,12 +221,24 @@ void BaslerCCD::get_device_property()
 	//	And try to extract DetectorTimeout value from database
 	if (dev_prop[i].is_empty()==false)	dev_prop[i]  >>  detectorTimeout;
 
+	//	Try to initialize DetectorPacketSize from class property
+	cl_prop = ds_class->get_class_property(dev_prop[++i].name);
+	if (cl_prop.is_empty()==false)	cl_prop  >>  detectorPacketSize;
+	else {
+		//	Try to initialize DetectorPacketSize from default device value
+		def_prop = ds_class->get_default_device_property(dev_prop[i].name);
+		if (def_prop.is_empty()==false)	def_prop  >>  detectorPacketSize;
+	}
+	//	And try to extract DetectorPacketSize value from database
+	if (dev_prop[i].is_empty()==false)	dev_prop[i]  >>  detectorPacketSize;
+
 
 
     //    End of Automatic code generation
     //------------------------------------------------------------------
     create_property_if_empty(dev_prop,"127.0.0.1","DetectorIP");
 	create_property_if_empty(dev_prop,"11000","DetectorTimeout");
+	create_property_if_empty(dev_prop,"1500","DetectorPacketSize");
 	
 }
 //+----------------------------------------------------------------------------
@@ -480,6 +493,7 @@ int BaslerCCD::FindIndexFromPropertyName(Tango::DbData& dev_prop, string propert
     if (i == iNbProperties) return -1;
     return i;
 }
+
 
 
 }	//	namespace

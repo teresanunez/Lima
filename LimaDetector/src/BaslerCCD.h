@@ -103,6 +103,10 @@ public :
  *	During acquisition, this is the time before declaring that is no available image returned by detector. (in ms)
  */
 	Tango::DevShort	detectorTimeout;
+/**
+ *	Sets the packet size in bytes for the selected steam channel of the Transport Layer.<br>
+ */
+	Tango::DevLong	detectorPacketSize;
 //@}
 
 /**
