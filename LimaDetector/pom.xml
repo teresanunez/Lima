@@ -97,17 +97,15 @@
          <version>1.9.2</version>
       </dependency>      
     </dependencies>
-
+	
+	<scm>
+       <connection>scm:git:git://git.epn-campus.eu/repositories/Lima</connection>
+       <developerConnection>scm:git:git://git@git.epn-campus.eu/repositories/Lima</developerConnection>
+       <url>https://forge.epn-campus.eu/projects/show/lima</url>
+   </scm>
+	
    <build>
        <plugins>
-            <plugin>
-                <groupId>fr.soleil.maven.plugins</groupId>
-                <artifactId>maven-cvs-plugin</artifactId>
-                <configuration>
-                <enable>false</enable>
-                </configuration>
-            </plugin>
-
             <plugin>
                  <groupId>org.freehep</groupId>
                  <artifactId>freehep-nar-plugin</artifactId>
@@ -135,11 +133,11 @@
                         	<systemIncludePath>${env.PYLON_ROOT}/include</systemIncludePath>                          
                         	<systemIncludePath>${env.GENICAM_ROOT_V1_1}/include/genicam</systemIncludePath>
 
-							<systemIncludePath>${env.PROSILICA_ROOT}/include</systemIncludePath>           
+							<systemIncludePath>../../../camera/prosilica/sdk/include</systemIncludePath>           
 
-							<systemIncludePath>${env.ADSC_ROOT}/src_std/incl</systemIncludePath>
-							<systemIncludePath>${env.ADSC_ROOT}/src_std/detcon_lib_th</systemIncludePath>
-							<systemIncludePath>${env.ADSC_ROOT}/src_std/auxlib</systemIncludePath>
+							<systemIncludePath>../../../camera/adsc/src_std/incl</systemIncludePath>
+							<systemIncludePath>../../../camera/adsc/src_std/detcon_lib_th</systemIncludePath>
+							<systemIncludePath>../../../camera/adsc/src_std/auxlib</systemIncludePath>
 
                         </systemIncludePaths>
 
@@ -167,13 +165,13 @@
                             <lib>
                                 <name>PvAPI</name>
                                 <type>shared</type>
-                                <directory>${env.PROSILICA_ROOT}/bin/x86</directory>
+                                <directory>../../../camera/prosilica/sdk/bin/x86</directory>
                             </lib>
 
                             <lib>
                                 <name>auxlib</name>
                                 <type>shared</type>
-                                <directory>${env.ADSC_ROOT}/lib/linux</directory>
+                                <directory>../../../camera/adsc/sdk/adsc_sources/lib/linux</directory>
                             </lib>
 
                         </libs>
