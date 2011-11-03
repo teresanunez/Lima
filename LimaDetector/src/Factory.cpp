@@ -26,8 +26,8 @@ CtControl* ControlFactory::get_control( const string& detector_type)
         {        
             if(!ControlFactory::is_created)
             {
-                my_camera_simulator         = new Simulator();        
-                my_interface_simulator      = new SimuHwInterface(*my_camera_simulator);
+                my_camera_simulator         = new Simulator::Camera();
+                my_interface_simulator      = new Simulator::Interface(*my_camera_simulator);
                 my_control                  = new CtControl(my_interface_simulator);
                 ControlFactory::is_created  = true;
                 return my_control;      

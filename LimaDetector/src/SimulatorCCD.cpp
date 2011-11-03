@@ -134,7 +134,7 @@ void SimulatorCCD::init_device()
         m_ct = ControlFactory::instance().get_control("SimulatorCCD");
 
         //- get interface to specific camera
-        m_hw = dynamic_cast<SimuHwInterface*>(m_ct->hwInterface());
+        m_hw = dynamic_cast<Simulator::Interface*>(m_ct->hwInterface());
         if(m_hw==0)
         {
             INFO_STREAM<<"Initialization Failed : Unable to get the interface of camera plugin "<<"("<<"SimulatorCCD"<<") !"<< endl;
@@ -182,7 +182,7 @@ void SimulatorCCD::always_executed_hook()
 
         //- get interface to specific detector
         if(m_ct!=0)
-            m_hw = dynamic_cast<SimuHwInterface*>(m_ct->hwInterface());
+            m_hw = dynamic_cast<Simulator::Interface*>(m_ct->hwInterface());
 
     }
     catch(Exception& e)

@@ -46,8 +46,8 @@
 #include "HwInterface.h"
 #include "CtControl.h"
 #include "CtAcquisition.h"
-#include <Simulator.h>
-#include <SimuHwInterface.h>
+#include "CtImage.h"
+#include <SimulatorInterface.h>
 #include "Factory.h"
 
 #include <tango.h>
@@ -205,7 +205,7 @@ protected :
     stringstream        m_status_message;
     
     //LIMA objects
-    SimuHwInterface*     m_hw;
+    Simulator::Interface*     m_hw;
     CtControl*            m_ct;    
 };
 

@@ -79,6 +79,7 @@
          <artifactId>LimaSimulator-${aol}-shared-${mode}</artifactId>
          <version>1.1.1</version>
       </dependency>
+
       <dependency>
          <groupId>fr.soleil.lib</groupId>
          <artifactId>GDShare-${aol}-${library}-${mode}</artifactId>    
@@ -125,8 +126,7 @@
                            <define>PILATUS_ENABLED</define>
                            <define>PROSILICA_ENABLED</define>
                            <define>XPAD_ENABLED</define>
-
-                           <define>SIMULATOR_ENABLED</define>                           
+                           <define>SIMULATOR_ENABLED</define>                        
 
                         </defines>
 
@@ -145,16 +145,15 @@
 
                         <!-- exclude every detector who is NOT ENABLED -->
                         <excludes>
-<!--                        
+<!--                       
                             <exclude>Adsc*.*</exclude>
                             <exclude>Basler*.*</exclude>
                             <exclude>MarCCD*.*</exclude>
                             <exclude>Pilatus*.*</exclude>
                             <exclude>Prosilica*.*</exclude>
-                            <exclude>Xpad*.*</exclude>
-
-                            <exclude>Simulator*.*</exclude>
--->                            
+                            <exclude>Xpad*.*</exclude>                        
+	                       	<exclude>Simulator*.*</exclude>
+-->	                    
                         </excludes>
 
                         <!-- define less verbose mode for gcc-->
