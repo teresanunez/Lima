@@ -123,10 +123,7 @@ void AcquisitionTask::process_message(yat::Message& msg) throw (Tango::DevFailed
                 try
                 {                
                     set_state(Tango::RUNNING);    
-                    set_status(string("Acquisition is Running in continuous mode ..."));                    
-                    
-                    m_acq_conf.ct->prepareAcq();
-                    m_acq_conf.ct->startAcq();
+                    set_status(string("Acquisition is Running in video mode ..."));
                 }
                 catch(Tango::DevFailed &df)
                 {
@@ -151,7 +148,7 @@ void AcquisitionTask::process_message(yat::Message& msg) throw (Tango::DevFailed
                     m_acq_conf.ct->resetStatus(false);
                     set_state(Tango::STANDBY);
                     set_status(string("Waiting for request ..."));                
-                    INFO_STREAM << "Acquisition is Stoped." << endl;
+                    INFO_STREAM << "Acquisition is Stopped." << endl;
                 }
                 catch(Tango::DevFailed &df)
                 {
@@ -177,31 +174,7 @@ void AcquisitionTask::process_message(yat::Message& msg) throw (Tango::DevFailed
             }
             break;
         
-            //-----------------------------------------------------------------------------------------------         
-            case DEVICE_DELETE_FILES_MSG:
-            {
-                INFO_STREAM << "-> yat::DEVICE_DELETE_FILES_MSG" << endl;
-                try
-                {
-                    //delete *.* in the directory "file_target_path"
-                    gdshare::FileName fn(m_acq_conf.file_target_path);
-                    fn.Rmdir(false, true);
-                }
-                catch( yat::Exception& ex )
-                {                 
-                    std::stringstream my_error;
-                    my_error.str("");
-                    for(unsigned i = 0; i < ex.errors.size(); i++)
-                    {
-                        my_error<<ex.errors[i].desc<<endl;
-                    }
-                    INFO_STREAM<<my_error.str()<<endl;
-                    set_state(Tango::FAULT);
-                    set_status(my_error.str());
-                }
-            }
-            break;
-        
+            //-----------------------------------------------------------------------------------------------
         }
     }
     catch( yat::Exception& ex )
@@ -217,10 +190,8 @@ void AcquisitionTask::process_message(yat::Message& msg) throw (Tango::DevFailed
 // ============================================================================
 Tango::DevState AcquisitionTask::get_state(void) 
 {
-    {
-        yat::MutexLock scoped_lock(m_status_lock);        
-        return m_state;
-    }
+    yat::MutexLock scoped_lock(m_status_lock);
+    return m_state;
 }
 
 
@@ -229,10 +200,8 @@ Tango::DevState AcquisitionTask::get_state(void)
 // ============================================================================
 std::string AcquisitionTask::get_status (void) 
 {   
-    {
-        yat::MutexLock scoped_lock(m_status_lock);
-        return (m_status.str()+m_footer_status.str());
-    }
+    yat::MutexLock scoped_lock(m_status_lock);
+    return (m_status.str()+m_footer_status.str());
 }
 
 // ============================================================================

@@ -43,7 +43,7 @@
 <Br>
 <center>
 <h1>
-		<Br>
+LimaDetector		<Br>
 Device Attributes Description 		<Br> <Br>
 LimaDetector Class	<Br>
 </h1>
@@ -86,11 +86,26 @@ Revision:  - Author:
 <Tr><Td><b>acquisitionMode</b>: <Font Size=-1>Available Acquisition Modes :<br> SINGLE<br> ACCUMULATION<br> </Font></Td>
 <Td><Center><Font Size=-1>DEV_STRING</Font></Center></Td><Td><Center><Font Size=-1>READ_WRITE</Font></Center></Td><Td><Center><Font Size=-1>No</Font></Center></Td></Tr>
 
-<Tr><Td><b>exposureTime</b>: <Font Size=-1>Set/Get exposure time (in ms)</Font></Td>
+<Tr><Td><b>exposureTime</b>: <Font Size=-1>Set/Get exposure time (in ms).<br> Nota : <br> In video mode (acquisition launched by Start), exposure time can be changed during acquistion.</Font></Td>
 <Td><Center><Font Size=-1>DEV_DOUBLE</Font></Center></Td><Td><Center><Font Size=-1>READ_WRITE</Font></Center></Td><Td><Center><Font Size=-1>No</Font></Center></Td></Tr>
 
 <Tr><Td><b>exposureAccTime</b>: <Font Size=-1>Set/Get exposure time ONLY in mode ACCUMULATION (in ms)<br></Font></Td>
 <Td><Center><Font Size=-1>DEV_DOUBLE</Font></Center></Td><Td><Center><Font Size=-1>READ_WRITE</Font></Center></Td><Td><Center><Font Size=-1>No</Font></Center></Td></Tr>
+
+<Tr><Td><b>x</b>: <Font Size=-1>Region of Interest . (Origin X)</Font></Td>
+<Td><Center><Font Size=-1>DEV_USHORT</Font></Center></Td><Td><Center><Font Size=-1>READ</Font></Center></Td><Td><Center><Font Size=-1>No</Font></Center></Td></Tr>
+
+<Tr><Td><b>y</b>: <Font Size=-1>Region of Interest . (Origin Y)</Font></Td>
+<Td><Center><Font Size=-1>DEV_USHORT</Font></Center></Td><Td><Center><Font Size=-1>READ</Font></Center></Td><Td><Center><Font Size=-1>No</Font></Center></Td></Tr>
+
+<Tr><Td><b>width</b>: <Font Size=-1>Region of Interest . (Width)</Font></Td>
+<Td><Center><Font Size=-1>DEV_USHORT</Font></Center></Td><Td><Center><Font Size=-1>READ</Font></Center></Td><Td><Center><Font Size=-1>No</Font></Center></Td></Tr>
+
+<Tr><Td><b>height</b>: <Font Size=-1>Region of Interest . (Height)</Font></Td>
+<Td><Center><Font Size=-1>DEV_USHORT</Font></Center></Td><Td><Center><Font Size=-1>READ</Font></Center></Td><Td><Center><Font Size=-1>No</Font></Center></Td></Tr>
+
+<Tr><Td><b>binning</b>: <Font Size=-1>Current Binning value</Font></Td>
+<Td><Center><Font Size=-1>DEV_SHORT</Font></Center></Td><Td><Center><Font Size=-1>READ</Font></Center></Td><Td><Center><Font Size=-1>No</Font></Center></Td></Tr>
 
 <Tr><Td><b>nbFrames</b>: <Font Size=-1>Define the number of frames to acquire.</Font></Td>
 <Td><Center><Font Size=-1>DEV_LONG</Font></Center></Td><Td><Center><Font Size=-1>READ_WRITE</Font></Center></Td><Td><Center><Font Size=-1>No</Font></Center></Td></Tr>

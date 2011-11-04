@@ -14,7 +14,7 @@
 #include <tango.h>
 
 #ifdef SIMULATOR_ENABLED
-#include <SimuHwInterface.h>
+#include <SimulatorInterface.h>
 #endif
 
 #ifdef BASLER_ENABLED  
@@ -59,8 +59,8 @@ public:
 
 private:  
 #ifdef SIMULATOR_ENABLED
-	Simulator*                     my_camera_simulator;
-	SimuHwInterface*               my_interface_simulator;
+	Simulator::Camera*             my_camera_simulator;
+	Simulator::Interface*          my_interface_simulator;
 #endif
 
 #ifdef BASLER_ENABLED  

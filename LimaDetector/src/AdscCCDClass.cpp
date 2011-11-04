@@ -301,6 +301,9 @@ void AdscCCDClass::attribute_factory(vector<Tango::Attr *> &att_list)
 
 	//	Attribute : imageKind
 	imageKindAttrib	*image_kind = new imageKindAttrib();
+	Tango::UserDefaultAttrProp	image_kind_prop;
+	image_kind_prop.set_description("imageKind = 0,1, 5 if  useStoredImageDark = 0<br>\nimageKind = 5 if  useStoredImageDark = 1<br>");
+	image_kind->set_default_properties(image_kind_prop);
 	image_kind->set_memorized();
 	image_kind->set_memorized_init(false);
 	att_list.push_back(image_kind);
@@ -364,6 +367,21 @@ void AdscCCDClass::set_default_property()
 	vector<string>	vect_data;
 	//	Set Default Class Properties
 	//	Set Default Device Properties
+	prop_name = "UseReader";
+	prop_desc = "Enable/Disable monitoring of directory receiving image files.\n[default = enable reading directory]";
+	prop_def  = "true";
+	vect_data.clear();
+	vect_data.push_back("true");
+	if (prop_def.length()>0)
+	{
+		Tango::DbDatum	data(prop_name);
+		data << vect_data ;
+		dev_def_prop.push_back(data);
+		add_wiz_dev_prop(prop_name, prop_desc,  prop_def);
+	}
+	else
+		add_wiz_dev_prop(prop_name, prop_desc);
+
 }
 //+----------------------------------------------------------------------------
 //

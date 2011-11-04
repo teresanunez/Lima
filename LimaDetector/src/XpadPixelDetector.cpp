@@ -126,7 +126,7 @@ void XpadPixelDetector::delete_device()
 	//!!!! ONLY LimaDetector device can do this !!!!
 	//if(m_ct!=0)
 	//{
-	//	ControlFactory::instance().reset("Simulator");
+	//	ControlFactory::instance().reset("XpadPixelDetector");
 	//	m_ct = 0;
 	//}
 }
@@ -299,7 +299,25 @@ void XpadPixelDetector::get_device_property()
 //-----------------------------------------------------------------------------
 void XpadPixelDetector::always_executed_hook()
 {
+    try
+    {
+    	//- get the singleton control objet used to pilot the lima framework
+        m_ct = ControlFactory::instance().get_control("XpadPixelDetector");
 
+        //- get interface to specific detector
+        if(m_ct!=0)
+            m_hw = dynamic_cast<Xpad::Interface*>(m_ct->hwInterface());
+
+    }
+    catch(Exception& e)
+    {
+        ERROR_STREAM << e.getErrMsg() << endl;
+        //- throw exception
+        Tango::Except::throw_exception(
+                    static_cast<const char*> ("TANGO_DEVICE_ERROR"),
+                    static_cast<const char*> (e.getErrMsg().c_str()),
+                    static_cast<const char*> ("XpadPixelDetector::always_executed_hook"));
+    }
 }
 //+----------------------------------------------------------------------------
 //
@@ -940,9 +958,29 @@ Tango::DevState XpadPixelDetector::dev_state()
 		m_ct->getStatus(status);
 		if (status.AcquisitionStatus == lima::AcqReady)
 		{
-			DeviceState=Tango::STANDBY;
-			DeviceStatus<<"Waiting for Request ...\n"<<endl;
-		}		
+			HwInterface::StatusType state;
+			m_hw->getStatus(state);
+			if(state.acq == AcqRunning && state.det == DetExposure)
+			{
+				DeviceState=Tango::RUNNING;
+				DeviceStatus<<"Acquisition is Running ...\n"<<endl;
+			}
+			else if(state.acq == AcqFault && state.det == DetFault)
+			{
+				DeviceState=Tango::INIT;//INIT
+				DeviceStatus<<"Acquisition is in Init\n"<<endl;
+			}
+			else if(state.acq == AcqFault && state.det == DetIdle)
+			{
+				DeviceState=Tango::FAULT;//FAULT
+				DeviceStatus<<"Acquisition is in Fault\n"<<endl;
+			}
+			else
+			{
+				DeviceState=Tango::STANDBY;
+				DeviceStatus<<"Waiting for Request ...\n"<<endl;
+			}
+		}
 		else if(status.AcquisitionStatus == lima::AcqRunning)
 		{
 			DeviceState=Tango::RUNNING;
@@ -950,8 +988,18 @@ Tango::DevState XpadPixelDetector::dev_state()
 		}
 		else
 		{
-			DeviceState=Tango::FAULT;//FAULT
-			DeviceStatus<<"Acquisition is in Fault\n"<<endl;
+			HwInterface::StatusType state;
+			m_hw->getStatus(state);
+			if(state.acq == AcqFault && state.det == DetFault)
+			{
+				DeviceState=Tango::INIT;//INIT
+				DeviceStatus<<"Acquisition is in Init\n"<<endl;
+			}
+			else
+			{
+			  DeviceState=Tango::FAULT;//FAULT
+			  DeviceStatus<<"Acquisition is in Fault\n"<<endl;
+			}
 		}
 	}
 	

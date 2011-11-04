@@ -269,28 +269,7 @@ void MarCCDClass::device_factory(const Tango::DevVarStringArray *devlist_ptr)
 	//-------------------------------------------------------------
 
 }
-//+----------------------------------------------------------------------------
-//	Method: MarCCDClass::attribute_factory(vector<Tango::Attr *> &att_list)
-//-----------------------------------------------------------------------------
-void MarCCDClass::attribute_factory(vector<Tango::Attr *> &att_list)
-{
-	//	Attribute : binnig
-	binnigAttrib	*binnig = new binnigAttrib();
-	Tango::UserDefaultAttrProp	binnig_prop;
-	binnig_prop.set_label("binning");
-	binnig_prop.set_unit(" ");
-	binnig_prop.set_standard_unit(" ");
-	binnig_prop.set_display_unit(" ");
-	binnig_prop.set_format("%1d");
-	binnig_prop.set_max_value("4");
-	binnig_prop.set_min_value("0");
-	binnig_prop.set_description("Choose binning : lower binning yelds higher resolution data frames. <Br>\nPossible values :  <Br>\n0 -> 1x1  <Br>\n1 -> 2x2  <Br>\n2 -> 3x3  <Br>\n3 -> 4x4  <Br>\n4 -> 8x8  <Br>");
-	binnig->set_default_properties(binnig_prop);
-	att_list.push_back(binnig);
 
-	//	End of Automatic code generation
-	//-------------------------------------------------------------
-}
 
 
 

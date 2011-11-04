@@ -26,8 +26,8 @@ CtControl* ControlFactory::get_control( const string& detector_type)
         {        
             if(!ControlFactory::is_created)
             {
-                my_camera_simulator         = new Simulator();        
-                my_interface_simulator      = new SimuHwInterface(*my_camera_simulator);
+                my_camera_simulator         = new Simulator::Camera();
+                my_interface_simulator      = new Simulator::Interface(*my_camera_simulator);
                 my_control                  = new CtControl(my_interface_simulator);
                 ControlFactory::is_created  = true;
                 return my_control;      
@@ -42,11 +42,13 @@ CtControl* ControlFactory::get_control( const string& detector_type)
             {                
                 DbData db_data;
                 db_data.push_back(DbDatum("DetectorIP"));
+                db_data.push_back(DbDatum("DetectorPacketSize"));
                 (Tango::Util::instance()->get_database())->get_device_property(my_device_name, db_data);
                 string camera_ip;
                 db_data[0] >> camera_ip;
-                
-                my_camera_basler            = new Basler::Camera(camera_ip);
+                long packet_size = -1;
+                db_data[1] >> packet_size;
+                my_camera_basler            = new Basler::Camera(camera_ip, packet_size);
                 my_interface_basler         = new Basler::Interface(*my_camera_basler);
                 my_control                  = new CtControl(my_interface_basler);
                 ControlFactory::is_created  = true;                
@@ -142,7 +144,16 @@ CtControl* ControlFactory::get_control( const string& detector_type)
         
             if(!ControlFactory::is_created)
             {
-                my_camera_adsc                = new Adsc::Camera();
+                DbData db_data;
+                db_data.push_back(DbDatum("UseReader"));
+                (Tango::Util::instance()->get_database())->get_device_property(my_device_name, db_data);
+                bool use_reader;
+                db_data[0] >> use_reader;
+            	my_camera_adsc                = new Adsc::Camera();
+                if(my_camera_adsc && use_reader)
+                	my_camera_adsc->enableDirectoryWatcher();
+                if(my_camera_adsc && !use_reader)
+                	my_camera_adsc->disableDirectoryWatcher();
                 my_interface_adsc             = new Adsc::Interface(*my_camera_adsc);
                 my_control                    = new CtControl(my_interface_adsc);
                 ControlFactory::is_created    = true;
@@ -201,7 +212,7 @@ void ControlFactory::reset(const string& detector_type )
     {
         if(ControlFactory::is_created)
         {    
-            ControlFactory::is_created = false;        
+            ControlFactory::is_created = false;
             delete my_control;                my_control = 0;     
              
 #ifdef SIMULATOR_ENABLED

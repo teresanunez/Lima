@@ -104,6 +104,11 @@ public :
  * Device properties member data.
  */
 //@{
+/**
+ *	Enable/Disable monitoring of directory receiving image files.
+ *	[default = enable reading directory]
+ */
+	Tango::DevBoolean	useReader;
 //@}
 
 /**
@@ -249,10 +254,14 @@ public :
 /**
  * Set crystallographic parameters reported in the image header. <br>
  *	
- *	[parm_name=value]<CARRIAGE RETURN>[parm_name=value]<CARRIAGE RETURN>...<br>
+ *	[param_name=value]<CARRIAGE RETURN>[param_name=value]<CARRIAGE RETURN>...<br>
  *	
- *	Possible values :<br>
+ *	sample :<br>
  *	DISTANCE=300\nPHI=88.5\n...\nWAVELENGTH=0.987\n\0<br>
+ *	
+ *	List of availables param_name :<br>
+ *	
+ *	
  *	@param	argin	
  *	@exception DevFailed
  */
@@ -272,6 +281,14 @@ public :
 protected :	
 	//	Add your own data members here
 	//-----------------------------------------
+	//- Store the values into the property
+	//- Properties stuff
+	int             FindIndexFromPropertyName(Tango::DbData& dev_prop, string property_name);
+	template <class T>
+	void            create_property_if_empty(Tango::DbData& dev_prop,T value, string property_name);
+	template <class T>
+	void            store_value_as_property(T value, string property_name);
+
     bool                    m_is_device_initialized ;
     stringstream            m_status_message;
 
