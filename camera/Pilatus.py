@@ -89,6 +89,10 @@ class Pilatus(PyTango.Device_4Impl):
         self.set_state(PyTango.DevState.ON)
         self.get_device_properties(self.get_device_class())
 
+        if self.TmpfsSize:
+            buffer = _PilatusIterface.buffer()
+            buffer.setTmpfsSize(self.TmpfsSize * 1024 * 1024)
+            
 #------------------------------------------------------------------
 #    getAttrStringValueList command:
 #
@@ -262,6 +266,9 @@ class PilatusClass(PyTango.DeviceClass):
 
     #    Device Properties
     device_property_list = {
+        'TmpfsSize' :
+        [PyTango.DevInt,
+         "Size of communication temp. filesystem (in MB)",0],
         }
 
 
