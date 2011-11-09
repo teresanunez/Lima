@@ -1941,7 +1941,7 @@ void LimaDetector::start()
         yat::Message* msg = yat::Message::allocate( DEVICE_START_MSG, DEFAULT_MSG_PRIORITY, true );
         m_acquisition_task->wait_msg_handled(msg, 5000);//to ensure that state was updated in lima
 
-     	m_ct->video()->setLive(true);
+     	m_ct->video()->startLive();
     }
     catch(Tango::DevFailed& df)
     {
@@ -1980,7 +1980,7 @@ void LimaDetector::stop()
     //    Add your own code to control device here
     try
     {
-    	m_ct->video()->setLive(false);
+    	m_ct->video()->stopLive();
     	yat::Message* msg = yat::Message::allocate( DEVICE_STOP_MSG, DEFAULT_MSG_PRIORITY, true );
         m_acquisition_task->wait_msg_handled(msg, 5000);//to ensure that state was updated in lima
     }
