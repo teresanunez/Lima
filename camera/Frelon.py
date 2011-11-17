@@ -121,8 +121,9 @@ class Frelon(PyTango.Device_4Impl):
                     callable_obj = CallableReadEnum(d,function2Call)
                 else:
                     functionName = 'set' + attr_name
-                    function2Call = getattr(_FrelonAcq,function2Call)
-                    callable_obj = CallableWriteEnum(d,function2Call)
+                    function2Call = getattr(_FrelonAcq,functionName)
+                    callable_obj = CallableWriteEnum('_'.join(split_name),
+                                                     d,function2Call)
                 self.__dict__[name] = callable_obj
                 return callable_obj
         raise AttributeError('Frelon has no attribute %s' % name)
