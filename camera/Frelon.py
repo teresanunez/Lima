@@ -230,7 +230,6 @@ def get_control(espia_dev_nb = 0,**keys) :
     global _FrelonAcq
     if _FrelonAcq is None:
 	_FrelonAcq = FrelonAcq.FrelonAcq(int(espia_dev_nb))
-	_FrelonAcq.m_cam.setMaxImageSizeCallbackActive(True)
     return _FrelonAcq.getGlobalControl() 
 
 def get_tango_specific_class_n_device():
