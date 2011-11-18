@@ -33,15 +33,15 @@
 #ifndef _XPADPIXELDETECTOR_H
 #define _XPADPIXELDETECTOR_H
 
-#include <tango.h>
+
 #include "HwInterface.h"
 #include "CtControl.h"
 #include "CtAcquisition.h"
 #include "CtImage.h"
-
 #include <XpadInterface.h>
-
 #include "Factory.h"
+
+#include <tango.h>
 //using namespace Tango;
 
 /**
@@ -396,7 +396,7 @@ public :
 	virtual Tango::DevState	dev_state();
 /**
  * Load a Flat config, for each pixel
- *	@param	argin	Flat value
+ *	@param	argin	Flat value to be loaded
  *	@exception DevFailed
  */
 	void	load_flat_config(Tango::DevULong);
@@ -459,8 +459,8 @@ protected :
 	void set_all_f_parameters();
 
 	//lima OBJECTS
-	XpadInterface* 		m_hw;
-	CtControl*			m_ct;
+	Xpad::Interface* 		m_hw;
+	CtControl*			  m_ct;
 };
 
 }	// namespace_ns

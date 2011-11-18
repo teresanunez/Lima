@@ -33,11 +33,11 @@ static const char *HttpServer = "http://www.esrf.fr/computing/cs/tango/tango_doc
 //=============================================================================
 
 
-#include <tango.h>
 
 #include <PilatusPixelDetector.h>
 #include <PilatusPixelDetectorClass.h>
 
+#include <tango.h>
 
 //+----------------------------------------------------------------------------
 /**
@@ -61,7 +61,7 @@ namespace PilatusPixelDetector_ns
 {
 //+----------------------------------------------------------------------------
 //
-// method : 		SetMxSettingsClass::execute()
+// method : 		SendAnyCommandCmd::execute()
 // 
 // description : 	method to trigger the execution of the command.
 //                PLEASE DO NOT MODIFY this method core without pogo   
@@ -72,10 +72,35 @@ namespace PilatusPixelDetector_ns
 // returns : The command output data (packed in the Any object)
 //
 //-----------------------------------------------------------------------------
-CORBA::Any *SetMxSettingsClass::execute(Tango::DeviceImpl *device,const CORBA::Any &in_any)
+CORBA::Any *SendAnyCommandCmd::execute(Tango::DeviceImpl *device,const CORBA::Any &in_any)
 {
 
-	cout2 << "SetMxSettingsClass::execute(): arrived" << endl;
+	cout2 << "SendAnyCommandCmd::execute(): arrived" << endl;
+
+	Tango::DevString	argin;
+	extract(in_any, argin);
+
+	((static_cast<PilatusPixelDetector *>(device))->send_any_command(argin));
+	return new CORBA::Any();
+}
+
+//+----------------------------------------------------------------------------
+//
+// method : 		SetMxSettingsCmd::execute()
+// 
+// description : 	method to trigger the execution of the command.
+//                PLEASE DO NOT MODIFY this method core without pogo   
+//
+// in : - device : The device on which the command must be executed
+//		- in_any : The command input data
+//
+// returns : The command output data (packed in the Any object)
+//
+//-----------------------------------------------------------------------------
+CORBA::Any *SetMxSettingsCmd::execute(Tango::DeviceImpl *device,const CORBA::Any &in_any)
+{
+
+	cout2 << "SetMxSettingsCmd::execute(): arrived" << endl;
 
 	Tango::DevString	argin;
 	extract(in_any, argin);
@@ -84,12 +109,21 @@ CORBA::Any *SetMxSettingsClass::execute(Tango::DeviceImpl *device,const CORBA::A
 	return new CORBA::Any();
 }
 
+
+
+
+
+
+
+
+
+
 //+----------------------------------------------------------------------------
 //
 // method : 		SetThresholdAndGainCmd::execute()
-// 
+//
 // description : 	method to trigger the execution of the command.
-//                PLEASE DO NOT MODIFY this method core without pogo   
+//                PLEASE DO NOT MODIFY this method core without pogo
 //
 // in : - device : The device on which the command must be executed
 //		- in_any : The command input data
@@ -123,7 +157,7 @@ PilatusPixelDetectorClass *PilatusPixelDetectorClass::_instance = NULL;
 //+----------------------------------------------------------------------------
 //
 // method : 		PilatusPixelDetectorClass::PilatusPixelDetectorClass(string &s)
-// 
+//
 // description : 	constructor for the PilatusPixelDetectorClass
 //
 // in : - s : The class name
@@ -136,14 +170,14 @@ PilatusPixelDetectorClass::PilatusPixelDetectorClass(string &s):DeviceClass(s)
 	set_default_property();
 	get_class_property();
 	write_class_property();
-	
+
 	cout2 << "Leaving PilatusPixelDetectorClass constructor" << endl;
 
 }
 //+----------------------------------------------------------------------------
 //
 // method : 		PilatusPixelDetectorClass::~PilatusPixelDetectorClass()
-// 
+//
 // description : 	destructor for the PilatusPixelDetectorClass
 //
 //-----------------------------------------------------------------------------
@@ -204,7 +238,12 @@ void PilatusPixelDetectorClass::command_factory()
 		"",
 		"",
 		Tango::OPERATOR));
-	command_list.push_back(new SetMxSettingsClass("SetMxSettings",
+	command_list.push_back(new SetMxSettingsCmd("SetMxSettings",
+		Tango::DEV_STRING, Tango::DEV_VOID,
+		"",
+		"",
+		Tango::OPERATOR));
+	command_list.push_back(new SendAnyCommandCmd("SendAnyCommand",
 		Tango::DEV_STRING, Tango::DEV_VOID,
 		"",
 		"",
@@ -306,15 +345,48 @@ void PilatusPixelDetectorClass::attribute_factory(vector<Tango::Attr *> &att_lis
 {
 	//	Attribute : threshold
 	thresholdAttrib	*threshold = new thresholdAttrib();
+	Tango::UserDefaultAttrProp	threshold_prop;
+	threshold_prop.set_description("Define a new threshold (in eV).");
+	threshold->set_default_properties(threshold_prop);
 	threshold->set_memorized();
-	threshold->set_memorized_init(true);
+	threshold->set_memorized_init(false);
 	att_list.push_back(threshold);
 
 	//	Attribute : gain
 	gainAttrib	*gain = new gainAttrib();
+	Tango::UserDefaultAttrProp	gain_prop;
+	gain_prop.set_description("Available Gain values :<br>\nLOW<br>\nMID<br>\nHIGH<br>\nUHIGH<br>");
+	gain->set_default_properties(gain_prop);
 	gain->set_memorized();
-	gain->set_memorized_init(true);
+	gain->set_memorized_init(false);
 	att_list.push_back(gain);
+
+	//	Attribute : imagePath
+	imagePathAttrib	*image_path = new imagePathAttrib();
+	Tango::UserDefaultAttrProp	image_path_prop;
+	image_path_prop.set_description("Change the image path.<br>\n<br>\nIf the directory does not exist, it will be created if it is possible to do so with write permission.<br>\nA path relative to the current path is accepted.<br>");
+	image_path->set_default_properties(image_path_prop);
+	image_path->set_memorized();
+	image_path->set_memorized_init(false);
+	att_list.push_back(image_path);
+
+	//	Attribute : fileName
+	fileNameAttrib	*file_name = new fileNameAttrib();
+	Tango::UserDefaultAttrProp	file_name_prop;
+	file_name_prop.set_description("Image file pattern name.");
+	file_name->set_default_properties(file_name_prop);
+	file_name->set_memorized();
+	file_name->set_memorized_init(false);
+	att_list.push_back(file_name);
+
+	//	Attribute : latency
+	latencyAttrib	*latency = new latencyAttrib();
+	Tango::UserDefaultAttrProp	latency_prop;
+	latency_prop.set_description("Define latency time (redout time ) of the detector (in ms).");
+	latency->set_default_properties(latency_prop);
+	latency->set_memorized();
+	latency->set_memorized_init(true);
+	att_list.push_back(latency);
 
 	//	End of Automatic code generation
 	//-------------------------------------------------------------
@@ -326,7 +398,7 @@ void PilatusPixelDetectorClass::attribute_factory(vector<Tango::Attr *> &att_lis
 //+----------------------------------------------------------------------------
 //
 // method : 		PilatusPixelDetectorClass::get_class_property()
-// 
+//
 // description : 	Read the class properties from database.
 //
 //-----------------------------------------------------------------------------
@@ -370,6 +442,51 @@ void PilatusPixelDetectorClass::set_default_property()
 	vector<string>	vect_data;
 	//	Set Default Class Properties
 	//	Set Default Device Properties
+	prop_name = "DetectorPort";
+	prop_desc = "Socket Port of the Detector.";
+	prop_def  = "6666";
+	vect_data.clear();
+	vect_data.push_back("6666");
+	if (prop_def.length()>0)
+	{
+		Tango::DbDatum	data(prop_name);
+		data << vect_data ;
+		dev_def_prop.push_back(data);
+		add_wiz_dev_prop(prop_name, prop_desc,  prop_def);
+	}
+	else
+		add_wiz_dev_prop(prop_name, prop_desc);
+
+	prop_name = "DetectorIP";
+	prop_desc = "Socket Port of the Detector .";
+	prop_def  = "-1";
+	vect_data.clear();
+	vect_data.push_back("-1");
+	if (prop_def.length()>0)
+	{
+		Tango::DbDatum	data(prop_name);
+		data << vect_data ;
+		dev_def_prop.push_back(data);
+		add_wiz_dev_prop(prop_name, prop_desc,  prop_def);
+	}
+	else
+		add_wiz_dev_prop(prop_name, prop_desc);
+
+	prop_name = "UseReader";
+	prop_desc = "Enable/Disable monitoring of directory receiving image files.\n[default = enable reading directory]";
+	prop_def  = "true";
+	vect_data.clear();
+	vect_data.push_back("true");
+	if (prop_def.length()>0)
+	{
+		Tango::DbDatum	data(prop_name);
+		data << vect_data ;
+		dev_def_prop.push_back(data);
+		add_wiz_dev_prop(prop_name, prop_desc,  prop_def);
+	}
+	else
+		add_wiz_dev_prop(prop_name, prop_desc);
+
 }
 //+----------------------------------------------------------------------------
 //

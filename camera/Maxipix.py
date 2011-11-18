@@ -481,7 +481,7 @@ class Maxipix(PyTango.Device_4Impl):
     ## @brief read the trigger_level
     # LOW_FALL-0, HIGH_RISE-1
     def read_trigger_level(self,attr) :
-        trigger_level  = self.__getMaxipixAttr('gate_level')
+        trigger_level  = self.__getMaxipixAttr('trigger_level')
         attr.set_value(trigger_level)
 
     ## @brief Write the trigger_level

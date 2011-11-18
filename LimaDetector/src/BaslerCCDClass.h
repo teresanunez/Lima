@@ -37,9 +37,9 @@
 #ifndef _BASLERCCDCLASS_H
 #define _BASLERCCDCLASS_H
 
-#include <tango.h>
 #include <BaslerCCD.h>
 
+#include <tango.h>
 
 namespace BaslerCCD_ns
 {//=====================================

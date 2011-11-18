@@ -58,10 +58,11 @@ static const char *RcsId = "$Id:  $";
 //===================================================================
 
 
-#include <tango.h>
-#include <PogoHelper.h>
+
 #include <XpadPixelDetector.h>
 #include <XpadPixelDetectorClass.h>
+#include <tango.h>
+#include <PogoHelper.h>
 
 namespace XpadPixelDetector_ns
 {
@@ -117,15 +118,15 @@ void XpadPixelDetector::delete_device()
 	DELETE_SCALAR_ATTRIBUTE(attr_gp3_read);
 	DELETE_SCALAR_ATTRIBUTE(attr_gp4_read);
 
-	DELETE_IMAGE_ATTRIBUTE(attr_dacl_read);
+	/*DELETE_IMAGE_ATTRIBUTE(attr_dacl_read);
 	DELETE_IMAGE_ATTRIBUTE(attr_ithl_read);
 	DELETE_IMAGE_ATTRIBUTE(my_attr_dacl_write);
-	DELETE_IMAGE_ATTRIBUTE(my_attr_ithl_write);
+	DELETE_IMAGE_ATTRIBUTE(my_attr_ithl_write);*/
 	
 	//!!!! ONLY LimaDetector device can do this !!!!
 	//if(m_ct!=0)
 	//{
-	//	ControlFactory::instance().reset("SimulatorCCD");
+	//	ControlFactory::instance().reset("XpadPixelDetector");
 	//	m_ct = 0;
 	//}
 }
@@ -157,11 +158,10 @@ void XpadPixelDetector::init_device()
 	CREATE_SCALAR_ATTRIBUTE(attr_gp3_read);
 	CREATE_SCALAR_ATTRIBUTE(attr_gp4_read);
 
-	CREATE_IMAGE_ATTRIBUTE(attr_dacl_read,560,960);
+	/*CREATE_IMAGE_ATTRIBUTE(attr_dacl_read,560,960);
 	CREATE_IMAGE_ATTRIBUTE(attr_ithl_read,7,8);
-
 	CREATE_IMAGE_ATTRIBUTE(my_attr_dacl_write,560,960);
-	CREATE_IMAGE_ATTRIBUTE(my_attr_ithl_write,7,8);
+	CREATE_IMAGE_ATTRIBUTE(my_attr_ithl_write,7,8);*/
 
 	m_is_device_initialized = true;
 	set_state(Tango::INIT);		
@@ -195,7 +195,7 @@ void XpadPixelDetector::init_device()
 		}
 		
 		//- get interface to specific detector
-		m_hw = dynamic_cast<XpadInterface*>(m_ct->hwInterface());
+		m_hw = dynamic_cast<Xpad::Interface*>(m_ct->hwInterface());
 		if(m_hw==0)
 		{
 			INFO_STREAM<<"Initialization Failed : Unable to get the interface of camera plugin !"<<endl;
@@ -299,14 +299,25 @@ void XpadPixelDetector::get_device_property()
 //-----------------------------------------------------------------------------
 void XpadPixelDetector::always_executed_hook()
 {
-	//- get the main object used to pilot the lima framework
-	//in fact LimaCCD is create the singleton control objet
-	//so this call, will only return existing object, no need to give it the ip !!
-	m_ct = ControlFactory::instance().get_control("XpadPixelDetector");	
-	
-	//- get interface to specific detector
-	if(m_ct!=0)
-		m_hw = dynamic_cast<XpadInterface*>(m_ct->hwInterface());
+    try
+    {
+    	//- get the singleton control objet used to pilot the lima framework
+        m_ct = ControlFactory::instance().get_control("XpadPixelDetector");
+
+        //- get interface to specific detector
+        if(m_ct!=0)
+            m_hw = dynamic_cast<Xpad::Interface*>(m_ct->hwInterface());
+
+    }
+    catch(Exception& e)
+    {
+        ERROR_STREAM << e.getErrMsg() << endl;
+        //- throw exception
+        Tango::Except::throw_exception(
+                    static_cast<const char*> ("TANGO_DEVICE_ERROR"),
+                    static_cast<const char*> (e.getErrMsg().c_str()),
+                    static_cast<const char*> ("XpadPixelDetector::always_executed_hook"));
+    }
 }
 //+----------------------------------------------------------------------------
 //
@@ -676,11 +687,11 @@ void XpadPixelDetector::write_dacl(Tango::WAttribute &attr)
 {
 	DEBUG_STREAM << "XpadPixelDetector::write_dacl(Tango::WAttribute &attr) entering... "<< endl;
 
-	attr.get_write_value(my_attr_dacl_write);
+	//attr.get_write_value(my_attr_dacl_write);
 
 	try
 	{
-		m_hw->saveAndloadDacl(my_attr_dacl_write);
+		//m_hw->saveAndloadDacl(my_attr_dacl_write);
 	}
 	catch(Exception& e)
 	{
@@ -718,7 +729,7 @@ void XpadPixelDetector::write_ithl(Tango::WAttribute &attr)
 {
 	DEBUG_STREAM << "XpadPixelDetector::write_ithl(Tango::WAttribute &attr) entering... "<< endl;
 
-	attr.get_write_value(my_attr_ithl_write);
+	//attr.get_write_value(my_attr_ithl_write);
 }
 
 
@@ -729,7 +740,7 @@ void XpadPixelDetector::write_ithl(Tango::WAttribute &attr)
  *	description:	method to execute "LoadFlatConfig"
  *	Load a Flat config, for each pixel
  *
- * @param	argin	Flat value
+ * @param	argin	Flat value to be loaded
  *
  */
 //+------------------------------------------------------------------
@@ -947,9 +958,29 @@ Tango::DevState XpadPixelDetector::dev_state()
 		m_ct->getStatus(status);
 		if (status.AcquisitionStatus == lima::AcqReady)
 		{
-			DeviceState=Tango::STANDBY;
-			DeviceStatus<<"Waiting for Request ...\n"<<endl;
-		}		
+			HwInterface::StatusType state;
+			m_hw->getStatus(state);
+			if(state.acq == AcqRunning && state.det == DetExposure)
+			{
+				DeviceState=Tango::RUNNING;
+				DeviceStatus<<"Acquisition is Running ...\n"<<endl;
+			}
+			else if(state.acq == AcqFault && state.det == DetFault)
+			{
+				DeviceState=Tango::INIT;//INIT
+				DeviceStatus<<"Acquisition is in Init\n"<<endl;
+			}
+			else if(state.acq == AcqFault && state.det == DetIdle)
+			{
+				DeviceState=Tango::FAULT;//FAULT
+				DeviceStatus<<"Acquisition is in Fault\n"<<endl;
+			}
+			else
+			{
+				DeviceState=Tango::STANDBY;
+				DeviceStatus<<"Waiting for Request ...\n"<<endl;
+			}
+		}
 		else if(status.AcquisitionStatus == lima::AcqRunning)
 		{
 			DeviceState=Tango::RUNNING;
@@ -957,8 +988,18 @@ Tango::DevState XpadPixelDetector::dev_state()
 		}
 		else
 		{
-			DeviceState=Tango::FAULT;//FAULT
-			DeviceStatus<<"Acquisition is in Fault\n"<<endl;
+			HwInterface::StatusType state;
+			m_hw->getStatus(state);
+			if(state.acq == AcqFault && state.det == DetFault)
+			{
+				DeviceState=Tango::INIT;//INIT
+				DeviceStatus<<"Acquisition is in Init\n"<<endl;
+			}
+			else
+			{
+			  DeviceState=Tango::FAULT;//FAULT
+			  DeviceStatus<<"Acquisition is in Fault\n"<<endl;
+			}
 		}
 	}
 	

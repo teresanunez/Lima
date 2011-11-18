@@ -35,9 +35,12 @@ static const char *RcsId = "$Id:  $";
 //=============================================================================
 
 
-#include <tango.h>
+
 #include <LimaDetectorClass.h>
-#include <SimulatorCCDClass.h>
+
+#ifdef SIMULATOR_ENABLED
+	#include <SimulatorCCDClass.h>
+#endif
 
 #ifdef BASLER_ENABLED
 	#include <BaslerCCDClass.h>
@@ -51,6 +54,20 @@ static const char *RcsId = "$Id:  $";
 	#include <XpadPixelDetectorClass.h>
 #endif
 
+#ifdef MARCCD_ENABLED
+	#include <MarCCDClass.h>
+#endif
+
+#ifdef ADSC_ENABLED
+	#include <AdscCCDClass.h>
+#endif
+
+#ifdef PROSILICA_ENABLED
+	#include <ProsilicaCCDClass.h>
+#endif
+
+#include <tango.h>
+
 
 /**
  *	Create LimaDetectorClass singleton and store it in DServer object.
@@ -59,7 +76,11 @@ static const char *RcsId = "$Id:  $";
 void Tango::DServer::class_factory()
 {
 	add_class(LimaDetector_ns::LimaDetectorClass::init("LimaDetector"));
+	
+#ifdef SIMULATOR_ENABLED
 	add_class(SimulatorCCD_ns::SimulatorCCDClass::init("SimulatorCCD"));
+#endif
+
 #ifdef BASLER_ENABLED
 	add_class(BaslerCCD_ns::BaslerCCDClass::init("BaslerCCD"));
 #endif
@@ -70,6 +91,18 @@ void Tango::DServer::class_factory()
 
 #ifdef XPAD_ENABLED	
 	add_class(XpadPixelDetector_ns::XpadPixelDetectorClass::init("XpadPixelDetector"));
+#endif
+
+#ifdef MARCCD_ENABLED	
+	add_class(MarCCD_ns::MarCCDClass::init("MarCCD"));
+#endif
+
+#ifdef PROSILICA_ENABLED
+	add_class(ProsilicaCCD_ns::ProsilicaCCDClass::init("ProsilicaCCD"));
+#endif
+
+#ifdef ADSC_ENABLED	
+	add_class(AdscCCD_ns::AdscCCDClass::init("AdscCCD"));
 #endif
 }
 

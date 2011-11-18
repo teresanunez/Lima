@@ -33,10 +33,12 @@ static const char *HttpServer = "http://www.esrf.fr/computing/cs/tango/tango_doc
 //=============================================================================
 
 
-#include <tango.h>
+
 
 #include <LimaDetector.h>
 #include <LimaDetectorClass.h>
+
+#include <tango.h>
 
 
 //+----------------------------------------------------------------------------
@@ -59,6 +61,31 @@ __declspec(dllexport)
 
 namespace LimaDetector_ns
 {
+//+----------------------------------------------------------------------------
+//
+// method : 		SetBinCmd::execute()
+// 
+// description : 	method to trigger the execution of the command.
+//                PLEASE DO NOT MODIFY this method core without pogo   
+//
+// in : - device : The device on which the command must be executed
+//		- in_any : The command input data
+//
+// returns : The command output data (packed in the Any object)
+//
+//-----------------------------------------------------------------------------
+CORBA::Any *SetBinCmd::execute(Tango::DeviceImpl *device,const CORBA::Any &in_any)
+{
+
+	cout2 << "SetBinCmd::execute(): arrived" << endl;
+
+	Tango::DevUShort	argin;
+	extract(in_any, argin);
+
+	((static_cast<LimaDetector *>(device))->set_bin(argin));
+	return new CORBA::Any();
+}
+
 //+----------------------------------------------------------------------------
 //
 // method : 		StartCmd::execute()
@@ -154,27 +181,6 @@ CORBA::Any *SnapCmd::execute(Tango::DeviceImpl *device,const CORBA::Any &in_any)
 
 
 
-//+----------------------------------------------------------------------------
-//
-// method : 		DeleteRemainingFilesCmd::execute()
-// 
-// description : 	method to trigger the execution of the command.
-//                PLEASE DO NOT MODIFY this method core without pogo   
-//
-// in : - device : The device on which the command must be executed
-//		- in_any : The command input data
-//
-// returns : The command output data (packed in the Any object)
-//
-//-----------------------------------------------------------------------------
-CORBA::Any *DeleteRemainingFilesCmd::execute(Tango::DeviceImpl *device,const CORBA::Any &in_any)
-{
-
-	cout2 << "DeleteRemainingFilesCmd::execute(): arrived" << endl;
-
-	((static_cast<LimaDetector *>(device))->delete_remaining_files());
-	return new CORBA::Any();
-}
 
 
 //
@@ -263,11 +269,6 @@ LimaDetectorClass *LimaDetectorClass::instance()
 //-----------------------------------------------------------------------------
 void LimaDetectorClass::command_factory()
 {
-	command_list.push_back(new DeleteRemainingFilesCmd("DeleteRemainingFiles",
-		Tango::DEV_VOID, Tango::DEV_VOID,
-		"",
-		"",
-		Tango::OPERATOR));
 	command_list.push_back(new SnapCmd("Snap",
 		Tango::DEV_VOID, Tango::DEV_VOID,
 		"",
@@ -286,6 +287,11 @@ void LimaDetectorClass::command_factory()
 	command_list.push_back(new SetROICmd("SetROI",
 		Tango::DEVVAR_LONGARRAY, Tango::DEV_VOID,
 		"[origin_x, origin_y, width, height]",
+		"",
+		Tango::OPERATOR));
+	command_list.push_back(new SetBinCmd("SetBin",
+		Tango::DEV_USHORT, Tango::DEV_VOID,
+		"",
 		"",
 		Tango::OPERATOR));
 
@@ -386,21 +392,21 @@ void LimaDetectorClass::attribute_factory(vector<Tango::Attr *> &att_list)
 	//	Attribute : detectorDescription
 	detectorDescriptionAttrib	*detector_description = new detectorDescriptionAttrib();
 	Tango::UserDefaultAttrProp	detector_description_prop;
-	detector_description_prop.set_description("Return a simple user text intented to identify the Detector.");
+	detector_description_prop.set_description("Detector user-defined text to identify the engine.");
 	detector_description->set_default_properties(detector_description_prop);
 	att_list.push_back(detector_description);
 
 	//	Attribute : detectorType
 	detectorTypeAttrib	*detector_type = new detectorTypeAttrib();
 	Tango::UserDefaultAttrProp	detector_type_prop;
-	detector_type_prop.set_description("Return the type of used Detector.");
+	detector_type_prop.set_description("Return the type of the Detector.");
 	detector_type->set_default_properties(detector_type_prop);
 	att_list.push_back(detector_type);
 
 	//	Attribute : detectorModel
 	detectorModelAttrib	*detector_model = new detectorModelAttrib();
 	Tango::UserDefaultAttrProp	detector_model_prop;
-	detector_model_prop.set_description("Return the model of used Detector.");
+	detector_model_prop.set_description("Return the model of the Detector.");
 	detector_model->set_default_properties(detector_model_prop);
 	att_list.push_back(detector_model);
 
@@ -433,7 +439,7 @@ void LimaDetectorClass::attribute_factory(vector<Tango::Attr *> &att_list)
 	depth_prop.set_standard_unit(" ");
 	depth_prop.set_display_unit(" ");
 	depth_prop.set_format("%6d");
-	depth_prop.set_description("Pixel size in bits. (8, 16, 32)");
+	depth_prop.set_description("Pixel resolution in bits:<br>\n8<br>\n16<br>\n32<br>");
 	depth->set_default_properties(depth_prop);
 	att_list.push_back(depth);
 
@@ -441,7 +447,7 @@ void LimaDetectorClass::attribute_factory(vector<Tango::Attr *> &att_list)
 	triggerModeAttrib	*trigger_mode = new triggerModeAttrib();
 	Tango::UserDefaultAttrProp	trigger_mode_prop;
 	trigger_mode_prop.set_unit(" ");
-	trigger_mode_prop.set_description("Available Trigger Modes :<cr>\n- OFF<cr>\n- TIMED<cr>\n- WIDTH<cr>");
+	trigger_mode_prop.set_description("Available Trigger Modes :<br>\nINTERNAL_SINGLE<br>\nEXTERNAL_SINGLE<br>\nEXTERNAL_MULTI<br>\nEXTERNAL_GATE<br>");
 	trigger_mode->set_default_properties(trigger_mode_prop);
 	trigger_mode->set_memorized();
 	trigger_mode->set_memorized_init(true);
@@ -451,7 +457,7 @@ void LimaDetectorClass::attribute_factory(vector<Tango::Attr *> &att_list)
 	acquisitionModeAttrib	*acquisition_mode = new acquisitionModeAttrib();
 	Tango::UserDefaultAttrProp	acquisition_mode_prop;
 	acquisition_mode_prop.set_unit(" ");
-	acquisition_mode_prop.set_description("Available Acquisition Modes :<cr>\n- SINGLE<cr>\n- ACCUMULATION<cr>\n");
+	acquisition_mode_prop.set_description("Available Acquisition Modes :<br>\nSINGLE<br>\nACCUMULATION<br>\n");
 	acquisition_mode->set_default_properties(acquisition_mode_prop);
 	acquisition_mode->set_memorized();
 	acquisition_mode->set_memorized_init(true);
@@ -464,7 +470,7 @@ void LimaDetectorClass::attribute_factory(vector<Tango::Attr *> &att_list)
 	exposure_time_prop.set_standard_unit("ms");
 	exposure_time_prop.set_display_unit("ms");
 	exposure_time_prop.set_format("%7.2f");
-	exposure_time_prop.set_description("Set/Get exposure time (in ms)");
+	exposure_time_prop.set_description("Set/Get exposure time (in ms).<br>\nNota : <br>\nIn video mode (acquisition launched by Start), exposure time can be changed during acquistion.");
 	exposure_time->set_default_properties(exposure_time_prop);
 	exposure_time->set_memorized();
 	exposure_time->set_memorized_init(true);
@@ -477,10 +483,56 @@ void LimaDetectorClass::attribute_factory(vector<Tango::Attr *> &att_list)
 	exposure_acc_time_prop.set_standard_unit("ms");
 	exposure_acc_time_prop.set_display_unit("ms");
 	exposure_acc_time_prop.set_format("%7.2f");
+	exposure_acc_time_prop.set_description("Set/Get exposure time ONLY in mode ACCUMULATION (in ms)<br>");
 	exposure_acc_time->set_default_properties(exposure_acc_time_prop);
 	exposure_acc_time->set_memorized();
 	exposure_acc_time->set_memorized_init(true);
 	att_list.push_back(exposure_acc_time);
+
+	//	Attribute : x
+	xAttrib	*x = new xAttrib();
+	Tango::UserDefaultAttrProp	x_prop;
+	x_prop.set_unit(" ");
+	x_prop.set_format("%6d");
+	x_prop.set_description("Region of Interest . (Origin X)");
+	x->set_default_properties(x_prop);
+	att_list.push_back(x);
+
+	//	Attribute : y
+	yAttrib	*y = new yAttrib();
+	Tango::UserDefaultAttrProp	y_prop;
+	y_prop.set_unit(" ");
+	y_prop.set_format("%6d");
+	y_prop.set_description("Region of Interest . (Origin Y)");
+	y->set_default_properties(y_prop);
+	att_list.push_back(y);
+
+	//	Attribute : width
+	widthAttrib	*width = new widthAttrib();
+	Tango::UserDefaultAttrProp	width_prop;
+	width_prop.set_unit(" ");
+	width_prop.set_format("%6d");
+	width_prop.set_description("Region of Interest . (Width)");
+	width->set_default_properties(width_prop);
+	att_list.push_back(width);
+
+	//	Attribute : height
+	heightAttrib	*height = new heightAttrib();
+	Tango::UserDefaultAttrProp	height_prop;
+	height_prop.set_unit(" ");
+	height_prop.set_format("%6d");
+	height_prop.set_description("Region of Interest . (Height)");
+	height->set_default_properties(height_prop);
+	att_list.push_back(height);
+
+	//	Attribute : binning
+	binningAttrib	*binning = new binningAttrib();
+	Tango::UserDefaultAttrProp	binning_prop;
+	binning_prop.set_unit(" ");
+	binning_prop.set_format("%6d");
+	binning_prop.set_description("Current Binning value");
+	binning->set_default_properties(binning_prop);
+	att_list.push_back(binning);
 
 	//	Attribute : nbFrames
 	nbFramesAttrib	*nb_frames = new nbFramesAttrib();
@@ -489,7 +541,7 @@ void LimaDetectorClass::attribute_factory(vector<Tango::Attr *> &att_list)
 	nb_frames_prop.set_standard_unit(" ");
 	nb_frames_prop.set_display_unit(" ");
 	nb_frames_prop.set_format("%6d");
-	nb_frames_prop.set_description("The number of frames to acquire.");
+	nb_frames_prop.set_description("Define the number of frames to acquire.");
 	nb_frames->set_default_properties(nb_frames_prop);
 	nb_frames->set_memorized();
 	nb_frames->set_memorized_init(true);
@@ -509,7 +561,7 @@ void LimaDetectorClass::attribute_factory(vector<Tango::Attr *> &att_list)
 	//	Attribute : fileGeneration
 	fileGenerationAttrib	*file_generation = new fileGenerationAttrib();
 	Tango::UserDefaultAttrProp	file_generation_prop;
-	file_generation_prop.set_description("Allow to save grabbed frames into a file on disk.<cr>\nAvailable formats for the file are:  EDF, RAW, NXS<cr>\nThe format is fixed in FileFormat property.<cr>");
+	file_generation_prop.set_description("Allow to save grabbed frames into a file on disk.<br>\nAvailable formats for the file are:  EDF, RAW, NXS<br>\nThe format is fixed in FileFormat property.<br>");
 	file_generation->set_default_properties(file_generation_prop);
 	file_generation->set_disp_level(Tango::EXPERT);
 	file_generation->set_memorized();
@@ -568,7 +620,7 @@ void LimaDetectorClass::set_default_property()
 	//	Set Default Class Properties
 	//	Set Default Device Properties
 	prop_name = "DetectorDescription";
-	prop_desc = "A simple user free text intented to identify the Detector.";
+	prop_desc = "Detector user-defined text to identify the engine.";
 	prop_def  = "This is my Simulator";
 	vect_data.clear();
 	vect_data.push_back("This is my Simulator");
@@ -582,38 +634,8 @@ void LimaDetectorClass::set_default_property()
 	else
 		add_wiz_dev_prop(prop_name, prop_desc);
 
-	prop_name = "DetectorIP";
-	prop_desc = "Ip Address of the Detector if necessary, NA otherwise.";
-	prop_def  = "0.0.0.0";
-	vect_data.clear();
-	vect_data.push_back("0.0.0.0");
-	if (prop_def.length()>0)
-	{
-		Tango::DbDatum	data(prop_name);
-		data << vect_data ;
-		dev_def_prop.push_back(data);
-		add_wiz_dev_prop(prop_name, prop_desc,  prop_def);
-	}
-	else
-		add_wiz_dev_prop(prop_name, prop_desc);
-
-	prop_name = "DetectorPort";
-	prop_desc = "Socket Port of the Detector if necessary, NA otherwise.";
-	prop_def  = "-1";
-	vect_data.clear();
-	vect_data.push_back("-1");
-	if (prop_def.length()>0)
-	{
-		Tango::DbDatum	data(prop_name);
-		data << vect_data ;
-		dev_def_prop.push_back(data);
-		add_wiz_dev_prop(prop_name, prop_desc,  prop_def);
-	}
-	else
-		add_wiz_dev_prop(prop_name, prop_desc);
-
 	prop_name = "DetectorType";
-	prop_desc = "Define the type of the connected Detector .<BR>\nAvailables types :<BR>\nBaslerCCD<BR>\nSimulatorCCD<BR>\nXpadPixelDetector<BR>\nPilatusPixelDetector<BR>\n\n";
+	prop_desc = "Define the type of the connected Detector .<BR>\nAvailables types :<BR>\n- AdscCCD<BR>\n- BaslerCCD<BR>\n- MarCCD<BR>\n- PilatusPixelDetector<BR>\n- ProsilicaCCD<BR>\n- SimulatorCCD<BR>\n- XpadPixelDetector<BR>\n\n";
 	prop_def  = "SimulatorCCD";
 	vect_data.clear();
 	vect_data.push_back("SimulatorCCD");
@@ -627,8 +649,8 @@ void LimaDetectorClass::set_default_property()
 	else
 		add_wiz_dev_prop(prop_name, prop_desc);
 
-	prop_name = "DetectorPixelFormat";
-	prop_desc = "Define the pixel depth of the detecor (8, 16, 32).";
+	prop_name = "DetectorPixelDepth";
+	prop_desc = "Define the pixel depth of the detector : <br>\nAvailables values : <br>\n- 8 <br>\n- 16<br>\n- 32<br>";
 	prop_def  = "16";
 	vect_data.clear();
 	vect_data.push_back("16");
@@ -642,8 +664,23 @@ void LimaDetectorClass::set_default_property()
 	else
 		add_wiz_dev_prop(prop_name, prop_desc);
 
+	prop_name = "DetectorVideoMode";
+	prop_desc = "Define the format of video stream: <br>\nAvailables values :<br>\n- NONE<BR>\n- Y8 <BR>\n- Y16<BR>\n- Y32<BR>\n- Y64<BR>\n- RGB555<BR>\n- RGB565<BR>\n- RGB24<BR>\n- RGB32<BR>\n- BGR24<BR>\n- BGR32<BR>\n- BAYER_RG8<BR>\n- BAYER_RG16<BR>\n- I420<BR>\n- YUV411<BR>\n- YUV422<BR>\n- YUV444<BR>\n<br>\nNota:<br>\nThis property is usefull only for detectors having video capabilities.<BR>\nOtherwise, use only NONE.";
+	prop_def  = "NONE";
+	vect_data.clear();
+	vect_data.push_back("NONE");
+	if (prop_def.length()>0)
+	{
+		Tango::DbDatum	data(prop_name);
+		data << vect_data ;
+		dev_def_prop.push_back(data);
+		add_wiz_dev_prop(prop_name, prop_desc,  prop_def);
+	}
+	else
+		add_wiz_dev_prop(prop_name, prop_desc);
+
 	prop_name = "FileFormat";
-	prop_desc = "Define the format of image files :<BR>\n- EDF<BR>\n- NXS<BR>\n- RAW<BR>\n";
+	prop_desc = "Define the format of image files :<BR>\nAvailables values :<br>\n- EDF<BR>\n- NXS<BR>\n- RAW<BR>\n";
 	prop_def  = "NXS";
 	vect_data.clear();
 	vect_data.push_back("NXS");
@@ -672,8 +709,8 @@ void LimaDetectorClass::set_default_property()
 	else
 		add_wiz_dev_prop(prop_name, prop_desc);
 
-	prop_name = "FileIndexFormat";
-	prop_desc = "Define the format of the index used for image files names.";
+	prop_name = "FileIndexPattern";
+	prop_desc = "Define the pattern of the index used for image files names.<br>\n<br>\nNota :<br>\n%04d mean that file name index will be end with exactly  4 digits filled by '0' if necessary .<br>\n";
 	prop_def  = "%06d";
 	vect_data.clear();
 	vect_data.push_back("%06d");
@@ -688,25 +725,10 @@ void LimaDetectorClass::set_default_property()
 		add_wiz_dev_prop(prop_name, prop_desc);
 
 	prop_name = "FileNbFrames";
-	prop_desc = "Define the number of frames per file.";
+	prop_desc = "Define the amount of frames stored in the target file.";
 	prop_def  = "1";
 	vect_data.clear();
 	vect_data.push_back("1");
-	if (prop_def.length()>0)
-	{
-		Tango::DbDatum	data(prop_name);
-		data << vect_data ;
-		dev_def_prop.push_back(data);
-		add_wiz_dev_prop(prop_name, prop_desc,  prop_def);
-	}
-	else
-		add_wiz_dev_prop(prop_name, prop_desc);
-
-	prop_name = "FileTemporaryPath";
-	prop_desc = "Define the root path for temporary generated files.";
-	prop_def  = ".";
-	vect_data.clear();
-	vect_data.push_back(".");
 	if (prop_def.length()>0)
 	{
 		Tango::DbDatum	data(prop_name);
@@ -733,7 +755,7 @@ void LimaDetectorClass::set_default_property()
 		add_wiz_dev_prop(prop_name, prop_desc);
 
 	prop_name = "DebugModules";
-	prop_desc = "Define Lima Modules for which we need some traces in the console.<BR>\nAvailables values :<BR>\nNone<BR>\nHardware<BR>\nControl<BR>\nCommon<BR>\nCamera<BR>";
+	prop_desc = "Define modules that we need to have some debug traces.<BR>\nAvailables values :<BR>\n- None<BR>\n- Hardware<BR>\n- Control<BR>\n- Common<BR>\n- Camera<BR>";
 	prop_def  = "Hardware\nControl\nCommon\nCamera";
 	vect_data.clear();
 	vect_data.push_back("Hardware");
@@ -751,12 +773,61 @@ void LimaDetectorClass::set_default_property()
 		add_wiz_dev_prop(prop_name, prop_desc);
 
 	prop_name = "DebugLevels";
-	prop_desc = "Define Lima verbose level of traces in the console.<BR>\nAvailables values :<BR>\nFatal<BR>\nError<BR>\nWarning<BR>\nTrace<BR>\nFunct<BR>\nParam<BR>\nReturn<BR>\nAlways<BR>";
+	prop_desc = "Define Lima verbose level of traces.<BR>\nAvailables values :<BR>\n- Fatal<BR>\n- Error<BR>\n- Warning<BR>\n- Trace<BR>\n- Funct<BR>\n- Param<BR>\n- Return<BR>\n- Always<BR>";
 	prop_def  = "Fatal\nError\nWarning";
 	vect_data.clear();
 	vect_data.push_back("Fatal");
 	vect_data.push_back("Error");
 	vect_data.push_back("Warning");
+	if (prop_def.length()>0)
+	{
+		Tango::DbDatum	data(prop_name);
+		data << vect_data ;
+		dev_def_prop.push_back(data);
+		add_wiz_dev_prop(prop_name, prop_desc,  prop_def);
+	}
+	else
+		add_wiz_dev_prop(prop_name, prop_desc);
+
+	prop_name = "DebugFormats";
+	prop_desc = "Define Lima traces format.<BR>\nAvailables values :<BR>\n- DateTime<BR>\n- Thread<BR>\n- Module<BR>\n- Obj<BR>\n- Funct<BR>\n- FileLine<BR>";
+	prop_def  = "DateTime\nFunct";
+	vect_data.clear();
+	vect_data.push_back("DateTime");
+	vect_data.push_back("Funct");
+	if (prop_def.length()>0)
+	{
+		Tango::DbDatum	data(prop_name);
+		data << vect_data ;
+		dev_def_prop.push_back(data);
+		add_wiz_dev_prop(prop_name, prop_desc,  prop_def);
+	}
+	else
+		add_wiz_dev_prop(prop_name, prop_desc);
+
+	prop_name = "Roi";
+	prop_desc = "Define the Region of Interest of the Acquisition: <br>\norigin X<br>\norigin Y<br>\nWidth<br>\nHeight<br>\n<br>\nNota:<br>\nif any roi value is <0, then we consider all detector area as Roi.";
+	prop_def  = "-1\n-1\n-1\n-1";
+	vect_data.clear();
+	vect_data.push_back("-1");
+	vect_data.push_back("-1");
+	vect_data.push_back("-1");
+	vect_data.push_back("-1");
+	if (prop_def.length()>0)
+	{
+		Tango::DbDatum	data(prop_name);
+		data << vect_data ;
+		dev_def_prop.push_back(data);
+		add_wiz_dev_prop(prop_name, prop_desc,  prop_def);
+	}
+	else
+		add_wiz_dev_prop(prop_name, prop_desc);
+
+	prop_name = "Binning";
+	prop_desc = "Define the Binning value of the Acquisition<br>\nAvailables values :<br>\n- 1<br>\n- 2<br>\n- 3<br>\n- 4<br>\n- 8<br>";
+	prop_def  = "1";
+	vect_data.clear();
+	vect_data.push_back("1");
 	if (prop_def.length()>0)
 	{
 		Tango::DbDatum	data(prop_name);
@@ -789,7 +860,7 @@ void LimaDetectorClass::write_class_property()
 
 	//	Put title
 	Tango::DbDatum	title("ProjectTitle");
-	string	str_title("");
+	string	str_title("LimaDetector");
 	title << str_title;
 	data.push_back(title);
 

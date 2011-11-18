@@ -1,9 +1,9 @@
 static const char *RcsId = "$Id $";
 //+=============================================================================
 //
-// file :         PilatusStateMachine.cpp
+// file :         PilatusPixelDetectorStateMachine.cpp
 //
-// description :  C++ source for the Pilatus and its alowed 
+// description :  C++ source for the PilatusPixelDetector and its alowed 
 //                methods for commands and attributes
 //
 // project :      TANGO Device Server
@@ -32,9 +32,10 @@ static const char *RcsId = "$Id $";
 //         (c) - Software Engineering Group - ESRF
 //=============================================================================
 
-#include <tango.h>
+
 #include <PilatusPixelDetector.h>
 #include <PilatusPixelDetectorClass.h>
+#include <tango.h>
 
 /*====================================================================
  *	This file contains the methods to allow commands and attributes
@@ -64,7 +65,6 @@ namespace PilatusPixelDetector_ns
 bool PilatusPixelDetector::is_threshold_allowed(Tango::AttReqType type)
 {
 	if (get_state() == Tango::INIT	||
-		get_state() == Tango::FAULT	||
 		get_state() == Tango::RUNNING)
 	{
 		//	End of Generated Code
@@ -87,7 +87,72 @@ bool PilatusPixelDetector::is_threshold_allowed(Tango::AttReqType type)
 bool PilatusPixelDetector::is_gain_allowed(Tango::AttReqType type)
 {
 	if (get_state() == Tango::INIT	||
-		get_state() == Tango::FAULT	||
+		get_state() == Tango::RUNNING)
+	{
+		//	End of Generated Code
+		if ( (get_state()==Tango::FAULT || get_state()==Tango::RUNNING )&& type==Tango::READ_REQ )
+		{
+           return true;
+		}
+		//	Re-Start of Generated Code
+		return false;
+	}
+	return true;
+}
+//+----------------------------------------------------------------------------
+//
+// method : 		PilatusPixelDetector::is_imagePath_allowed
+// 
+// description : 	Read/Write allowed for imagePath attribute.
+//
+//-----------------------------------------------------------------------------
+bool PilatusPixelDetector::is_imagePath_allowed(Tango::AttReqType type)
+{
+	if (get_state() == Tango::INIT	||
+		get_state() == Tango::RUNNING)
+	{
+		//	End of Generated Code
+		if ( (get_state()==Tango::FAULT || get_state()==Tango::RUNNING )&& type==Tango::READ_REQ )
+		{
+           return true;
+		}
+		//	Re-Start of Generated Code
+		return false;
+	}
+	return true;
+}
+//+----------------------------------------------------------------------------
+//
+// method : 		PilatusPixelDetector::is_fileName_allowed
+// 
+// description : 	Read/Write allowed for fileName attribute.
+//
+//-----------------------------------------------------------------------------
+bool PilatusPixelDetector::is_fileName_allowed(Tango::AttReqType type)
+{
+	if (get_state() == Tango::INIT	||
+		get_state() == Tango::RUNNING)
+	{
+		//	End of Generated Code
+		if ( (get_state()==Tango::FAULT || get_state()==Tango::RUNNING )&& type==Tango::READ_REQ )
+		{
+           return true;
+		}
+		//	Re-Start of Generated Code
+		return false;
+	}
+	return true;
+}
+//+----------------------------------------------------------------------------
+//
+// method : 		PilatusPixelDetector::is_latency_allowed
+// 
+// description : 	Read/Write allowed for latency attribute.
+//
+//-----------------------------------------------------------------------------
+bool PilatusPixelDetector::is_latency_allowed(Tango::AttReqType type)
+{
+	if (get_state() == Tango::INIT	||
 		get_state() == Tango::RUNNING)
 	{
 		//	End of Generated Code
@@ -115,7 +180,6 @@ bool PilatusPixelDetector::is_gain_allowed(Tango::AttReqType type)
 bool PilatusPixelDetector::is_SetThresholdAndGain_allowed(const CORBA::Any &any)
 {
 	if (get_state() == Tango::INIT	||
-		get_state() == Tango::FAULT	||
 		get_state() == Tango::RUNNING)
 	{
 		//	End of Generated Code
@@ -135,8 +199,25 @@ bool PilatusPixelDetector::is_SetThresholdAndGain_allowed(const CORBA::Any &any)
 bool PilatusPixelDetector::is_SetMxSettings_allowed(const CORBA::Any &any)
 {
 	if (get_state() == Tango::INIT	||
-		get_state() == Tango::FAULT	||
 		get_state() == Tango::RUNNING)
+	{
+		//	End of Generated Code
+
+		//	Re-Start of Generated Code
+		return false;
+	}
+	return true;
+}
+//+----------------------------------------------------------------------------
+//
+// method : 		PilatusPixelDetector::is_SendAnyCommand_allowed
+// 
+// description : 	Execution allowed for SendAnyCommand command.
+//
+//-----------------------------------------------------------------------------
+bool PilatusPixelDetector::is_SendAnyCommand_allowed(const CORBA::Any &any)
+{
+	if (get_state() == Tango::INIT)
 	{
 		//	End of Generated Code
 
