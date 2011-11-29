@@ -1644,7 +1644,7 @@ void LimaDetector::read_currentFrame(Tango::Attribute &attr)
     DEBUG_STREAM << "LimaDetector::read_currentFrame(Tango::Attribute &attr) entering... "<< endl;
     try
     {
-        *attr_currentFrame_read = get_last_image_counter()+1;
+        *attr_currentFrame_read =       m_hw->getNbHwAcquiredFrames();////get_last_image_counter()+1;
         attr.set_value(attr_currentFrame_read);
     }
     catch(Tango::DevFailed& df)

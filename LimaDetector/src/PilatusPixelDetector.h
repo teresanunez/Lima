@@ -252,6 +252,10 @@ public :
  */
 	virtual bool is_latency_allowed(Tango::AttReqType type);
 /**
+ *	Execution allowed for SetEnergy command.
+ */
+	virtual bool is_SetEnergy_allowed(const CORBA::Any &any);
+/**
  *	Execution allowed for SetThresholdAndGain command.
  */
 	virtual bool is_SetThresholdAndGain_allowed(const CORBA::Any &any);
@@ -269,6 +273,12 @@ public :
  *	@exception DevFailed
  */
 	virtual Tango::DevState	dev_state();
+/**
+ * Define Energy in eV.
+ *	@param	argin	
+ *	@exception DevFailed
+ */
+	void	set_energy(Tango::DevDouble);
 /**
  * Define Threshold (eV) and Gain (LOW, MID, HIGH, UHIGH).
  *	@param	argin	

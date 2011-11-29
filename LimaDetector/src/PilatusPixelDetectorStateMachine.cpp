@@ -226,5 +226,24 @@ bool PilatusPixelDetector::is_SendAnyCommand_allowed(const CORBA::Any &any)
 	}
 	return true;
 }
+//+----------------------------------------------------------------------------
+//
+// method : 		PilatusPixelDetector::is_SetEnergy_allowed
+// 
+// description : 	Execution allowed for SetEnergy command.
+//
+//-----------------------------------------------------------------------------
+bool PilatusPixelDetector::is_SetEnergy_allowed(const CORBA::Any &any)
+{
+	if (get_state() == Tango::INIT	||
+		get_state() == Tango::RUNNING)
+	{
+		//	End of Generated Code
+
+		//	Re-Start of Generated Code
+		return false;
+	}
+	return true;
+}
 
 }	// namespace PilatusPixelDetector_ns

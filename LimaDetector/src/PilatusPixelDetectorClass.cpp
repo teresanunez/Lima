@@ -61,6 +61,31 @@ namespace PilatusPixelDetector_ns
 {
 //+----------------------------------------------------------------------------
 //
+// method : 		SetEnergyCmd::execute()
+// 
+// description : 	method to trigger the execution of the command.
+//                PLEASE DO NOT MODIFY this method core without pogo   
+//
+// in : - device : The device on which the command must be executed
+//		- in_any : The command input data
+//
+// returns : The command output data (packed in the Any object)
+//
+//-----------------------------------------------------------------------------
+CORBA::Any *SetEnergyCmd::execute(Tango::DeviceImpl *device,const CORBA::Any &in_any)
+{
+
+	cout2 << "SetEnergyCmd::execute(): arrived" << endl;
+
+	Tango::DevDouble	argin;
+	extract(in_any, argin);
+
+	((static_cast<PilatusPixelDetector *>(device))->set_energy(argin));
+	return new CORBA::Any();
+}
+
+//+----------------------------------------------------------------------------
+//
 // method : 		SendAnyCommandCmd::execute()
 // 
 // description : 	method to trigger the execution of the command.
@@ -233,6 +258,11 @@ PilatusPixelDetectorClass *PilatusPixelDetectorClass::instance()
 //-----------------------------------------------------------------------------
 void PilatusPixelDetectorClass::command_factory()
 {
+	command_list.push_back(new SetEnergyCmd("SetEnergy",
+		Tango::DEV_DOUBLE, Tango::DEV_VOID,
+		"",
+		"",
+		Tango::OPERATOR));
 	command_list.push_back(new SetThresholdAndGainCmd("SetThresholdAndGain",
 		Tango::DEVVAR_LONGSTRINGARRAY, Tango::DEV_VOID,
 		"",
