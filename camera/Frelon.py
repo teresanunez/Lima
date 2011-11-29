@@ -81,6 +81,9 @@ class Frelon(PyTango.Device_4Impl):
                                          'input_channel' : 'InputChan',
                                          'e2v_correction' : 'E2VCorrectionActive'}
 
+        self.__ConfigHd = {'PRECISION' : 1,
+                           'SPEED' : 0}
+
         self.init_device()
 
 #------------------------------------------------------------------
@@ -121,8 +124,9 @@ class Frelon(PyTango.Device_4Impl):
                     callable_obj = CallableReadEnum(d,function2Call)
                 else:
                     functionName = 'set' + attr_name
-                    function2Call = getattr(_FrelonAcq,function2Call)
-                    callable_obj = CallableWriteEnum(d,function2Call)
+                    function2Call = getattr(_FrelonAcq,functionName)
+                    callable_obj = CallableWriteEnum('_'.join(split_name),
+                                                     d,function2Call)
                 self.__dict__[name] = callable_obj
                 return callable_obj
         raise AttributeError('Frelon has no attribute %s' % name)
@@ -148,7 +152,21 @@ class Frelon(PyTango.Device_4Impl):
         attr.get_write_value(data)
         #TODO
 
+    def write_config_hd(self,attr) :
+        data = []
+        attr.get_write_value(data)
+        value = self.__ConfigHd.get(data[0],None)
+        if value is not None:
+            _FrelonAcq.m_cam.writeRegister(FrelonAcq.ConfigHD,value)
+        else:
+            PyTango.Except.throw_exception('WrongData',\
+                                           'Wrong value %s: %s'%('config_hd',data[0].upper()),\
+                                           'LimaCCD Class')
 
+    def read_config_hd(self,attr) :
+        value = _FrelonAcq.m_cam.readRegister(FrelonAcq.ConfigHD)
+        attr.set_value(value and "PRECISION" or "SPEED")
+        
 class FrelonClass(PyTango.DeviceClass):
 
     class_property_list = {}
@@ -190,6 +208,10 @@ class FrelonClass(PyTango.DeviceClass):
           PyTango.SCALAR,
           PyTango.READ_WRITE]],
         'e2v_correction' :
+        [[PyTango.DevString,
+          PyTango.SCALAR,
+          PyTango.READ_WRITE]],
+        'config_hd' :
         [[PyTango.DevString,
           PyTango.SCALAR,
           PyTango.READ_WRITE]],

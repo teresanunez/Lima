@@ -1136,7 +1136,10 @@ class LimaCCDs(PyTango.Device_4Impl) :
         video = self.__control.video()
         data = []
         attr.get_write_value(data)
-        video.setLive(data[0])
+        if data[0] :
+            video.startLive()
+        else:
+            video.stopLive()
 
     def read_video_exposure(self,attr) :
         video = self.__control.video()
