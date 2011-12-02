@@ -465,9 +465,8 @@ class LimaTacoCCDs(PyTango.Device_4Impl):
         #size = frame_dim.getSize()
 	control = _control_ref()
         image = control.image()
-	dim = image.getImageDim()
-        return dim.getSize().getHeight()
-        
+        size = image.getMaxImageSize()
+        return size.getHeight()
 
 #------------------------------------------------------------------
 #    DevCcdXSize command:
@@ -482,8 +481,8 @@ class LimaTacoCCDs(PyTango.Device_4Impl):
         #size = frame_dim.getSize()
 	control = _control_ref()
         image = control.image()
-	dim = image.getImageDim()
-        return dim.getSize().getWidth()
+        size = image.getMaxImageSize()
+        return size.getWidth()
 
 #------------------------------------------------------------------
 #    DevCcdReset command:
