@@ -1302,10 +1302,10 @@ class LimaCCDs(PyTango.Device_4Impl) :
     #
     @Core.DEB_MEMBER_FUNCT
     def getImage(self,image_id) :
-        self._data_cache = self.__control.ReadImage(image_id)
-        dataflat = self._data_cache.buffer.ravel()
-        dataflat.dtype = numpy.uint8
-        return dataflat
+        data = self.__control.ReadImage(image_id)
+        self.__dataflat_cache = numpy.array(data.buffer.ravel())
+        self.__dataflat_cache.dtype = numpy.uint8
+        return self.__dataflat_cache
 
     ##@brief get image data
     #
@@ -1321,10 +1321,10 @@ class LimaCCDs(PyTango.Device_4Impl) :
     #image before post processing
     @Core.DEB_MEMBER_FUNCT
     def getBaseImage(self,image_id) :
-        self._data_cache = self.__control.ReadBaseImage(image_id)
-        dataflat = self._data_cache.buffer.ravel()
-        dataflat.dtype = numpy.uint8
-        return dataflat
+        data = self.__control.ReadBaseImage(image_id)
+        self.__dataflat_cache = numpy.array(data.buffer.ravel())
+        self.__dataflat_cache.dtype = numpy.uint8
+        return self.__dataflat_cache
 
     ##@brief manual write image
     #
@@ -1340,11 +1340,12 @@ class LimaCCDs(PyTango.Device_4Impl) :
     @Core.DEB_MEMBER_FUNCT
     def readAccSaturatedImageCounter(self,image_id) :
         acc = self.__control.accumulation()
-        self._saturated_image_cache = acc.readSaturatedImageCounter(image_id)
-        arr = self._saturated_image_cache.buffer
-        if arr is None: arr = []
-        else: arr = arr.ravel()
-        return arr
+        saturated_image = acc.readSaturatedImageCounter(image_id)
+        self.__arr_cache = []
+        if saturated_image.buffer is not None:
+            self.__arr_cache = numpy.array(saturated_image.buffer)
+            self.__arr_cache = self.__arr_cache.ravel()
+        return self.__arr_cache
 
     ##@brief get saturated sum counter
     #
