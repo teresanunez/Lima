@@ -52,7 +52,7 @@ class FlatfieldDeviceServer(BasePostProcess) :
 	PyTango.Device_4Impl.set_state(self,state)
 
     def setFlatFieldImage(self,filepath) :
-        self.__flatFieldImage = getDataFromFile(*filepath)
+        self.__flatFieldImage = getDataFromFile(filepath)
         if(self.__flatFieldTask) :
             self.__flatFieldTask.setFlatFieldImage(self.__flatFieldImage)
 
@@ -71,7 +71,7 @@ class FlatfieldDeviceServerClass(PyTango.DeviceClass) :
     #	 Command definitions
     cmd_list = {
         'setFlatFieldImage':
-        [[PyTango.DevVarStringArray,"Full path of flatfield image file"],
+        [[PyTango.DevString,"Full path of flatfield image file"],
          [PyTango.DevVoid,""]],
 	'Start':
 	[[PyTango.DevVoid,""],
