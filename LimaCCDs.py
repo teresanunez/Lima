@@ -1693,7 +1693,11 @@ class LimaCCDsClass(PyTango.DeviceClass) :
         [[PyTango.DevString,
           PyTango.SPECTRUM,
           PyTango.READ_WRITE,len(LimaCCDs._debugModuleList)]],
-        'debug_types':
+        'debug_types_possible':
+        [[PyTango.DevString,
+          PyTango.SPECTRUM,
+          PyTango.READ,len(LimaCCDs._debugTypeList)]],
+         'debug_types':
         [[PyTango.DevString,
           PyTango.SPECTRUM,
           PyTango.READ_WRITE,len(LimaCCDs._debugTypeList)]],
