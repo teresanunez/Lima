@@ -133,10 +133,6 @@ class LimaCCDs(PyTango.Device_4Impl) :
             else:
 		Core.DebParams.setTypeFlags(0)
                 util = PyTango.Util.instance()
-#                if specificClass and specificDevice:
-#                    util.create_device(specificClass,specificDevice)
-                #get properties for this device
-
                 deviceName = self.__className2deviceName.get(specificDevice.__name__,None)
                 if deviceName:
                     propertiesNames = dataBase.get_device_property_list(deviceName,"*")
