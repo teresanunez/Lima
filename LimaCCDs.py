@@ -1211,7 +1211,17 @@ class LimaCCDs(PyTango.Device_4Impl) :
     def read_video_last_image_counter(self,attr) :
         video = self.__control.video()
         attr.set_value(video.getLastImageCounter())
-    
+
+    def read_plugin_type_list(self,attr) :
+        className2deviceName = get_sub_devices()
+        attr.set_value([x.lower().replace('deviceserver','') for x in className2deviceName.keys()])
+
+    def read_plugin_list(self,attr) :
+        returnList = []
+        for key,value in get_sub_devices().iteritems():
+            returnList.append(key.lower().replace('deviceserver',''))
+            returnList.append(value)
+        attr.set_value(returnList)
 #==================================================================
 #
 #    LimaCCDs command methods
@@ -1400,6 +1410,10 @@ class LimaCCDs(PyTango.Device_4Impl) :
             shutter.setState(True)
 
 
+    @Core.DEB_MEMBER_FUNCT
+    def getPluginDeviceNameFromType(self,pluginType):
+        pluginType2deviceName = dict([(x.lower().replace('deviceserver',''),y) for x,y in get_sub_devices().iteritems()])
+        return pluginType2deviceName.get(pluginType,'')
 
 
 
@@ -1474,6 +1488,9 @@ class LimaCCDsClass(PyTango.DeviceClass) :
         'readImage':
         [[PyTango.DevLong,"Image id"],
          [PyTango.DevEncoded, ""]],
+        'getPluginDeviceNameFromType':
+        [[PyTango.DevString,"plugin type"],
+         [PyTango.DevString,"device name"]],
 	}
     
     #    Attribute definitions
@@ -1766,6 +1783,14 @@ class LimaCCDsClass(PyTango.DeviceClass) :
         [[PyTango.DevLong64,
           PyTango.SCALAR,
           PyTango.READ]],
+        'plugin_type_list':
+        [[PyTango.DevString,
+          PyTango.SPECTRUM,
+          PyTango.READ,256]],
+        'plugin_list':
+        [[PyTango.DevString,
+          PyTango.SPECTRUM,
+          PyTango.READ,256]],
         }
 
 
