@@ -94,6 +94,15 @@ class PerkinElmer(PyTango.Device_4Impl):
                 return callable_obj
         raise AttributeError('PerkinElmer has no attribute %s' % name)
 
+    def read_gain(self,attr) :
+        gain = _PerkinElmerIterface.getGain()
+        attr.set_value(gain)
+
+    def write_gain(self,attr) :
+        data = []
+        attr.get_write_value(data)
+        _PerkinElmerIterface.setGain(data[0])
+
 #==================================================================
 #
 #    PerkinElmer command methods
@@ -162,6 +171,10 @@ class PerkinElmerClass(PyTango.DeviceClass):
     attr_list = {
         'correction_mode':
             [[PyTango.DevString,
+            PyTango.SCALAR,
+            PyTango.READ_WRITE]],
+        'gain':
+            [[PyTango.DevLong,
             PyTango.SCALAR,
             PyTango.READ_WRITE]],
         }
