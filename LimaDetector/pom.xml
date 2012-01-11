@@ -9,14 +9,14 @@
 
    <groupId>fr.soleil.device</groupId>
    <artifactId>LimaDetector-${aol}-${mode}</artifactId>
-   <version>1.1.2</version>
+   <version>1.1.3</version>
    <packaging>nar</packaging>
    <name>LimaDetector</name>
    <description>LimaDetector device</description>
 
     <dependencies>
 
-		<dependency>
+	  <dependency>
          <groupId>fr.soleil.lib</groupId>
          <artifactId>YAT4Tango-${aol}-${library}-${mode}</artifactId>   
       </dependency>
@@ -30,55 +30,67 @@
          <groupId>fr.soleil.lib</groupId>
          <artifactId>Utils-${aol}-${library}-${mode}</artifactId>
       </dependency>
-
+            
       <dependency>
          <groupId>fr.soleil.lib.Lima</groupId>
          <artifactId>LimaControl-${aol}-shared-${mode}</artifactId>
-         <version>1.1.2</version>
+         <version>1.1.3</version>         
       </dependency>
 
       <dependency>
          <groupId>fr.soleil.lib.Lima.Camera</groupId>
          <artifactId>LimaBasler-${aol}-shared-${mode}</artifactId>
-         <version>1.1.2</version>
+         <version>1.1.3</version>
       </dependency>
 
       <dependency>
          <groupId>fr.soleil.lib.Lima.Camera</groupId>
          <artifactId>LimaAdsc-${aol}-shared-${mode}</artifactId>
-         <version>1.1.2</version>
+         <version>1.1.3</version>
       </dependency>
-     
+   
       <dependency>
          <groupId>fr.soleil.lib.Lima.Camera</groupId>
          <artifactId>LimaMarccd-${aol}-shared-${mode}</artifactId>
-         <version>1.1.2</version>
+         <version>1.1.3</version>
       </dependency>
 
       <dependency>
          <groupId>fr.soleil.lib.Lima.Camera</groupId>
          <artifactId>LimaPilatus-${aol}-shared-${mode}</artifactId>
-         <version>1.1.2</version>
+         <version>1.1.3</version>
       </dependency>
 
       <dependency>
          <groupId>fr.soleil.lib.Lima.Camera</groupId>
          <artifactId>LimaProsilica-${aol}-shared-${mode}</artifactId>
-         <version>1.1.2</version>
+         <version>1.1.3</version>
+      </dependency>
+      
+      <dependency>
+         <groupId>fr.soleil.lib.Lima.Camera</groupId>
+         <artifactId>LimaSimulator-${aol}-shared-${mode}</artifactId>
+         <version>1.1.3</version>
       </dependency>
 
       <dependency>
          <groupId>fr.soleil.lib.Lima.Camera</groupId>
          <artifactId>LimaXpad-${aol}-shared-${mode}</artifactId>
-         <version>1.1.2</version>
+         <version>1.1.3-SNAPSHOT</version>
       </dependency>
-
+      
       <dependency>
-         <groupId>fr.soleil.lib.Lima.Camera</groupId>
-         <artifactId>LimaSimulator-${aol}-shared-${mode}</artifactId>
-         <version>1.1.2</version>
+         <groupId>fr.soleil.lib</groupId>
+         <artifactId>NexusCPP-${aol}-${library}-${mode}</artifactId>
+         <version>1.13.0-SNAPSHOT</version>
       </dependency>
-
+      
+      <dependency>
+         <groupId>fr.soleil.lib</groupId>
+         <artifactId>Nexus4Tango-${aol}-${library}-${mode}</artifactId>
+         <version>2.9.0-SNAPSHOT</version>
+      </dependency>
+            
     </dependencies>
 	
 	<scm>
@@ -106,8 +118,8 @@
                            <define>MARCCD_ENABLED</define>
                            <define>PILATUS_ENABLED</define>
                            <define>PROSILICA_ENABLED</define>
-                           <define>XPAD_ENABLED</define>
-                           <define>SIMULATOR_ENABLED</define>                        
+                           <define>SIMULATOR_ENABLED</define>
+                       	   <define>XPAD_ENABLED</define>
 
                         </defines>
 
@@ -126,15 +138,15 @@
 
                         <!-- exclude every detector who is NOT ENABLED -->
                         <excludes>
-<!--                       
-                            <exclude>Adsc*.*</exclude>
-                            <exclude>Basler*.*</exclude>
-                            <exclude>MarCCD*.*</exclude>
+                        
+                            <exclude>MarCCD*.*</exclude>                          
                             <exclude>Pilatus*.*</exclude>
-                            <exclude>Prosilica*.*</exclude>
-                            <exclude>Xpad*.*</exclude>                        
-	                       	<exclude>Simulator*.*</exclude>
--->	                    
+                            <exclude>Adsc*.*</exclude>                            
+                            <exclude>Basler*.*</exclude>
+                            <exclude>Prosilica*.*</exclude>                     
+	                       	<exclude>Simulator*.*</exclude>                 	
+                            <exclude>Xpad*.*</exclude>
+                            
                         </excludes>
 
                         <!-- define less verbose mode for gcc-->

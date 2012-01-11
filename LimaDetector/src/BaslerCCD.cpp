@@ -145,9 +145,6 @@ void BaslerCCD::init_device()
             set_state(Tango::INIT);
             return;
         }
-        //- define Timeout of detector
-        m_hw->setTimeout(detectorTimeout);
-
     }
     catch(Exception& e)
     {

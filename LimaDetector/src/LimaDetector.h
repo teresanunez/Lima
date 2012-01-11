@@ -234,8 +234,9 @@ public :
 	string	fileIndexPattern;
 /**
  *	Define the amount of frames stored in the target file.
+ *	If Nexus file, this is the NbAcqPerFile.
  */
-	Tango::DevShort	fileNbFrames;
+	Tango::DevLong	fileNbFrames;
 /**
  *	Define the Path where Files will be generated, only when savingFile is checked.
  *	
@@ -647,7 +648,7 @@ protected :
     AcquisitionTask::AcqConfig          m_acq_conf;
     
     //- yat image Dynamic Attribute
-    DynamicAttributeManager*             m_dam;
+    DynamicAttributeManager*            m_dam;
 
 };
 
