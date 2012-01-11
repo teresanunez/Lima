@@ -107,7 +107,9 @@ class LimaCCDs(PyTango.Device_4Impl) :
         except ImportError:
             pass
         else:
-            m.close_interface()
+            try:
+                m.close_interface()
+            except AttributeError: pass
 
 #------------------------------------------------------------------
 #    Device initialization
@@ -1954,7 +1956,7 @@ class CallableWriteEnum:
 #    LimaCCDs class main method
 #
 #==================================================================
-if __name__ == '__main__':
+def main() :
     try:
         py = PyTango.Util(sys.argv)
         py.add_TgClass(LimaCCDsClass,LimaCCDs,'LimaCCDs')
@@ -1979,3 +1981,6 @@ if __name__ == '__main__':
         print '-------> Received a DevFailed exception:',e
     except Exception,e:
         print '-------> An unforeseen exception occured....',e
+
+if __name__ == '__main__':
+    main()
