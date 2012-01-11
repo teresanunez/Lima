@@ -120,9 +120,11 @@ public :
  */
 //@{
 /**
- *	Type of Acquisition:
- *	0->slow (readOneImage)
- *	1->fast (getImgSeq)
+ *	Type of Acquisition:<BR>
+ *	0->slow 16 bits (readOneImage)<BR>
+ *	1->fast 16 bis (getImgSeq)<BR>
+ *	2->slow 32 bits<BR>
+ *	3->fast async 16 bits<BR>
  */
 	Tango::DevShort	acquisitionType;
 /**
