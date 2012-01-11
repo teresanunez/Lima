@@ -126,6 +126,7 @@ void AdscCCD::init_device()
 	// Initialise variables to default values
 	//--------------------------------------------
 	get_device_property();
+
     CREATE_DEVSTRING_ATTRIBUTE(attr_imagePath_read,MAX_ATTRIBUTE_STRING_LENGTH);
     CREATE_DEVSTRING_ATTRIBUTE(attr_fileName_read,MAX_ATTRIBUTE_STRING_LENGTH);
     CREATE_SCALAR_ATTRIBUTE(attr_useStoredImageDark_read);
@@ -151,7 +152,6 @@ void AdscCCD::init_device()
           set_state(Tango::INIT);
           return;
       }
-
   }
   catch(Exception& e)
   {
@@ -190,6 +190,7 @@ void AdscCCD::get_device_property()
 	//	Read device properties from database.(Automatic code generation)
 	//------------------------------------------------------------------
 	Tango::DbData	dev_prop;
+	dev_prop.push_back(Tango::DbDatum("ReaderTimeout"));
 	dev_prop.push_back(Tango::DbDatum("UseReader"));
 
 	//	Call database and extract values
@@ -200,6 +201,17 @@ void AdscCCD::get_device_property()
 	AdscCCDClass	*ds_class =
 		(static_cast<AdscCCDClass *>(get_device_class()));
 	int	i = -1;
+
+	//	Try to initialize ReaderTimeout from class property
+	cl_prop = ds_class->get_class_property(dev_prop[++i].name);
+	if (cl_prop.is_empty()==false)	cl_prop  >>  readerTimeout;
+	else {
+		//	Try to initialize ReaderTimeout from default device value
+		def_prop = ds_class->get_default_device_property(dev_prop[i].name);
+		if (def_prop.is_empty()==false)	def_prop  >>  readerTimeout;
+	}
+	//	And try to extract ReaderTimeout value from database
+	if (dev_prop[i].is_empty()==false)	dev_prop[i]  >>  readerTimeout;
 
 	//	Try to initialize UseReader from class property
 	cl_prop = ds_class->get_class_property(dev_prop[++i].name);
@@ -216,8 +228,8 @@ void AdscCCD::get_device_property()
 
 	//	End of Automatic code generation
 	//------------------------------------------------------------------
+	create_property_if_empty(dev_prop,"1000","ReaderTimeout");
     create_property_if_empty(dev_prop,"true","UseReader");
-
 }
 //+----------------------------------------------------------------------------
 //
@@ -673,8 +685,6 @@ Tango::DevState AdscCCD::dev_state()
  *	DISTANCE=300\nPHI=88.5\n...\nWAVELENGTH=0.987\n\0<br>
  *	
  *	List of availables param_name :<br>
- *	
- *	
  *
  * @param	argin	
  *
@@ -787,6 +797,18 @@ int AdscCCD::FindIndexFromPropertyName(Tango::DbData& dev_prop, string property_
     if (i == iNbProperties) return -1;
     return i;
 }
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

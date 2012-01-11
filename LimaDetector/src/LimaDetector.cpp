@@ -2112,6 +2112,8 @@ void LimaDetector::set_bin(Tango::DevUShort argin)
 		Bin bin(argin, argin);
 		m_ct->image()->setBin(bin);
 		store_value_as_property(argin,"Binning");
+        //- reset image number (this will disable the refresh of image attribute)
+        m_ct->resetStatus(false);
 	}
 	catch(Tango::DevFailed& df)
 	{

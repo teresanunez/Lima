@@ -42,14 +42,19 @@ CtControl* ControlFactory::get_control( const string& detector_type)
             {                
                 DbData db_data;
                 db_data.push_back(DbDatum("DetectorIP"));
+                db_data.push_back(DbDatum("DetectorTimeout"));
                 db_data.push_back(DbDatum("DetectorPacketSize"));
                 (Tango::Util::instance()->get_database())->get_device_property(my_device_name, db_data);
+                short detector_timeout = 11000;
+                db_data[0] >> detector_timeout;
                 string camera_ip;
-                db_data[0] >> camera_ip;
+                db_data[1] >> camera_ip;
                 long packet_size = -1;
-                db_data[1] >> packet_size;
+                db_data[2] >> packet_size;
                 my_camera_basler            = new Basler::Camera(camera_ip, packet_size);
                 my_interface_basler         = new Basler::Interface(*my_camera_basler);
+                if(my_interface_basler)
+                	my_interface_basler->setTimeout(detector_timeout);
                 my_control                  = new CtControl(my_interface_basler);
                 ControlFactory::is_created  = true;                
                 return my_control;
@@ -145,16 +150,21 @@ CtControl* ControlFactory::get_control( const string& detector_type)
             if(!ControlFactory::is_created)
             {
                 DbData db_data;
+                db_data.push_back(DbDatum("ReaderTimeout"));
                 db_data.push_back(DbDatum("UseReader"));
                 (Tango::Util::instance()->get_database())->get_device_property(my_device_name, db_data);
+                short reader_timeout = 1000;
                 bool use_reader;
-                db_data[0] >> use_reader;
+                db_data[0] >> reader_timeout;
+                db_data[1] >> use_reader;
             	my_camera_adsc                = new Adsc::Camera();
-                if(my_camera_adsc && use_reader)
-                	my_camera_adsc->enableDirectoryWatcher();
-                if(my_camera_adsc && !use_reader)
-                	my_camera_adsc->disableDirectoryWatcher();
                 my_interface_adsc             = new Adsc::Interface(*my_camera_adsc);
+                if(my_interface_adsc && use_reader)
+                	my_interface_adsc->enableReader();
+                if(my_interface_adsc && !use_reader)
+                	my_interface_adsc->disableReader();
+                if(my_interface_adsc)
+                	my_interface_adsc->setTimeout(reader_timeout);
                 my_control                    = new CtControl(my_interface_adsc);
                 ControlFactory::is_created    = true;
                 return my_control;

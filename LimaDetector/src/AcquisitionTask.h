@@ -20,9 +20,6 @@
 //- LIMA
 #include "CtControl.h"
 
-//- GDshare
-#include <base.h>
-#include <file.h>
 
 //- Tango
 #include <tango.h>

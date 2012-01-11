@@ -106,9 +106,9 @@ The language device desctructor automatically calls the <i> delete_device() </i>
 <A NAME="LoadFlatConfig"><!-- --></A>
 <h2>4 - LoadFlatConfig</h2>
 <ul>
-<Li><Strong>Description: </Strong> <Br>&nbsp
+<Li><Strong>Description: </Strong> Load a Flat config, for each pixel<Br>&nbsp
 <Li><Strong>Argin:<Br>DEV_ULONG</Strong>
- : Flat value<Br>&nbsp
+ : Flat value to be loaded<Br>&nbsp
 <Li><Strong>Argout:<Br>DEV_VOID</Strong>
  : <Br>&nbsp
 <Li><Strong>Command allowed for: </Strong><Ul>
@@ -120,7 +120,7 @@ The language device desctructor automatically calls the <i> delete_device() </i>
 <A NAME="LoadAllConfigG"><!-- --></A>
 <h2>5 - LoadAllConfigG</h2>
 <ul>
-<Li><Strong>Description: </Strong> <Br>&nbsp
+<Li><Strong>Description: </Strong> Load all the Registers configs (cmos,amptp,itth ....) with default xpad values, for each chip<Br>&nbsp
 <Li><Strong>Argin:<Br>DEV_VOID</Strong>
  : <Br>&nbsp
 <Li><Strong>Argout:<Br>DEV_VOID</Strong>
@@ -134,7 +134,19 @@ The language device desctructor automatically calls the <i> delete_device() </i>
 <A NAME="LoadConfigG"><!-- --></A>
 <h2>6 - LoadConfigG</h2>
 <ul>
-<Li><Strong>Description: </Strong> <Br>&nbsp
+<Li><Strong>Description: </Strong> Load a specific Register config, with the wanted value, for each chip.
+register can be:
+0->CMOS_DSBL
+1->AMP_TP
+2->ITHH
+3->VADJ
+4->VREF
+5->IMFP
+6->IOTA
+7->IPRE
+8->ITHL
+9->ITUNE
+10->IBUFFER<Br>&nbsp
 <Li><Strong>Argin:<Br>DEVVAR_ULONGARRAY</Strong>
  : register,value<Br>&nbsp
 <Li><Strong>Argout:<Br>DEV_VOID</Strong>
@@ -148,7 +160,7 @@ The language device desctructor automatically calls the <i> delete_device() </i>
 <A NAME="LoadAutoTest"><!-- --></A>
 <h2>7 - LoadAutoTest</h2>
 <ul>
-<Li><Strong>Description: </Strong> <Br>&nbsp
+<Li><Strong>Description: </Strong> Load a known value to the pixel counters.<Br>&nbsp
 <Li><Strong>Argin:<Br>DEV_ULONG</Strong>
  : value to be loaded<Br>&nbsp
 <Li><Strong>Argout:<Br>DEV_VOID</Strong>
@@ -162,7 +174,7 @@ The language device desctructor automatically calls the <i> delete_device() </i>
 <A NAME="GetDacl"><!-- --></A>
 <h2>8 - GetDacl</h2>
 <ul>
-<Li><Strong>Description: </Strong> <Br>&nbsp
+<Li><Strong>Description: </Strong> Get the DACL values and refresh the dacl attribute<Br>&nbsp
 <Li><Strong>Argin:<Br>DEV_VOID</Strong>
  : <Br>&nbsp
 <Li><Strong>Argout:<Br>DEVVAR_USHORTARRAY</Strong>

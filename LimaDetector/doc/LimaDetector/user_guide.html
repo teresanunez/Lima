@@ -44,12 +44,12 @@
 <Tr><Td><Br>&nbsp;<Br>
 <center>
 <h1>
- <Br>
+Adsc CCD detector from Lima <Br>
 User's Guide<Br>&nbsp;<Br> <Br><Br>
-PilatusPixelDetector Class<Br>&nbsp;<Br></Td></Tr>
+AdscCCD Class<Br>&nbsp;<Br></Td></Tr>
 </h1>
 <Tr><Td>
-<b><Center>Revision:  1.1.0 - Author: Arafat NOUREDDINE  <Br>
+<b><Center>Revision:  - Author:  <Br>
  Implemented in C++
 </Center></b>
 </Td></Tr>
@@ -79,7 +79,7 @@ PilatusPixelDetector Class<Br>&nbsp;<Br></Td></Tr>
 	<ul>
 		<li> <a href="http://www.esrf.fr/computing/cs/tango/tango_doc/kernel_doc/cpp_doc/"> Tango::Device_4Impl</a></li>
 		<ul>
-			<li> PilatusPixelDetector</li>
+			<li> AdscCCD</li>
 			</ul>
 		</ul>
 	</ul>
@@ -90,57 +90,13 @@ PilatusPixelDetector Class<Br>&nbsp;<Br></Td></Tr>
 
 
 <Center>
-<Br> <Br> <Br> 
-<Table Border=2 Cellpadding=3 CELLSPACING=0 WIDTH="100%">
-<TR BGCOLOR="#CCCCFF" CLASS="TableHeadingColor">
-<Td COLSPAN=3> <Font Size=+2><Center><b>Device Properties</b></td></Font></Center>
-<TR BGCOLOR="#CCCCFF" CLASS="TableHeadingColor">
-<Td><Center><b>Property name</b></td></Center>
-<Td><Center><b>Property type</b></td></Center>
-<Td><Center><b>Description</b></td></Center>
-<Tr><Td><b><a href=#Dev_DefaultValues>DetectorPort </a></b></Td>
-<Td><Font Size=-1>Tango::DEV_LONG</Font></Td>
-<Td><Font Size=-1>Socket Port of the Detector.</Font></Td></Tr>
-
-<Tr><Td><b><a href=#Dev_DefaultValues>DetectorIP </a></b></Td>
-<Td><Font Size=-1>Tango::DEV_STRING</Font></Td>
-<Td><Font Size=-1>Socket Port of the Detector .</Font></Td></Tr>
-
-<Tr><Td><b><a href=#Dev_DefaultValues>UseReader </a></b></Td>
-<Td><Font Size=-1>Tango::DEV_BOOLEAN</Font></Td>
-<Td><Font Size=-1>Enable/Disable monitoring of directory receiving image files.
-[default = enable reading directory]</Font></Td></Tr>
-
-</Table>
-
 </Center>
 <Br><Br><Br>
 <Br><Br><Br>
 
-<A name=Dev_DefaultValues><!---  ---></a>
-<Font Size=+1>Device Properties Default Values:</Font><Br>
-<Table Border=2 Cellpadding=2 CELLSPACING=2>
-    <tr BGCOLOR="#CCCCFF" CLASS="TableHeadingColor">
-        <Td><b>Property Name</b></td>
-        <td><b>Default Values</b></td>
-    </Tr>
-    <Tr>
-        <Td>DetectorPort</Td>
-        <td>6666</td>
-    </Tr>
-    <Tr>
-        <Td>DetectorIP</Td>
-        <td>-1</td>
-    </Tr>
-    <Tr>
-        <Td>UseReader</Td>
-        <td>true</td>
-    </Tr>
-</Table>
-
-<Br><Br><Br>
 <Center><b>
 There is no Class properties.<Br><Br>
+There is no Device Properties.<Br><Br>
 </Center></b>
 <Br> <Br> <Br> 
 
@@ -157,16 +113,16 @@ There is no Class properties.<Br><Br>
 <TR BGCOLOR="#CCCCFF" CLASS="TableHeadingColor">
 <Td><Center><b>Names</b></td></Center>
 <Td><Center><b>Descriptions</b></td></Center>
-<Tr><Td><b>INIT</b></Td>
-<Td><Font Size=-1></Font></Td></Tr>
-
 <Tr><Td><b>STANDBY</b></Td>
 <Td><Font Size=-1></Font></Td></Tr>
 
-<Tr><Td><b>FAULT</b></Td>
+<Tr><Td><b>INIT</b></Td>
 <Td><Font Size=-1></Font></Td></Tr>
 
 <Tr><Td><b>RUNNING</b></Td>
+<Td><Font Size=-1></Font></Td></Tr>
+
+<Tr><Td><b>FAULT</b></Td>
 <Td><Font Size=-1></Font></Td></Tr>
 
 
@@ -189,20 +145,20 @@ There is no Class properties.<Br><Br>
 <Td><Center><b>Data Type</b></td></Center>
 <Td><Center><b>R/W Type</b></td></Center>
 <Td><Center><b>Expert</b></td></Center>
-<Tr><Td><b>threshold</b>: <Font Size=-1>Define a new threshold (in eV).</Font></Td>
-<Td><Center><Font Size=-1>DEV_LONG</Font></Center></Td><Td><Center><Font Size=-1>READ_WRITE</Font></Center></Td><Td><Center><Font Size=-1>No</Font></Center></Td></Tr>
-
-<Tr><Td><b>gain</b>: <Font Size=-1>Available Gain values :<br> LOW<br> MID<br> HIGH<br> UHIGH<br></Font></Td>
+<Tr><Td><b>imagePath</b>: <Font Size=-1>Change the image path.<br> <br> If the directory does not exist, it will be created if possible according to permissions.<br> A path relative to the current path is accepted.<br></Font></Td>
 <Td><Center><Font Size=-1>DEV_STRING</Font></Center></Td><Td><Center><Font Size=-1>READ_WRITE</Font></Center></Td><Td><Center><Font Size=-1>No</Font></Center></Td></Tr>
 
-<Tr><Td><b>imagePath</b>: <Font Size=-1>Change the image path.<br> <br> If the directory does not exist, it will be created if it is possible to do so with write permission.<br> A path relative to the current path is accepted.<br></Font></Td>
+<Tr><Td><b>fileName</b>: <Font Size=-1>Requested Image file name.</Font></Td>
 <Td><Center><Font Size=-1>DEV_STRING</Font></Center></Td><Td><Center><Font Size=-1>READ_WRITE</Font></Center></Td><Td><Center><Font Size=-1>No</Font></Center></Td></Tr>
 
-<Tr><Td><b>fileName</b>: <Font Size=-1>Image file pattern name.</Font></Td>
-<Td><Center><Font Size=-1>DEV_STRING</Font></Center></Td><Td><Center><Font Size=-1>READ_WRITE</Font></Center></Td><Td><Center><Font Size=-1>No</Font></Center></Td></Tr>
+<Tr><Td><b>useStoredImageDark</b></Td>
+<Td><Center><Font Size=-1>DEV_BOOLEAN</Font></Center></Td><Td><Center><Font Size=-1>READ_WRITE</Font></Center></Td><Td><Center><Font Size=-1>No</Font></Center></Td></Tr>
 
-<Tr><Td><b>latency</b>: <Font Size=-1>Define latency time (redout time ) of the detector (in ms).</Font></Td>
-<Td><Center><Font Size=-1>DEV_DOUBLE</Font></Center></Td><Td><Center><Font Size=-1>READ_WRITE</Font></Center></Td><Td><Center><Font Size=-1>No</Font></Center></Td></Tr>
+<Tr><Td><b>imageKind</b>: <Font Size=-1>imageKind = 0,1, 5 if  useStoredImageDark = 0<br> imageKind = 5 if  useStoredImageDark = 1<br></Font></Td>
+<Td><Center><Font Size=-1>DEV_USHORT</Font></Center></Td><Td><Center><Font Size=-1>READ_WRITE</Font></Center></Td><Td><Center><Font Size=-1>No</Font></Center></Td></Tr>
+
+<Tr><Td><b>isLastImage</b></Td>
+<Td><Center><Font Size=-1>DEV_BOOLEAN</Font></Center></Td><Td><Center><Font Size=-1>READ_WRITE</Font></Center></Td><Td><Center><Font Size=-1>No</Font></Center></Td></Tr>
 
 </Table>
 </Center>
@@ -233,13 +189,7 @@ There is no Class properties.<Br><Br>
 <Tr><Td><b>Status</b></Td>
 <Td><Font Size=-1>DEV_VOID</Font></Td>
 <Td><Font Size=-1>CONST_DEV_STRING</Font></Td>
-<Tr><Td><b>SetThresholdAndGain</b></Td>
-<Td><Font Size=-1>DEVVAR_LONGSTRINGARRAY</Font></Td>
-<Td><Font Size=-1>DEV_VOID</Font></Td>
-<Tr><Td><b>SetMxSettings</b></Td>
-<Td><Font Size=-1>DEV_STRING</Font></Td>
-<Td><Font Size=-1>DEV_VOID</Font></Td>
-<Tr><Td><b>SendAnyCommand</b></Td>
+<Tr><Td><b>SetHeaderParameters</b></Td>
 <Td><Font Size=-1>DEV_STRING</Font></Td>
 <Td><Font Size=-1>DEV_VOID</Font></Td>
 
@@ -267,7 +217,7 @@ The language device desctructor automatically calls the <i> delete_device() </i>
 <Li><Strong>Argout:<Br>DEV_VOID</Strong>
  : none.<Br>&nbsp
 <Li><Strong>Command allowed for: </Strong><Ul>
-<Li>Tango::INIT<Li>Tango::STANDBY<Li>Tango::FAULT<Li>Tango::RUNNING</Ul>
+<Li>Tango::STANDBY<Li>Tango::INIT<Li>Tango::RUNNING<Li>Tango::FAULT</Ul>
 <Br>&nbsp
 </ul><Br>
 <Br>
@@ -281,7 +231,7 @@ The language device desctructor automatically calls the <i> delete_device() </i>
 <Li><Strong>Argout:<Br>DEV_STATE</Strong>
  : State Code<Br>&nbsp
 <Li><Strong>Command allowed for: </Strong><Ul>
-<Li>Tango::INIT<Li>Tango::STANDBY<Li>Tango::FAULT<Li>Tango::RUNNING</Ul>
+<Li>Tango::STANDBY<Li>Tango::INIT<Li>Tango::RUNNING<Li>Tango::FAULT</Ul>
 <Br>&nbsp
 </ul><Br>
 <Br>
@@ -295,59 +245,28 @@ The language device desctructor automatically calls the <i> delete_device() </i>
 <Li><Strong>Argout:<Br>CONST_DEV_STRING</Strong>
  : Status description<Br>&nbsp
 <Li><Strong>Command allowed for: </Strong><Ul>
-<Li>Tango::INIT<Li>Tango::STANDBY<Li>Tango::FAULT<Li>Tango::RUNNING</Ul>
+<Li>Tango::STANDBY<Li>Tango::INIT<Li>Tango::RUNNING<Li>Tango::FAULT</Ul>
 <Br>&nbsp
 </ul><Br>
 <Br>
-<A NAME="SetThresholdAndGain"><!-- --></A>
-<A NAME="SetThresholdAndGain"><!-- --></A>
-<h2>4 - SetThresholdAndGain</h2>
-<ul>
-<Li><Strong>Description: </Strong> Define Threshold (eV) and Gain (LOW, MID, HIGH, UHIGH).<Br>&nbsp
-<Li><Strong>Argin:<Br>DEVVAR_LONGSTRINGARRAY</Strong>
- : <Br>&nbsp
-<Li><Strong>Argout:<Br>DEV_VOID</Strong>
- : <Br>&nbsp
-<Li><Strong>Command allowed for: </Strong><Ul>
-<Li>Tango::STANDBY<Li>Tango::FAULT</Ul>
-<Br>&nbsp
-</ul><Br>
-<Br>
-<A NAME="SetMxSettings"><!-- --></A>
-<A NAME="SetMxSettings"><!-- --></A>
-<h2>5 - SetMxSettings</h2>
+<A NAME="SetHeaderParameters"><!-- --></A>
+<A NAME="SetHeaderParameters"><!-- --></A>
+<h2>4 - SetHeaderParameters</h2>
 <ul>
 <Li><Strong>Description: </Strong> Set crystallographic parameters reported in the image header. <br>
 
-[parm_name value] [parm_name value] ... <br>
+[param_name=value]<CARRIAGE RETURN>[param_name=value]<CARRIAGE RETURN>...<br>
 
-Possible values :<br>
-Wavelength, Energy_range, Detector_distance, Detector_Voffset, Beam_xy, <br>
-Beam_x, Beam_y, Flux, Filter_transmission, Start_angle, Angle_increment, <br>
-Detector_2theta, Polarization, Alpha, Kappa, Phi, Phi_increment, Chi, <br>
-Chi_increment, Oscillation_axis, N_oscillations, Start_position, <br>
-Position_increment, Shutter_time, CBF_template_file <br><Br>&nbsp
+sample :<br>
+DISTANCE=300\nPHI=88.5\n...\nWAVELENGTH=0.987\n\0<br>
+
+List of availables param_name :<br><Br>&nbsp
 <Li><Strong>Argin:<Br>DEV_STRING</Strong>
  : <Br>&nbsp
 <Li><Strong>Argout:<Br>DEV_VOID</Strong>
  : <Br>&nbsp
 <Li><Strong>Command allowed for: </Strong><Ul>
 <Li>Tango::STANDBY<Li>Tango::FAULT</Ul>
-<Br>&nbsp
-</ul><Br>
-<Br>
-<A NAME="SendAnyCommand"><!-- --></A>
-<A NAME="SendAnyCommand"><!-- --></A>
-<h2>6 - SendAnyCommand</h2>
-<ul>
-<Li><Strong>Description: </Strong> Allow to send any commad to Camserver.<br>
-See documentation of Pilatus/Camserver.<Br>&nbsp
-<Li><Strong>Argin:<Br>DEV_STRING</Strong>
- : <Br>&nbsp
-<Li><Strong>Argout:<Br>DEV_VOID</Strong>
- : <Br>&nbsp
-<Li><Strong>Command allowed for: </Strong><Ul>
-<Li>Tango::STANDBY<Li>Tango::FAULT<Li>Tango::RUNNING</Ul>
 <Br>&nbsp
 </ul><Br>
 <Br>
