@@ -45,10 +45,10 @@ CtControl* ControlFactory::get_control( const string& detector_type)
                 db_data.push_back(DbDatum("DetectorTimeout"));
                 db_data.push_back(DbDatum("DetectorPacketSize"));
                 (Tango::Util::instance()->get_database())->get_device_property(my_device_name, db_data);
-                short detector_timeout = 11000;
-                db_data[0] >> detector_timeout;
                 string camera_ip;
-                db_data[1] >> camera_ip;
+                db_data[0] >> camera_ip;
+                short detector_timeout = 11000;
+                db_data[1] >> detector_timeout;
                 long packet_size = -1;
                 db_data[2] >> packet_size;
                 my_camera_basler            = new Basler::Camera(camera_ip, packet_size);
