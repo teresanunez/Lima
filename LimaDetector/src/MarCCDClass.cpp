@@ -269,6 +269,39 @@ void MarCCDClass::device_factory(const Tango::DevVarStringArray *devlist_ptr)
 	//-------------------------------------------------------------
 
 }
+//+----------------------------------------------------------------------------
+//	Method: MarCCDClass::attribute_factory(vector<Tango::Attr *> &att_list)
+//-----------------------------------------------------------------------------
+void MarCCDClass::attribute_factory(vector<Tango::Attr *> &att_list)
+{
+	//	Attribute : imageName
+	imageNameAttrib	*image_name = new imageNameAttrib();
+	Tango::UserDefaultAttrProp	image_name_prop;
+	image_name_prop.set_label("image name");
+	image_name_prop.set_unit(" ");
+	image_name_prop.set_standard_unit(" ");
+	image_name_prop.set_display_unit(" ");
+	image_name_prop.set_format("%s");
+	image_name_prop.set_description("The image file name");
+	image_name->set_default_properties(image_name_prop);
+	att_list.push_back(image_name);
+
+	//	Attribute : imageIndex
+	imageIndexAttrib	*image_index = new imageIndexAttrib();
+	Tango::UserDefaultAttrProp	image_index_prop;
+	image_index_prop.set_label("image index");
+	image_index_prop.set_unit(" ");
+	image_index_prop.set_standard_unit(" ");
+	image_index_prop.set_display_unit(" ");
+	image_index_prop.set_format("%6d");
+	image_index_prop.set_min_value("0");
+	image_index_prop.set_description("The current image index");
+	image_index->set_default_properties(image_index_prop);
+	att_list.push_back(image_index);
+
+	//	End of Automatic code generation
+	//-------------------------------------------------------------
+}
 
 
 
@@ -356,36 +389,6 @@ void MarCCDClass::set_default_property()
 
 	prop_name = "DetectorTargetPath";
 	prop_desc = "Detector generated image(s) path.";
-	prop_def  = "/no/path/defined/";
-	vect_data.clear();
-	vect_data.push_back("/no/path/defined/");
-	if (prop_def.length()>0)
-	{
-		Tango::DbDatum	data(prop_name);
-		data << vect_data ;
-		dev_def_prop.push_back(data);
-		add_wiz_dev_prop(prop_name, prop_desc,  prop_def);
-	}
-	else
-		add_wiz_dev_prop(prop_name, prop_desc);
-
-	prop_name = "DetectorImageName";
-	prop_desc = "Detector generated image name(s)";
-	prop_def  = "imgRAW.00xx";
-	vect_data.clear();
-	vect_data.push_back("imgRAW.00xx");
-	if (prop_def.length()>0)
-	{
-		Tango::DbDatum	data(prop_name);
-		data << vect_data ;
-		dev_def_prop.push_back(data);
-		add_wiz_dev_prop(prop_name, prop_desc,  prop_def);
-	}
-	else
-		add_wiz_dev_prop(prop_name, prop_desc);
-
-	prop_name = "DirectoryWatcherPath";
-	prop_desc = "Directory monitored by device , in  order to Reda/Display image.";
 	prop_def  = "/no/path/defined/";
 	vect_data.clear();
 	vect_data.push_back("/no/path/defined/");

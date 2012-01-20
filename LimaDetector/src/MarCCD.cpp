@@ -60,6 +60,8 @@ static const char *RcsId = "$Id:  $";
 #include <tango.h>
 #include <PogoHelper.h>
 
+const size_t MAX_STRING_LENGTH = 256;
+
 namespace MarCCD_ns
 {
 
@@ -100,6 +102,8 @@ MarCCD::MarCCD(Tango::DeviceClass *cl,const char *s,const char *d)
 void MarCCD::delete_device()
 {
 	//	Delete device allocated objects
+	DELETE_DEVSTRING_ATTRIBUTE(attr_imageName_read);   
+	DELETE_SCALAR_ATTRIBUTE(attr_imageIndex_read);
 
     //!!!! ONLY LimaDetector device can do this !!!!
     //if(m_ct!=0)
@@ -122,9 +126,11 @@ void MarCCD::init_device()
 
 	// Initialise variables to default values
 	//--------------------------------------------
+	CREATE_DEVSTRING_ATTRIBUTE(attr_imageName_read, MAX_STRING_LENGTH);   
+	CREATE_SCALAR_ATTRIBUTE(attr_imageIndex_read);
+
 	get_device_property();
 
-	
 	m_is_device_initialized = false;
 	m_status_message.str("");
 	
@@ -187,8 +193,6 @@ void MarCCD::get_device_property()
 	dev_prop.push_back(Tango::DbDatum("DetectorIP"));
 	dev_prop.push_back(Tango::DbDatum("DetectorPort"));
 	dev_prop.push_back(Tango::DbDatum("DetectorTargetPath"));
-	dev_prop.push_back(Tango::DbDatum("DetectorImageName"));
-	dev_prop.push_back(Tango::DbDatum("DirectoryWatcherPath"));
 
 	//	Call database and extract values
 	//--------------------------------------------
@@ -232,28 +236,6 @@ void MarCCD::get_device_property()
 	//	And try to extract DetectorTargetPath value from database
 	if (dev_prop[i].is_empty()==false)	dev_prop[i]  >>  detectorTargetPath;
 
-	//	Try to initialize DetectorImageName from class property
-	cl_prop = ds_class->get_class_property(dev_prop[++i].name);
-	if (cl_prop.is_empty()==false)	cl_prop  >>  detectorImageName;
-	else {
-		//	Try to initialize DetectorImageName from default device value
-		def_prop = ds_class->get_default_device_property(dev_prop[i].name);
-		if (def_prop.is_empty()==false)	def_prop  >>  detectorImageName;
-	}
-	//	And try to extract DetectorImageName value from database
-	if (dev_prop[i].is_empty()==false)	dev_prop[i]  >>  detectorImageName;
-
-	//	Try to initialize DirectoryWatcherPath from class property
-	cl_prop = ds_class->get_class_property(dev_prop[++i].name);
-	if (cl_prop.is_empty()==false)	cl_prop  >>  directoryWatcherPath;
-	else {
-		//	Try to initialize DirectoryWatcherPath from default device value
-		def_prop = ds_class->get_default_device_property(dev_prop[i].name);
-		if (def_prop.is_empty()==false)	def_prop  >>  directoryWatcherPath;
-	}
-	//	And try to extract DirectoryWatcherPath value from database
-	if (dev_prop[i].is_empty()==false)	dev_prop[i]  >>  directoryWatcherPath;
-
 
 
 	//	End of Automatic code generation
@@ -261,8 +243,6 @@ void MarCCD::get_device_property()
 	create_property_if_empty(dev_prop,"127.0.0.1","DetectorIP");
 	create_property_if_empty(dev_prop,"-1","DetectorPort");
 	create_property_if_empty(dev_prop,"/no/path/defined/","DetectorTargetPath");
-	create_property_if_empty(dev_prop,"imgRAW.00xx","DetectorImageName");
-	create_property_if_empty(dev_prop,"/no/path/defined/","DirectoryWatcherPath");
 }
 //+----------------------------------------------------------------------------
 //
@@ -293,7 +273,208 @@ void MarCCD::always_executed_hook()
                     static_cast<const char*> ("MarCCD::always_executed_hook"));
     }	
 }
+//+----------------------------------------------------------------------------
+//
+// method : 		MarCCD::read_attr_hardware
+// 
+// description : 	Hardware acquisition for attributes.
+//
+//-----------------------------------------------------------------------------
+void MarCCD::read_attr_hardware(vector<long> &attr_list)
+{
+	DEBUG_STREAM << "MarCCD::read_attr_hardware(vector<long> &attr_list) entering... "<< endl;
+	//	Add your own code here
+}
 
+//+----------------------------------------------------------------------------
+//
+// method : 		MarCCD::read_imageName
+// 
+// description : 	Extract real attribute values for imageName acquisition result.
+//
+//-----------------------------------------------------------------------------
+void MarCCD::read_imageName(Tango::Attribute &attr)
+{
+	DEBUG_STREAM << "MarCCD::read_imageName(Tango::Attribute &attr) entering... "<< endl;
+	std::string imgName("");
+
+	try
+	{
+		imgName = m_hw->getImageFileName();
+		::strcpy( *attr_imageName_read, imgName.c_str() );
+		attr.set_value(attr_imageName_read);
+	}
+	catch(Tango::DevFailed& df)
+	{
+		ERROR_STREAM << df << endl;
+		//- rethrow exception
+		Tango::Except::re_throw_exception(df,
+			static_cast<const char*> ("TANGO_DEVICE_ERROR"),
+			static_cast<const char*> (string(df.errors[0].desc).c_str()),
+			static_cast<const char*> ("MarCCD::read_imageName"));
+	}
+	catch(...)
+	{
+		Tango::Except::throw_exception(
+			static_cast<const char*> ("TANGO_DEVICE_ERROR"),
+			static_cast<const char*> ("Unknown exception caught."),
+			static_cast<const char*> ("MarCCD::read_imageName"));
+	}
+}
+
+//+----------------------------------------------------------------------------
+//
+// method : 		MarCCD::write_imageName
+// 
+// description : 	Write imageName attribute values to hardware.
+//
+//-----------------------------------------------------------------------------
+void MarCCD::write_imageName(Tango::WAttribute &attr)
+{
+	DEBUG_STREAM << "MarCCD::write_imageName(Tango::WAttribute &attr) entering... "<< endl;
+	std::string imgName("");
+
+	try
+	{
+		attr.get_write_value(attr_imageName_write);
+		m_hw->setImageFileName(attr_imageName_write);
+	}
+	catch(Tango::DevFailed& df)
+	{
+		ERROR_STREAM << df << endl;
+		//- rethrow exception
+		Tango::Except::re_throw_exception(df,
+			static_cast<const char*> ("TANGO_DEVICE_ERROR"),
+			static_cast<const char*> (string(df.errors[0].desc).c_str()),
+			static_cast<const char*> ("MarCCD::write_imageName"));
+	}
+	catch(...)
+	{
+		Tango::Except::throw_exception(
+			static_cast<const char*> ("TANGO_DEVICE_ERROR"),
+			static_cast<const char*> ("Unknown exception caught."),
+			static_cast<const char*> ("MarCCD::write_imageName"));
+	}
+}
+
+//+----------------------------------------------------------------------------
+//
+// method : 		MarCCD::read_imageIndex
+// 
+// description : 	Extract real attribute values for imageIndex acquisition result.
+//
+//-----------------------------------------------------------------------------
+void MarCCD::read_imageIndex(Tango::Attribute &attr)
+{
+	DEBUG_STREAM << "MarCCD::read_imageIndex(Tango::Attribute &attr) entering... "<< endl;
+	try
+	{
+		*attr_imageIndex_read = m_hw->getImageIndex();
+		attr.set_value(attr_imageIndex_read);
+	}
+	catch(Tango::DevFailed& df)
+	{
+		ERROR_STREAM << df << endl;
+		//- rethrow exception
+		Tango::Except::re_throw_exception(df,
+			static_cast<const char*> ("TANGO_DEVICE_ERROR"),
+			static_cast<const char*> (string(df.errors[0].desc).c_str()),
+			static_cast<const char*> ("MarCCD::read_imageIndex"));
+	}
+	catch(...)
+	{
+		Tango::Except::throw_exception(
+			static_cast<const char*> ("TANGO_DEVICE_ERROR"),
+			static_cast<const char*> ("Unknown exception caught."),
+			static_cast<const char*> ("MarCCD::read_imageIndex"));
+	}
+}
+
+//+----------------------------------------------------------------------------
+//
+// method : 		MarCCD::write_imageIndex
+// 
+// description : 	Write imageIndex attribute values to hardware.
+//
+//-----------------------------------------------------------------------------
+void MarCCD::write_imageIndex(Tango::WAttribute &attr)
+{
+	DEBUG_STREAM << "MarCCD::write_imageIndex(Tango::WAttribute &attr) entering... "<< endl;
+	try
+	{
+		attr.get_write_value(attr_imageIndex_write);
+		m_hw->setImageIndex(attr_imageIndex_write);
+	}
+	catch(Tango::DevFailed& df)
+	{
+		ERROR_STREAM << df << endl;
+		//- rethrow exception
+		Tango::Except::re_throw_exception(df,
+			static_cast<const char*> ("TANGO_DEVICE_ERROR"),
+			static_cast<const char*> (string(df.errors[0].desc).c_str()),
+			static_cast<const char*> ("MarCCD::write_imageIndex"));
+	}
+	catch(...)
+	{
+		Tango::Except::throw_exception(
+			static_cast<const char*> ("TANGO_DEVICE_ERROR"),
+			static_cast<const char*> ("Unknown exception caught."),
+			static_cast<const char*> ("MarCCD::write_imageIndex"));
+	}
+}
+
+//+------------------------------------------------------------------
+/**
+ *	method:	MarCCD::take_background
+ *
+ *	description:	method to execute "TakeBackground"
+ *	Command to force the MarCCD detector to get a background frame.
+ *
+ *
+ */
+//+------------------------------------------------------------------
+void MarCCD::take_background()
+{
+	DEBUG_STREAM << "MarCCD::take_background(): entering... !" << endl;
+
+	//	Add your own code to control device here
+	if(m_ct!=0)
+	{
+		try
+		{
+			if(m_hw!=0)
+				m_hw->takeBackgroundFrame();
+		}
+		catch(Tango::DevFailed& df)
+		{
+			ERROR_STREAM << df << endl;
+			//- rethrow exception
+			Tango::Except::re_throw_exception(df,
+				static_cast<const char*> ("TANGO_DEVICE_ERROR"),
+				static_cast<const char*> (string(df.errors[0].desc).c_str()),
+				static_cast<const char*> ("MarCCD::take_background"));
+		}
+		catch(Exception& e)
+		{
+			ERROR_STREAM << e.getErrMsg() << endl;
+			//- throw exception
+			Tango::Except::throw_exception(
+				static_cast<const char*> ("TANGO_DEVICE_ERROR"),
+				static_cast<const char*> (e.getErrMsg().c_str()),
+				static_cast<const char*> ("MarCCD::take_background"));
+		}
+		catch(...)
+		{
+			ERROR_STREAM << "MarCCD::read_binnig -> caught [...]" << endl;
+			//- throw exception
+			Tango::Except::throw_exception(
+				static_cast<const char*> ("UNKNOWN_ERROR"),
+				static_cast<const char*> ("MarCCD::take_background -> caught [...]"),
+				static_cast<const char*> ("MarCCD::take_background"));
+		}
+	}
+
+}
 
 //+------------------------------------------------------------------
 /**
@@ -460,57 +641,5 @@ int MarCCD::FindIndexFromPropertyName(Tango::DbData& dev_prop, string property_n
 }
 
 
-//+------------------------------------------------------------------
-/**
- *	method:	MarCCD::take_background
- *
- *	description:	method to execute "TakeBackground"
- *	Command to force the MarCCD detector to get a background frame.
- *
- *
- */
-//+------------------------------------------------------------------
-void MarCCD::take_background()
-{
-	DEBUG_STREAM << "MarCCD::take_background(): entering... !" << endl;
-
-	//	Add your own code to control device here
-	if(m_ct!=0)
-	{
-		try
-		{
-			if(m_hw!=0)
-				m_hw->takeBackgroundFrame();
-		}
-		catch(Tango::DevFailed& df)
-		{
-			ERROR_STREAM << df << endl;
-			//- rethrow exception
-			Tango::Except::re_throw_exception(df,
-				static_cast<const char*> ("TANGO_DEVICE_ERROR"),
-				static_cast<const char*> (string(df.errors[0].desc).c_str()),
-				static_cast<const char*> ("MarCCD::take_background"));
-		}
-		catch(Exception& e)
-		{
-			ERROR_STREAM << e.getErrMsg() << endl;
-			//- throw exception
-			Tango::Except::throw_exception(
-				static_cast<const char*> ("TANGO_DEVICE_ERROR"),
-				static_cast<const char*> (e.getErrMsg().c_str()),
-				static_cast<const char*> ("MarCCD::take_background"));
-		}
-		catch(...)
-		{
-			ERROR_STREAM << "MarCCD::read_binnig -> caught [...]" << endl;
-			//- throw exception
-			Tango::Except::throw_exception(
-				static_cast<const char*> ("UNKNOWN_ERROR"),
-				static_cast<const char*> ("MarCCD::take_background -> caught [...]"),
-				static_cast<const char*> ("MarCCD::take_background"));
-		}
-	}
-
-}
 
 }	//	namespace

@@ -46,6 +46,34 @@ namespace MarCCD_ns
 {//=====================================
 //	Define classes for attributes
 //=====================================
+class imageIndexAttrib: public Tango::Attr
+{
+public:
+	imageIndexAttrib():Attr("imageIndex", Tango::DEV_USHORT, Tango::READ_WRITE) {};
+	~imageIndexAttrib() {};
+	
+	virtual void read(Tango::DeviceImpl *dev,Tango::Attribute &att)
+	{(static_cast<MarCCD *>(dev))->read_imageIndex(att);}
+	virtual void write(Tango::DeviceImpl *dev,Tango::WAttribute &att)
+	{(static_cast<MarCCD *>(dev))->write_imageIndex(att);}
+	virtual bool is_allowed(Tango::DeviceImpl *dev,Tango::AttReqType ty)
+	{return (static_cast<MarCCD *>(dev))->is_imageIndex_allowed(ty);}
+};
+
+class imageNameAttrib: public Tango::Attr
+{
+public:
+	imageNameAttrib():Attr("imageName", Tango::DEV_STRING, Tango::READ_WRITE) {};
+	~imageNameAttrib() {};
+	
+	virtual void read(Tango::DeviceImpl *dev,Tango::Attribute &att)
+	{(static_cast<MarCCD *>(dev))->read_imageName(att);}
+	virtual void write(Tango::DeviceImpl *dev,Tango::WAttribute &att)
+	{(static_cast<MarCCD *>(dev))->write_imageName(att);}
+	virtual bool is_allowed(Tango::DeviceImpl *dev,Tango::AttReqType ty)
+	{return (static_cast<MarCCD *>(dev))->is_imageName_allowed(ty);}
+};
+
 //=========================================
 //	Define classes for commands
 //=========================================
@@ -107,6 +135,7 @@ protected:
 	static MarCCDClass *_instance;
 	void command_factory();
 	void get_class_property();
+	void attribute_factory(vector<Tango::Attr *> &);
 	void write_class_property();
 	void set_default_property();
 	string get_cvstag();

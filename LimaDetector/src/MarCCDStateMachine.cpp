@@ -55,6 +55,34 @@ namespace MarCCD_ns
 //		Attributes Allowed Methods
 //=================================================
 
+//+----------------------------------------------------------------------------
+//
+// method : 		MarCCD::is_imageName_allowed
+// 
+// description : 	Read/Write allowed for imageName attribute.
+//
+//-----------------------------------------------------------------------------
+bool MarCCD::is_imageName_allowed(Tango::AttReqType type)
+{
+		//	End of Generated Code
+
+		//	Re-Start of Generated Code
+	return true;
+}
+//+----------------------------------------------------------------------------
+//
+// method : 		MarCCD::is_imageIndex_allowed
+// 
+// description : 	Read/Write allowed for imageIndex attribute.
+//
+//-----------------------------------------------------------------------------
+bool MarCCD::is_imageIndex_allowed(Tango::AttReqType type)
+{
+		//	End of Generated Code
+
+		//	Re-Start of Generated Code
+	return true;
+}
 
 //=================================================
 //		Commands Allowed Methods
