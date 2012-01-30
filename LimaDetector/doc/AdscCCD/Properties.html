@@ -62,10 +62,14 @@ Revision:  - Author:
 <Td><Center><b>Property name</b></td></Center>
 <Td><Center><b>Property type</b></td></Center>
 <Td><Center><b>Description</b></td></Center>
+<Tr><Td><b><a href=#Dev_DefaultValues>ReaderTimeout </a></b></Td>
+<Td><Font Size=-1>Tango::DEV_SHORT</Font></Td>
+<Td><Font Size=-1>During acquisition, this is the time before declaring that is no available image returned by detector. (in ms)</Font></Td></Tr>
+
 <Tr><Td><b><a href=#Dev_DefaultValues>UseReader </a></b></Td>
 <Td><Font Size=-1>Tango::DEV_BOOLEAN</Font></Td>
-<Td><Font Size=-1>Enable/Disable monitoring of directory receiving image files.
-[default = enable reading directory]</Font></Td></Tr>
+<Td><Font Size=-1>Enable/Disable using ImageDiffraction to read image file.
+[default = enable]</Font></Td></Tr>
 
 </Table>
 
@@ -79,6 +83,10 @@ Revision:  - Author:
     <tr BGCOLOR="#CCCCFF" CLASS="TableHeadingColor">
         <Td><b>Property Name</b></td>
         <td><b>Default Values</b></td>
+    </Tr>
+    <Tr>
+        <Td>ReaderTimeout</Td>
+        <td>1000</td>
     </Tr>
     <Tr>
         <Td>UseReader</Td>

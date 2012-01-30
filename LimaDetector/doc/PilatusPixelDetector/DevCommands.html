@@ -102,9 +102,23 @@ The language device desctructor automatically calls the <i> delete_device() </i>
 <Br>&nbsp
 </ul><Br>
 <Br>
+<A NAME="SetEnergy"><!-- --></A>
+<A NAME="SetEnergy"><!-- --></A>
+<h2>4 - SetEnergy</h2>
+<ul>
+<Li><Strong>Description: </Strong> Define Energy in eV.<Br>&nbsp
+<Li><Strong>Argin:<Br>DEV_DOUBLE</Strong>
+ : <Br>&nbsp
+<Li><Strong>Argout:<Br>DEV_VOID</Strong>
+ : <Br>&nbsp
+<Li><Strong>Command allowed for: </Strong><Ul>
+<Li>Tango::STANDBY<Li>Tango::FAULT</Ul>
+<Br>&nbsp
+</ul><Br>
+<Br>
 <A NAME="SetThresholdAndGain"><!-- --></A>
 <A NAME="SetThresholdAndGain"><!-- --></A>
-<h2>4 - SetThresholdAndGain</h2>
+<h2>5 - SetThresholdAndGain</h2>
 <ul>
 <Li><Strong>Description: </Strong> Define Threshold (eV) and Gain (LOW, MID, HIGH, UHIGH).<Br>&nbsp
 <Li><Strong>Argin:<Br>DEVVAR_LONGSTRINGARRAY</Strong>
@@ -112,19 +126,19 @@ The language device desctructor automatically calls the <i> delete_device() </i>
 <Li><Strong>Argout:<Br>DEV_VOID</Strong>
  : <Br>&nbsp
 <Li><Strong>Command allowed for: </Strong><Ul>
-<Li>Tango::STANDBY</Ul>
+<Li>Tango::STANDBY<Li>Tango::FAULT</Ul>
 <Br>&nbsp
 </ul><Br>
 <Br>
 <A NAME="SetMxSettings"><!-- --></A>
 <A NAME="SetMxSettings"><!-- --></A>
-<h2>5 - SetMxSettings</h2>
+<h2>6 - SetMxSettings</h2>
 <ul>
 <Li><Strong>Description: </Strong> Set crystallographic parameters reported in the image header. <br>
 
-[parm_name value] [parm_name value] ... <br>
+[param_name value] [param_name value] ... <br>
 
-Possible values :<br>
+List of availables param_name :<br>
 Wavelength, Energy_range, Detector_distance, Detector_Voffset, Beam_xy, <br>
 Beam_x, Beam_y, Flux, Filter_transmission, Start_angle, Angle_increment, <br>
 Detector_2theta, Polarization, Alpha, Kappa, Phi, Phi_increment, Chi, <br>
@@ -135,15 +149,15 @@ Position_increment, Shutter_time, CBF_template_file <br><Br>&nbsp
 <Li><Strong>Argout:<Br>DEV_VOID</Strong>
  : <Br>&nbsp
 <Li><Strong>Command allowed for: </Strong><Ul>
-<Li>Tango::STANDBY</Ul>
+<Li>Tango::STANDBY<Li>Tango::FAULT</Ul>
 <Br>&nbsp
 </ul><Br>
 <Br>
 <A NAME="SendAnyCommand"><!-- --></A>
 <A NAME="SendAnyCommand"><!-- --></A>
-<h2>6 - SendAnyCommand</h2>
+<h2>7 - SendAnyCommand</h2>
 <ul>
-<Li><Strong>Description: </Strong> Allow to send any commad to Camserver.<br>
+<Li><Strong>Description: </Strong> Allow to send any command to Camserver.<br>
 See documentation of Pilatus/Camserver.<Br>&nbsp
 <Li><Strong>Argin:<Br>DEV_STRING</Strong>
  : <Br>&nbsp

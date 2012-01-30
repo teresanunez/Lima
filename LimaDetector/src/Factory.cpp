@@ -42,14 +42,19 @@ CtControl* ControlFactory::get_control( const string& detector_type)
             {                
                 DbData db_data;
                 db_data.push_back(DbDatum("DetectorIP"));
+                db_data.push_back(DbDatum("DetectorTimeout"));
                 db_data.push_back(DbDatum("DetectorPacketSize"));
                 (Tango::Util::instance()->get_database())->get_device_property(my_device_name, db_data);
                 string camera_ip;
                 db_data[0] >> camera_ip;
+                short detector_timeout = 11000;
+                db_data[1] >> detector_timeout;
                 long packet_size = -1;
-                db_data[1] >> packet_size;
+                db_data[2] >> packet_size;
                 my_camera_basler            = new Basler::Camera(camera_ip, packet_size);
                 my_interface_basler         = new Basler::Interface(*my_camera_basler);
+                if(my_interface_basler)
+                	my_interface_basler->setTimeout(detector_timeout);
                 my_control                  = new CtControl(my_interface_basler);
                 ControlFactory::is_created  = true;                
                 return my_control;
@@ -113,22 +118,16 @@ CtControl* ControlFactory::get_control( const string& detector_type)
           db_data.push_back(DbDatum("DetectorIP"));
           db_data.push_back(DbDatum("DetectorPort"));
           db_data.push_back(DbDatum("DetectorTargetPath"));
-          db_data.push_back(DbDatum("DetectorImageName"));
-          db_data.push_back(DbDatum("DirectoryWatcherPath"));
-  
+
           (Tango::Util::instance()->get_database())->get_device_property(my_device_name, db_data);
-          string camera_ip;
-          string img_path;
-          string img_name;
-          string img_dir_watcher;
+					std::string camera_ip;
+          std::string img_path;
           unsigned long camera_port;
           db_data[0] >> camera_ip;
           db_data[1] >> camera_port;
           db_data[2] >> img_path;
-          db_data[3] >> img_name;
-          db_data[4] >> img_dir_watcher;
   
-          my_camera_marccd           = new Marccd::Camera(camera_ip.c_str(), camera_port, img_path, img_name, img_dir_watcher);
+          my_camera_marccd           = new Marccd::Camera(camera_ip.c_str(), camera_port, img_path);
           my_camera_marccd->go(2000);        
           my_interface_marccd        = new Marccd::Interface(*my_camera_marccd);
           my_control                 = new CtControl(my_interface_marccd);
@@ -145,16 +144,21 @@ CtControl* ControlFactory::get_control( const string& detector_type)
             if(!ControlFactory::is_created)
             {
                 DbData db_data;
+                db_data.push_back(DbDatum("ReaderTimeout"));
                 db_data.push_back(DbDatum("UseReader"));
                 (Tango::Util::instance()->get_database())->get_device_property(my_device_name, db_data);
+                short reader_timeout = 1000;
                 bool use_reader;
-                db_data[0] >> use_reader;
+                db_data[0] >> reader_timeout;
+                db_data[1] >> use_reader;
             	my_camera_adsc                = new Adsc::Camera();
-                if(my_camera_adsc && use_reader)
-                	my_camera_adsc->enableDirectoryWatcher();
-                if(my_camera_adsc && !use_reader)
-                	my_camera_adsc->disableDirectoryWatcher();
                 my_interface_adsc             = new Adsc::Interface(*my_camera_adsc);
+                if(my_interface_adsc && use_reader)
+                	my_interface_adsc->enableReader();
+                if(my_interface_adsc && !use_reader)
+                	my_interface_adsc->disableReader();
+                if(my_interface_adsc)
+                	my_interface_adsc->setTimeout(reader_timeout);
                 my_control                    = new CtControl(my_interface_adsc);
                 ControlFactory::is_created    = true;
                 return my_control;

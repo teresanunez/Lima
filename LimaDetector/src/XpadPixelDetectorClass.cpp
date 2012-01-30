@@ -539,10 +539,10 @@ void XpadPixelDetectorClass::set_default_property()
 	//	Set Default Class Properties
 	//	Set Default Device Properties
 	prop_name = "AcquisitionType";
-	prop_desc = "Type of Acquisition:\n0->slow (readOneImage)\n1->fast (getImgSeq)";
-	prop_def  = "1";
+	prop_desc = "Type of Acquisition:<BR>\n0->slow 16 bits (readOneImage)<BR>\n1->fast 16 bis (getImgSeq)<BR>\n2->slow 32 bits<BR>\n3->fast async 16 bits<BR>";
+	prop_def  = "0";
 	vect_data.clear();
-	vect_data.push_back("1");
+	vect_data.push_back("0");
 	if (prop_def.length()>0)
 	{
 		Tango::DbDatum	data(prop_name);

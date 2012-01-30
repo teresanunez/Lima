@@ -1058,4 +1058,7 @@ Tango::DevVarUShortArray *XpadPixelDetector::get_dacl()
 	return argout;
 }
 
+
+
+
 }	//	namespace
