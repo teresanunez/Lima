@@ -54,6 +54,10 @@ static const char *RcsId = "$Id:  $";
 //  LoadConfigG     |  load_config_g()
 //  LoadAutoTest    |  load_auto_test()
 //  GetDacl         |  get_dacl()
+//  SaveConfigL     |  save_config_l()
+//  SaveConfigG     |  save_config_g()
+//  LoadConfig      |  load_config()
+//  Reset           |  reset()
 //
 //===================================================================
 
@@ -195,11 +199,22 @@ void XpadPixelDetector::init_device()
 		}
 		
 		//- get interface to specific detector
-		m_hw = dynamic_cast<Xpad::Interface*>(m_ct->hwInterface());
-		if(m_hw==0)
+		m_interface = dynamic_cast<Xpad::Interface*>(m_ct->hwInterface());
+		if(m_interface==0)
 		{
 			INFO_STREAM<<"Initialization Failed : Unable to get the interface of camera plugin !"<<endl;
 			m_status_message <<"Initialization Failed : Unable to get the interface of camera plugin !"<< endl;
+			m_is_device_initialized = false;
+			set_state(Tango::INIT);		
+			return;			
+		}
+
+        //- get camera to specific detector
+		m_camera = &(m_interface->getCamera());
+		if(m_camera == 0)
+		{
+			INFO_STREAM<<"Initialization Failed : Unable to get the camera of plugin !"<<endl;
+			m_status_message <<"Initialization Failed : Unable to get the camera object !"<< endl;
 			m_is_device_initialized = false;
 			set_state(Tango::INIT);		
 			return;			
@@ -218,8 +233,8 @@ void XpadPixelDetector::init_device()
 	try
 	{
 		INFO_STREAM << "acquisitionType = " << acquisitionType <<endl;
-		m_hw->setAcquisitionType(acquisitionType);
-		m_hw->setAllConfigG(allConfigG);
+        m_camera->setAcquisitionType(acquisitionType);
+		m_camera->setAllConfigG(allConfigG);
 	}
 	catch(Exception& e)
 	{
@@ -305,14 +320,15 @@ void XpadPixelDetector::always_executed_hook()
         m_ct = ControlFactory::instance().get_control("XpadPixelDetector");
 
         //- get interface to specific detector
-        if(m_ct!=0)
-            m_hw = dynamic_cast<Xpad::Interface*>(m_ct->hwInterface());
-
+        if(m_ct != 0)
+        {
+            m_interface = dynamic_cast<Xpad::Interface*>(m_ct->hwInterface());
+            m_camera = &(m_interface->getCamera());
+        }
     }
     catch(Exception& e)
     {
         ERROR_STREAM << e.getErrMsg() << endl;
-        //- throw exception
         Tango::Except::throw_exception(
                     static_cast<const char*> ("TANGO_DEVICE_ERROR"),
                     static_cast<const char*> (e.getErrMsg().c_str()),
@@ -687,16 +703,16 @@ void XpadPixelDetector::write_dacl(Tango::WAttribute &attr)
 {
 	DEBUG_STREAM << "XpadPixelDetector::write_dacl(Tango::WAttribute &attr) entering... "<< endl;
 
-	//attr.get_write_value(my_attr_dacl_write);
-
 	try
 	{
-		//m_hw->saveAndloadDacl(my_attr_dacl_write);
+        Tango::Except::throw_exception(
+			static_cast<const char*> ("TANGO_NOT_SUPPORTED"),
+			static_cast<const char*> ("write dacl is not yet supported"),
+			static_cast<const char*> ("XpadPixelDetector::write_dacl"));
 	}
 	catch(Exception& e)
 	{
 		ERROR_STREAM << e.getErrMsg() << endl;
-		//- throw exception
 		Tango::Except::throw_exception(
 					static_cast<const char*> ("TANGO_DEVICE_ERROR"),
 					static_cast<const char*> (e.getErrMsg().c_str()),
@@ -729,7 +745,10 @@ void XpadPixelDetector::write_ithl(Tango::WAttribute &attr)
 {
 	DEBUG_STREAM << "XpadPixelDetector::write_ithl(Tango::WAttribute &attr) entering... "<< endl;
 
-	//attr.get_write_value(my_attr_ithl_write);
+	Tango::Except::throw_exception(
+			static_cast<const char*> ("TANGO_NOT_SUPPORTED"),
+			static_cast<const char*> ("write ithl is not yet supported"),
+			static_cast<const char*> ("XpadPixelDetector::write_ithl"));
 }
 
 
@@ -752,20 +771,17 @@ void XpadPixelDetector::load_flat_config(Tango::DevULong argin)
 
 	try
 	{
-		m_hw->loadFlatConfig(argin);
+		m_camera->loadFlatConfig(argin);
 	}
 	catch(Exception& e)
 	{
 		ERROR_STREAM << e.getErrMsg() << endl;
-		//- throw exception
 		Tango::Except::throw_exception(
 					static_cast<const char*> ("TANGO_DEVICE_ERROR"),
 					static_cast<const char*> (e.getErrMsg().c_str()),
 					static_cast<const char*> ("XpadPixelDetector::load_flat_config"));
 	}
-
 }
-
 
 //+------------------------------------------------------------------
 /**
@@ -779,23 +795,20 @@ void XpadPixelDetector::set_all_f_parameters()
 
 	try
 	{
-		m_hw->setFParameters(	attr_deadTime_write,attr_init_write,
-								attr_shutter_write,attr_ovf_write,attr_mode_write,
-								attr_n_write,attr_p_write,
-								attr_gp1_write,attr_gp2_write,attr_gp3_write,attr_gp4_write);
+		m_camera->setFParameters(	attr_deadTime_write,attr_init_write,
+								    attr_shutter_write,attr_ovf_write,attr_mode_write,
+								    attr_n_write,attr_p_write,
+								    attr_gp1_write,attr_gp2_write,attr_gp3_write,attr_gp4_write);
 	}
 	catch(Exception& e)
 	{
 		ERROR_STREAM << e.getErrMsg() << endl;
-		//- throw exception
 		Tango::Except::throw_exception(
 					static_cast<const char*> ("TANGO_DEVICE_ERROR"),
 					static_cast<const char*> (e.getErrMsg().c_str()),
 					static_cast<const char*> ("XpadPixelDetector::set_all_f_parameters"));
 	}
-
 }
-
 
 //+------------------------------------------------------------------
 /**
@@ -816,12 +829,12 @@ void XpadPixelDetector::load_all_config_g()
 	try
 	{
 		//- All Config G has been setted at Init
-		m_hw->loadAllConfigG();
+		m_camera->loadAllConfigG();
 	}
 	catch(Exception& e)
 	{
 		ERROR_STREAM << e.getErrMsg() << endl;
-		//- throw exception
+		
 		Tango::Except::throw_exception(
 					static_cast<const char*> ("TANGO_DEVICE_ERROR"),
 					static_cast<const char*> (e.getErrMsg().c_str()),
@@ -873,12 +886,12 @@ void XpadPixelDetector::load_config_g(const Tango::DevVarULongArray *argin)
 		reg_and_value[0] = (*argin)[0];
 		reg_and_value[1] = (*argin)[1];
 
-		m_hw->loadConfigG(reg_and_value);
+		m_camera->loadConfigG(reg_and_value);
 	}
 	catch(Exception& e)
 	{
 		ERROR_STREAM << e.getErrMsg() << endl;
-		//- throw exception
+		
 		Tango::Except::throw_exception(
 			static_cast<const char*> ("TANGO_DEVICE_ERROR"),
 			static_cast<const char*> (e.getErrMsg().c_str()),
@@ -906,12 +919,12 @@ void XpadPixelDetector::load_auto_test(Tango::DevULong argin)
 
 	try
 	{
-		m_hw->loadAutoTest(argin);
+		m_camera->loadAutoTest(argin);
 	}
 	catch(Exception& e)
 	{
 		ERROR_STREAM << e.getErrMsg() << endl;
-		//- throw exception
+		
 		Tango::Except::throw_exception(
 			static_cast<const char*> ("TANGO_DEVICE_ERROR"),
 			static_cast<const char*> (e.getErrMsg().c_str()),
@@ -959,7 +972,7 @@ Tango::DevState XpadPixelDetector::dev_state()
 		if (status.AcquisitionStatus == lima::AcqReady)
 		{
 			HwInterface::StatusType state;
-			m_hw->getStatus(state);
+			m_interface->getStatus(state);
 			if(state.acq == AcqRunning && state.det == DetExposure)
 			{
 				DeviceState=Tango::RUNNING;
@@ -989,7 +1002,7 @@ Tango::DevState XpadPixelDetector::dev_state()
 		else
 		{
 			HwInterface::StatusType state;
-			m_hw->getStatus(state);
+			m_interface->getStatus(state);
 			if(state.acq == AcqFault && state.det == DetFault)
 			{
 				DeviceState=Tango::INIT;//INIT
@@ -1039,26 +1052,159 @@ Tango::DevVarUShortArray *XpadPixelDetector::get_dacl()
 
 	try
 	{
-		vector<uint16_t> dacl_values;
-		dacl_values = m_hw->getDacl();
-
-		//- *attr_dacl_read = dacl_values;
+        Tango::Except::throw_exception(
+			static_cast<const char*> ("TANGO_NOT_SUPPORTED"),
+			static_cast<const char*> ("GetDacl is not yet supported"),
+			static_cast<const char*> ("XpadPixelDetector::get_dacl"));
 	}
 	catch(Exception& e)
 	{
 		ERROR_STREAM << e.getErrMsg() << endl;
-		//- throw exception
 		Tango::Except::throw_exception(
 			static_cast<const char*> ("TANGO_DEVICE_ERROR"),
 			static_cast<const char*> (e.getErrMsg().c_str()),
 			static_cast<const char*> ("XpadPixelDetector::get_dacl"));
 	}
 
-
 	return argout;
 }
 
 
+//+------------------------------------------------------------------
+/**
+ *	method:	XpadPixelDetector::save_config_l
+ *
+ *	description:	method to execute "SaveConfigL"
+ *	The function loads/stores a line of calibration data at the line index curRow in the 
+ *	memory buffer identified by calibId of the chip identified by chipId of the modules 
+ *	selected by  modNum.  The 80 calibration data values that are stored starting at 
+ *	address value. Calibration data (80 words 16 bits) for one row of one chip (9 bits)
+ *
+ * @param	argin	modNum, calibId, chipId, curRow, values
+ *
+ */
+//+------------------------------------------------------------------
+void XpadPixelDetector::save_config_l(const Tango::DevVarULongArray *argin)
+{
+	DEBUG_STREAM << "XpadPixelDetector::save_config_l(): entering... !" << endl;
+
+	//	Add your own code to control device here
+
+    //- TODO: parameter checking ? or done in xpix?
+    //- argin length doit etre de taille 4 + 80 = 84
+    try
+    {
+        m_camera->saveConfigL((*argin)[0],(*argin)[1],(*argin)[2],(*argin)[3],(unsigned long*) &((*argin)[4]));
+    }
+    catch(Exception& e)
+    {
+        ERROR_STREAM << e.getErrMsg() << endl;
+        Tango::Except::throw_exception(
+                    static_cast<const char*> ("LIMA_ERROR"),
+                    static_cast<const char*> (e.getErrMsg().c_str()),
+                    static_cast<const char*> ("XpadPixelDetector::save_config_l"));
+    }
+}
+
+//+------------------------------------------------------------------
+/**
+ *	method:	XpadPixelDetector::save_config_g
+ *
+ *	description:	method to execute "SaveConfigG"
+ *	The   function   loads/store   the   global   register  reg  (see   paragraph   3.4)   in   the 
+ *	memory buffer identified by calibId.
+ *
+ * @param	argin	modNum, calibId, reg, values
+ *
+ */
+//+------------------------------------------------------------------
+void XpadPixelDetector::save_config_g(const Tango::DevVarULongArray *argin)
+{
+	DEBUG_STREAM << "XpadPixelDetector::save_config_g(): entering... !" << endl;
+
+	//	Add your own code to control device here
+
+    //- TODO: parameter checking ? or done in xpix?
+    //- argin length doit etre de taille: 3 + 11 = 14
+    try
+    {
+        m_camera->saveConfigG((*argin)[0],(*argin)[1],(*argin)[2],(unsigned long*) &((*argin)[3]));
+    }
+    catch(Exception& e)
+    {
+        ERROR_STREAM << e.getErrMsg() << endl;
+        Tango::Except::throw_exception(
+                    static_cast<const char*> ("LIMA_ERROR"),
+                    static_cast<const char*> (e.getErrMsg().c_str()),
+                    static_cast<const char*> ("XpadPixelDetector::save_config_g"));
+    }
+}
+
+//+------------------------------------------------------------------
+/**
+ *	method:	XpadPixelDetector::load_config
+ *
+ *	description:	method to execute "LoadConfig"
+ *	This function activate  the copy of   the calibration data stored  into  the memory 
+ *	buffer identified by calibId of all the chips of the modules selected by modNum  
+ *	into the config registers.
+ *
+ * @param	argin	modNum, calibId
+ *
+ */
+//+------------------------------------------------------------------
+void XpadPixelDetector::load_config(const Tango::DevVarULongArray *argin)
+{
+	DEBUG_STREAM << "XpadPixelDetector::load_config(): entering... !" << endl;
+
+	//	Add your own code to control device here
+
+    //- TODO: parameter checking ? or done in xpix?
+    try
+    {
+        m_camera->loadConfig((*argin)[0],(*argin)[1]);
+    }
+    catch(Exception& e)
+    {
+        ERROR_STREAM << e.getErrMsg() << endl;
+        Tango::Except::throw_exception(
+                    static_cast<const char*> ("LIMA_ERROR"),
+                    static_cast<const char*> (e.getErrMsg().c_str()),
+                    static_cast<const char*> ("XpadPixelDetector::load_config"));
+    }
+}
+
+
+//+------------------------------------------------------------------
+/**
+ *	method:	XpadPixelDetector::reset
+ *
+ *	description:	method to execute "Reset"
+ *	Reset the Xpad : call the xpci_hubModRebootNIOS(modMask) xpix function
+ *
+ *
+ */
+//+------------------------------------------------------------------
+void XpadPixelDetector::reset()
+{
+	DEBUG_STREAM << "XpadPixelDetector::reset(): entering... !" << endl;
+
+	//	Add your own code to control device here
+
+    try
+    {
+        m_camera->reset();
+    }
+    catch(Exception& e)
+    {
+        ERROR_STREAM << e.getErrMsg() << endl;
+        Tango::Except::throw_exception(
+                    static_cast<const char*> ("LIMA_ERROR"),
+                    static_cast<const char*> (e.getErrMsg().c_str()),
+                    static_cast<const char*> ("XpadPixelDetector::reset"));
+    }
+
+}
 
 
 }	//	namespace

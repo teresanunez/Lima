@@ -391,6 +391,22 @@ public :
  */
 	virtual bool is_GetDacl_allowed(const CORBA::Any &any);
 /**
+ *	Execution allowed for SaveConfigL command.
+ */
+	virtual bool is_SaveConfigL_allowed(const CORBA::Any &any);
+/**
+ *	Execution allowed for SaveConfigG command.
+ */
+	virtual bool is_SaveConfigG_allowed(const CORBA::Any &any);
+/**
+ *	Execution allowed for LoadConfig command.
+ */
+	virtual bool is_LoadConfig_allowed(const CORBA::Any &any);
+/**
+ *	Execution allowed for Reset command.
+ */
+	virtual bool is_Reset_allowed(const CORBA::Any &any);
+/**
  * This command gets the device state (stored in its <i>device_state</i> data member) and returns it to the caller.
  *	@return	State Code
  *	@exception DevFailed
@@ -437,6 +453,35 @@ public :
  *	@exception DevFailed
  */
 	Tango::DevVarUShortArray	*get_dacl();
+/**
+ * The function loads/stores a line of calibration data at the line index curRow in the 
+ *	memory buffer identified by calibId of the chip identified by chipId of the modules 
+ *	selected by  modNum.  The 80 calibration data values that are stored starting at 
+ *	address value. Calibration data (80 words 16 bits) for one row of one chip (9 bits)
+ *	@param	argin	modNum, calibId, chipId, curRow, values
+ *	@exception DevFailed
+ */
+	void	save_config_l(const Tango::DevVarULongArray *);
+/**
+ * The   function   loads/store   the   global   register  reg  (see   paragraph   3.4)   in   the 
+ *	memory buffer identified by calibId.
+ *	@param	argin	modNum, calibId, reg, values
+ *	@exception DevFailed
+ */
+	void	save_config_g(const Tango::DevVarULongArray *);
+/**
+ * This function activate  the copy of   the calibration data stored  into  the memory 
+ *	buffer identified by calibId of all the chips of the modules selected by modNum  
+ *	into the config registers.
+ *	@param	argin	modNum, calibId
+ *	@exception DevFailed
+ */
+	void	load_config(const Tango::DevVarULongArray *);
+/**
+ * Reset the Xpad : call the xpci_hubModRebootNIOS(modMask) xpix function
+ *	@exception DevFailed
+ */
+	void	reset();
 
 /**
  *	Read the device properties from database
@@ -461,7 +506,8 @@ protected :
 	void set_all_f_parameters();
 
 	//lima OBJECTS
-	Xpad::Interface* 		m_hw;
+	Xpad::Interface* 		m_interface;
+    Xpad::Camera*           m_camera;
 	CtControl*			  m_ct;
 };
 
