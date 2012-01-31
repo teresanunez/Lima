@@ -34,25 +34,25 @@
       <dependency>
          <groupId>fr.soleil.lib.Lima</groupId>
          <artifactId>LimaControl-${aol}-shared-${mode}</artifactId>
-         <version>1.1.4</version>         
+         <version>1.1.5-SNAPSHOT</version>         
       </dependency>
 
       <dependency>
          <groupId>fr.soleil.lib.Lima.Camera</groupId>
          <artifactId>LimaBasler-${aol}-shared-${mode}</artifactId>
-         <version>1.1.4</version>
+         <version>1.1.5-SNAPSHOT</version>
       </dependency>
 
       <dependency>
          <groupId>fr.soleil.lib.Lima.Camera</groupId>
          <artifactId>LimaAdsc-${aol}-shared-${mode}</artifactId>
-         <version>1.1.4</version>
+         <version>1.1.5-SNAPSHOT</version>
       </dependency>
    
       <dependency>
          <groupId>fr.soleil.lib.Lima.Camera</groupId>
          <artifactId>LimaMarccd-${aol}-shared-${mode}</artifactId>
-         <version>1.1.4</version>
+         <version>1.1.5-SNAPSHOT</version>
       </dependency>
 
       <dependency>
@@ -64,19 +64,19 @@
       <dependency>
          <groupId>fr.soleil.lib.Lima.Camera</groupId>
          <artifactId>LimaProsilica-${aol}-shared-${mode}</artifactId>
-         <version>1.1.4</version>
+         <version>1.1.5-SNAPSHOT</version>
       </dependency>
       
       <dependency>
          <groupId>fr.soleil.lib.Lima.Camera</groupId>
          <artifactId>LimaSimulator-${aol}-shared-${mode}</artifactId>
-         <version>1.1.4</version>
+         <version>1.1.5-SNAPSHOT</version>
       </dependency>
 
       <dependency>
          <groupId>fr.soleil.lib.Lima.Camera</groupId>
          <artifactId>LimaXpad-${aol}-shared-${mode}</artifactId>
-         <version>1.1.4</version>
+         <version>1.1.5-SNAPSHOT</version>
       </dependency>
             
     </dependencies>
