@@ -11,7 +11,6 @@
 
 #include <tango.h>
 
-#include <tango.h>
 
 #ifdef SIMULATOR_ENABLED
 #include <SimulatorInterface.h>
