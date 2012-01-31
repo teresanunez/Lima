@@ -411,6 +411,11 @@ void PilatusPixelDetector::write_imagePath(Tango::WAttribute &attr)
 	DEBUG_STREAM << "PilatusPixelDetector::write_imagePath(Tango::WAttribute &attr) entering... "<< endl;
     try
     {
+	//need to reset the state FAULT in order to avoid a problem on proxima1 datacollector
+	if(dev_state()==Tango::FAULT || dev_state()==Tango::RUNNING)
+	{
+            m_ct->resetStatus(false);          
+	}
         attr.get_write_value(attr_imagePath_write);
         m_hw->setImagePath(attr_imagePath_write);
     }
@@ -886,8 +891,10 @@ Tango::DevState PilatusPixelDetector::dev_state()
     {
             CtControl::Status status;
             m_ct->getStatus(status);
+
             if (status.AcquisitionStatus == lima::AcqReady)
             {
+
                 HwInterface::StatusType state;
                 m_hw->getStatus(state);
 
@@ -919,7 +926,7 @@ Tango::DevState PilatusPixelDetector::dev_state()
             }
             else
             {
-                HwInterface::StatusType state;
+		HwInterface::StatusType state;
                 m_hw->getStatus(state);
                 if(state.acq == AcqFault && state.det == DetFault)
                 {
