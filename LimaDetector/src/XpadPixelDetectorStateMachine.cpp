@@ -394,5 +394,79 @@ bool XpadPixelDetector::is_GetDacl_allowed(const CORBA::Any &any)
 	}
 	return true;
 }
+//+----------------------------------------------------------------------------
+//
+// method : 		XpadPixelDetector::is_SaveConfigL_allowed
+// 
+// description : 	Execution allowed for SaveConfigL command.
+//
+//-----------------------------------------------------------------------------
+bool XpadPixelDetector::is_SaveConfigL_allowed(const CORBA::Any &any)
+{
+	if (get_state() == Tango::INIT	||
+		get_state() == Tango::RUNNING	||
+		get_state() == Tango::FAULT)
+	{
+		//	End of Generated Code
+
+		//	Re-Start of Generated Code
+		return false;
+	}
+	return true;
+}
+//+----------------------------------------------------------------------------
+//
+// method : 		XpadPixelDetector::is_SaveConfigG_allowed
+// 
+// description : 	Execution allowed for SaveConfigG command.
+//
+//-----------------------------------------------------------------------------
+bool XpadPixelDetector::is_SaveConfigG_allowed(const CORBA::Any &any)
+{
+	if (get_state() == Tango::INIT	||
+		get_state() == Tango::RUNNING	||
+		get_state() == Tango::FAULT)
+	{
+		//	End of Generated Code
+
+		//	Re-Start of Generated Code
+		return false;
+	}
+	return true;
+}
+//+----------------------------------------------------------------------------
+//
+// method : 		XpadPixelDetector::is_LoadConfig_allowed
+// 
+// description : 	Execution allowed for LoadConfig command.
+//
+//-----------------------------------------------------------------------------
+bool XpadPixelDetector::is_LoadConfig_allowed(const CORBA::Any &any)
+{
+	if (get_state() == Tango::INIT	||
+		get_state() == Tango::RUNNING	||
+		get_state() == Tango::FAULT)
+	{
+		//	End of Generated Code
+
+		//	Re-Start of Generated Code
+		return false;
+	}
+	return true;
+}
+//+----------------------------------------------------------------------------
+//
+// method : 		XpadPixelDetector::is_Reset_allowed
+// 
+// description : 	Execution allowed for Reset command.
+//
+//-----------------------------------------------------------------------------
+bool XpadPixelDetector::is_Reset_allowed(const CORBA::Any &any)
+{
+		//	End of Generated Code
+
+		//	Re-Start of Generated Code
+	return true;
+}
 
 }	// namespace XpadPixelDetector_ns

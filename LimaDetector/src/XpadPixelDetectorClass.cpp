@@ -59,6 +59,104 @@ __declspec(dllexport)
 
 namespace XpadPixelDetector_ns
 {
+//+----------------------------------------------------------------------------
+//
+// method : 		ResetClass::execute()
+// 
+// description : 	method to trigger the execution of the command.
+//                PLEASE DO NOT MODIFY this method core without pogo   
+//
+// in : - device : The device on which the command must be executed
+//		- in_any : The command input data
+//
+// returns : The command output data (packed in the Any object)
+//
+//-----------------------------------------------------------------------------
+CORBA::Any *ResetClass::execute(Tango::DeviceImpl *device,const CORBA::Any &in_any)
+{
+
+	cout2 << "ResetClass::execute(): arrived" << endl;
+
+	((static_cast<XpadPixelDetector *>(device))->reset());
+	return new CORBA::Any();
+}
+
+//+----------------------------------------------------------------------------
+//
+// method : 		LoadConfigCmd::execute()
+// 
+// description : 	method to trigger the execution of the command.
+//                PLEASE DO NOT MODIFY this method core without pogo   
+//
+// in : - device : The device on which the command must be executed
+//		- in_any : The command input data
+//
+// returns : The command output data (packed in the Any object)
+//
+//-----------------------------------------------------------------------------
+CORBA::Any *LoadConfigCmd::execute(Tango::DeviceImpl *device,const CORBA::Any &in_any)
+{
+
+	cout2 << "LoadConfigCmd::execute(): arrived" << endl;
+
+	const Tango::DevVarULongArray	*argin;
+	extract(in_any, argin);
+
+	((static_cast<XpadPixelDetector *>(device))->load_config(argin));
+	return new CORBA::Any();
+}
+
+
+//+----------------------------------------------------------------------------
+//
+// method : 		SaveConfigGCmd::execute()
+// 
+// description : 	method to trigger the execution of the command.
+//                PLEASE DO NOT MODIFY this method core without pogo   
+//
+// in : - device : The device on which the command must be executed
+//		- in_any : The command input data
+//
+// returns : The command output data (packed in the Any object)
+//
+//-----------------------------------------------------------------------------
+CORBA::Any *SaveConfigGCmd::execute(Tango::DeviceImpl *device,const CORBA::Any &in_any)
+{
+
+	cout2 << "SaveConfigGCmd::execute(): arrived" << endl;
+
+	const Tango::DevVarULongArray	*argin;
+	extract(in_any, argin);
+
+	((static_cast<XpadPixelDetector *>(device))->save_config_g(argin));
+	return new CORBA::Any();
+}
+
+//+----------------------------------------------------------------------------
+//
+// method : 		SaveConfigLCmd::execute()
+// 
+// description : 	method to trigger the execution of the command.
+//                PLEASE DO NOT MODIFY this method core without pogo   
+//
+// in : - device : The device on which the command must be executed
+//		- in_any : The command input data
+//
+// returns : The command output data (packed in the Any object)
+//
+//-----------------------------------------------------------------------------
+CORBA::Any *SaveConfigLCmd::execute(Tango::DeviceImpl *device,const CORBA::Any &in_any)
+{
+
+	cout2 << "SaveConfigLCmd::execute(): arrived" << endl;
+
+	const Tango::DevVarULongArray	*argin;
+	extract(in_any, argin);
+
+	((static_cast<XpadPixelDetector *>(device))->save_config_l(argin));
+	return new CORBA::Any();
+}
+
 
 
 //+----------------------------------------------------------------------------
@@ -292,6 +390,26 @@ void XpadPixelDetectorClass::command_factory()
 		Tango::DEV_VOID, Tango::DEVVAR_USHORTARRAY,
 		"",
 		"DACL values",
+		Tango::OPERATOR));
+	command_list.push_back(new SaveConfigLCmd("SaveConfigL",
+		Tango::DEVVAR_ULONGARRAY, Tango::DEV_VOID,
+		"modNum, calibId, chipId, curRow, values",
+		"",
+		Tango::OPERATOR));
+	command_list.push_back(new SaveConfigGCmd("SaveConfigG",
+		Tango::DEVVAR_ULONGARRAY, Tango::DEV_VOID,
+		"modNum, calibId, reg, values",
+		"",
+		Tango::OPERATOR));
+	command_list.push_back(new LoadConfigCmd("LoadConfig",
+		Tango::DEVVAR_ULONGARRAY, Tango::DEV_VOID,
+		"modNum, calibId",
+		"",
+		Tango::OPERATOR));
+	command_list.push_back(new ResetClass("Reset",
+		Tango::DEV_VOID, Tango::DEV_VOID,
+		"",
+		"",
 		Tango::OPERATOR));
 
 	//	add polling if any

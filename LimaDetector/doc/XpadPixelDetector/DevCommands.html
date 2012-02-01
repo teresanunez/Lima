@@ -184,6 +184,68 @@ register can be:
 <Br>&nbsp
 </ul><Br>
 <Br>
+<A NAME="SaveConfigL"><!-- --></A>
+<A NAME="SaveConfigL"><!-- --></A>
+<h2>9 - SaveConfigL</h2>
+<ul>
+<Li><Strong>Description: </Strong> The function loads/stores a line of calibration data at the line index curRow in the 
+memory buffer identified by calibId of the chip identified by chipId of the modules 
+selected by  modNum.  The 80 calibration data values that are stored starting at 
+address value. Calibration data (80 words 16 bits) for one row of one chip (9 bits)<Br>&nbsp
+<Li><Strong>Argin:<Br>DEVVAR_ULONGARRAY</Strong>
+ : modNum, calibId, chipId, curRow, values<Br>&nbsp
+<Li><Strong>Argout:<Br>DEV_VOID</Strong>
+ : <Br>&nbsp
+<Li><Strong>Command allowed for: </Strong><Ul>
+<Li>Tango::STANDBY</Ul>
+<Br>&nbsp
+</ul><Br>
+<Br>
+<A NAME="SaveConfigG"><!-- --></A>
+<A NAME="SaveConfigG"><!-- --></A>
+<h2>10 - SaveConfigG</h2>
+<ul>
+<Li><Strong>Description: </Strong> The   function   loads/store   the   global   register  reg  (see   paragraph   3.4)   in   the 
+memory buffer identified by calibId.<Br>&nbsp
+<Li><Strong>Argin:<Br>DEVVAR_ULONGARRAY</Strong>
+ : modNum, calibId, reg, values<Br>&nbsp
+<Li><Strong>Argout:<Br>DEV_VOID</Strong>
+ : <Br>&nbsp
+<Li><Strong>Command allowed for: </Strong><Ul>
+<Li>Tango::STANDBY</Ul>
+<Br>&nbsp
+</ul><Br>
+<Br>
+<A NAME="LoadConfig"><!-- --></A>
+<A NAME="LoadConfig"><!-- --></A>
+<h2>11 - LoadConfig</h2>
+<ul>
+<Li><Strong>Description: </Strong> This function activate  the copy of   the calibration data stored  into  the memory 
+buffer identified by calibId of all the chips of the modules selected by modNum  
+into the config registers.<Br>&nbsp
+<Li><Strong>Argin:<Br>DEVVAR_ULONGARRAY</Strong>
+ : modNum, calibId<Br>&nbsp
+<Li><Strong>Argout:<Br>DEV_VOID</Strong>
+ : <Br>&nbsp
+<Li><Strong>Command allowed for: </Strong><Ul>
+<Li>Tango::STANDBY</Ul>
+<Br>&nbsp
+</ul><Br>
+<Br>
+<A NAME="Reset"><!-- --></A>
+<A NAME="Reset"><!-- --></A>
+<h2>12 - Reset</h2>
+<ul>
+<Li><Strong>Description: </Strong> Reset the Xpad : call the xpci_hubModRebootNIOS(modMask) xpix function<Br>&nbsp
+<Li><Strong>Argin:<Br>DEV_VOID</Strong>
+ : <Br>&nbsp
+<Li><Strong>Argout:<Br>DEV_VOID</Strong>
+ : <Br>&nbsp
+<Li><Strong>Command allowed for: </Strong><Ul>
+<Li>Tango::INIT<Li>Tango::STANDBY<Li>Tango::RUNNING<Li>Tango::FAULT</Ul>
+<Br>&nbsp
+</ul><Br>
+<Br>
 
 <!--- html Footer --->
 
