@@ -78,6 +78,7 @@ class Andor(PyTango.Device_4Impl):
         self.__Attribute2FunctionBase = {'fast_trigger': 'FastExtTrigger',
                                          'shutter_level': 'ShutterLevel',
                                          'temperature': 'Temperature',
+                                         'temperature_sp': 'TemperatureSP',
                                          'cooler': 'Cooler',
                                          'cooling_status': 'CoolingStatus',
                                          }
@@ -111,8 +112,8 @@ class Andor(PyTango.Device_4Impl):
         if self.adc:
             _AndorCamera.setAdcSpeed(self.adc)
 
-        if self.temperature:            
-            _AndorCamera.setTemperature(self.temperature)
+        if self.temperature_sp:            
+            _AndorCamera.setTemperatureSP(self.temperature_sp)
             
         if self.cooler:
             _AndorCamera.setCooler(self.__Cooler[self.cooler])
@@ -206,7 +207,6 @@ class AndorClass(PyTango.DeviceClass):
     class_property_list = {
         }
 
-
     #    Device Properties
     device_property_list = {
         'config_path':
@@ -224,7 +224,7 @@ class AndorClass(PyTango.DeviceClass):
         'adc':
         [PyTango.DevShort,
          'ADC speed pairs', []],
-        'temperature':
+        'temperature_sp':
         [PyTango.DevShort,
          'Temperature set point in Celsius', []],
         'cooler':
@@ -269,12 +269,22 @@ class AndorClass(PyTango.DeviceClass):
              'format': '',
              'description': 'LOW or HIGH',
              }],
-        'temperature':
+       'temperature_sp':
         [[PyTango.DevShort,
           PyTango.SCALAR,
           PyTango.READ_WRITE],
          {
-             'label':'Set/get the temperature',
+             'label':'Set/get the temperature set-point',
+             'unit': 'C',
+             'format': '%1d',
+             'description': 'in Celsius',
+             }],
+        'temperature':
+        [[PyTango.DevShort,
+          PyTango.SCALAR,
+          PyTango.READ],
+         {
+             'label':'get the current temperature sensor',
              'unit': 'C',
              'format': '%1d',
              'description': 'in Celsius',
