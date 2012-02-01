@@ -6,3 +6,4 @@
 *.so
 \#*\#
 *target*
+python_test
