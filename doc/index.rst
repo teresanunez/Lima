@@ -213,6 +213,7 @@ Configuration device
   maxipix
   pilatus
   prosilica 
+  andor
 
 Calculation devices
 -------------------

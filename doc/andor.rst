@@ -28,8 +28,8 @@ cooling_status		ro	DevString		The status of the cooling system, tell if the setp
 fast_trigger		rw	DevString		Fast external trigger mode, see Andor documentation for usage
 							Mode are:
 							 - **On**, fast mode, the camera will not wait until the a 
-							 "keep clean" cycle has been completed before accepting the
-							next trigger
+							   keep clean cycle has been completed before accepting the
+							   next trigger
 							 - **Off**, slow mode	
 shutter_level		rw	DevString		The shutter output level mode:
 							 - **Low"**, output TTL low signal to open shutter
