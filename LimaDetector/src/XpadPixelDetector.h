@@ -108,10 +108,6 @@ public :
 		Tango::DevULong	attr_gp3_write;
 		Tango::DevULong	*attr_gp4_read;
 		Tango::DevULong	attr_gp4_write;
-		Tango::DevUShort	*attr_dacl_read;
-		Tango::DevUShort	attr_dacl_write;
-		Tango::DevUShort	*attr_ithl_read;
-		Tango::DevUShort	attr_ithl_write;
 //@}
 
 /**
@@ -303,22 +299,6 @@ public :
  */
 	virtual void write_gp4(Tango::WAttribute &attr);
 /**
- *	Extract real attribute values for dacl acquisition result.
- */
-	virtual void read_dacl(Tango::Attribute &attr);
-/**
- *	Write dacl attribute values to hardware.
- */
-	virtual void write_dacl(Tango::WAttribute &attr);
-/**
- *	Extract real attribute values for ithl acquisition result.
- */
-	virtual void read_ithl(Tango::Attribute &attr);
-/**
- *	Write ithl attribute values to hardware.
- */
-	virtual void write_ithl(Tango::WAttribute &attr);
-/**
  *	Read/Write allowed for deadTime attribute.
  */
 	virtual bool is_deadTime_allowed(Tango::AttReqType type);
@@ -363,14 +343,6 @@ public :
  */
 	virtual bool is_gp4_allowed(Tango::AttReqType type);
 /**
- *	Read/Write allowed for dacl attribute.
- */
-	virtual bool is_dacl_allowed(Tango::AttReqType type);
-/**
- *	Read/Write allowed for ithl attribute.
- */
-	virtual bool is_ithl_allowed(Tango::AttReqType type);
-/**
  *	Execution allowed for LoadFlatConfig command.
  */
 	virtual bool is_LoadFlatConfig_allowed(const CORBA::Any &any);
@@ -378,18 +350,6 @@ public :
  *	Execution allowed for LoadAllConfigG command.
  */
 	virtual bool is_LoadAllConfigG_allowed(const CORBA::Any &any);
-/**
- *	Execution allowed for LoadConfigG command.
- */
-	virtual bool is_LoadConfigG_allowed(const CORBA::Any &any);
-/**
- *	Execution allowed for LoadAutoTest command.
- */
-	virtual bool is_LoadAutoTest_allowed(const CORBA::Any &any);
-/**
- *	Execution allowed for GetDacl command.
- */
-	virtual bool is_GetDacl_allowed(const CORBA::Any &any);
 /**
  *	Execution allowed for SaveConfigL command.
  */
@@ -407,6 +367,10 @@ public :
  */
 	virtual bool is_Reset_allowed(const CORBA::Any &any);
 /**
+ *	Execution allowed for GetModConfig command.
+ */
+	virtual bool is_GetModConfig_allowed(const CORBA::Any &any);
+/**
  * This command gets the device state (stored in its <i>device_state</i> data member) and returns it to the caller.
  *	@return	State Code
  *	@exception DevFailed
@@ -419,53 +383,25 @@ public :
  */
 	void	load_flat_config(Tango::DevULong);
 /**
- * Load all the Registers configs (cmos,amptp,itth ....) with default xpad values, for each chip
+ * This function loads in all the global registers the value passed as parameters.
+ *	the order if the configG is as follow: CMOS_DSBL ; AMP_TP;ITHH;VADJ;VREF;IMFP;IOTA;IPRE;ITHL;ITUNE;IBUFFER
+ *	@param	argin	modNum(1..8), chipId(0..6), config_values (11 values)
  *	@exception DevFailed
  */
-	void	load_all_config_g();
-/**
- * Load a specific Register config, with the wanted value, for each chip.
- *	register can be:
- *	0->CMOS_DSBL
- *	1->AMP_TP
- *	2->ITHH
- *	3->VADJ
- *	4->VREF
- *	5->IMFP
- *	6->IOTA
- *	7->IPRE
- *	8->ITHL
- *	9->ITUNE
- *	10->IBUFFER
- *	@param	argin	register,value
- *	@exception DevFailed
- */
-	void	load_config_g(const Tango::DevVarULongArray *);
-/**
- * Load a known value to the pixel counters.
- *	@param	argin	value to be loaded
- *	@exception DevFailed
- */
-	void	load_auto_test(Tango::DevULong);
-/**
- * Get the DACL values and refresh the dacl attribute
- *	@return	DACL values
- *	@exception DevFailed
- */
-	Tango::DevVarUShortArray	*get_dacl();
+	void	load_all_config_g(const Tango::DevVarULongArray *);
 /**
  * The function loads/stores a line of calibration data at the line index curRow in the 
  *	memory buffer identified by calibId of the chip identified by chipId of the modules 
  *	selected by  modNum.  The 80 calibration data values that are stored starting at 
  *	address value. Calibration data (80 words 16 bits) for one row of one chip (9 bits)
- *	@param	argin	modNum, calibId, chipId, curRow, values
+ *	@param	argin	modNum(1..8), calibId(0..6), chipId(0..7), curRow (0..119), values (80 values)
  *	@exception DevFailed
  */
 	void	save_config_l(const Tango::DevVarULongArray *);
 /**
  * The   function   loads/store   the   global   register  reg  (see   paragraph   3.4)   in   the 
  *	memory buffer identified by calibId.
- *	@param	argin	modNum, calibId, reg, values
+ *	@param	argin	modNum(1..8), calibId(0..6), reg, values (7 values)
  *	@exception DevFailed
  */
 	void	save_config_g(const Tango::DevVarULongArray *);
@@ -473,7 +409,7 @@ public :
  * This function activate  the copy of   the calibration data stored  into  the memory 
  *	buffer identified by calibId of all the chips of the modules selected by modNum  
  *	into the config registers.
- *	@param	argin	modNum, calibId
+ *	@param	argin	modNum(1..8), calibId(0..6)
  *	@exception DevFailed
  */
 	void	load_config(const Tango::DevVarULongArray *);
@@ -482,6 +418,19 @@ public :
  *	@exception DevFailed
  */
 	void	reset();
+/**
+ * This fonction read the values of the local configuration registers currently loaded 
+ *	in the detector for all the chips on all the modules. Data are received in the format of 2 bytes per pixel with 
+ *	the following format.<BR>
+ *	• bit[0] enable counters<BR>
+ *	• bit[1] enable ampli (validated at 0)<BR>
+ *	• bit[2] enable test pulse<BR>
+ *	• bit[8:3] DACL registers<BR>
+ *	• bit[15:9] reserved (tied to 0)
+ *	@return	array of data
+ *	@exception DevFailed
+ */
+	Tango::DevVarUShortArray	*get_mod_config();
 
 /**
  *	Read the device properties from database
@@ -500,9 +449,7 @@ protected :
 
 	bool 			m_is_device_initialized ;
 	stringstream	m_status_message;
-	Tango::DevUShort* my_attr_dacl_write;
-	Tango::DevUShort* my_attr_ithl_write;
-
+	
 	void set_all_f_parameters();
 
 	//lima OBJECTS
