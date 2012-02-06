@@ -1,4 +1,4 @@
-Maxipix
+Andor
 =======
 
 Commands
@@ -17,19 +17,18 @@ getAttrStringValueList	DevString:	DevVarStringArray:	Return the authorized strin
 
 Attributes
 ----------
-======================= ======= ======================= ===========================================================
+======================= ======= ======================= ======================================================================
 Attribute name		RW	Type			Description
-======================= ======= ======================= ===========================================================
+======================= ======= ======================= ======================================================================
 cooler			rw	DevString		Start/stop the cooling system of the camera mode:
 							 - **On**, the cooler is started
 							 - **Off**, the cooler is stopped 	
 cooling_status		ro	DevString		The status of the cooling system, tell if the setpoint 
 							temperature is reached
-fast_trigger		rw	DevString		Fast external trigger mode, see Andor documentation for usage
-							Mode are:
+fast_trigger		rw	DevString		Fast external trigger mode, see Andor documentation for usage Mode are:
 							 - **On**, fast mode, the camera will not wait until the a 
-							   keep clean cycle has been completed before accepting the
-							   next trigger
+							   keep clean cycle has been completed before accepting the next 
+							   trigger
 							 - **Off**, slow mode	
 shutter_level		rw	DevString		The shutter output level mode:
 							 - **Low"**, output TTL low signal to open shutter
@@ -37,7 +36,7 @@ shutter_level		rw	DevString		The shutter output level mode:
 temperature		ro	DevShort	 	The current sensor temperature in Celsius	
 temperature_sp		rw	DevShort		The temperature setpoint in Celsius
 timing			ro	Spectrum		the exposure and latency times	
-======================= ======= ======================= ===========================================================
+======================= ======= ======================= ======================================================================
 
 Properties
 ----------
