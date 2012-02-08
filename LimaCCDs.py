@@ -107,7 +107,9 @@ class LimaCCDs(PyTango.Device_4Impl) :
         except ImportError:
             pass
         else:
-            m.close_interface()
+            try:
+                m.close_interface()
+            except AttributeError: pass
 
 #------------------------------------------------------------------
 #    Device initialization
@@ -133,10 +135,6 @@ class LimaCCDs(PyTango.Device_4Impl) :
             else:
 		Core.DebParams.setTypeFlags(0)
                 util = PyTango.Util.instance()
-#                if specificClass and specificDevice:
-#                    util.create_device(specificClass,specificDevice)
-                #get properties for this device
-
                 deviceName = self.__className2deviceName.get(specificDevice.__name__,None)
                 if deviceName:
                     propertiesNames = dataBase.get_device_property_list(deviceName,"*")
@@ -1215,7 +1213,17 @@ class LimaCCDs(PyTango.Device_4Impl) :
     def read_video_last_image_counter(self,attr) :
         video = self.__control.video()
         attr.set_value(video.getLastImageCounter())
-    
+
+    def read_plugin_type_list(self,attr) :
+        className2deviceName = get_sub_devices()
+        attr.set_value([x.lower().replace('deviceserver','') for x in className2deviceName.keys()])
+
+    def read_plugin_list(self,attr) :
+        returnList = []
+        for key,value in get_sub_devices().iteritems():
+            returnList.append(key.lower().replace('deviceserver',''))
+            returnList.append(value)
+        attr.set_value(returnList)
 #==================================================================
 #
 #    LimaCCDs command methods
@@ -1302,10 +1310,10 @@ class LimaCCDs(PyTango.Device_4Impl) :
     #
     @Core.DEB_MEMBER_FUNCT
     def getImage(self,image_id) :
-        self._data_cache = self.__control.ReadImage(image_id)
-        dataflat = self._data_cache.buffer.ravel()
-        dataflat.dtype = numpy.uint8
-        return dataflat
+        data = self.__control.ReadImage(image_id)
+        self.__dataflat_cache = numpy.array(data.buffer.ravel())
+        self.__dataflat_cache.dtype = numpy.uint8
+        return self.__dataflat_cache
 
     ##@brief get image data
     #
@@ -1321,10 +1329,10 @@ class LimaCCDs(PyTango.Device_4Impl) :
     #image before post processing
     @Core.DEB_MEMBER_FUNCT
     def getBaseImage(self,image_id) :
-        self._data_cache = self.__control.ReadBaseImage(image_id)
-        dataflat = self._data_cache.buffer.ravel()
-        dataflat.dtype = numpy.uint8
-        return dataflat
+        data = self.__control.ReadBaseImage(image_id)
+        self.__dataflat_cache = numpy.array(data.buffer.ravel())
+        self.__dataflat_cache.dtype = numpy.uint8
+        return self.__dataflat_cache
 
     ##@brief manual write image
     #
@@ -1340,11 +1348,12 @@ class LimaCCDs(PyTango.Device_4Impl) :
     @Core.DEB_MEMBER_FUNCT
     def readAccSaturatedImageCounter(self,image_id) :
         acc = self.__control.accumulation()
-        self._saturated_image_cache = acc.readSaturatedImageCounter(image_id)
-        arr = self._saturated_image_cache.buffer
-        if arr is None: arr = []
-        else: arr = arr.ravel()
-        return arr
+        saturated_image = acc.readSaturatedImageCounter(image_id)
+        self.__arr_cache = []
+        if saturated_image.buffer is not None:
+            self.__arr_cache = numpy.array(saturated_image.buffer)
+            self.__arr_cache = self.__arr_cache.ravel()
+        return self.__arr_cache
 
     ##@brief get saturated sum counter
     #
@@ -1403,6 +1412,10 @@ class LimaCCDs(PyTango.Device_4Impl) :
             shutter.setState(True)
 
 
+    @Core.DEB_MEMBER_FUNCT
+    def getPluginDeviceNameFromType(self,pluginType):
+        pluginType2deviceName = dict([(x.lower().replace('deviceserver',''),y) for x,y in get_sub_devices().iteritems()])
+        return pluginType2deviceName.get(pluginType,'')
 
 
 
@@ -1477,6 +1490,9 @@ class LimaCCDsClass(PyTango.DeviceClass) :
         'readImage':
         [[PyTango.DevLong,"Image id"],
          [PyTango.DevEncoded, ""]],
+        'getPluginDeviceNameFromType':
+        [[PyTango.DevString,"plugin type"],
+         [PyTango.DevString,"device name"]],
 	}
     
     #    Attribute definitions
@@ -1693,7 +1709,11 @@ class LimaCCDsClass(PyTango.DeviceClass) :
         [[PyTango.DevString,
           PyTango.SPECTRUM,
           PyTango.READ_WRITE,len(LimaCCDs._debugModuleList)]],
-        'debug_types':
+        'debug_types_possible':
+        [[PyTango.DevString,
+          PyTango.SPECTRUM,
+          PyTango.READ,len(LimaCCDs._debugTypeList)]],
+         'debug_types':
         [[PyTango.DevString,
           PyTango.SPECTRUM,
           PyTango.READ_WRITE,len(LimaCCDs._debugTypeList)]],
@@ -1765,6 +1785,14 @@ class LimaCCDsClass(PyTango.DeviceClass) :
         [[PyTango.DevLong64,
           PyTango.SCALAR,
           PyTango.READ]],
+        'plugin_type_list':
+        [[PyTango.DevString,
+          PyTango.SPECTRUM,
+          PyTango.READ,256]],
+        'plugin_list':
+        [[PyTango.DevString,
+          PyTango.SPECTRUM,
+          PyTango.READ,256]],
         }
 
 
@@ -1928,7 +1956,7 @@ class CallableWriteEnum:
 #    LimaCCDs class main method
 #
 #==================================================================
-if __name__ == '__main__':
+def main() :
     try:
         py = PyTango.Util(sys.argv)
         py.add_TgClass(LimaCCDsClass,LimaCCDs,'LimaCCDs')
@@ -1953,3 +1981,6 @@ if __name__ == '__main__':
         print '-------> Received a DevFailed exception:',e
     except Exception,e:
         print '-------> An unforeseen exception occured....',e
+
+if __name__ == '__main__':
+    main()

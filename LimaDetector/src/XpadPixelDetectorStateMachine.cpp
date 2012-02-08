@@ -57,42 +57,6 @@ namespace XpadPixelDetector_ns
 
 //+----------------------------------------------------------------------------
 //
-// method : 		XpadPixelDetector::is_dacl_allowed
-// 
-// description : 	Read/Write allowed for dacl attribute.
-//
-//-----------------------------------------------------------------------------
-bool XpadPixelDetector::is_dacl_allowed(Tango::AttReqType type)
-{
-	if (get_state() == Tango::FAULT)
-	{
-		//	End of Generated Code
-
-		//	Re-Start of Generated Code
-		return false;
-	}
-	return true;
-}
-//+----------------------------------------------------------------------------
-//
-// method : 		XpadPixelDetector::is_ithl_allowed
-// 
-// description : 	Read/Write allowed for ithl attribute.
-//
-//-----------------------------------------------------------------------------
-bool XpadPixelDetector::is_ithl_allowed(Tango::AttReqType type)
-{
-	if (get_state() == Tango::FAULT)
-	{
-		//	End of Generated Code
-
-		//	Re-Start of Generated Code
-		return false;
-	}
-	return true;
-}
-//+----------------------------------------------------------------------------
-//
 // method : 		XpadPixelDetector::is_deadTime_allowed
 // 
 // description : 	Read/Write allowed for deadTime attribute.
@@ -336,12 +300,12 @@ bool XpadPixelDetector::is_LoadAllConfigG_allowed(const CORBA::Any &any)
 }
 //+----------------------------------------------------------------------------
 //
-// method : 		XpadPixelDetector::is_LoadConfigG_allowed
+// method : 		XpadPixelDetector::is_SaveConfigL_allowed
 // 
-// description : 	Execution allowed for LoadConfigG command.
+// description : 	Execution allowed for SaveConfigL command.
 //
 //-----------------------------------------------------------------------------
-bool XpadPixelDetector::is_LoadConfigG_allowed(const CORBA::Any &any)
+bool XpadPixelDetector::is_SaveConfigL_allowed(const CORBA::Any &any)
 {
 	if (get_state() == Tango::INIT	||
 		get_state() == Tango::RUNNING	||
@@ -356,12 +320,12 @@ bool XpadPixelDetector::is_LoadConfigG_allowed(const CORBA::Any &any)
 }
 //+----------------------------------------------------------------------------
 //
-// method : 		XpadPixelDetector::is_LoadAutoTest_allowed
+// method : 		XpadPixelDetector::is_SaveConfigG_allowed
 // 
-// description : 	Execution allowed for LoadAutoTest command.
+// description : 	Execution allowed for SaveConfigG command.
 //
 //-----------------------------------------------------------------------------
-bool XpadPixelDetector::is_LoadAutoTest_allowed(const CORBA::Any &any)
+bool XpadPixelDetector::is_SaveConfigG_allowed(const CORBA::Any &any)
 {
 	if (get_state() == Tango::INIT	||
 		get_state() == Tango::RUNNING	||
@@ -376,12 +340,46 @@ bool XpadPixelDetector::is_LoadAutoTest_allowed(const CORBA::Any &any)
 }
 //+----------------------------------------------------------------------------
 //
-// method : 		XpadPixelDetector::is_GetDacl_allowed
+// method : 		XpadPixelDetector::is_LoadConfig_allowed
 // 
-// description : 	Execution allowed for GetDacl command.
+// description : 	Execution allowed for LoadConfig command.
 //
 //-----------------------------------------------------------------------------
-bool XpadPixelDetector::is_GetDacl_allowed(const CORBA::Any &any)
+bool XpadPixelDetector::is_LoadConfig_allowed(const CORBA::Any &any)
+{
+	if (get_state() == Tango::INIT	||
+		get_state() == Tango::RUNNING	||
+		get_state() == Tango::FAULT)
+	{
+		//	End of Generated Code
+
+		//	Re-Start of Generated Code
+		return false;
+	}
+	return true;
+}
+//+----------------------------------------------------------------------------
+//
+// method : 		XpadPixelDetector::is_Reset_allowed
+// 
+// description : 	Execution allowed for Reset command.
+//
+//-----------------------------------------------------------------------------
+bool XpadPixelDetector::is_Reset_allowed(const CORBA::Any &any)
+{
+		//	End of Generated Code
+
+		//	Re-Start of Generated Code
+	return true;
+}
+//+----------------------------------------------------------------------------
+//
+// method : 		XpadPixelDetector::is_GetModConfig_allowed
+// 
+// description : 	Execution allowed for GetModConfig command.
+//
+//-----------------------------------------------------------------------------
+bool XpadPixelDetector::is_GetModConfig_allowed(const CORBA::Any &any)
 {
 	if (get_state() == Tango::INIT	||
 		get_state() == Tango::RUNNING	||

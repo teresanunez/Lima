@@ -106,9 +106,9 @@ The language device desctructor automatically calls the <i> delete_device() </i>
 <A NAME="LoadFlatConfig"><!-- --></A>
 <h2>4 - LoadFlatConfig</h2>
 <ul>
-<Li><Strong>Description: </Strong> <Br>&nbsp
+<Li><Strong>Description: </Strong> Load a Flat config, for each pixel<Br>&nbsp
 <Li><Strong>Argin:<Br>DEV_ULONG</Strong>
- : Flat value<Br>&nbsp
+ : Flat value to be loaded<Br>&nbsp
 <Li><Strong>Argout:<Br>DEV_VOID</Strong>
  : <Br>&nbsp
 <Li><Strong>Command allowed for: </Strong><Ul>
@@ -120,53 +120,95 @@ The language device desctructor automatically calls the <i> delete_device() </i>
 <A NAME="LoadAllConfigG"><!-- --></A>
 <h2>5 - LoadAllConfigG</h2>
 <ul>
-<Li><Strong>Description: </Strong> <Br>&nbsp
+<Li><Strong>Description: </Strong> This function loads in all the global registers the value passed as parameters.
+the order if the configG is as follow: CMOS_DSBL ; AMP_TP;ITHH;VADJ;VREF;IMFP;IOTA;IPRE;ITHL;ITUNE;IBUFFER<Br>&nbsp
+<Li><Strong>Argin:<Br>DEVVAR_ULONGARRAY</Strong>
+ : modNum(1..8), chipId(0..6), config_values (11 values)<Br>&nbsp
+<Li><Strong>Argout:<Br>DEV_VOID</Strong>
+ : <Br>&nbsp
+<Li><Strong>Command allowed for: </Strong><Ul>
+<Li>Tango::STANDBY</Ul>
+<Br>&nbsp
+</ul><Br>
+<Br>
+<A NAME="SaveConfigL"><!-- --></A>
+<A NAME="SaveConfigL"><!-- --></A>
+<h2>6 - SaveConfigL</h2>
+<ul>
+<Li><Strong>Description: </Strong> The function loads/stores a line of calibration data at the line index curRow in the 
+memory buffer identified by calibId of the chip identified by chipId of the modules 
+selected by  modNum.  The 80 calibration data values that are stored starting at 
+address value. Calibration data (80 words 16 bits) for one row of one chip (9 bits)<Br>&nbsp
+<Li><Strong>Argin:<Br>DEVVAR_ULONGARRAY</Strong>
+ : modNum(1..8), calibId(0..6), chipId(0..7), curRow (0..119), values (80 values)<Br>&nbsp
+<Li><Strong>Argout:<Br>DEV_VOID</Strong>
+ : <Br>&nbsp
+<Li><Strong>Command allowed for: </Strong><Ul>
+<Li>Tango::STANDBY</Ul>
+<Br>&nbsp
+</ul><Br>
+<Br>
+<A NAME="SaveConfigG"><!-- --></A>
+<A NAME="SaveConfigG"><!-- --></A>
+<h2>7 - SaveConfigG</h2>
+<ul>
+<Li><Strong>Description: </Strong> The   function   loads/store   the   global   register  reg  (see   paragraph   3.4)   in   the 
+memory buffer identified by calibId.<Br>&nbsp
+<Li><Strong>Argin:<Br>DEVVAR_ULONGARRAY</Strong>
+ : modNum(1..8), calibId(0..6), reg, values (7 values)<Br>&nbsp
+<Li><Strong>Argout:<Br>DEV_VOID</Strong>
+ : <Br>&nbsp
+<Li><Strong>Command allowed for: </Strong><Ul>
+<Li>Tango::STANDBY</Ul>
+<Br>&nbsp
+</ul><Br>
+<Br>
+<A NAME="LoadConfig"><!-- --></A>
+<A NAME="LoadConfig"><!-- --></A>
+<h2>8 - LoadConfig</h2>
+<ul>
+<Li><Strong>Description: </Strong> This function activate  the copy of   the calibration data stored  into  the memory 
+buffer identified by calibId of all the chips of the modules selected by modNum  
+into the config registers.<Br>&nbsp
+<Li><Strong>Argin:<Br>DEVVAR_ULONGARRAY</Strong>
+ : modNum(1..8), calibId(0..6)<Br>&nbsp
+<Li><Strong>Argout:<Br>DEV_VOID</Strong>
+ : <Br>&nbsp
+<Li><Strong>Command allowed for: </Strong><Ul>
+<Li>Tango::STANDBY</Ul>
+<Br>&nbsp
+</ul><Br>
+<Br>
+<A NAME="Reset"><!-- --></A>
+<A NAME="Reset"><!-- --></A>
+<h2>9 - Reset</h2>
+<ul>
+<Li><Strong>Description: </Strong> Reset the Xpad : call the xpci_hubModRebootNIOS(modMask) xpix function<Br>&nbsp
 <Li><Strong>Argin:<Br>DEV_VOID</Strong>
  : <Br>&nbsp
 <Li><Strong>Argout:<Br>DEV_VOID</Strong>
  : <Br>&nbsp
 <Li><Strong>Command allowed for: </Strong><Ul>
-<Li>Tango::STANDBY</Ul>
+<Li>Tango::INIT<Li>Tango::STANDBY<Li>Tango::RUNNING<Li>Tango::FAULT</Ul>
 <Br>&nbsp
 </ul><Br>
 <Br>
-<A NAME="LoadConfigG"><!-- --></A>
-<A NAME="LoadConfigG"><!-- --></A>
-<h2>6 - LoadConfigG</h2>
+<A NAME="GetModConfig"><!-- --></A>
+<A NAME="GetModConfig"><!-- --></A>
+<h2>10 - GetModConfig</h2>
 <ul>
-<Li><Strong>Description: </Strong> <Br>&nbsp
-<Li><Strong>Argin:<Br>DEVVAR_ULONGARRAY</Strong>
- : register,value<Br>&nbsp
-<Li><Strong>Argout:<Br>DEV_VOID</Strong>
- : <Br>&nbsp
-<Li><Strong>Command allowed for: </Strong><Ul>
-<Li>Tango::STANDBY</Ul>
-<Br>&nbsp
-</ul><Br>
-<Br>
-<A NAME="LoadAutoTest"><!-- --></A>
-<A NAME="LoadAutoTest"><!-- --></A>
-<h2>7 - LoadAutoTest</h2>
-<ul>
-<Li><Strong>Description: </Strong> <Br>&nbsp
-<Li><Strong>Argin:<Br>DEV_ULONG</Strong>
- : value to be loaded<Br>&nbsp
-<Li><Strong>Argout:<Br>DEV_VOID</Strong>
- : <Br>&nbsp
-<Li><Strong>Command allowed for: </Strong><Ul>
-<Li>Tango::STANDBY</Ul>
-<Br>&nbsp
-</ul><Br>
-<Br>
-<A NAME="GetDacl"><!-- --></A>
-<A NAME="GetDacl"><!-- --></A>
-<h2>8 - GetDacl</h2>
-<ul>
-<Li><Strong>Description: </Strong> <Br>&nbsp
+<Li><Strong>Description: </Strong> This fonction read the values of the local configuration registers currently loaded 
+in the detector for all the chips on all the modules. Data are received in the format of 2 bytes per pixel with 
+the following format.<BR>
+• bit[0] enable counters<BR>
+• bit[1] enable ampli (validated at 0)<BR>
+• bit[2] enable test pulse<BR>
+• bit[8:3] DACL registers<BR>
+• bit[15:9] reserved (tied to 0)<Br>&nbsp
 <Li><Strong>Argin:<Br>DEV_VOID</Strong>
  : <Br>&nbsp
 <Li><Strong>Argout:<Br>DEVVAR_USHORTARRAY</Strong>
- : DACL values<Br>&nbsp
+ : array of data<Br>&nbsp
 <Li><Strong>Command allowed for: </Strong><Ul>
 <Li>Tango::STANDBY</Ul>
 <Br>&nbsp

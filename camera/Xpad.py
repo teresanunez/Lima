@@ -21,9 +21,9 @@
 ############################################################################
 #=============================================================================
 #
-# file :        Frelon.py
+# file :        Xpad.py
 #
-# description : Python source for the Frelon and its commands.
+# description : Python source for the Xpad and its commands.
 #                The class is derived from Device. It represents the
 #                CORBA servant object which will be accessed from the
 #                network. All commands which can be executed on the
@@ -41,11 +41,11 @@
 #
 import PyTango
 from Lima import Core
-from Lima import Frelon as FrelonAcq
+from Lima import Xpad as XpadAcq
 from LimaCCDs import CallableReadEnum,CallableWriteEnum
 
 
-class Frelon(PyTango.Device_4Impl):
+class Xpad(PyTango.Device_4Impl):
 
     Core.DEB_CLASS(Core.DebModApplication, 'LimaCCDs')
 
@@ -55,34 +55,6 @@ class Frelon(PyTango.Device_4Impl):
 #------------------------------------------------------------------
     def __init__(self,*args) :
         PyTango.Device_4Impl.__init__(self,*args)
-
-        self.__ImageMode = {'FRAME TRANSFER': FrelonAcq.FTM,
-                            'FULL FRAME': FrelonAcq.FFM}
-
-        self.__RoiMode = {'NONE' : FrelonAcq.None,
-                          'SLOW' : FrelonAcq.Slow,
-                          'FAST' : FrelonAcq.Fast,
-                          'KINETIC' : FrelonAcq.Kinetic}
-
-        self.__InputChannel = {'1'       : 0x1,
-                               '2'       : 0x2,
-                               '3'       : 0x4,
-                               '4'       : 0x8,
-                               '1-2'     : 0x3,
-                               '3-4'     : 0xc,
-                               '1-3'     : 0x5,
-                               '2-4'     : 0xA,
-                               '1-2-3-4' : 0xf} 
-
-        self.__E2vCorrection = {'ON' : True,
-                                'OFF' : False}
-
-        self.__Attribute2FunctionBase = {'image_mode' : 'FrameTransferMode',
-                                         'input_channel' : 'InputChan',
-                                         'e2v_correction' : 'E2VCorrectionActive'}
-
-        self.__ConfigHd = {'PRECISION' : 1,
-                           'SPEED' : 0}
 
         self.init_device()
 
@@ -120,101 +92,31 @@ class Frelon(PyTango.Device_4Impl):
             if d:
                 if name.startswith('read_') :
                     functionName = 'get' + attr_name
-                    function2Call = getattr(_FrelonAcq,functionName)
+                    function2Call = getattr(_XpadAcq,functionName)
                     callable_obj = CallableReadEnum(d,function2Call)
                 else:
                     functionName = 'set' + attr_name
-                    function2Call = getattr(_FrelonAcq,functionName)
-                    callable_obj = CallableWriteEnum('_'.join(split_name),
-                                                     d,function2Call)
+                    function2Call = getattr(_XpadAcq,function2Call)
+                    callable_obj = CallableWriteEnum(d,function2Call)
                 self.__dict__[name] = callable_obj
                 return callable_obj
-        raise AttributeError('Frelon has no attribute %s' % name)
+        raise AttributeError('Xpad has no attribute %s' % name)
 
-    @Core.DEB_MEMBER_FUNCT
-    def execSerialCommand(self, command_string) :
-        return _FrelonAcq.execFrelonSerialCmd(command_string)
 
-    ## @brief read the espia board id
-    #
-    def read_espia_dev_nb(self,attr) :
-        espia_dev_nb = 0
-        if self.espia_dev_nb:
-            espia_dev_nb = self.espia_dev_nb
-        attr.set_value(espia_dev_nb)
-
-    def read_roi_bin_offset(self,attr) :
-        attr.set_value(-1)
-        #TODO
-
-    def write_roi_bin_offset(self,attr) :
-        data = []
-        attr.get_write_value(data)
-        #TODO
-
-    def write_config_hd(self,attr) :
-        data = []
-        attr.get_write_value(data)
-        value = self.__ConfigHd.get(data[0],None)
-        if value is not None:
-            _FrelonAcq.m_cam.writeRegister(FrelonAcq.ConfigHD,value)
-        else:
-            PyTango.Except.throw_exception('WrongData',\
-                                           'Wrong value %s: %s'%('config_hd',data[0].upper()),\
-                                           'LimaCCD Class')
-
-    def read_config_hd(self,attr) :
-        value = _FrelonAcq.m_cam.readRegister(FrelonAcq.ConfigHD)
-        attr.set_value(value and "PRECISION" or "SPEED")
-        
-class FrelonClass(PyTango.DeviceClass):
+class XpadClass(PyTango.DeviceClass):
 
     class_property_list = {}
 
     device_property_list = {
-        'espia_dev_nb':
-        [PyTango.DevShort,
-         "Espia board device number",[]],
         }
 
     cmd_list = {
         'getAttrStringValueList':
         [[PyTango.DevString, "Attribute name"],
          [PyTango.DevVarStringArray, "Authorized String value list"]],
-        'execSerialCommand':
-        [[PyTango.DevString,"command"],
-         [PyTango.DevString,"return command"]],
         }
 
     attr_list = {
-        'espia_dev_nb':
-        [[PyTango.DevShort,
-          PyTango.SCALAR,
-          PyTango.READ]],
-        'image_mode' :
-        [[PyTango.DevString,
-          PyTango.SCALAR,
-          PyTango.READ_WRITE]],
-        'input_channel' :
-        [[PyTango.DevString,
-          PyTango.SCALAR,
-          PyTango.READ_WRITE]],
-        'roi_mode' :
-        [[PyTango.DevString,
-          PyTango.SCALAR,
-          PyTango.READ_WRITE]],
-        'roi_bin_offset' :
-        [[PyTango.DevLong,
-          PyTango.SCALAR,
-          PyTango.READ_WRITE]],
-        'e2v_correction' :
-        [[PyTango.DevString,
-          PyTango.SCALAR,
-          PyTango.READ_WRITE]],
-        'config_hd' :
-        [[PyTango.DevString,
-          PyTango.SCALAR,
-          PyTango.READ_WRITE]],
         }
 
     def __init__(self,name) :
@@ -224,13 +126,16 @@ class FrelonClass(PyTango.DeviceClass):
 #----------------------------------------------------------------------------
 # Plugins
 #----------------------------------------------------------------------------
-_FrelonAcq = None
+_XpadCam = None
+_XpadInterface = None
 
-def get_control(espia_dev_nb = 0,**keys) :
-    global _FrelonAcq
-    if _FrelonAcq is None:
-	_FrelonAcq = FrelonAcq.FrelonAcq(int(espia_dev_nb))
-    return _FrelonAcq.getGlobalControl() 
+def get_control(**keys) :
+    global _XpadCam
+    global _XpadInterface
+    if _XpadCam is None:
+	_XpadCam = XpadAcq.Camera()
+	_XpadInterface = XpadAcq.Interface(_XpadCam)
+    return Core.CtControl(_XpadInterface)
 
 def get_tango_specific_class_n_device():
-    return FrelonClass,Frelon
+    return XpadClass,Xpad

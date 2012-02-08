@@ -105,8 +105,12 @@ public :
  */
 //@{
 /**
- *	Enable/Disable monitoring of directory receiving image files.
- *	[default = enable reading directory]
+ *	During acquisition, this is the time before declaring that is no available image returned by detector. (in ms)
+ */
+	Tango::DevShort	readerTimeout;
+/**
+ *	Enable/Disable using ImageDiffraction to read image file.
+ *	[default = enable]
  */
 	Tango::DevBoolean	useReader;
 //@}
@@ -260,8 +264,6 @@ public :
  *	DISTANCE=300\nPHI=88.5\n...\nWAVELENGTH=0.987\n\0<br>
  *	
  *	List of availables param_name :<br>
- *	
- *	
  *	@param	argin	
  *	@exception DevFailed
  */

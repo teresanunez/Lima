@@ -45,34 +45,6 @@ namespace XpadPixelDetector_ns
 {//=====================================
 //	Define classes for attributes
 //=====================================
-class ithlAttrib: public Tango::ImageAttr
-{
-public:
-	ithlAttrib():ImageAttr("ithl", Tango::DEV_USHORT, Tango::READ_WRITE, 7, 8) {};
-	~ithlAttrib() {};
-	
-	virtual void read(Tango::DeviceImpl *dev,Tango::Attribute &att)
-	{(static_cast<XpadPixelDetector *>(dev))->read_ithl(att);}
-	virtual void write(Tango::DeviceImpl *dev,Tango::WAttribute &att)
-	{(static_cast<XpadPixelDetector *>(dev))->write_ithl(att);}
-	virtual bool is_allowed(Tango::DeviceImpl *dev,Tango::AttReqType ty)
-	{return (static_cast<XpadPixelDetector *>(dev))->is_ithl_allowed(ty);}
-};
-
-class daclAttrib: public Tango::ImageAttr
-{
-public:
-	daclAttrib():ImageAttr("dacl", Tango::DEV_USHORT, Tango::READ_WRITE, 560, 960) {};
-	~daclAttrib() {};
-	
-	virtual void read(Tango::DeviceImpl *dev,Tango::Attribute &att)
-	{(static_cast<XpadPixelDetector *>(dev))->read_dacl(att);}
-	virtual void write(Tango::DeviceImpl *dev,Tango::WAttribute &att)
-	{(static_cast<XpadPixelDetector *>(dev))->write_dacl(att);}
-	virtual bool is_allowed(Tango::DeviceImpl *dev,Tango::AttReqType ty)
-	{return (static_cast<XpadPixelDetector *>(dev))->is_dacl_allowed(ty);}
-};
-
 class gp4Attrib: public Tango::Attr
 {
 public:
@@ -230,10 +202,10 @@ public:
 //=========================================
 //	Define classes for commands
 //=========================================
-class GetDaclClass : public Tango::Command
+class GetModConfigClass : public Tango::Command
 {
 public:
-	GetDaclClass(const char   *name,
+	GetModConfigClass(const char   *name,
 	               Tango::CmdArgType in,
 				   Tango::CmdArgType out,
 				   const char        *in_desc,
@@ -241,23 +213,23 @@ public:
 				   Tango::DispLevel  level)
 	:Command(name,in,out,in_desc,out_desc, level)	{};
 
-	GetDaclClass(const char   *name,
+	GetModConfigClass(const char   *name,
 	               Tango::CmdArgType in,
 				   Tango::CmdArgType out)
 	:Command(name,in,out)	{};
-	~GetDaclClass() {};
+	~GetModConfigClass() {};
 	
 	virtual CORBA::Any *execute (Tango::DeviceImpl *dev, const CORBA::Any &any);
 	virtual bool is_allowed (Tango::DeviceImpl *dev, const CORBA::Any &any)
-	{return (static_cast<XpadPixelDetector *>(dev))->is_GetDacl_allowed(any);}
+	{return (static_cast<XpadPixelDetector *>(dev))->is_GetModConfig_allowed(any);}
 };
 
 
 
-class LoadAutoTestClass : public Tango::Command
+class ResetClass : public Tango::Command
 {
 public:
-	LoadAutoTestClass(const char   *name,
+	ResetClass(const char   *name,
 	               Tango::CmdArgType in,
 				   Tango::CmdArgType out,
 				   const char        *in_desc,
@@ -265,23 +237,23 @@ public:
 				   Tango::DispLevel  level)
 	:Command(name,in,out,in_desc,out_desc, level)	{};
 
-	LoadAutoTestClass(const char   *name,
+	ResetClass(const char   *name,
 	               Tango::CmdArgType in,
 				   Tango::CmdArgType out)
 	:Command(name,in,out)	{};
-	~LoadAutoTestClass() {};
+	~ResetClass() {};
 	
 	virtual CORBA::Any *execute (Tango::DeviceImpl *dev, const CORBA::Any &any);
 	virtual bool is_allowed (Tango::DeviceImpl *dev, const CORBA::Any &any)
-	{return (static_cast<XpadPixelDetector *>(dev))->is_LoadAutoTest_allowed(any);}
+	{return (static_cast<XpadPixelDetector *>(dev))->is_Reset_allowed(any);}
 };
 
 
 
-class LoadConfigGCmd : public Tango::Command
+class LoadConfigCmd : public Tango::Command
 {
 public:
-	LoadConfigGCmd(const char   *name,
+	LoadConfigCmd(const char   *name,
 	               Tango::CmdArgType in,
 				   Tango::CmdArgType out,
 				   const char        *in_desc,
@@ -289,15 +261,63 @@ public:
 				   Tango::DispLevel  level)
 	:Command(name,in,out,in_desc,out_desc, level)	{};
 
-	LoadConfigGCmd(const char   *name,
+	LoadConfigCmd(const char   *name,
 	               Tango::CmdArgType in,
 				   Tango::CmdArgType out)
 	:Command(name,in,out)	{};
-	~LoadConfigGCmd() {};
+	~LoadConfigCmd() {};
 	
 	virtual CORBA::Any *execute (Tango::DeviceImpl *dev, const CORBA::Any &any);
 	virtual bool is_allowed (Tango::DeviceImpl *dev, const CORBA::Any &any)
-	{return (static_cast<XpadPixelDetector *>(dev))->is_LoadConfigG_allowed(any);}
+	{return (static_cast<XpadPixelDetector *>(dev))->is_LoadConfig_allowed(any);}
+};
+
+
+
+class SaveConfigGCmd : public Tango::Command
+{
+public:
+	SaveConfigGCmd(const char   *name,
+	               Tango::CmdArgType in,
+				   Tango::CmdArgType out,
+				   const char        *in_desc,
+				   const char        *out_desc,
+				   Tango::DispLevel  level)
+	:Command(name,in,out,in_desc,out_desc, level)	{};
+
+	SaveConfigGCmd(const char   *name,
+	               Tango::CmdArgType in,
+				   Tango::CmdArgType out)
+	:Command(name,in,out)	{};
+	~SaveConfigGCmd() {};
+	
+	virtual CORBA::Any *execute (Tango::DeviceImpl *dev, const CORBA::Any &any);
+	virtual bool is_allowed (Tango::DeviceImpl *dev, const CORBA::Any &any)
+	{return (static_cast<XpadPixelDetector *>(dev))->is_SaveConfigG_allowed(any);}
+};
+
+
+
+class SaveConfigLCmd : public Tango::Command
+{
+public:
+	SaveConfigLCmd(const char   *name,
+	               Tango::CmdArgType in,
+				   Tango::CmdArgType out,
+				   const char        *in_desc,
+				   const char        *out_desc,
+				   Tango::DispLevel  level)
+	:Command(name,in,out,in_desc,out_desc, level)	{};
+
+	SaveConfigLCmd(const char   *name,
+	               Tango::CmdArgType in,
+				   Tango::CmdArgType out)
+	:Command(name,in,out)	{};
+	~SaveConfigLCmd() {};
+	
+	virtual CORBA::Any *execute (Tango::DeviceImpl *dev, const CORBA::Any &any);
+	virtual bool is_allowed (Tango::DeviceImpl *dev, const CORBA::Any &any)
+	{return (static_cast<XpadPixelDetector *>(dev))->is_SaveConfigL_allowed(any);}
 };
 
 

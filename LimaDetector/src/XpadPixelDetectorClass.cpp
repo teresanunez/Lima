@@ -59,11 +59,9 @@ __declspec(dllexport)
 
 namespace XpadPixelDetector_ns
 {
-
-
 //+----------------------------------------------------------------------------
 //
-// method : 		GetDaclClass::execute()
+// method : 		GetModConfigClass::execute()
 // 
 // description : 	method to trigger the execution of the command.
 //                PLEASE DO NOT MODIFY this method core without pogo   
@@ -74,17 +72,17 @@ namespace XpadPixelDetector_ns
 // returns : The command output data (packed in the Any object)
 //
 //-----------------------------------------------------------------------------
-CORBA::Any *GetDaclClass::execute(Tango::DeviceImpl *device,const CORBA::Any &in_any)
+CORBA::Any *GetModConfigClass::execute(Tango::DeviceImpl *device,const CORBA::Any &in_any)
 {
 
-	cout2 << "GetDaclClass::execute(): arrived" << endl;
+	cout2 << "GetModConfigClass::execute(): arrived" << endl;
 
-	return insert((static_cast<XpadPixelDetector *>(device))->get_dacl());
+	return insert((static_cast<XpadPixelDetector *>(device))->get_mod_config());
 }
 
 //+----------------------------------------------------------------------------
 //
-// method : 		LoadAutoTestClass::execute()
+// method : 		ResetClass::execute()
 // 
 // description : 	method to trigger the execution of the command.
 //                PLEASE DO NOT MODIFY this method core without pogo   
@@ -95,21 +93,18 @@ CORBA::Any *GetDaclClass::execute(Tango::DeviceImpl *device,const CORBA::Any &in
 // returns : The command output data (packed in the Any object)
 //
 //-----------------------------------------------------------------------------
-CORBA::Any *LoadAutoTestClass::execute(Tango::DeviceImpl *device,const CORBA::Any &in_any)
+CORBA::Any *ResetClass::execute(Tango::DeviceImpl *device,const CORBA::Any &in_any)
 {
 
-	cout2 << "LoadAutoTestClass::execute(): arrived" << endl;
+	cout2 << "ResetClass::execute(): arrived" << endl;
 
-	Tango::DevULong	argin;
-	extract(in_any, argin);
-
-	((static_cast<XpadPixelDetector *>(device))->load_auto_test(argin));
+	((static_cast<XpadPixelDetector *>(device))->reset());
 	return new CORBA::Any();
 }
 
 //+----------------------------------------------------------------------------
 //
-// method : 		LoadConfigGCmd::execute()
+// method : 		LoadConfigCmd::execute()
 // 
 // description : 	method to trigger the execution of the command.
 //                PLEASE DO NOT MODIFY this method core without pogo   
@@ -120,15 +115,66 @@ CORBA::Any *LoadAutoTestClass::execute(Tango::DeviceImpl *device,const CORBA::An
 // returns : The command output data (packed in the Any object)
 //
 //-----------------------------------------------------------------------------
-CORBA::Any *LoadConfigGCmd::execute(Tango::DeviceImpl *device,const CORBA::Any &in_any)
+CORBA::Any *LoadConfigCmd::execute(Tango::DeviceImpl *device,const CORBA::Any &in_any)
 {
 
-	cout2 << "LoadConfigGCmd::execute(): arrived" << endl;
+	cout2 << "LoadConfigCmd::execute(): arrived" << endl;
 
 	const Tango::DevVarULongArray	*argin;
 	extract(in_any, argin);
 
-	((static_cast<XpadPixelDetector *>(device))->load_config_g(argin));
+	((static_cast<XpadPixelDetector *>(device))->load_config(argin));
+	return new CORBA::Any();
+}
+
+
+//+----------------------------------------------------------------------------
+//
+// method : 		SaveConfigGCmd::execute()
+// 
+// description : 	method to trigger the execution of the command.
+//                PLEASE DO NOT MODIFY this method core without pogo   
+//
+// in : - device : The device on which the command must be executed
+//		- in_any : The command input data
+//
+// returns : The command output data (packed in the Any object)
+//
+//-----------------------------------------------------------------------------
+CORBA::Any *SaveConfigGCmd::execute(Tango::DeviceImpl *device,const CORBA::Any &in_any)
+{
+
+	cout2 << "SaveConfigGCmd::execute(): arrived" << endl;
+
+	const Tango::DevVarULongArray	*argin;
+	extract(in_any, argin);
+
+	((static_cast<XpadPixelDetector *>(device))->save_config_g(argin));
+	return new CORBA::Any();
+}
+
+//+----------------------------------------------------------------------------
+//
+// method : 		SaveConfigLCmd::execute()
+// 
+// description : 	method to trigger the execution of the command.
+//                PLEASE DO NOT MODIFY this method core without pogo   
+//
+// in : - device : The device on which the command must be executed
+//		- in_any : The command input data
+//
+// returns : The command output data (packed in the Any object)
+//
+//-----------------------------------------------------------------------------
+CORBA::Any *SaveConfigLCmd::execute(Tango::DeviceImpl *device,const CORBA::Any &in_any)
+{
+
+	cout2 << "SaveConfigLCmd::execute(): arrived" << endl;
+
+	const Tango::DevVarULongArray	*argin;
+	extract(in_any, argin);
+
+	((static_cast<XpadPixelDetector *>(device))->save_config_l(argin));
 	return new CORBA::Any();
 }
 
@@ -150,7 +196,10 @@ CORBA::Any *LoadAllConfigGCmd::execute(Tango::DeviceImpl *device,const CORBA::An
 
 	cout2 << "LoadAllConfigGCmd::execute(): arrived" << endl;
 
-	((static_cast<XpadPixelDetector *>(device))->load_all_config_g());
+	const Tango::DevVarULongArray	*argin;
+	extract(in_any, argin);
+
+	((static_cast<XpadPixelDetector *>(device))->load_all_config_g(argin));
 	return new CORBA::Any();
 }
 
@@ -274,24 +323,34 @@ void XpadPixelDetectorClass::command_factory()
 		"",
 		Tango::OPERATOR));
 	command_list.push_back(new LoadAllConfigGCmd("LoadAllConfigG",
+		Tango::DEVVAR_ULONGARRAY, Tango::DEV_VOID,
+		"modNum(1..8), chipId(0..6), config_values (11 values)",
+		"",
+		Tango::OPERATOR));
+	command_list.push_back(new SaveConfigLCmd("SaveConfigL",
+		Tango::DEVVAR_ULONGARRAY, Tango::DEV_VOID,
+		"modNum(1..8), calibId(0..6), chipId(0..7), curRow (0..119), values (80 values)",
+		"",
+		Tango::OPERATOR));
+	command_list.push_back(new SaveConfigGCmd("SaveConfigG",
+		Tango::DEVVAR_ULONGARRAY, Tango::DEV_VOID,
+		"modNum(1..8), calibId(0..6), reg, values (7 values)",
+		"",
+		Tango::OPERATOR));
+	command_list.push_back(new LoadConfigCmd("LoadConfig",
+		Tango::DEVVAR_ULONGARRAY, Tango::DEV_VOID,
+		"modNum(1..8), calibId(0..6)",
+		"",
+		Tango::OPERATOR));
+	command_list.push_back(new ResetClass("Reset",
 		Tango::DEV_VOID, Tango::DEV_VOID,
 		"",
 		"",
 		Tango::OPERATOR));
-	command_list.push_back(new LoadConfigGCmd("LoadConfigG",
-		Tango::DEVVAR_ULONGARRAY, Tango::DEV_VOID,
-		"register,value",
-		"",
-		Tango::OPERATOR));
-	command_list.push_back(new LoadAutoTestClass("LoadAutoTest",
-		Tango::DEV_ULONG, Tango::DEV_VOID,
-		"value to be loaded",
-		"",
-		Tango::OPERATOR));
-	command_list.push_back(new GetDaclClass("GetDacl",
+	command_list.push_back(new GetModConfigClass("GetModConfig",
 		Tango::DEV_VOID, Tango::DEVVAR_USHORTARRAY,
 		"",
-		"DACL values",
+		"array of data",
 		Tango::OPERATOR));
 
 	//	add polling if any
@@ -476,17 +535,6 @@ void XpadPixelDetectorClass::attribute_factory(vector<Tango::Attr *> &att_list)
 	gp4->set_disp_level(Tango::EXPERT);
 	att_list.push_back(gp4);
 
-	//	Attribute : dacl
-	daclAttrib	*dacl = new daclAttrib();
-	Tango::UserDefaultAttrProp	dacl_prop;
-	dacl_prop.set_description("Dacl values (refreshed by the execution of the command GetDacl)");
-	dacl->set_default_properties(dacl_prop);
-	att_list.push_back(dacl);
-
-	//	Attribute : ithl
-	ithlAttrib	*ithl = new ithlAttrib();
-	att_list.push_back(ithl);
-
 	//	End of Automatic code generation
 	//-------------------------------------------------------------
 }
@@ -539,10 +587,10 @@ void XpadPixelDetectorClass::set_default_property()
 	//	Set Default Class Properties
 	//	Set Default Device Properties
 	prop_name = "AcquisitionType";
-	prop_desc = "Type of Acquisition:\n0->slow (readOneImage)\n1->fast (getImgSeq)";
-	prop_def  = "1";
+	prop_desc = "Type of Acquisition:<BR>\n0->slow 16 bits (readOneImage)<BR>\n1->fast 16 bis (getImgSeq)<BR>\n2->slow 32 bits<BR>\n3->fast async 16 bits<BR>";
+	prop_def  = "0";
 	vect_data.clear();
-	vect_data.push_back("1");
+	vect_data.push_back("0");
 	if (prop_def.length()>0)
 	{
 		Tango::DbDatum	data(prop_name);

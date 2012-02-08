@@ -90,6 +90,10 @@ public :
  *	Attribute member data.
  */
 //@{
+		Tango::DevString	*attr_imageName_read;
+		Tango::DevString	attr_imageName_write;
+		Tango::DevUShort	*attr_imageIndex_read;
+		Tango::DevUShort	attr_imageIndex_write;
 //@}
 
 /**
@@ -109,14 +113,6 @@ public :
  *	Detector generated image(s) path.
  */
 	string	detectorTargetPath;
-/**
- *	Detector generated image name(s)
- */
-	string	detectorImageName;
-/**
- *	Directory monitored by device , in  order to Reda/Display image.
- */
-	string	directoryWatcherPath;
 //@}
 
 /**
@@ -185,6 +181,34 @@ public :
  */
 
 //@{
+/**
+ *	Hardware acquisition for attributes.
+ */
+	virtual void read_attr_hardware(vector<long> &attr_list);
+/**
+ *	Extract real attribute values for imageName acquisition result.
+ */
+	virtual void read_imageName(Tango::Attribute &attr);
+/**
+ *	Write imageName attribute values to hardware.
+ */
+	virtual void write_imageName(Tango::WAttribute &attr);
+/**
+ *	Extract real attribute values for imageIndex acquisition result.
+ */
+	virtual void read_imageIndex(Tango::Attribute &attr);
+/**
+ *	Write imageIndex attribute values to hardware.
+ */
+	virtual void write_imageIndex(Tango::WAttribute &attr);
+/**
+ *	Read/Write allowed for imageName attribute.
+ */
+	virtual bool is_imageName_allowed(Tango::AttReqType type);
+/**
+ *	Read/Write allowed for imageIndex attribute.
+ */
+	virtual bool is_imageIndex_allowed(Tango::AttReqType type);
 /**
  *	Execution allowed for TakeBackground command.
  */

@@ -64,9 +64,11 @@ Revision:  - Author:
 <Td><Center><b>Description</b></td></Center>
 <Tr><Td><b><a href=#Dev_DefaultValues>AcquisitionType </a></b></Td>
 <Td><Font Size=-1>Tango::DEV_SHORT</Font></Td>
-<Td><Font Size=-1>Type of Acquisition:
-0->slow (readOneImage)
-1->fast (getImgSeq)</Font></Td></Tr>
+<Td><Font Size=-1>Type of Acquisition:<BR>
+0->slow 16 bits (readOneImage)<BR>
+1->fast 16 bis (getImgSeq)<BR>
+2->slow 32 bits<BR>
+3->fast async 16 bits<BR></Font></Td></Tr>
 
 <Tr><Td><b><a href=#Dev_DefaultValues>AllConfigG </a></b></Td>
 <Td><Font Size=-1>Array of long</Font></Td>
@@ -98,7 +100,7 @@ IBUFFER</Font></Td></Tr>
     </Tr>
     <Tr>
         <Td>AcquisitionType</Td>
-        <td>1</td>
+        <td>0</td>
     </Tr>
     <Tr>
         <Td>AllConfigG</Td>

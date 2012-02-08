@@ -725,7 +725,7 @@ void LimaDetectorClass::set_default_property()
 		add_wiz_dev_prop(prop_name, prop_desc);
 
 	prop_name = "FileNbFrames";
-	prop_desc = "Define the amount of frames stored in the target file.";
+	prop_desc = "Define the amount of frames stored in the target file.\nIf Nexus file, this is the NbAcqPerFile.";
 	prop_def  = "1";
 	vect_data.clear();
 	vect_data.push_back("1");

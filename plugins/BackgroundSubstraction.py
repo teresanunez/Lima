@@ -26,7 +26,8 @@ from Utils import getDataFromFile,BasePostProcess
 
 class BackgroundSubstractionDeviceServer(BasePostProcess) :
     BACKGROUND_TASK_NAME = 'BackGroundTask'
-
+    Core.DEB_CLASS(Core.DebModApplication,'BackgroundSubstraction')
+    
     def __init__(self,cl,name) :
         self.__backGroundTask = None
         self.__backGroundImage = Core.Processlib.Data()
@@ -56,8 +57,10 @@ class BackgroundSubstractionDeviceServer(BasePostProcess) :
 			return
 	PyTango.Device_4Impl.set_state(self,state)
 
+    @Core.DEB_MEMBER_FUNCT
     def setBackgroundImage(self,filepath) :
-        self.__backGroundImage = getDataFromFile(*filepath)
+        deb.Param('filepath=%s' % filepath)
+        self.__backGroundImage = getDataFromFile(filepath)
         if(self.__backGroundTask) :
             self.__backGroundTask.setBackgroundImage(self.__backGroundImage)
 
@@ -76,7 +79,7 @@ class BackgroundSubstractionDeviceServerClass(PyTango.DeviceClass) :
     #	 Command definitions
     cmd_list = {
         'setBackgroundImage':
-        [[PyTango.DevVarStringArray,"Full path of background image file"],
+        [[PyTango.DevString,"Full path of background image file"],
          [PyTango.DevVoid,""]],
 	'Start':
 	[[PyTango.DevVoid,""],

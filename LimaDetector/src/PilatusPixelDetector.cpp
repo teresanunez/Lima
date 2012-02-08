@@ -49,6 +49,7 @@ static const char *RcsId = "$Id:  $";
 //	----------------------------------------
 //  State                |  dev_state()
 //  Status               |  dev_status()
+//  SetEnergy            |  set_energy()
 //  SetThresholdAndGain  |  set_threshold_and_gain()
 //  SetMxSettings        |  set_mx_settings()
 //  SendAnyCommand       |  send_any_command()
@@ -410,6 +411,11 @@ void PilatusPixelDetector::write_imagePath(Tango::WAttribute &attr)
 	DEBUG_STREAM << "PilatusPixelDetector::write_imagePath(Tango::WAttribute &attr) entering... "<< endl;
     try
     {
+	//need to reset the state FAULT in order to avoid a problem on proxima1 datacollector
+	if(dev_state()==Tango::FAULT || dev_state()==Tango::RUNNING)
+	{
+            m_ct->resetStatus(false);          
+	}
         attr.get_write_value(attr_imagePath_write);
         m_hw->setImagePath(attr_imagePath_write);
     }
@@ -682,96 +688,6 @@ void PilatusPixelDetector::read_gain(Tango::Attribute &attr)
 
 //+------------------------------------------------------------------
 /**
- *    method:    PilatusPixelDetector::dev_state
- *
- *    description:    method to execute "State"
- *    This command gets the device state (stored in its <i>device_state</i> data member) and returns it to the caller.
- *
- * @return    State Code
- *
- */
-//+------------------------------------------------------------------
-Tango::DevState PilatusPixelDetector::dev_state()
-{
-    Tango::DevState    argout = DeviceImpl::dev_state();
-    DEBUG_STREAM << "PilatusPixelDetector::dev_state(): entering... !" << endl;
-    //    Add your own code to control device here
-    stringstream    DeviceStatus;
-    DeviceStatus     << "";
-    Tango::DevState DeviceState    = Tango::STANDBY;
-    if(!m_is_device_initialized )
-    {
-        DeviceState            = Tango::INIT;
-        DeviceStatus        << m_status_message.str();
-    }
-    else if (m_ct==0)
-    {
-        DeviceState            = Tango::INIT;
-        DeviceStatus        <<"Initialization Failed : Unable to get the lima control object !\n\n";
-    }
-    else
-    {
-            CtControl::Status status;
-            m_ct->getStatus(status);
-            if (status.AcquisitionStatus == lima::AcqReady)
-            {
-                HwInterface::StatusType state;
-                m_hw->getStatus(state); 
-
-                if(state.acq == AcqRunning && state.det == DetExposure)
-                {
-                    DeviceState=Tango::RUNNING;
-                    DeviceStatus<<"Acquisition is Running ...\n"<<endl;
-                }
-                else if(state.acq == AcqFault && state.det == DetFault)
-                {                 
-                    DeviceState=Tango::INIT;//INIT
-                    DeviceStatus<<"Acquisition is in Init\n"<<endl;
-                }
-                else if(state.acq == AcqFault && state.det == DetIdle)
-                {                 
-                    DeviceState=Tango::FAULT;//FAULT
-                    DeviceStatus<<"Acquisition is in Fault\n"<<endl;
-                }
-                else
-                {
-                    DeviceState=Tango::STANDBY;
-                    DeviceStatus<<"Waiting for Request ...\n"<<endl;
-                }
-            }
-            else if(status.AcquisitionStatus == lima::AcqRunning)
-            {           
-                DeviceState=Tango::RUNNING;
-                DeviceStatus<<"Acquisition is Running ...\n"<<endl;
-            }
-            else
-            {      
-                HwInterface::StatusType state;
-                m_hw->getStatus(state); 
-                if(state.acq == AcqFault && state.det == DetFault)
-                {                 
-                    DeviceState=Tango::INIT;//INIT
-                    DeviceStatus<<"Acquisition is in Init\n"<<endl;
-                }
-                else
-                {
-                  DeviceState=Tango::FAULT;//FAULT
-                  DeviceStatus<<"Acquisition is in Fault\n"<<endl;
-                }
-            }
-        
-    }
-
-    set_state(DeviceState);
-    set_status(DeviceStatus.str());
-
-    argout = DeviceState;
-    return argout;
-}
-
-
-//+------------------------------------------------------------------
-/**
  *	method:	PilatusPixelDetector::set_threshold_and_gain
  *
  *	description:	method to execute "SetThresholdAndGain"
@@ -942,6 +858,97 @@ void PilatusPixelDetector::send_any_command(Tango::DevString argin)
     }
 }
 
+//+------------------------------------------------------------------
+/**
+ *    method:    PilatusPixelDetector::dev_state
+ *
+ *    description:    method to execute "State"
+ *    This command gets the device state (stored in its <i>device_state</i> data member) and returns it to the caller.
+ *
+ * @return    State Code
+ *
+ */
+//+------------------------------------------------------------------
+Tango::DevState PilatusPixelDetector::dev_state()
+{
+    Tango::DevState    argout = DeviceImpl::dev_state();
+    DEBUG_STREAM << "PilatusPixelDetector::dev_state(): entering... !" << endl;
+    //    Add your own code to control device here
+    stringstream    DeviceStatus;
+    DeviceStatus     << "";
+    Tango::DevState DeviceState    = Tango::STANDBY;
+    if(!m_is_device_initialized )
+    {
+        DeviceState            = Tango::INIT;
+        DeviceStatus        << m_status_message.str();
+    }
+    else if (m_ct==0)
+    {
+        DeviceState            = Tango::INIT;
+        DeviceStatus        <<"Initialization Failed : Unable to get the lima control object !\n\n";
+    }
+    else
+    {
+            CtControl::Status status;
+            m_ct->getStatus(status);
+
+            if (status.AcquisitionStatus == lima::AcqReady)
+            {
+
+                HwInterface::StatusType state;
+                m_hw->getStatus(state);
+
+                if(state.acq == AcqRunning && state.det == DetExposure)
+                {
+                    DeviceState=Tango::RUNNING;
+                    DeviceStatus<<"Acquisition is Running ...\n"<<endl;
+                }
+                else if(state.acq == AcqFault && state.det == DetFault)
+                {
+                    DeviceState=Tango::INIT;//INIT
+                    DeviceStatus<<"Acquisition is in Init\n"<<endl;
+                }
+                else if(state.acq == AcqFault && state.det == DetIdle)
+                {
+                    DeviceState=Tango::FAULT;//FAULT
+                    DeviceStatus<<"Acquisition is in Fault\n"<<endl;
+                }
+                else
+                {
+                    DeviceState=Tango::STANDBY;
+                    DeviceStatus<<"Waiting for Request ...\n"<<endl;
+                }
+            }
+            else if(status.AcquisitionStatus == lima::AcqRunning)
+            {
+                DeviceState=Tango::RUNNING;
+                DeviceStatus<<"Acquisition is Running ...\n"<<endl;
+            }
+            else
+            {
+		HwInterface::StatusType state;
+                m_hw->getStatus(state);
+                if(state.acq == AcqFault && state.det == DetFault)
+                {
+                    DeviceState=Tango::INIT;//INIT
+                    DeviceStatus<<"Acquisition is in Init\n"<<endl;
+                }
+                else
+                {
+                  DeviceState=Tango::FAULT;//FAULT
+                  DeviceStatus<<"Acquisition is in Fault\n"<<endl;
+                }
+            }
+
+    }
+
+    set_state(DeviceState);
+    set_status(DeviceStatus.str());
+
+    argout = DeviceState;
+    return argout;
+}
+
 /*-------------------------------------------------------------------------
 //       LimaDetector::store_value_as_property
 /-------------------------------------------------------------------------*/
@@ -1021,7 +1028,46 @@ int PilatusPixelDetector::FindIndexFromPropertyName(Tango::DbData& dev_prop, str
 
 
 
+//+------------------------------------------------------------------
+/**
+ *	method:	PilatusPixelDetector::set_energy
+ *
+ *	description:	method to execute "SetEnergy"
+ *	Define Energy in eV.
+ *
+ * @param	argin	
+ *
+ */
+//+------------------------------------------------------------------
+void PilatusPixelDetector::set_energy(Tango::DevDouble argin)
+{
+	DEBUG_STREAM << "PilatusPixelDetector::set_energy(): entering... !" << endl;
 
+	//	Add your own code to control device here
+    try
+    {
+        if(argin>0)
+        	m_hw->setEnergy(argin);
+    }
+    catch(Tango::DevFailed& df)
+    {
+        ERROR_STREAM << df << endl;
+        //- rethrow exception
+        Tango::Except::re_throw_exception(df,
+                     static_cast<const char*> ("TANGO_DEVICE_ERROR"),
+                     static_cast<const char*> (string(df.errors[0].desc).c_str()),
+                     static_cast<const char*> ("PilatusPixelDetector::set_energy"));
+    }
+    catch(Exception& e)
+    {
+        ERROR_STREAM << e.getErrMsg() << endl;
+        //- throw exception
+        Tango::Except::throw_exception(
+                     static_cast<const char*> ("TANGO_DEVICE_ERROR"),
+                     static_cast<const char*> (e.getErrMsg().c_str()),
+                     static_cast<const char*> ("PilatusPixelDetector::set_energy"));
+    }
+}
 
 
 }	//	namespace
