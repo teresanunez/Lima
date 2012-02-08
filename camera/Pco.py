@@ -71,6 +71,7 @@ class Pco(PyTango.Device_4Impl):
     def init_device(self):
         self.set_state(PyTango.DevState.ON)
         self.get_device_properties(self.get_device_class())
+        
 
     @Core.DEB_MEMBER_FUNCT
     def getAttrStringValueList(self, attr_name):
@@ -102,26 +103,116 @@ class Pco(PyTango.Device_4Impl):
                 return callable_obj
         raise AttributeError('Pco has no attribute %s' % name)
 
+#==================================================================
+#
+#    Pco read/write attribute methods
+#
+#==================================================================
 
+#------------------------------------------------------------------
+#    Read attribute
+#------------------------------------------------------------------
+    def read_cocRunTime(self, attr):
+        val  = _PcoCam.getInfo("cocRunTime")
+        attr.set_value(val)
+
+    def read_frameRate(self, attr):
+        val  = _PcoCam.getInfo("frameRate")
+        attr.set_value(val)
+
+    def read_maxNbImages(self, attr):
+        val  = _PcoCam.getInfo("maxNbImages")
+        attr.set_value(val)
+
+    def read_info(self, attr):
+        val= _PcoCam.getInfo("")
+        attr.set_value(val)
+
+
+
+
+#==================================================================
+#
+#    Pco command methods
+#
+#==================================================================
+    def talk(self, argin):
+        val= _PcoCam.getInfo(argin)
+        return val
+
+
+#==================================================================
+#
+#    PcoClass class definition
+#
+#==================================================================
 class PcoClass(PyTango.DeviceClass):
 
+    #    Class Properties
     class_property_list = {}
 
+    #    Device Properties
     device_property_list = {
-        'cam_ip_addresse':
-        [PyTango.DevString,
-         "Camera ip addresse",[]],
         }
 
+    #    Command definitions
     cmd_list = {
         'getAttrStringValueList':
         [[PyTango.DevString, "Attribute name"],
          [PyTango.DevVarStringArray, "Authorized String value list"]],
+        'talk':
+        [[PyTango.DevString, "str argin"],
+         [PyTango.DevString, "str argout"]],
         }
 
+    #    Attribute definitions
     attr_list = {
+         'cocRunTime':	  
+         [[PyTango.DevString,
+           PyTango.SCALAR,
+           PyTango.READ],
+         {
+             'label':"COC",
+             'unit':"",
+             'format':"",
+             'description':"coc Run Time",
+          }],
+         'frameRate':	  
+         [[PyTango.DevString,
+           PyTango.SCALAR,
+           PyTango.READ],
+         {
+             'label':"frameRate",
+             'unit':"",
+             'format':"",
+             'description':"frame rate",
+          }],
+         'maxNbImages':	  
+         [[PyTango.DevString,
+           PyTango.SCALAR,
+           PyTango.READ],
+         {
+             'label':"maxImg",
+             'unit':"",
+             'format':"",
+             'description':"max nb of images in the segment",
+          }],
+         'info':	  
+         [[PyTango.DevString,
+           PyTango.SCALAR,
+           PyTango.READ],
+         {
+             'label':"INFO",
+             'unit':"",
+             'format':"",
+             'description':"general information",
+          }],
+    
         }
 
+#------------------------------------------------------------------
+#    PcoClass Constructor
+#------------------------------------------------------------------
     def __init__(self,name) :
         PyTango.DeviceClass.__init__(self,name)
         self.set_type(name)
@@ -132,14 +223,27 @@ class PcoClass(PyTango.DeviceClass):
 _PcoCam = None
 _PcoInterface = None
 
-def get_control(cam_ip_addresse = "0",**keys) :
-    print "cam_ip_addresse",cam_ip_addresse
+def get_control(**keys) :
     global _PcoCam
     global _PcoInterface
+
+
+    #Core.DebParams.setTypeFlags(0xffffffff)
+    Core.DebParams.setTypeFlags(0)
+
+    #Core.DebParams.setModuleFlags(0xffffffff)
+    Core.DebParams.setModuleFlags(0)
+
+    Core.DebParams.setFormatFlags(0x30)
+
     if _PcoCam is None:
-	_PcoCam = PcoAcq.Camera(cam_ip_addresse)
-	_PcoInterface = PcoAcq.Interface(_PcoCam)
+        _PcoCam = PcoAcq.Camera("")
+        _PcoInterface = PcoAcq.Interface(_PcoCam)
     return Core.CtControl(_PcoInterface)
 
 def get_tango_specific_class_n_device():
     return PcoClass,Pco
+
+def close_interface() :
+    global _PcoCam
+    _PcoCam = None
