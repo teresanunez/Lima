@@ -6,6 +6,4 @@
 *.so
 \#*\#
 *target*
-*.py.*
 *.bck
-python_test
