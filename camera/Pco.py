@@ -228,11 +228,12 @@ def get_control(**keys) :
     global _PcoInterface
 
 
-    #Core.DebParams.setTypeFlags(0xffffffff)
-    Core.DebParams.setTypeFlags(0)
-
-    #Core.DebParams.setModuleFlags(0xffffffff)
-    Core.DebParams.setModuleFlags(0)
+    if 1:
+        Core.DebParams.setModuleFlags(0xffffffff)
+        Core.DebParams.setTypeFlags(0xffffffff)
+    else:
+        Core.DebParams.setTypeFlags(0)
+        Core.DebParams.setModuleFlags(0)
 
     Core.DebParams.setFormatFlags(0x30)
 
