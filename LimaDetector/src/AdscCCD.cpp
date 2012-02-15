@@ -240,26 +240,35 @@ void AdscCCD::get_device_property()
 //-----------------------------------------------------------------------------
 void AdscCCD::always_executed_hook()
 {
+	DEBUG_STREAM << "AdscCCD::always_executed_hook() entering... "<< endl;
+	try
+	{
+		//- get the singleton control objet used to pilot the lima framework
+		m_ct = ControlFactory::instance().get_control("AdscCCD");
 
-    try
-    {
-    	//- get the singleton control objet used to pilot the lima framework
-        m_ct = ControlFactory::instance().get_control("AdscCCD");
+		//- get interface to specific detector
+		if(m_ct!=0)
+			m_hw = dynamic_cast<Adsc::Interface*>(m_ct->hwInterface());
 
-        //- get interface to specific detector
-        if(m_ct!=0)
-            m_hw = dynamic_cast<Adsc::Interface*>(m_ct->hwInterface());
-
-    }
-    catch(Exception& e)
-    {
-        ERROR_STREAM << e.getErrMsg() << endl;
-        //- throw exception
-        Tango::Except::throw_exception(
-                    static_cast<const char*> ("TANGO_DEVICE_ERROR"),
-                    static_cast<const char*> (e.getErrMsg().c_str()),
-                    static_cast<const char*> ("AdscCCD::always_executed_hook"));
-    }	
+	}
+	catch(Exception& e)
+	{
+		ERROR_STREAM << e.getErrMsg() << endl;
+		m_status_message <<"Initialization Failed : "<<e.getErrMsg( )<< endl;
+		//- throw exception
+		set_state(Tango::INIT);
+		m_is_device_initialized = false;
+		return;
+	}
+	catch(...)
+	{
+		ERROR_STREAM<<"Initialization Failed : UNKNOWN"<<endl;
+		m_status_message <<"Initialization Failed : UNKNOWN"<< endl;
+		//- throw exception
+		set_state(Tango::INIT);
+		m_is_device_initialized = false;
+		return;
+	}
 }
 //+----------------------------------------------------------------------------
 //

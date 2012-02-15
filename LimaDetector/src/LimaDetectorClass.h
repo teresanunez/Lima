@@ -277,10 +277,10 @@ public:
 //=========================================
 //	Define classes for commands
 //=========================================
-class SetBinCmd : public Tango::Command
+class SetBinningCmd : public Tango::Command
 {
 public:
-	SetBinCmd(const char   *name,
+	SetBinningCmd(const char   *name,
 	               Tango::CmdArgType in,
 				   Tango::CmdArgType out,
 				   const char        *in_desc,
@@ -288,15 +288,15 @@ public:
 				   Tango::DispLevel  level)
 	:Command(name,in,out,in_desc,out_desc, level)	{};
 
-	SetBinCmd(const char   *name,
+	SetBinningCmd(const char   *name,
 	               Tango::CmdArgType in,
 				   Tango::CmdArgType out)
 	:Command(name,in,out)	{};
-	~SetBinCmd() {};
+	~SetBinningCmd() {};
 	
 	virtual CORBA::Any *execute (Tango::DeviceImpl *dev, const CORBA::Any &any);
 	virtual bool is_allowed (Tango::DeviceImpl *dev, const CORBA::Any &any)
-	{return (static_cast<LimaDetector *>(dev))->is_SetBin_allowed(any);}
+	{return (static_cast<LimaDetector *>(dev))->is_SetBinning_allowed(any);}
 };
 
 

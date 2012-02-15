@@ -278,7 +278,7 @@ public :
  */
 	vector<string>	debugFormats;
 /**
- *	Define the Region of Interest of the Acquisition: <br>
+ *	Memorize/Define the Region of Interest of the Acquisition: <br>
  *	origin X<br>
  *	origin Y<br>
  *	Width<br>
@@ -287,9 +287,9 @@ public :
  *	Nota:<br>
  *	if any roi value is <0, then we consider all detector area as Roi.
  */
-	vector<short>	roi;
+	vector<short>	memorizedRoi;
 /**
- *	Define the Binning value of the Acquisition<br>
+ *	Memorize/Define the Binning value of the Acquisition<br>
  *	Availables values :<br>
  *	- 1<br>
  *	- 2<br>
@@ -297,7 +297,7 @@ public :
  *	- 4<br>
  *	- 8<br>
  */
-	Tango::DevUShort	binning;
+	Tango::DevUShort	memorizedBinning;
 //@}
 
 /**
@@ -555,9 +555,9 @@ public :
  */
 	virtual bool is_SetROI_allowed(const CORBA::Any &any);
 /**
- *	Execution allowed for SetBin command.
+ *	Execution allowed for SetBinning command.
  */
-	virtual bool is_SetBin_allowed(const CORBA::Any &any);
+	virtual bool is_SetBinning_allowed(const CORBA::Any &any);
 /**
  * This command gets the device state (stored in its <i>device_state</i> data member) and returns it to the caller.
  *	@return	State Code
@@ -587,7 +587,7 @@ public :
  */
 	void	set_roi(const Tango::DevVarLongArray *);
 /**
- * Define a binning to the image. <br>
+ * Define a binning for the image. <br>
  *	Availables values are  :<br>
  *	1->binning(1,1)<br>
  *	2->binning(2,2)<br>
@@ -597,7 +597,7 @@ public :
  *	@param	argin	
  *	@exception DevFailed
  */
-	void	set_bin(Tango::DevUShort);
+	void	set_binning(Tango::DevUShort);
 
 /**
  *	Read the device properties from database
