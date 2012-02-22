@@ -326,6 +326,15 @@ class LimaCCDs(PyTango.Device_4Impl) :
 	value = det_info.getDetectorModel() 
 	attr.set_value(value)
         
+    ## @brief Read the Camera pixelsize
+    #
+    @Core.DEB_MEMBER_FUNCT
+    def read_camera_pixelsize(self,attr) :        
+	interface = self.__control.hwInterface()
+	det_info = interface.getHwCtrlObj(Core.HwCap.DetInfo)
+	value = det_info.getPixelSize() 
+	attr.set_value(value)
+        
     ## @brief get the status of the acquisition
     #
     @Core.DEB_MEMBER_FUNCT
@@ -1509,6 +1518,18 @@ class LimaCCDsClass(PyTango.DeviceClass) :
         [[PyTango.DevString,
           PyTango.SCALAR,
           PyTango.READ]],
+        'camera_pixelsize':
+        [[PyTango.DevDouble,
+          PyTango.SPECTRUM,
+          PyTango.READ,2],
+         {
+             'label':"Pixel size:x_size, y_size",
+             'unit':"meter",
+             'standard unit':"meter",
+             'display unit':"meter",
+             'format':"%f",
+             'description':"Size of the pixel in meter",
+         }],
         'acq_status':
         [[PyTango.DevString,
           PyTango.SCALAR,
