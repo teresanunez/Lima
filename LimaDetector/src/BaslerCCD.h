@@ -46,11 +46,11 @@
 #include "CtControl.h"
 #include "CtAcquisition.h"
 #include "CtImage.h"
-#include <BaslerInterface.h>
 #include "Factory.h"
 
 #include <tango.h>
 
+#include <BaslerInterface.h>
 #define MAX_ATTRIBUTE_STRING_LENGTH     256
 
 using namespace lima;
