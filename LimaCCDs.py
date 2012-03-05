@@ -1832,12 +1832,17 @@ def declare_camera_n_commun_to_tango_world(util) :
             else:
                 util.add_TgClass(specificClass,specificDevice,specificDevice.__name__)
 
+    warningFlag = False
     for module_name in plugins.__all__:
         try:
             m = __import__('plugins.%s' % (module_name),None,None,'plugins.%s' % (module_name))
         except ImportError:
-	    import traceback
-	    traceback.print_exc()
+            print "Warning optional plugin %s can't be load, dependency not satisfied." % module_name
+            warningFlag = True
+            if verboseLevel >= 4:
+                import traceback
+                traceback.print_exc()
+                print
             continue
         else:
             try:
@@ -1847,7 +1852,9 @@ def declare_camera_n_commun_to_tango_world(util) :
             else:
                 specificClass,specificDevice = func()
 		util.add_TgClass(specificClass,specificDevice,specificDevice.__name__)
-
+    if warningFlag and verboseLevel < 4:
+        print "For more pulgins dependency  information start server with -v4"
+        
 def export_default_plugins() :
     #Post processing tango export
     util = PyTango.Util.instance()
@@ -1978,6 +1985,13 @@ class CallableWriteEnum:
 #
 #==================================================================
 def main() :
+    global verboseLevel
+    verboseLevel = 0
+    for option in sys.argv:
+        if option.startswith('-v'):
+            try:
+                verboseLevel = int(option[2:])
+            except: pass
     try:
         py = PyTango.Util(sys.argv)
         py.add_TgClass(LimaCCDsClass,LimaCCDs,'LimaCCDs')
