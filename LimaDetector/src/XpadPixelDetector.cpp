@@ -837,8 +837,15 @@ void XpadPixelDetector::save_config_l(const Tango::DevVarULongArray *argin)
 
 	//	Add your own code to control device here
 
-    //- TODO: parameter checking ? or done in xpix?
     //- argin length doit etre de taille 4 + 80 = 84
+    if(argin->length()!= 84)
+    {
+        Tango::Except::throw_exception(
+                    static_cast<const char*> ("PARAMETER_ERROR"),
+                    static_cast<const char*> ("The size of the argin paramater is not good: there should be 84 values (4+80)"),
+                    static_cast<const char*> ("XpadPixelDetector::save_config_l"));
+    }
+
     try
     {
         m_camera->saveConfigL((*argin)[0],(*argin)[1],(*argin)[2],(*argin)[3],(unsigned long*) &((*argin)[4]));
@@ -871,8 +878,15 @@ void XpadPixelDetector::save_config_g(const Tango::DevVarULongArray *argin)
 
 	//	Add your own code to control device here
 
-    //- TODO: parameter checking ? or done in xpix?
     //- argin length doit etre de taille: 3 + 11 = 14
+    if(argin->length()!= 14)
+    {
+        Tango::Except::throw_exception(
+                    static_cast<const char*> ("PARAMETER_ERROR"),
+                    static_cast<const char*> ("The size of the argin paramater is not good: there should be 14 values (3+11)"),
+                    static_cast<const char*> ("XpadPixelDetector::save_config_g"));
+    }
+
     try
     {
         m_camera->saveConfigG((*argin)[0],(*argin)[1],(*argin)[2],(unsigned long*) &((*argin)[3]));
@@ -906,7 +920,14 @@ void XpadPixelDetector::load_config(const Tango::DevVarULongArray *argin)
 
 	//	Add your own code to control device here
 
-    //- TODO: parameter checking ? or done in xpix?
+    if(argin->length()!= 2)
+    {
+        Tango::Except::throw_exception(
+                    static_cast<const char*> ("PARAMETER_ERROR"),
+                    static_cast<const char*> ("The size of the argin paramater is not good: there should be 2 values"),
+                    static_cast<const char*> ("XpadPixelDetector::load_config"));
+    }
+
     try
     {
         m_camera->loadConfig((*argin)[0],(*argin)[1]);
@@ -984,6 +1005,11 @@ Tango::DevVarUShortArray *XpadPixelDetector::get_mod_config()
 
 	//	Add your own code to control device here
 
+    Tango::Except::throw_exception(
+                    static_cast<const char*> ("NOT_SUPPORTED_FEATURE"),
+                    static_cast<const char*> ("The GetModConfig command is not yet supported"),
+                    static_cast<const char*> ("XpadPixelDetector::get_mod_config"));
+
     try
     {
         //- get the DACLs size, which is the same size of the image
@@ -1050,8 +1076,14 @@ void XpadPixelDetector::load_all_config_g(const Tango::DevVarULongArray *argin)
 
 	//	Add your own code to control device here
 
-    //- TODO: parameter checking ? or done in xpix?
     //- argin length doit etre de taille: 2 + 11 = 13
+    if(argin->length()!= 13)
+    {
+        Tango::Except::throw_exception(
+                    static_cast<const char*> ("PARAMETER_ERROR"),
+                    static_cast<const char*> ("The size of the argin paramater is not good: there should be 3 values (2+11)"),
+                    static_cast<const char*> ("XpadPixelDetector::load_all_config_g"));
+    }
     try
     {
         m_camera->loadAllConfigG((*argin)[0],(*argin)[1],(unsigned long*) &((*argin)[2]));
