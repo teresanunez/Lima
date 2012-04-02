@@ -47,13 +47,13 @@ static const char *RcsId = "$Id:  $";
 //
 //  Command name|  Method name
 //	----------------------------------------
-//  State   |  dev_state()
-//  Status  |  dev_status()
-//  Snap    |  snap()
-//  Start   |  start()
-//  Stop    |  stop()
-//  SetROI  |  set_roi()
-//  SetBin  |  set_bin()
+//  State       |  dev_state()
+//  Status      |  dev_status()
+//  Snap        |  snap()
+//  Start       |  start()
+//  Stop        |  stop()
+//  SetROI      |  set_roi()
+//  SetBinning  |  set_binning()
 //
 //===================================================================
 
@@ -316,21 +316,21 @@ void LimaDetector::init_device()
         //- reload Roi from property
         INFO_STREAM<<"Reload ROI of detector from Roi property."<<endl;
         Roi myRoi(0,0,0,0);
-        if((roi.at(0)<0) || (roi.at(1)<0) || (roi.at(2)<=0) || (roi.at(3)<=0)) //Roi not initialized, then we consider all detector area as Roi
+        if((memorizedRoi.at(0)<0) || (memorizedRoi.at(1)<0) || (memorizedRoi.at(2)<=0) || (memorizedRoi.at(3)<=0)) //Roi not initialized, then we consider all detector area as Roi
         {
             Size size;
             hw_det_info->getDetectorImageSize(size);
         	myRoi= Roi(0, 0,size.getWidth(),size.getHeight());
         }
-        else 																	//Roi is initialized, then we consider all roi property values as Roi
+        else 																	//Roi is initialized, then we consider all memorizedRoi property values as Roi
         {
-        	myRoi = Roi(roi.at(0), roi.at(1),roi.at(2),roi.at(3));
+        	myRoi = Roi(memorizedRoi.at(0), memorizedRoi.at(1),memorizedRoi.at(2),memorizedRoi.at(3));
         }
         m_ct->image()->setRoi(myRoi);
 
         //- reload Binning from property
         INFO_STREAM<<"Reload BIN of detector from Binning property."<<endl;
-        Bin myBin(binning, binning);
+        Bin myBin(memorizedBinning, memorizedBinning);
         m_ct->image()->setBin(myBin);
 
         //- Set default nb frames of acquisition at start-up
@@ -408,7 +408,7 @@ void LimaDetector::init_device()
     		}
     		else
     		{
-    			INFO_STREAM<<"Initialization Failed : VideoMode "<<"("<<detectorVideoMode<<") is not supported!"<< endl;
+    			ERROR_STREAM<<"Initialization Failed : VideoMode "<<"("<<detectorVideoMode<<") is not supported!"<< endl;
     			m_status_message<<"Initialization Failed : VideoMode "<<"("<<detectorVideoMode<<") is not supported!"<< endl;
     			m_is_device_initialized = false;
     			set_state(Tango::INIT);
@@ -422,7 +422,7 @@ void LimaDetector::init_device()
     }
     catch(Exception& e)
     {
-        INFO_STREAM<<"Initialization Failed : "<<e.getErrMsg()<<endl;
+    	ERROR_STREAM<<"Initialization Failed : "<<e.getErrMsg()<<endl;
         m_status_message <<"Initialization Failed : "<<e.getErrMsg( )<< endl;
         m_is_device_initialized = false;
         set_state(Tango::INIT);
@@ -430,7 +430,7 @@ void LimaDetector::init_device()
     }
     catch(...)
     {
-        INFO_STREAM<<"Initialization Failed : UNKNOWN"<<endl;
+    	ERROR_STREAM<<"Initialization Failed : UNKNOWN"<<endl;
         m_status_message <<"Initialization Failed : UNKNOWN"<< endl;
         set_state(Tango::INIT);
         m_is_device_initialized = false;
@@ -491,8 +491,8 @@ void LimaDetector::get_device_property()
 	dev_prop.push_back(Tango::DbDatum("DebugModules"));
 	dev_prop.push_back(Tango::DbDatum("DebugLevels"));
 	dev_prop.push_back(Tango::DbDatum("DebugFormats"));
-	dev_prop.push_back(Tango::DbDatum("Roi"));
-	dev_prop.push_back(Tango::DbDatum("Binning"));
+	dev_prop.push_back(Tango::DbDatum("MemorizedRoi"));
+	dev_prop.push_back(Tango::DbDatum("MemorizedBinning"));
 
 	//	Call database and extract values
 	//--------------------------------------------
@@ -635,27 +635,27 @@ void LimaDetector::get_device_property()
 	//	And try to extract DebugFormats value from database
 	if (dev_prop[i].is_empty()==false)	dev_prop[i]  >>  debugFormats;
 
-	//	Try to initialize Roi from class property
+	//	Try to initialize MemorizedRoi from class property
 	cl_prop = ds_class->get_class_property(dev_prop[++i].name);
-	if (cl_prop.is_empty()==false)	cl_prop  >>  roi;
+	if (cl_prop.is_empty()==false)	cl_prop  >>  memorizedRoi;
 	else {
-		//	Try to initialize Roi from default device value
+		//	Try to initialize MemorizedRoi from default device value
 		def_prop = ds_class->get_default_device_property(dev_prop[i].name);
-		if (def_prop.is_empty()==false)	def_prop  >>  roi;
+		if (def_prop.is_empty()==false)	def_prop  >>  memorizedRoi;
 	}
-	//	And try to extract Roi value from database
-	if (dev_prop[i].is_empty()==false)	dev_prop[i]  >>  roi;
+	//	And try to extract MemorizedRoi value from database
+	if (dev_prop[i].is_empty()==false)	dev_prop[i]  >>  memorizedRoi;
 
-	//	Try to initialize Binning from class property
+	//	Try to initialize MemorizedBinning from class property
 	cl_prop = ds_class->get_class_property(dev_prop[++i].name);
-	if (cl_prop.is_empty()==false)	cl_prop  >>  binning;
+	if (cl_prop.is_empty()==false)	cl_prop  >>  memorizedBinning;
 	else {
-		//	Try to initialize Binning from default device value
+		//	Try to initialize MemorizedBinning from default device value
 		def_prop = ds_class->get_default_device_property(dev_prop[i].name);
-		if (def_prop.is_empty()==false)	def_prop  >>  binning;
+		if (def_prop.is_empty()==false)	def_prop  >>  memorizedBinning;
 	}
-	//	And try to extract Binning value from database
-	if (dev_prop[i].is_empty()==false)	dev_prop[i]  >>  binning;
+	//	And try to extract MemorizedBinning value from database
+	if (dev_prop[i].is_empty()==false)	dev_prop[i]  >>  memorizedBinning;
 
 
 
@@ -699,9 +699,9 @@ void LimaDetector::get_device_property()
 	myVector.push_back("-1");
 	myVector.push_back("-1");
 	myVector.push_back("-1");
-	create_property_if_empty(dev_prop,myVector,"Roi");
+	create_property_if_empty(dev_prop,myVector,"MemorizedRoi");
 	
-	create_property_if_empty(dev_prop,"1","Binning");	
+	create_property_if_empty(dev_prop,"1","MemorizedBinning");
 
 }
 //+----------------------------------------------------------------------------
@@ -1559,7 +1559,6 @@ void LimaDetector::read_binning(Tango::Attribute &attr)
 	}
 }
 
-
 //+----------------------------------------------------------------------------
 //
 // method :         LimaDetector::read_nbFrames
@@ -2049,7 +2048,7 @@ void LimaDetector::set_roi(const Tango::DevVarLongArray *argin)
     	myVector.push_back(roi.getTopLeft().y);
     	myVector.push_back(roi.getSize().getWidth());
     	myVector.push_back(roi.getSize().getHeight());
-		store_value_as_property(myVector,"Roi");
+		store_value_as_property(myVector,"MemorizedRoi");
     }
     catch(Tango::DevFailed& df)
     {
@@ -2075,10 +2074,10 @@ void LimaDetector::set_roi(const Tango::DevVarLongArray *argin)
 
 //+------------------------------------------------------------------
 /**
- *	method:	LimaDetector::set_bin
+ *	method:	LimaDetector::set_binning
  *
- *	description:	method to execute "SetBin"
- *	Define a binning to the image. <br>
+ *	description:	method to execute "SetBinning"
+ *	Define a binning for the image. <br>
  *	Availables values are  :<br>
  *	1->binning(1,1)<br>
  *	2->binning(2,2)<br>
@@ -2090,9 +2089,9 @@ void LimaDetector::set_roi(const Tango::DevVarLongArray *argin)
  *
  */
 //+------------------------------------------------------------------
-void LimaDetector::set_bin(Tango::DevUShort argin)
+void LimaDetector::set_binning(Tango::DevUShort argin)
 {
-	DEBUG_STREAM << "LimaDetector::set_bin(): entering... !" << endl;
+	DEBUG_STREAM << "LimaDetector::set_binning(): entering... !" << endl;
 
 	//	Add your own code to control device here
 	try
@@ -2102,18 +2101,18 @@ void LimaDetector::set_bin(Tango::DevUShort argin)
 			//- throw exception
 			Tango::Except::throw_exception( (const char*) ("TANGO_DEVICE_ERROR"),
 											(const char*) ("Availables values are : 1, 2, 3, 4 or 8\n"),
-											(const char*) ("LimaDetector::set_bin"));
+											(const char*) ("LimaDetector::set_binning"));
 		}
 
-        //- reset image number (this will disable the refresh of image attribute)
-        m_ct->resetStatus(false);
+		//- reset image number (this will disable the refresh of image attribute)
+		m_ct->resetStatus(false);
 
 		//- set the new BIN
 		Bin bin(argin, argin);
 		m_ct->image()->setBin(bin);
-		store_value_as_property(argin,"Binning");
-        //- reset image number (this will disable the refresh of image attribute)
-        m_ct->resetStatus(false);
+		store_value_as_property(argin,"MemorizedBinning");
+		//- reset image number (this will disable the refresh of image attribute)
+		m_ct->resetStatus(false);
 	}
 	catch(Tango::DevFailed& df)
 	{
@@ -2122,7 +2121,7 @@ void LimaDetector::set_bin(Tango::DevUShort argin)
 		Tango::Except::re_throw_exception(df,
 					static_cast<const char*> ("TANGO_DEVICE_ERROR"),
 					static_cast<const char*> (string(df.errors[0].desc).c_str()),
-					static_cast<const char*> ("LimaDetector::set_bin"));
+					static_cast<const char*> ("LimaDetector::set_binning"));
 	}
 	catch(Exception& e)
 	{
@@ -2131,10 +2130,10 @@ void LimaDetector::set_bin(Tango::DevUShort argin)
 		Tango::Except::throw_exception(
 					static_cast<const char*> ("TANGO_DEVICE_ERROR"),
 					static_cast<const char*> (e.getErrMsg().c_str()),
-					static_cast<const char*> ("LimaDetector::set_bin"));
+					static_cast<const char*> ("LimaDetector::set_binning"));
 	}
-
 }
+
 
 //+------------------------------------------------------------------
 /**
@@ -2405,7 +2404,5 @@ int LimaDetector::FindIndexFromPropertyName(Tango::DbData& dev_prop, string prop
     if (i == iNbProperties) return -1;
     return i;
 }
-
-
 
 }	//	namespace

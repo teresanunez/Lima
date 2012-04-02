@@ -63,7 +63,7 @@ namespace LimaDetector_ns
 {
 //+----------------------------------------------------------------------------
 //
-// method : 		SetBinCmd::execute()
+// method : 		SetBinningCmd::execute()
 // 
 // description : 	method to trigger the execution of the command.
 //                PLEASE DO NOT MODIFY this method core without pogo   
@@ -74,17 +74,18 @@ namespace LimaDetector_ns
 // returns : The command output data (packed in the Any object)
 //
 //-----------------------------------------------------------------------------
-CORBA::Any *SetBinCmd::execute(Tango::DeviceImpl *device,const CORBA::Any &in_any)
+CORBA::Any *SetBinningCmd::execute(Tango::DeviceImpl *device,const CORBA::Any &in_any)
 {
 
-	cout2 << "SetBinCmd::execute(): arrived" << endl;
+	cout2 << "SetBinningCmd::execute(): arrived" << endl;
 
 	Tango::DevUShort	argin;
 	extract(in_any, argin);
 
-	((static_cast<LimaDetector *>(device))->set_bin(argin));
+	((static_cast<LimaDetector *>(device))->set_binning(argin));
 	return new CORBA::Any();
 }
+
 
 //+----------------------------------------------------------------------------
 //
@@ -289,7 +290,7 @@ void LimaDetectorClass::command_factory()
 		"[origin_x, origin_y, width, height]",
 		"",
 		Tango::OPERATOR));
-	command_list.push_back(new SetBinCmd("SetBin",
+	command_list.push_back(new SetBinningCmd("SetBinning",
 		Tango::DEV_USHORT, Tango::DEV_VOID,
 		"",
 		"",
@@ -805,8 +806,8 @@ void LimaDetectorClass::set_default_property()
 	else
 		add_wiz_dev_prop(prop_name, prop_desc);
 
-	prop_name = "Roi";
-	prop_desc = "Define the Region of Interest of the Acquisition: <br>\norigin X<br>\norigin Y<br>\nWidth<br>\nHeight<br>\n<br>\nNota:<br>\nif any roi value is <0, then we consider all detector area as Roi.";
+	prop_name = "MemorizedRoi";
+	prop_desc = "Memorize/Define the Region of Interest of the Acquisition: <br>\norigin X<br>\norigin Y<br>\nWidth<br>\nHeight<br>\n<br>\nNota:<br>\nif any roi value is <0, then we consider all detector area as Roi.";
 	prop_def  = "-1\n-1\n-1\n-1";
 	vect_data.clear();
 	vect_data.push_back("-1");
@@ -823,8 +824,8 @@ void LimaDetectorClass::set_default_property()
 	else
 		add_wiz_dev_prop(prop_name, prop_desc);
 
-	prop_name = "Binning";
-	prop_desc = "Define the Binning value of the Acquisition<br>\nAvailables values :<br>\n- 1<br>\n- 2<br>\n- 3<br>\n- 4<br>\n- 8<br>";
+	prop_name = "MemorizedBinning";
+	prop_desc = "Memorize/Define the Binning value of the Acquisition<br>\nAvailables values :<br>\n- 1<br>\n- 2<br>\n- 3<br>\n- 4<br>\n- 8<br>";
 	prop_def  = "1";
 	vect_data.clear();
 	vect_data.push_back("1");

@@ -139,7 +139,7 @@ void BaslerCCD::init_device()
         m_hw = dynamic_cast<Basler::Interface*>(m_ct->hwInterface());
         if(m_hw == 0)
         {
-            INFO_STREAM<<"Initialization Failed : Unable to get the interface of camera plugin "<<"("<<"BaslerCCD"<<") !"<< endl;
+        	ERROR_STREAM<<"Initialization Failed : Unable to get the interface of camera plugin "<<"("<<"BaslerCCD"<<") !"<< endl;
             m_status_message <<"Initialization Failed : Unable to get the interface of camera plugin "<<"("<<"BaslerCCD"<<") !"<< endl;
             m_is_device_initialized = false;
             set_state(Tango::INIT);
@@ -148,7 +148,7 @@ void BaslerCCD::init_device()
     }
     catch(Exception& e)
     {
-        INFO_STREAM<<"Initialization Failed : "<<e.getErrMsg()<<endl;
+    	ERROR_STREAM<<"Initialization Failed : "<<e.getErrMsg()<<endl;
         m_status_message <<"Initialization Failed : "<<e.getErrMsg( )<< endl;
         m_is_device_initialized = false;
         set_state(Tango::INIT);
@@ -156,7 +156,7 @@ void BaslerCCD::init_device()
     }
     catch(...)
     {
-        INFO_STREAM<<"Initialization Failed : UNKNOWN"<<endl;
+        ERROR_STREAM<<"Initialization Failed : UNKNOWN"<<endl;
         m_status_message <<"Initialization Failed : UNKNOWN"<< endl;
         set_state(Tango::INIT);
         m_is_device_initialized = false;
@@ -247,8 +247,8 @@ void BaslerCCD::get_device_property()
 //-----------------------------------------------------------------------------
 void BaslerCCD::always_executed_hook()
 {
-
-    try
+	DEBUG_STREAM << "BaslerCCD::always_executed_hook() entering... "<< endl;
+	try
     {
     	//- get the singleton control objet used to pilot the lima framework
         m_ct = ControlFactory::instance().get_control("BaslerCCD");
@@ -261,11 +261,20 @@ void BaslerCCD::always_executed_hook()
     catch(Exception& e)
     {
         ERROR_STREAM << e.getErrMsg() << endl;
+        m_status_message <<"Initialization Failed : "<<e.getErrMsg( )<< endl;
         //- throw exception
-        Tango::Except::throw_exception(
-                    static_cast<const char*> ("TANGO_DEVICE_ERROR"),
-                    static_cast<const char*> (e.getErrMsg().c_str()),
-                    static_cast<const char*> ("BaslerCCD::always_executed_hook"));
+        set_state(Tango::INIT);
+        m_is_device_initialized = false;
+        return;
+    }
+    catch(...)
+    {
+        ERROR_STREAM<<"Initialization Failed : UNKNOWN"<<endl;
+        m_status_message <<"Initialization Failed : UNKNOWN"<< endl;
+        //- throw exception
+        set_state(Tango::INIT);
+        m_is_device_initialized = false;
+        return;
     }
 }
 //+----------------------------------------------------------------------------
@@ -290,7 +299,7 @@ void BaslerCCD::read_attr_hardware(vector<long> &attr_list)
 //-----------------------------------------------------------------------------
 void BaslerCCD::read_frameRate(Tango::Attribute &attr)
 {
-    DEBUG_STREAM << "BaslerCCD::read_frameRate(Tango::Attribute &attr) entering... "<< endl;
+	DEBUG_STREAM << "BaslerCCD::read_frameRate(Tango::Attribute &attr) entering... "<< endl;
     if(m_ct!=0)
     {
         try

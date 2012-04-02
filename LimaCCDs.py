@@ -49,6 +49,13 @@ import itertools
 import numpy
 import struct
 
+
+# Before loading Lima.Core, must find out the version the plug-in
+# was compiled with - horrible hack ...
+
+from EnvHelper import setup_lima_env
+setup_lima_env(sys.argv)
+
 from Lima import Core
 
 import plugins
@@ -324,6 +331,15 @@ class LimaCCDs(PyTango.Device_4Impl) :
 	interface = self.__control.hwInterface()
 	det_info = interface.getHwCtrlObj(Core.HwCap.DetInfo)
 	value = det_info.getDetectorModel() 
+	attr.set_value(value)
+        
+    ## @brief Read the Camera pixelsize
+    #
+    @Core.DEB_MEMBER_FUNCT
+    def read_camera_pixelsize(self,attr) :        
+	interface = self.__control.hwInterface()
+	det_info = interface.getHwCtrlObj(Core.HwCap.DetInfo)
+	value = det_info.getPixelSize() 
 	attr.set_value(value)
         
     ## @brief get the status of the acquisition
@@ -1509,6 +1525,18 @@ class LimaCCDsClass(PyTango.DeviceClass) :
         [[PyTango.DevString,
           PyTango.SCALAR,
           PyTango.READ]],
+        'camera_pixelsize':
+        [[PyTango.DevDouble,
+          PyTango.SPECTRUM,
+          PyTango.READ,2],
+         {
+             'label':"Pixel size:x_size, y_size",
+             'unit':"meter",
+             'standard unit':"meter",
+             'display unit':"meter",
+             'format':"%f",
+             'description':"Size of the pixel in meter",
+         }],
         'acq_status':
         [[PyTango.DevString,
           PyTango.SCALAR,
@@ -1811,12 +1839,17 @@ def declare_camera_n_commun_to_tango_world(util) :
             else:
                 util.add_TgClass(specificClass,specificDevice,specificDevice.__name__)
 
+    warningFlag = False
     for module_name in plugins.__all__:
         try:
             m = __import__('plugins.%s' % (module_name),None,None,'plugins.%s' % (module_name))
         except ImportError:
-	    import traceback
-	    traceback.print_exc()
+            print "Warning optional plugin %s can't be load, dependency not satisfied." % module_name
+            warningFlag = True
+            if verboseLevel >= 4:
+                import traceback
+                traceback.print_exc()
+                print
             continue
         else:
             try:
@@ -1826,7 +1859,9 @@ def declare_camera_n_commun_to_tango_world(util) :
             else:
                 specificClass,specificDevice = func()
 		util.add_TgClass(specificClass,specificDevice,specificDevice.__name__)
-
+    if warningFlag and verboseLevel < 4:
+        print "For more pulgins dependency  information start server with -v4"
+        
 def export_default_plugins() :
     #Post processing tango export
     util = PyTango.Util.instance()
@@ -1957,6 +1992,13 @@ class CallableWriteEnum:
 #
 #==================================================================
 def main() :
+    global verboseLevel
+    verboseLevel = 0
+    for option in sys.argv:
+        if option.startswith('-v'):
+            try:
+                verboseLevel = int(option[2:])
+            except: pass
     try:
         py = PyTango.Util(sys.argv)
         py.add_TgClass(LimaCCDsClass,LimaCCDs,'LimaCCDs')

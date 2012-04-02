@@ -9,13 +9,12 @@
 
    <groupId>fr.soleil.device</groupId>
    <artifactId>LimaDetector-${aol}-${mode}</artifactId>
-   <version>1.1.5-SNAPSHOT</version>
+   <version>1.1.6</version>
    <packaging>nar</packaging>
    <name>LimaDetector</name>
    <description>LimaDetector device</description>
 
     <dependencies>
-      
 	  <dependency>
          <groupId>fr.soleil.lib</groupId>
          <artifactId>YAT4Tango-${aol}-${library}-${mode}</artifactId>   
@@ -24,7 +23,7 @@
       <dependency>
          <groupId>fr.soleil.lib</groupId>
          <artifactId>YAT-${aol}-${library}-${mode}</artifactId>
-      </dependency>
+      </dependency>  
             
       <dependency>
          <groupId>fr.soleil.lib</groupId>
@@ -34,51 +33,51 @@
       <dependency>
          <groupId>fr.soleil.lib.Lima</groupId>
          <artifactId>LimaControl-${aol}-shared-${mode}</artifactId>
-         <version>1.1.5-SNAPSHOT</version>         
+         <version>1.1.6</version>         
       </dependency>
 
       <dependency>
          <groupId>fr.soleil.lib.Lima.Camera</groupId>
          <artifactId>LimaBasler-${aol}-shared-${mode}</artifactId>
-         <version>1.1.5-SNAPSHOT</version>
+         <version>1.1.6</version>
       </dependency>
 
       <dependency>
          <groupId>fr.soleil.lib.Lima.Camera</groupId>
          <artifactId>LimaAdsc-${aol}-shared-${mode}</artifactId>
-         <version>1.1.5-SNAPSHOT</version>
+         <version>1.1.6</version>
       </dependency>
    
       <dependency>
          <groupId>fr.soleil.lib.Lima.Camera</groupId>
          <artifactId>LimaMarccd-${aol}-shared-${mode}</artifactId>
-         <version>1.1.5-SNAPSHOT</version>
+         <version>1.1.6</version>
       </dependency>
 
       <dependency>
          <groupId>fr.soleil.lib.Lima.Camera</groupId>
          <artifactId>LimaPilatus-${aol}-shared-${mode}</artifactId>
-         <version>1.1.5-SNAPSHOT</version>
+         <version>1.1.6</version>
       </dependency>
 
       <dependency>
          <groupId>fr.soleil.lib.Lima.Camera</groupId>
          <artifactId>LimaProsilica-${aol}-shared-${mode}</artifactId>
-         <version>1.1.5-SNAPSHOT</version>
+         <version>1.1.6</version>
       </dependency>
       
       <dependency>
          <groupId>fr.soleil.lib.Lima.Camera</groupId>
          <artifactId>LimaSimulator-${aol}-shared-${mode}</artifactId>
-         <version>1.1.5-SNAPSHOT</version>
+         <version>1.1.6</version>
       </dependency>
-
+     
       <dependency>
          <groupId>fr.soleil.lib.Lima.Camera</groupId>
          <artifactId>LimaXpad-${aol}-shared-${mode}</artifactId>
-         <version>1.1.5-SNAPSHOT</version>
+         <version>1.1.6</version>
       </dependency>
-            
+      
     </dependencies>
 	
 	<scm>
@@ -100,7 +99,6 @@
                            <define>USE_GIGE</define>
 						   
 						   <!-- define wich detector you need to ENABLE -->                           
-
                            <define>BASLER_ENABLED</define>
                            <define>ADSC_ENABLED</define>    
                            <define>MARCCD_ENABLED</define>
@@ -112,29 +110,29 @@
                         </defines>
 
                         <systemIncludePaths>
-
-                        	<systemIncludePath>${env.PYLON_ROOT}/include</systemIncludePath>                          
-                        	<systemIncludePath>${env.GENICAM_ROOT_V1_1}/include/genicam</systemIncludePath>
-
+                        	<systemIncludePath>${env.PYLON_ROOT}</systemIncludePath>
+                            <systemIncludePath>${env.PYLON_ROOT}/include</systemIncludePath>
+                            <systemIncludePath>${env.PYLON_ROOT}/genicam/library/CPP/include</systemIncludePath>
+                            
 							<systemIncludePath>../../../camera/prosilica/sdk/include</systemIncludePath>           
 
 							<systemIncludePath>../../../camera/adsc/src_std/incl</systemIncludePath>
 							<systemIncludePath>../../../camera/adsc/src_std/detcon_lib_th</systemIncludePath>
 							<systemIncludePath>../../../camera/adsc/src_std/auxlib</systemIncludePath>
-
+							                            
                         </systemIncludePaths>
 
                         <!-- exclude every detector who is NOT ENABLED -->
                         <excludes>
-<!--                        
+<!--
+                            <exclude>Basler*.*</exclude>                                                         
                             <exclude>MarCCD*.*</exclude>                          
                             <exclude>Pilatus*.*</exclude>
                             <exclude>Adsc*.*</exclude>                            
-                            <exclude>Basler*.*</exclude>
                             <exclude>Prosilica*.*</exclude>                     
 	                       	<exclude>Simulator*.*</exclude>                 	
                             <exclude>Xpad*.*</exclude>
--->
+-->                           
                         </excludes>
 
                         <!-- define less verbose mode for gcc-->
@@ -144,7 +142,42 @@
                      </cpp>   
                     <linker>
                         <libs>
+                            <lib>
+                                <name>pylonbase</name>
+                                <type>shared</type>
+                                <directory>${env.PYLON_ROOT}/lib</directory>
+                            </lib>
 
+							<lib>
+                                <name>GenApi_gcc40_v2_1</name>
+                                <type>shared</type>
+                                <directory>${env.PYLON_ROOT}/genicam/bin/Linux32_i86</directory>
+                            </lib>
+                          
+                            <lib>
+                                <name>GCBase_gcc40_v2_1</name>
+                                <type>shared</type>
+                                <directory>${env.PYLON_ROOT}/genicam/bin/Linux32_i86</directory>
+                            </lib>
+
+                            <lib>
+                                <name>MathParser_gcc40_v2_1</name>
+                                <type>shared</type>
+                                <directory>${env.PYLON_ROOT}/genicam/bin/Linux32_i86</directory>
+                            </lib>
+                            
+                            <lib>
+                                <name>log4cpp_gcc40_v2_1</name>
+                                <type>shared</type>
+                                <directory>${env.PYLON_ROOT}/genicam/bin/Linux32_i86</directory>
+                            </lib>
+                            
+                            <lib>
+                                <name>pylongigesupp</name>
+                                <type>shared</type>
+                                <directory>${env.PYLON_ROOT}/lib</directory>
+                            </lib>
+                            
                             <lib>
                                 <name>PvAPI</name>
                                 <type>shared</type>
@@ -156,8 +189,9 @@
                                 <type>shared</type>
                                 <directory>../../../camera/adsc/sdk/adsc_sources/lib/linux</directory>
                             </lib>
-
+                                                        
                         </libs>
+
                     </linker>                  
                  </configuration>
             </plugin>

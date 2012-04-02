@@ -534,12 +534,12 @@ bool LimaDetector::is_SetROI_allowed(const CORBA::Any &any)
 }
 //+----------------------------------------------------------------------------
 //
-// method : 		LimaDetector::is_SetBin_allowed
+// method : 		LimaDetector::is_SetBinning_allowed
 // 
-// description : 	Execution allowed for SetBin command.
+// description : 	Execution allowed for SetBinning command.
 //
 //-----------------------------------------------------------------------------
-bool LimaDetector::is_SetBin_allowed(const CORBA::Any &any)
+bool LimaDetector::is_SetBinning_allowed(const CORBA::Any &any)
 {
 	if (get_state() == Tango::INIT	||
 		get_state() == Tango::RUNNING)
