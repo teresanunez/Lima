@@ -49,6 +49,13 @@ import itertools
 import numpy
 import struct
 
+
+# Before loading Lima.Core, must find out the version the plug-in
+# was compiled with - horrible hack ...
+
+from EnvHelper import setup_lima_env
+setup_lima_env(sys.argv)
+
 from Lima import Core
 
 import plugins
