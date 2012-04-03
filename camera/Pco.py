@@ -113,19 +113,19 @@ class Pco(PyTango.Device_4Impl):
 #    Read attribute
 #------------------------------------------------------------------
     def read_cocRunTime(self, attr):
-        val  = _PcoCam.getInfo("cocRunTime")
+        val  = _PcoCam.talk("cocRunTime")
         attr.set_value(val)
 
     def read_frameRate(self, attr):
-        val  = _PcoCam.getInfo("frameRate")
+        val  = _PcoCam.talk("frameRate")
         attr.set_value(val)
 
     def read_maxNbImages(self, attr):
-        val  = _PcoCam.getInfo("maxNbImages")
+        val  = _PcoCam.talk("maxNbImages")
         attr.set_value(val)
 
     def read_info(self, attr):
-        val= _PcoCam.getInfo("")
+        val= _PcoCam.talk("")
         attr.set_value(val)
 
 
@@ -137,7 +137,7 @@ class Pco(PyTango.Device_4Impl):
 #
 #==================================================================
     def talk(self, argin):
-        val= _PcoCam.getInfo(argin)
+        val= _PcoCam.talk(argin)
         return val
 
 
@@ -228,11 +228,12 @@ def get_control(**keys) :
     global _PcoInterface
 
 
-    #Core.DebParams.setTypeFlags(0xffffffff)
-    Core.DebParams.setTypeFlags(0)
-
-    #Core.DebParams.setModuleFlags(0xffffffff)
-    Core.DebParams.setModuleFlags(0)
+    if 0:
+        Core.DebParams.setModuleFlags(0xffffffff)
+        Core.DebParams.setTypeFlags(0xffffffff)
+    else:
+        Core.DebParams.setTypeFlags(0)
+        Core.DebParams.setModuleFlags(0)
 
     Core.DebParams.setFormatFlags(0x30)
 
