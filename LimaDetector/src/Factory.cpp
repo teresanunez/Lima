@@ -149,18 +149,31 @@ CtControl* ControlFactory::get_control( const string& detector_type)
           db_data.push_back(DbDatum("DetectorIP"));
           db_data.push_back(DbDatum("DetectorPort"));
           db_data.push_back(DbDatum("DetectorTargetPath"));
+					db_data.push_back(DbDatum("ReaderTimeout"));
+					db_data.push_back(DbDatum("UseReader"));
 
           (Tango::Util::instance()->get_database())->get_device_property(my_device_name, db_data);
 					std::string camera_ip;
           std::string img_path;
-          unsigned long camera_port;
+          unsigned long camera_port = 2222;
+					unsigned short reader_timeout = 10000;
+					bool use_reader = true;
+
           db_data[0] >> camera_ip;
           db_data[1] >> camera_port;
           db_data[2] >> img_path;
+          db_data[3] >> reader_timeout;
+          db_data[4] >> use_reader;
   
           my_camera_marccd           = new Marccd::Camera(camera_ip.c_str(), camera_port, img_path);
           my_camera_marccd->go(2000);        
           my_interface_marccd        = new Marccd::Interface(*my_camera_marccd);
+					if(my_interface_marccd && use_reader)
+						my_interface_marccd->enableReader();
+					if(my_interface_marccd && !use_reader)
+						my_interface_marccd->disableReader();
+					if(my_interface_marccd)
+						my_interface_marccd->setTimeout(reader_timeout);
           my_control                 = new CtControl(my_interface_marccd);
           ControlFactory::is_created = true;
           return my_control;
