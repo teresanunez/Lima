@@ -110,26 +110,72 @@ class Pco(PyTango.Device_4Impl):
 #==================================================================
 
 #------------------------------------------------------------------
-#    Read attribute
+#    cocRunTime attribute R
 #------------------------------------------------------------------
     def read_cocRunTime(self, attr):
         val  = _PcoCam.talk("cocRunTime")
         attr.set_value(val)
 
+#------------------------------------------------------------------
+#    framerate attribute R
+#------------------------------------------------------------------
     def read_frameRate(self, attr):
         val  = _PcoCam.talk("frameRate")
         attr.set_value(val)
 
+#------------------------------------------------------------------
+#    maxNbImages attribute R
+#------------------------------------------------------------------
     def read_maxNbImages(self, attr):
         val  = _PcoCam.talk("maxNbImages")
         attr.set_value(val)
 
+#------------------------------------------------------------------
+#    info attribute R
+#------------------------------------------------------------------
     def read_info(self, attr):
         val= _PcoCam.talk("")
         attr.set_value(val)
 
+#------------------------------------------------------------------
+#    version attribute R
+#------------------------------------------------------------------
+    def read_version(self, attr):
+        val= _PcoCam.talk("timestamp")
+        attr.set_value(val)
 
+#------------------------------------------------------------------
+#    pixelRate attribute RW
+#------------------------------------------------------------------
+    def read_pixelRate(self, attr):
+        val  = _PcoCam.talk("pixelRate")
+        rate = float(val)/1000000.
+        attr.set_value(rate)
 
+    def write_pixelRate(self, attr):
+        data = []
+        attr.get_write_value(data)
+        rate = data[0] * 1000000.
+        cmd = '%s %d' % ('pixelRate', rate)
+        val  = _PcoCam.talk(cmd)
+        
+#------------------------------------------------------------------
+#    rollingShutter attribute RW
+#------------------------------------------------------------------
+    def read_rollingShutter(self, attr):
+        val  = _PcoCam.talk("rollingShutter")
+        iVal = int(val)
+        attr.set_value(iVal)
+
+    def write_rollingShutter(self, attr):
+        data = []
+        attr.get_write_value(data)
+        iVal = data[0]
+        if(iVal != 0):
+            iVal = 1
+        cmd = '%s %d' % ('rollingShutter', iVal)
+        val  = _PcoCam.talk(cmd)
+        
 
 #==================================================================
 #
@@ -167,47 +213,34 @@ class PcoClass(PyTango.DeviceClass):
 
     #    Attribute definitions
     attr_list = {
+         'rollingShutter':	  
+         [[PyTango.DevLong,
+           PyTango.SCALAR,
+           PyTango.READ_WRITE]],
          'cocRunTime':	  
          [[PyTango.DevString,
            PyTango.SCALAR,
-           PyTango.READ],
-         {
-             'label':"COC",
-             'unit':"",
-             'format':"",
-             'description':"coc Run Time",
-          }],
+           PyTango.READ]],
          'frameRate':	  
          [[PyTango.DevString,
            PyTango.SCALAR,
-           PyTango.READ],
-         {
-             'label':"frameRate",
-             'unit':"",
-             'format':"",
-             'description':"frame rate",
-          }],
+           PyTango.READ]],
+         'pixelRate':	  
+         [[PyTango.DevDouble,
+           PyTango.SCALAR,
+           PyTango.READ_WRITE]],
          'maxNbImages':	  
          [[PyTango.DevString,
            PyTango.SCALAR,
-           PyTango.READ],
-         {
-             'label':"maxImg",
-             'unit':"",
-             'format':"",
-             'description':"max nb of images in the segment",
-          }],
+           PyTango.READ]],
          'info':	  
          [[PyTango.DevString,
            PyTango.SCALAR,
-           PyTango.READ],
-         {
-             'label':"INFO",
-             'unit':"",
-             'format':"",
-             'description':"general information",
-          }],
-    
+           PyTango.READ]],
+         'version':	  
+         [[PyTango.DevString,
+           PyTango.SCALAR,
+           PyTango.READ]],
         }
 
 #------------------------------------------------------------------
