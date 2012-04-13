@@ -1671,7 +1671,7 @@ void LimaDetector::read_currentFrame(Tango::Attribute &attr)
 // method :         LimaDetector::get_last_image_counter
 //
 //-----------------------------------------------------------------------------
-int LimaDetector::get_last_image_counter(void)
+long long LimaDetector::get_last_image_counter(void)
 {
     DEBUG_STREAM << "LimaDetector::get_last_image_counter()"<<endl;
 	long long last_image_counter = 0;
@@ -1705,47 +1705,55 @@ void LimaDetector::read_image_callback(yat4tango::DynamicAttributeReadCallbackDa
     {
     	if(!m_ct || !m_hw)
             return; //NOP
+
     	int counter = get_last_image_counter();
 
     	if(counter >= 0)
     	{
-        	DEBUG_STREAM<<"last_image_counter -> "<<counter<<endl;
-    		m_ct->video()->getLastImage(m_last_image);
+    		DEBUG_STREAM<<"last_image_counter -> "<<counter<<endl;
+
+    		CtVideo::Image 	m_last_image; //never put this in the class data member, refrence is locked in ctVideo (mantis 0021083)
+        	m_ct->video()->getLastImage(m_last_image); //last image acquired
+
 			if(m_last_image.buffer()!=0)
 			{
 				switch (cbd.dya->get_tango_data_type())
 				{
 					//8 bits
-					DEBUG_STREAM<<"image->set_value() : DevUChar"<<endl;
-					case  TangoTraits<Tango::DevUChar>::type_id :     cbd.tga->set_value(	(Tango::DevUChar*)m_last_image.buffer(),
-																							m_last_image.width(),//- width
-																							m_last_image.height()//- height
-																						);
-					break;
+					case  TangoTraits<Tango::DevUChar>::type_id :
+						DEBUG_STREAM<<"image->set_value() : DevUChar"<<endl;
+						cbd.tga->set_value(	(Tango::DevUChar*)m_last_image.buffer(),
+											m_last_image.width(),//- width
+											m_last_image.height()//- height
+										  );
+						break;
 
 					//16 bits
-					DEBUG_STREAM<<"image->set_value() : DevUShort"<<endl;
-					case  TangoTraits<Tango::DevUShort>::type_id :     cbd.tga->set_value( 	(Tango::DevUShort*)m_last_image.buffer(),
-																							m_last_image.width(),//- width
-																							m_last_image.height()//- height
-																						);
-					break;
+					case  TangoTraits<Tango::DevUShort>::type_id :
+						DEBUG_STREAM<<"image->set_value() : DevUShort"<<endl;
+						cbd.tga->set_value( (Tango::DevUShort*)m_last_image.buffer(),
+											 m_last_image.width(),//- width
+											 m_last_image.height()//- height
+										   );
+						break;
 
 					//32 bits
-					DEBUG_STREAM<<"image->set_value() : DevULong"<<endl;
-					case  TangoTraits<Tango::DevULong>::type_id :     cbd.tga->set_value( 	(Tango::DevULong*)m_last_image.buffer(),
-																							m_last_image.width(),//- width
-																							m_last_image.height()//- height
-																						);
-					break;
+					case  TangoTraits<Tango::DevULong>::type_id :
+						DEBUG_STREAM<<"image->set_value() : DevULong"<<endl;
+						cbd.tga->set_value( (Tango::DevULong*)m_last_image.buffer(),
+											m_last_image.width(),//- width
+											m_last_image.height()//- height
+										  );
+						break;
 
 					//ERROR : resolution not supported
-					default    :
+					default :
+						DEBUG_STREAM<<"image->set_value() : ERROR, resolution not supported !"<<endl;
 			            //- throw exception
 			            Tango::Except::throw_exception( (const char*) ("CONFIGURATION_ERROR"),
 			                                            (const char*) ("Tango data type of image DynamicAttribute, is not supported!\n"),
 			                                            (const char*) ("LimaDetector::read_image_callback"));
-					break;
+			            break;
 				}
 			}
     	}
@@ -1848,7 +1856,10 @@ void LimaDetector::snap()
     //    Add your own code to control device here
     try
     {
-        if(attr_nbFrames_write == 0)
+        if(dev_state()==Tango::RUNNING)//mantis #22238
+        	return;
+
+    	if(attr_nbFrames_write == 0)
         {
             //- throw exception
             Tango::Except::throw_exception( (const char*) ("CONFIGURATION_ERROR"),
@@ -1874,7 +1885,7 @@ void LimaDetector::snap()
         print_acq_conf();
 
         yat::Message* msg = yat::Message::allocate( DEVICE_SNAP_MSG, DEFAULT_MSG_PRIORITY, true );
-        m_acquisition_task->wait_msg_handled(msg, 5000);//to ensure that state was updated in lima
+        m_acquisition_task->wait_msg_handled(msg, 5000);
     }
     catch(Tango::DevFailed& df)
     {
@@ -1918,7 +1929,10 @@ void LimaDetector::start()
     //    Add your own code to control device here
     try
     {
-        if(attr_fileGeneration_write == true)
+        if(dev_state()==Tango::RUNNING)//mantis #22238
+        	return;
+
+    	if(attr_fileGeneration_write == true)
         {
             //- throw exception
             Tango::Except::throw_exception( (const char*) ("CONFIGURATION_ERROR"),
@@ -1938,9 +1952,8 @@ void LimaDetector::start()
         //- print some infos
         print_acq_conf();
         yat::Message* msg = yat::Message::allocate( DEVICE_START_MSG, DEFAULT_MSG_PRIORITY, true );
-        m_acquisition_task->wait_msg_handled(msg, 5000);//to ensure that state was updated in lima
+        m_acquisition_task->wait_msg_handled(msg, 5000);
 
-     	m_ct->video()->startLive();
     }
     catch(Tango::DevFailed& df)
     {
@@ -1979,6 +1992,8 @@ void LimaDetector::stop()
     //    Add your own code to control device here
     try
     {
+        if(dev_state()==Tango::STANDBY)//mantis #22238
+        	return;
     	m_ct->video()->stopLive();
     	yat::Message* msg = yat::Message::allocate( DEVICE_STOP_MSG, DEFAULT_MSG_PRIORITY, true );
         m_acquisition_task->wait_msg_handled(msg, 5000);//to ensure that state was updated in lima
@@ -2306,7 +2321,7 @@ void LimaDetector::print_acq_conf(void)
     INFO_STREAM<<"triggerMode\t  = "        <<m_trigger_mode<<endl;
     INFO_STREAM<<"acquisitionMode\t  = "    <<m_acquisition_mode<<endl;
     INFO_STREAM<<"exposureTime\t  = "       <<attr_exposureTime_write<<endl;
-    INFO_STREAM<<"exposureAccTime= "       <<attr_exposureAccTime_write<<endl;
+    INFO_STREAM<<"exposureAccTime= "        <<attr_exposureAccTime_write<<endl;
     INFO_STREAM<<"directory\t  = "          <<m_saving_par.directory<<endl;
     INFO_STREAM<<"prefix\t  = "             <<m_saving_par.prefix<<endl;
     INFO_STREAM<<"suffix\t  = "             <<m_saving_par.suffix<<endl;
@@ -2362,7 +2377,7 @@ void LimaDetector::store_value_as_property (T value, string property_name)
 template <class T>
 void LimaDetector::create_property_if_empty(Tango::DbData& dev_prop,T value,string property_name)
 {
-    int iPropertyIndex = FindIndexFromPropertyName(dev_prop,property_name);
+    int iPropertyIndex = find_index_from_property_name(dev_prop,property_name);
     if (iPropertyIndex == -1) return;
     if (dev_prop[iPropertyIndex].is_empty())
     {
@@ -2390,9 +2405,9 @@ void LimaDetector::create_property_if_empty(Tango::DbData& dev_prop,T value,stri
 }
 
 /*-------------------------------------------------------------------------
-//       LimaDetector::FindIndexFromPropertyName
+//       LimaDetector::find_index_from_property_name
 /-------------------------------------------------------------------------*/
-int LimaDetector::FindIndexFromPropertyName(Tango::DbData& dev_prop, string property_name)
+int LimaDetector::find_index_from_property_name(Tango::DbData& dev_prop, string property_name)
 {
     size_t iNbProperties = dev_prop.size();
     unsigned int i;
@@ -2404,5 +2419,9 @@ int LimaDetector::FindIndexFromPropertyName(Tango::DbData& dev_prop, string prop
     if (i == iNbProperties) return -1;
     return i;
 }
+
+
+
+
 
 }	//	namespace

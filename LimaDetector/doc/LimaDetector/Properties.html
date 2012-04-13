@@ -136,8 +136,9 @@ Nota :<br>
 </Font></Td></Tr>
 
 <Tr><Td><b><a href=#Dev_DefaultValues>FileNbFrames </a></b></Td>
-<Td><Font Size=-1>Tango::DEV_SHORT</Font></Td>
-<Td><Font Size=-1>Define the amount of frames stored in the target file.</Font></Td></Tr>
+<Td><Font Size=-1>Tango::DEV_LONG</Font></Td>
+<Td><Font Size=-1>Define the amount of frames stored in the target file.
+If Nexus file, this is the NbAcqPerFile.</Font></Td></Tr>
 
 <Tr><Td><b><a href=#Dev_DefaultValues>FileTargetPath </a></b></Td>
 <Td><Font Size=-1>Tango::DEV_STRING</Font></Td>
@@ -179,9 +180,9 @@ Availables values :<BR>
 - Funct<BR>
 - FileLine<BR></Font></Td></Tr>
 
-<Tr><Td><b><a href=#Dev_DefaultValues>Roi </a></b></Td>
+<Tr><Td><b><a href=#Dev_DefaultValues>MemorizedRoi </a></b></Td>
 <Td><Font Size=-1>Array of short</Font></Td>
-<Td><Font Size=-1>Define the Region of Interest of the Acquisition: <br>
+<Td><Font Size=-1>Memorize/Define the Region of Interest of the Acquisition: <br>
 origin X<br>
 origin Y<br>
 Width<br>
@@ -190,9 +191,9 @@ Height<br>
 Nota:<br>
 if any roi value is <0, then we consider all detector area as Roi.</Font></Td></Tr>
 
-<Tr><Td><b><a href=#Dev_DefaultValues>Binning </a></b></Td>
+<Tr><Td><b><a href=#Dev_DefaultValues>MemorizedBinning </a></b></Td>
 <Td><Font Size=-1>Tango::DEV_USHORT</Font></Td>
-<Td><Font Size=-1>Define the Binning value of the Acquisition<br>
+<Td><Font Size=-1>Memorize/Define the Binning value of the Acquisition<br>
 Availables values :<br>
 - 1<br>
 - 2<br>
@@ -268,11 +269,11 @@ Availables values :<br>
 	Funct</td>
     </Tr>
     <Tr>
-        <Td>Roi</Td>
+        <Td>MemorizedRoi</Td>
         <td>-1, -1, -1, -1</td>
     </Tr>
     <Tr>
-        <Td>Binning</Td>
+        <Td>MemorizedBinning</Td>
         <td>1</td>
     </Tr>
 </Table>

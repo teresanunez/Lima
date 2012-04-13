@@ -466,8 +466,7 @@ bool LimaDetector::is_binning_allowed(Tango::AttReqType type)
 //-----------------------------------------------------------------------------
 bool LimaDetector::is_Snap_allowed(const CORBA::Any &any)
 {
-	if (get_state() == Tango::INIT	||
-		get_state() == Tango::RUNNING)
+	if (get_state() == Tango::INIT)
 	{
 		//	End of Generated Code
 
@@ -503,8 +502,7 @@ bool LimaDetector::is_Stop_allowed(const CORBA::Any &any)
 //-----------------------------------------------------------------------------
 bool LimaDetector::is_Start_allowed(const CORBA::Any &any)
 {
-	if (get_state() == Tango::INIT	||
-		get_state() == Tango::RUNNING)
+	if (get_state() == Tango::INIT)
 	{
 		//	End of Generated Code
 

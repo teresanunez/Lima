@@ -6,6 +6,36 @@ bool  ControlFactory::is_created = false;
 
 
 //-----------------------------------------------------------------------------------------
+ControlFactory::ControlFactory()
+{
+	my_control				= 0;
+
+	my_camera_simulator 	= 0;
+	my_interface_simulator 	= 0;
+
+	my_camera_basler 		= 0;
+	my_interface_basler 	= 0;
+
+	my_camera_xpad 			= 0;
+	my_interface_xpad 		= 0;
+
+	my_camera_pilatus 		= 0;
+	my_interface_pilatus 	= 0;
+
+	my_camera_marccd 		= 0;
+	my_interface_marccd 	= 0;
+
+	my_camera_adsc 			= 0;
+	my_interface_adsc 		= 0;
+
+	my_camera_prosilica 	= 0;
+	my_interface_prosilica 	= 0;
+
+	my_server_name 			= "none";
+	my_device_name 			= "none";
+}
+
+//-----------------------------------------------------------------------------------------
 CtControl* ControlFactory::get_control( const string& detector_type)
 {
     yat::MutexLock scoped_lock(object_lock);
@@ -17,6 +47,7 @@ CtControl* ControlFactory::get_control( const string& detector_type)
             string  detector = detector_type;
             DbDatum db_datum;
             my_server_name = Tango::Util::instance()->get_ds_name ();
+            cout<<"my_server_name = "<<my_server_name<<endl;
             db_datum = (Tango::Util::instance()->get_database())->get_device_name(my_server_name,detector);
             db_datum >> my_device_name;
         }
@@ -56,7 +87,7 @@ CtControl* ControlFactory::get_control( const string& detector_type)
                 if(my_interface_basler)
                 	my_interface_basler->setTimeout(detector_timeout);
                 my_control                  = new CtControl(my_interface_basler);
-                ControlFactory::is_created  = true;                
+                ControlFactory::is_created  = true;
                 return my_control;
             }
         }
@@ -217,65 +248,130 @@ void ControlFactory::reset(const string& detector_type )
         if(ControlFactory::is_created)
         {    
             ControlFactory::is_created = false;
-            delete my_control;                my_control = 0;     
+            if(my_control)
+            {
+            	delete my_control;
+            	my_control = 0;
+            }
              
 #ifdef SIMULATOR_ENABLED
             if (detector_type.compare("SimulatorCCD")== 0)
             {
-                my_camera_simulator->reset(); 
-                delete my_camera_simulator;     my_camera_simulator = 0;  
-                delete my_interface_simulator;  my_interface_simulator = 0;
+                if(my_camera_simulator)
+                {
+                	delete my_camera_simulator;
+                	my_camera_simulator = 0;
+                }
+
+                if(my_interface_simulator)
+                {
+                	delete my_interface_simulator;
+                	my_interface_simulator = 0;
+                }
             }
 #endif        
     
 #ifdef BASLER_ENABLED
             if (detector_type.compare("BaslerCCD")==0)
             {                
-                my_camera_basler->reset();
-                delete my_camera_basler;        my_camera_basler = 0;
-                delete my_interface_basler;     my_interface_basler = 0;
+                if(my_camera_basler)
+                {
+                	delete my_camera_basler;
+                	my_camera_basler = 0;
+                }
+
+                if(my_interface_basler)
+                {
+                	delete my_interface_basler;
+                	my_interface_basler = 0;
+                }
             }
 #endif
     
 #ifdef XPAD_ENABLED
             if (detector_type.compare("XpadPixelDetector")==0)
             {          
-                //- do not delete because its a YAT Task
-                my_camera_xpad->exit();       my_camera_xpad = 0;
-                delete my_interface_xpad;     my_interface_xpad = 0;
+                if(my_camera_xpad)
+                {
+                	//- do not delete because its a YAT Task
+                	my_camera_xpad->exit();
+                	my_camera_xpad = 0;
+                }
+
+                if(my_interface_xpad)
+                {
+                	delete my_interface_xpad;
+                	my_interface_xpad = 0;
+                }
             }
 #endif
     
 #ifdef PILATUS_ENABLED
             if (detector_type.compare("PilatusPixelDetector")==0)
             {          
-                delete my_camera_pilatus;        my_camera_pilatus = 0;
-                delete my_interface_pilatus;     my_interface_pilatus = 0;
+                if(my_camera_pilatus)
+                {
+                	delete my_camera_pilatus;
+                	my_camera_pilatus = 0;
+                }
+
+                if(my_interface_pilatus)
+                {
+                	delete my_interface_pilatus;
+                	my_interface_pilatus = 0;
+                }
             }
 #endif
 
 #ifdef MARCCD_ENABLED
             if (detector_type.compare("MarCCD")==0)
             {          
-				//- do not delete because its a YAT Task
-                my_camera_marccd->exit();        my_camera_marccd = 0;
-                delete my_interface_marccd;		 my_interface_marccd = 0;
+                if(my_camera_marccd)
+                {
+                	//- do not delete because its a YAT Task
+                	my_camera_marccd->exit();
+                	my_camera_marccd = 0;
+                }
+
+                if(my_interface_marccd)
+                {
+                	delete my_interface_marccd;
+                	my_interface_marccd = 0;
+                }
             }
 #endif     
 
 #ifdef ADSC_ENABLED
             if (detector_type.compare("AdscCCD")==0)
             {          
-                delete my_camera_adsc;        my_camera_adsc = 0;
-                delete my_interface_adsc;     my_interface_adsc = 0;
+                if(my_camera_adsc)
+                {
+                	delete my_camera_adsc;
+                	my_camera_adsc = 0;
+                }
+
+                if(my_interface_adsc)
+                {
+                	delete my_interface_adsc;
+                	my_interface_adsc = 0;
+                }
             }
 #endif
 
 #ifdef PROSILICA_ENABLED
         if (detector_type.compare("ProsilicaCCD")==0)
         {          
-            delete my_camera_prosilica;        my_camera_prosilica = 0;
-            delete my_interface_prosilica;     my_interface_prosilica = 0;
+            if(my_camera_prosilica)
+            {
+            	delete my_camera_prosilica;
+            	my_camera_prosilica = 0;
+            }
+
+            if(my_interface_prosilica)
+            {
+            	delete my_interface_prosilica;
+            	my_interface_prosilica = 0;
+            }
         }
 #endif
         }

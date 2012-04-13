@@ -92,25 +92,25 @@ namespace LimaDetector_ns
  *                    The [ Start ] command IS NOT available.<br>
  *                    The [ Stop ] command IS NOT available.<br>
  *                    The [ SetRoi ] command IS NOT available.<br>
- *                    The [ SetBin ] command IS NOT available.<br>
+ *                    The [ SetBinning ] command IS NOT available.<br>
 *  Tango::STANDBY :  The Device is Waiting for a user request.<br>
  *                    The [ Snap ] command IS available.<br>
  *                    The [ Start ] command IS available.<br>
  *                    The [ Stop ] command IS available.<br>
  *                    The [ SetRoi ] command IS available.<br>
- *                    The [ SetBin ] command IS available.<br>
+ *                    The [ SetBinning ] command IS available.<br>
 *  Tango::FAULT :    Acquisition/Settings of the detector encounter a problem.<BR>
  *                    The [ Snap ] command IS available.<br>
  *                    The [ Start ] command IS available.<br>
  *                    The [ Stop ] command IS available.<br>
  *                    The [ SetRoi ] command IS available.<br>
- *                    The [ SetBin ] command IS available.<br>
+ *                    The [ SetBinning ] command IS available.<br>
 *  Tango::RUNNING :  The Acquisition is in Progress.<br>
  *                    The [ Snap ] command IS NOT available.<br>
  *                    The [ Start ] command IS NOT available.<br>
  *                    The [ Stop ] command IS available.<br>
  *                    The [ SetRoi ] command IS NOT available.<br>
- *                    The [ SetBin ] command IS NOT available.<br>
+ *                    The [ SetBinning ] command IS NOT available.<br>
  */
 
 
@@ -146,10 +146,10 @@ public :
 		Tango::DevUShort	*attr_y_read;
 		Tango::DevUShort	*attr_width_read;
 		Tango::DevUShort	*attr_height_read;
-		Tango::DevShort	*attr_binning_read;
-		Tango::DevLong	*attr_nbFrames_read;
-		Tango::DevLong	attr_nbFrames_write;
-		Tango::DevULong	*attr_currentFrame_read;
+		Tango::DevShort		*attr_binning_read;
+		Tango::DevLong		*attr_nbFrames_read;
+		Tango::DevLong		attr_nbFrames_write;
+		Tango::DevULong		*attr_currentFrame_read;
 		Tango::DevBoolean	*attr_fileGeneration_read;
 		Tango::DevBoolean	attr_fileGeneration_write;
 //@}
@@ -608,14 +608,14 @@ public :
     //    Here is the end of the automatic code generation part
     //-------------------------------------------------------------    
 
-
+	//method in charge of displaying image in the "image" dynamic attribute
     void                read_image_callback(yat4tango::DynamicAttributeReadCallbackData& cbd);
 protected :    
     //    Add your own data members here
     //-----------------------------------------
     //- Store the values into the property
     //- Properties stuff    
-    int                 FindIndexFromPropertyName(Tango::DbData& dev_prop, string property_name);
+    int                 find_index_from_property_name(Tango::DbData& dev_prop, string property_name);
     template <class T>
     void                create_property_if_empty(Tango::DbData& dev_prop,T value, string property_name);    
     template <class T>
@@ -628,18 +628,17 @@ protected :
     void                print_acq_conf();
 
     //get the last frame number acquired
-    int					get_last_image_counter(void);
+    long long			get_last_image_counter(void);
     
     //state & status stuff
     bool                                m_is_device_initialized ;
     stringstream                        m_status_message;
-    static bool                         m_is_created;
+    static bool                         m_is_created;		//indicate when the construction of "generic" device is completed.
 
     //LIMA objects
     HwInterface*                        m_hw;				//object to the generic interface of camera's
     CtControl*                          m_ct;    			//object to Lima, the MAIN object
     CtSaving::Parameters                m_saving_par;		//struct holding parameters used when saving image in a file (NXS, EDF, ...)
-    CtVideo::Image 						m_last_image;   	//last image acquired
     string                              m_trigger_mode; 	//trigger mode name 	(INTERNAL_SINGLE, EXTERNAL_SINGLE, EXTERNAL_MULTI, EXTERNAL_GATE)
     string                              m_acquisition_mode;	//aquisition mode name 	(SINGLE, ACCUMULATION) nota: imageType is forced to 32 bits in ACCUMULATION MODE
 

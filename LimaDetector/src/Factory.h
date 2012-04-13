@@ -56,6 +56,7 @@ public:
 	CtControl*                     get_control( const string& detector_type);
 	void                           reset(const string& detector_type );
 	void                           init_specific_device(const string& detector_type );
+	ControlFactory();
 
 private:  
 #ifdef SIMULATOR_ENABLED
@@ -74,8 +75,8 @@ private:
 #endif
 
 #ifdef PILATUS_ENABLED      
-	Pilatus::Camera*            my_camera_pilatus;  
-	Pilatus::Interface*         my_interface_pilatus;  
+	Pilatus::Camera*            	my_camera_pilatus;
+	Pilatus::Interface*         	my_interface_pilatus;
 #endif
 
 #ifdef MARCCD_ENABLED      
@@ -89,8 +90,8 @@ private:
 #endif
 
 #ifdef PROSILICA_ENABLED      
-  Prosilica::Camera*             my_camera_prosilica;  
-  Prosilica::Interface*          my_interface_prosilica;  
+	Prosilica::Camera*             my_camera_prosilica;
+	Prosilica::Interface*          my_interface_prosilica;
 #endif
 	CtControl*                     my_control;
 	static bool                    is_created;
