@@ -32,7 +32,7 @@ def get_control(**keys) :
     global _UeyeInterface
     if _UeyeInterface is None:
 	ueye = Ueye.Camera()
-        _UeyeInterface = Simulator.Interface(ueye)
+        _UeyeInterface = Ueye.Interface(ueye)
 	_UeyeInterface._ref_interface = ueye
     return Core.CtControl(_UeyeInterface)
 
