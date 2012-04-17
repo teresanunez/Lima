@@ -40,37 +40,36 @@ CtControl* ControlFactory::get_control( const string& detector_type)
 {
     yat::MutexLock scoped_lock(object_lock);
     try
-    {		
+    {
         //get the tango device/instance
         if(!ControlFactory::is_created)
-        {    
+        {
             string  detector = detector_type;
             DbDatum db_datum;
             my_server_name = Tango::Util::instance()->get_ds_name ();
-            cout<<"my_server_name = "<<my_server_name<<endl;
             db_datum = (Tango::Util::instance()->get_database())->get_device_name(my_server_name,detector);
             db_datum >> my_device_name;
         }
 
 #ifdef SIMULATOR_ENABLED
         if (detector_type.compare("SimulatorCCD")== 0)
-        {        
+        {
             if(!ControlFactory::is_created)
             {
                 my_camera_simulator         = new Simulator::Camera();
                 my_interface_simulator      = new Simulator::Interface(*my_camera_simulator);
                 my_control                  = new CtControl(my_interface_simulator);
                 ControlFactory::is_created  = true;
-                return my_control;      
+                return my_control;
             }
         }
 #endif
 
 #ifdef BASLER_ENABLED
         if (detector_type.compare("BaslerCCD")== 0)
-        {    
+        {
             if(!ControlFactory::is_created)
-            {                
+            {
                 DbData db_data;
                 db_data.push_back(DbDatum("DetectorIP"));
                 db_data.push_back(DbDatum("DetectorTimeout"));
@@ -95,8 +94,8 @@ CtControl* ControlFactory::get_control( const string& detector_type)
 
 #ifdef XPAD_ENABLED
         if (detector_type.compare("XpadPixelDetector")== 0)
-        {    
-        
+        {
+
             if(!ControlFactory::is_created)
             {
 				my_camera_xpad                = new Xpad::Camera();
@@ -111,10 +110,10 @@ CtControl* ControlFactory::get_control( const string& detector_type)
 
 #ifdef PILATUS_ENABLED
         if (detector_type.compare("PilatusPixelDetector")== 0)
-        {    
-        
+        {
+
             if(!ControlFactory::is_created)
-            {                
+            {
                 DbData db_data;
                 db_data.push_back(DbDatum("DetectorIP"));
                 db_data.push_back(DbDatum("DetectorPort"));
@@ -126,7 +125,7 @@ CtControl* ControlFactory::get_control( const string& detector_type)
                 db_data[0] >> camera_ip;
                 db_data[1] >> camera_port;
                 db_data[2] >> use_reader;
-                
+
                 my_camera_pilatus           = new Pilatus::Camera(camera_ip.c_str(), camera_port);
                 if(my_camera_pilatus && use_reader)
                 	my_camera_pilatus->enableDirectoryWatcher();
@@ -140,40 +139,40 @@ CtControl* ControlFactory::get_control( const string& detector_type)
         }
 #endif
 
-#ifdef MARCCD_ENABLED	
+#ifdef MARCCD_ENABLED
       if (detector_type.compare("MarCCD")== 0)
-      {	
+      {
         if(!ControlFactory::is_created)
         {
           DbData db_data;
           db_data.push_back(DbDatum("DetectorIP"));
           db_data.push_back(DbDatum("DetectorPort"));
           db_data.push_back(DbDatum("DetectorTargetPath"));
-					db_data.push_back(DbDatum("ReaderTimeout"));
-					db_data.push_back(DbDatum("UseReader"));
+          db_data.push_back(DbDatum("ReaderTimeout"));
+          db_data.push_back(DbDatum("UseReader"));
 
           (Tango::Util::instance()->get_database())->get_device_property(my_device_name, db_data);
-					std::string camera_ip;
+          std::string camera_ip;
           std::string img_path;
           unsigned long camera_port = 2222;
-					unsigned short reader_timeout = 10000;
-					bool use_reader = true;
+          unsigned short reader_timeout = 10000;
+          bool use_reader = true;
 
           db_data[0] >> camera_ip;
           db_data[1] >> camera_port;
           db_data[2] >> img_path;
           db_data[3] >> reader_timeout;
           db_data[4] >> use_reader;
-  
+
           my_camera_marccd           = new Marccd::Camera(camera_ip.c_str(), camera_port, img_path);
-          my_camera_marccd->go(2000);        
+          my_camera_marccd->go(2000);
           my_interface_marccd        = new Marccd::Interface(*my_camera_marccd);
-					if(my_interface_marccd && use_reader)
-						my_interface_marccd->enableReader();
-					if(my_interface_marccd && !use_reader)
-						my_interface_marccd->disableReader();
-					if(my_interface_marccd)
-						my_interface_marccd->setTimeout(reader_timeout);
+          if(my_interface_marccd && use_reader)
+        	  my_interface_marccd->enableReader();
+          if(my_interface_marccd && !use_reader)
+        	  my_interface_marccd->disableReader();
+          if(my_interface_marccd)
+        	  my_interface_marccd->setTimeout(reader_timeout);
           my_control                 = new CtControl(my_interface_marccd);
           ControlFactory::is_created = true;
           return my_control;
@@ -183,8 +182,8 @@ CtControl* ControlFactory::get_control( const string& detector_type)
 
 #ifdef ADSC_ENABLED
         if (detector_type.compare("AdscCCD")== 0)
-        {    
-        
+        {
+
             if(!ControlFactory::is_created)
             {
                 DbData db_data;
@@ -212,17 +211,17 @@ CtControl* ControlFactory::get_control( const string& detector_type)
 
 #ifdef PROSILICA_ENABLED
         if (detector_type.compare("ProsilicaCCD")== 0)
-        {    
-        
+        {
+
             if(!ControlFactory::is_created)
-            {				
+            {
 				DbData db_data;
 				db_data.push_back(DbDatum("DetectorIP"));
 				(Tango::Util::instance()->get_database())->get_device_property(my_device_name, db_data);
 				string camera_ip;
 				long camera_port;
 				db_data[0] >> camera_ip;
-				
+
 				my_camera_prosilica           	= new Prosilica::Camera(camera_ip.c_str());
                 my_interface_prosilica        	= new Prosilica::Interface(my_camera_prosilica);
                 my_control                  	= new CtControl(my_interface_prosilica);
@@ -233,17 +232,17 @@ CtControl* ControlFactory::get_control( const string& detector_type)
 #endif
         if(!ControlFactory::is_created)
             throw LIMA_HW_EXC(Error, "Unable to create the lima control object : Unknown Detector Type");
-        
+
     }
     catch(Tango::DevFailed& df)
     {
         //- rethrow exception
         throw LIMA_HW_EXC(Error, string(df.errors[0].desc).c_str());
-    }    
+    }
     catch(Exception& e)
     {
         throw LIMA_HW_EXC(Error, e.getErrMsg());
-    }    
+    }
     catch(...)
     {
         throw LIMA_HW_EXC(Error, "Unable to create the lima control object : Unknow Exception");
@@ -259,14 +258,14 @@ void ControlFactory::reset(const string& detector_type )
     try
     {
         if(ControlFactory::is_created)
-        {    
+        {
             ControlFactory::is_created = false;
             if(my_control)
             {
             	delete my_control;
             	my_control = 0;
             }
-             
+
 #ifdef SIMULATOR_ENABLED
             if (detector_type.compare("SimulatorCCD")== 0)
             {
@@ -283,10 +282,10 @@ void ControlFactory::reset(const string& detector_type )
                 }
             }
 #endif        
-    
+
 #ifdef BASLER_ENABLED
             if (detector_type.compare("BaslerCCD")==0)
-            {                
+            {
                 if(my_camera_basler)
                 {
                 	delete my_camera_basler;
@@ -300,10 +299,10 @@ void ControlFactory::reset(const string& detector_type )
                 }
             }
 #endif
-    
+
 #ifdef XPAD_ENABLED
             if (detector_type.compare("XpadPixelDetector")==0)
-            {          
+            {
                 if(my_camera_xpad)
                 {
                 	//- do not delete because its a YAT Task
@@ -318,10 +317,10 @@ void ControlFactory::reset(const string& detector_type )
                 }
             }
 #endif
-    
+
 #ifdef PILATUS_ENABLED
             if (detector_type.compare("PilatusPixelDetector")==0)
-            {          
+            {
                 if(my_camera_pilatus)
                 {
                 	delete my_camera_pilatus;
@@ -338,7 +337,7 @@ void ControlFactory::reset(const string& detector_type )
 
 #ifdef MARCCD_ENABLED
             if (detector_type.compare("MarCCD")==0)
-            {          
+            {
                 if(my_camera_marccd)
                 {
                 	//- do not delete because its a YAT Task
@@ -356,7 +355,7 @@ void ControlFactory::reset(const string& detector_type )
 
 #ifdef ADSC_ENABLED
             if (detector_type.compare("AdscCCD")==0)
-            {          
+            {
                 if(my_camera_adsc)
                 {
                 	delete my_camera_adsc;
@@ -373,7 +372,7 @@ void ControlFactory::reset(const string& detector_type )
 
 #ifdef PROSILICA_ENABLED
         if (detector_type.compare("ProsilicaCCD")==0)
-        {          
+        {
             if(my_camera_prosilica)
             {
             	delete my_camera_prosilica;
@@ -393,15 +392,15 @@ void ControlFactory::reset(const string& detector_type )
     {
         //- rethrow exception
         throw LIMA_HW_EXC(Error, string(df.errors[0].desc).c_str());
-    }    
+    }
     catch(Exception& e)
     {
         throw LIMA_HW_EXC(Error, e.getErrMsg());
-    }    
+    }
     catch(...)
     {
         throw LIMA_HW_EXC(Error, "reset : Unknow Exception");
-    }    
+    }
 }
 
 //-----------------------------------------------------------------------------------------
@@ -409,12 +408,12 @@ void ControlFactory::reset(const string& detector_type )
 //-----------------------------------------------------------------------------------------
 void ControlFactory::init_specific_device(const string& detector_type )
 {
-    yat::MutexLock scoped_lock(object_lock);    
+    yat::MutexLock scoped_lock(object_lock);
     try
     {
         //get the tango device/instance
         if(!ControlFactory::is_created)
-        {    
+        {
             string  detector = detector_type;
             DbDatum db_datum;
             my_server_name = Tango::Util::instance()->get_ds_name ();

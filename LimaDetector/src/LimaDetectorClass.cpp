@@ -451,7 +451,7 @@ void LimaDetectorClass::attribute_factory(vector<Tango::Attr *> &att_list)
 	trigger_mode_prop.set_description("Available Trigger Modes :<br>\nINTERNAL_SINGLE<br>\nEXTERNAL_SINGLE<br>\nEXTERNAL_MULTI<br>\nEXTERNAL_GATE<br>");
 	trigger_mode->set_default_properties(trigger_mode_prop);
 	trigger_mode->set_memorized();
-	trigger_mode->set_memorized_init(true);
+	trigger_mode->set_memorized_init(false);
 	att_list.push_back(trigger_mode);
 
 	//	Attribute : acquisitionMode
@@ -461,7 +461,7 @@ void LimaDetectorClass::attribute_factory(vector<Tango::Attr *> &att_list)
 	acquisition_mode_prop.set_description("Available Acquisition Modes :<br>\nSINGLE<br>\nACCUMULATION<br>\n");
 	acquisition_mode->set_default_properties(acquisition_mode_prop);
 	acquisition_mode->set_memorized();
-	acquisition_mode->set_memorized_init(true);
+	acquisition_mode->set_memorized_init(false);
 	att_list.push_back(acquisition_mode);
 
 	//	Attribute : exposureTime
@@ -474,7 +474,7 @@ void LimaDetectorClass::attribute_factory(vector<Tango::Attr *> &att_list)
 	exposure_time_prop.set_description("Set/Get exposure time (in ms).<br>\nNota : <br>\nIn video mode (acquisition launched by Start), exposure time can be changed during acquistion.");
 	exposure_time->set_default_properties(exposure_time_prop);
 	exposure_time->set_memorized();
-	exposure_time->set_memorized_init(true);
+	exposure_time->set_memorized_init(false);
 	att_list.push_back(exposure_time);
 
 	//	Attribute : exposureAccTime
@@ -487,7 +487,7 @@ void LimaDetectorClass::attribute_factory(vector<Tango::Attr *> &att_list)
 	exposure_acc_time_prop.set_description("Set/Get exposure time ONLY in mode ACCUMULATION (in ms)<br>");
 	exposure_acc_time->set_default_properties(exposure_acc_time_prop);
 	exposure_acc_time->set_memorized();
-	exposure_acc_time->set_memorized_init(true);
+	exposure_acc_time->set_memorized_init(false);
 	att_list.push_back(exposure_acc_time);
 
 	//	Attribute : x
@@ -545,7 +545,7 @@ void LimaDetectorClass::attribute_factory(vector<Tango::Attr *> &att_list)
 	nb_frames_prop.set_description("Define the number of frames to acquire.");
 	nb_frames->set_default_properties(nb_frames_prop);
 	nb_frames->set_memorized();
-	nb_frames->set_memorized_init(true);
+	nb_frames->set_memorized_init(false);
 	att_list.push_back(nb_frames);
 
 	//	Attribute : currentFrame
@@ -566,7 +566,7 @@ void LimaDetectorClass::attribute_factory(vector<Tango::Attr *> &att_list)
 	file_generation->set_default_properties(file_generation_prop);
 	file_generation->set_disp_level(Tango::EXPERT);
 	file_generation->set_memorized();
-	file_generation->set_memorized_init(true);
+	file_generation->set_memorized_init(false);
 	att_list.push_back(file_generation);
 
 	//	End of Automatic code generation
@@ -829,6 +829,96 @@ void LimaDetectorClass::set_default_property()
 	prop_def  = "1";
 	vect_data.clear();
 	vect_data.push_back("1");
+	if (prop_def.length()>0)
+	{
+		Tango::DbDatum	data(prop_name);
+		data << vect_data ;
+		dev_def_prop.push_back(data);
+		add_wiz_dev_prop(prop_name, prop_desc,  prop_def);
+	}
+	else
+		add_wiz_dev_prop(prop_name, prop_desc);
+
+	prop_name = "MemorizedAcquisitionMode";
+	prop_desc = "Memorize/Define the acquisitionMode attribute at Init device<br>\nAvailables values :<br>\n- SINGLE<br>\n- ACCUMULATION<br>";
+	prop_def  = "SINGLE";
+	vect_data.clear();
+	vect_data.push_back("SINGLE");
+	if (prop_def.length()>0)
+	{
+		Tango::DbDatum	data(prop_name);
+		data << vect_data ;
+		dev_def_prop.push_back(data);
+		add_wiz_dev_prop(prop_name, prop_desc,  prop_def);
+	}
+	else
+		add_wiz_dev_prop(prop_name, prop_desc);
+
+	prop_name = "MemorizedTriggerMode";
+	prop_desc = "Memorize/Define the triggerMode attribute at Init device<br>\nAvailables values :<br>\n- INTERNAL_SINGLE<br>\n- EXTERNAL_SINGLE<br>\n- EXTERNAL_MULTI<br>\n- EXTERNAL_GATE<br>";
+	prop_def  = "INTERNAL_SINGLE";
+	vect_data.clear();
+	vect_data.push_back("INTERNAL_SINGLE");
+	if (prop_def.length()>0)
+	{
+		Tango::DbDatum	data(prop_name);
+		data << vect_data ;
+		dev_def_prop.push_back(data);
+		add_wiz_dev_prop(prop_name, prop_desc,  prop_def);
+	}
+	else
+		add_wiz_dev_prop(prop_name, prop_desc);
+
+	prop_name = "MemorizedExposureTime";
+	prop_desc = "Memorize/Define the exposureTime attribute  at Init device<br>\n";
+	prop_def  = "1000";
+	vect_data.clear();
+	vect_data.push_back("1000");
+	if (prop_def.length()>0)
+	{
+		Tango::DbDatum	data(prop_name);
+		data << vect_data ;
+		dev_def_prop.push_back(data);
+		add_wiz_dev_prop(prop_name, prop_desc,  prop_def);
+	}
+	else
+		add_wiz_dev_prop(prop_name, prop_desc);
+
+	prop_name = "MemorizedExposureAccTime";
+	prop_desc = "Memorize/Define the exposureAccTime attribute at Init device<br>";
+	prop_def  = "100";
+	vect_data.clear();
+	vect_data.push_back("100");
+	if (prop_def.length()>0)
+	{
+		Tango::DbDatum	data(prop_name);
+		data << vect_data ;
+		dev_def_prop.push_back(data);
+		add_wiz_dev_prop(prop_name, prop_desc,  prop_def);
+	}
+	else
+		add_wiz_dev_prop(prop_name, prop_desc);
+
+	prop_name = "MemorizedNbFrames";
+	prop_desc = "Memorize/Define the nbFrames attribute  at Init device<br>";
+	prop_def  = "1";
+	vect_data.clear();
+	vect_data.push_back("1");
+	if (prop_def.length()>0)
+	{
+		Tango::DbDatum	data(prop_name);
+		data << vect_data ;
+		dev_def_prop.push_back(data);
+		add_wiz_dev_prop(prop_name, prop_desc,  prop_def);
+	}
+	else
+		add_wiz_dev_prop(prop_name, prop_desc);
+
+	prop_name = "MemorizedFileGeneration";
+	prop_desc = "Memorize/Define the fileGeneration attribute at Init device<br>";
+	prop_def  = "false";
+	vect_data.clear();
+	vect_data.push_back("false");
 	if (prop_def.length()>0)
 	{
 		Tango::DbDatum	data(prop_name);
