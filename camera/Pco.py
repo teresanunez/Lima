@@ -110,6 +110,27 @@ class Pco(PyTango.Device_4Impl):
 #==================================================================
 
 #------------------------------------------------------------------
+#    lastError attribute R
+#------------------------------------------------------------------
+    def read_lastError(self, attr):
+        val  = _PcoCam.talk("lasterror")
+        attr.set_value(val)
+
+#------------------------------------------------------------------
+#    camInfo attribute R
+#------------------------------------------------------------------
+    def read_camInfo(self, attr):
+        val  = _PcoCam.talk("cameraType")
+        attr.set_value(val)
+
+#------------------------------------------------------------------
+#    clXferPar attribute R
+#------------------------------------------------------------------
+    def read_clXferPar(self, attr):
+        val  = _PcoCam.talk("clTransferParam")
+        attr.set_value(val)
+
+#------------------------------------------------------------------
 #    cocRunTime attribute R
 #------------------------------------------------------------------
     def read_cocRunTime(self, attr):
@@ -217,6 +238,18 @@ class PcoClass(PyTango.DeviceClass):
          [[PyTango.DevLong,
            PyTango.SCALAR,
            PyTango.READ_WRITE]],
+         'lastError':	  
+         [[PyTango.DevString,
+           PyTango.SCALAR,
+           PyTango.READ]],
+         'camInfo':	  
+         [[PyTango.DevString,
+           PyTango.SCALAR,
+           PyTango.READ]],
+         'clXferPar':	  
+         [[PyTango.DevString,
+           PyTango.SCALAR,
+           PyTango.READ]],
          'cocRunTime':	  
          [[PyTango.DevString,
            PyTango.SCALAR,
