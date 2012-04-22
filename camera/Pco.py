@@ -43,6 +43,7 @@ import PyTango
 from Lima import Core
 from Lima import Pco as PcoAcq
 from LimaCCDs import CallableReadEnum,CallableWriteEnum
+from LimaCCDs import _getDictKey, _getDictValue
 
 
 class Pco(PyTango.Device_4Impl):
@@ -56,6 +57,9 @@ class Pco(PyTango.Device_4Impl):
     def __init__(self,*args) :
         PyTango.Device_4Impl.__init__(self,*args)
 
+        self._Pco__Pixelrate = { "LOW": "95333333", "HIGH":"286000000" }    
+        self._Pco__Rollingshutter = { "GLOBAL": "0", "ROLLING":"1" }    
+        
         self.init_device()
 
 #------------------------------------------------------------------
@@ -77,6 +81,7 @@ class Pco(PyTango.Device_4Impl):
     def getAttrStringValueList(self, attr_name):
         valueList=[]
         dict_name = '_' + self.__class__.__name__ + '__' + ''.join([x.title() for x in attr_name.split('_')])
+        #print "getAttrStringValueList", attr_name, dict_name
         d = getattr(self,dict_name,None)
         if d:
             valueList = d.keys()
@@ -84,6 +89,7 @@ class Pco(PyTango.Device_4Impl):
         return valueList
 
     def __getattr__(self,name) :
+        #print "__getattr__ ", "name", name
         if name.startswith('read_') or name.startswith('write_') :
             split_name = name.split('_')[1:]
             attr_name = ''.join([x.title() for x in split_name])
@@ -120,7 +126,14 @@ class Pco(PyTango.Device_4Impl):
 #    camInfo attribute R
 #------------------------------------------------------------------
     def read_camInfo(self, attr):
-        val  = _PcoCam.talk("cameraType")
+        val  = _PcoCam.talk("camInfo")
+        attr.set_value(val)
+
+#------------------------------------------------------------------
+#    camType attribute R
+#------------------------------------------------------------------
+    def read_camType(self, attr):
+        val  = _PcoCam.talk("camType")
         attr.set_value(val)
 
 #------------------------------------------------------------------
@@ -170,32 +183,36 @@ class Pco(PyTango.Device_4Impl):
 #------------------------------------------------------------------
     def read_pixelRate(self, attr):
         val  = _PcoCam.talk("pixelRate")
-        rate = float(val)/1000000.
-        attr.set_value(rate)
+        key= _getDictKey(self._Pco__Pixelrate, val)
+        attr.set_value(key)
+        #print "--- read_pixelRate>",val, key
 
     def write_pixelRate(self, attr):
         data = []
         attr.get_write_value(data)
-        rate = data[0] * 1000000.
-        cmd = '%s %d' % ('pixelRate', rate)
+        key = data[0]
+        value= _getDictValue(self._Pco__Pixelrate, key)
+        cmd = '%s %s' % ('pixelRate', value)
         val  = _PcoCam.talk(cmd)
+        #print "---- write_pixelRate>", cmd, key, value
         
 #------------------------------------------------------------------
 #    rollingShutter attribute RW
 #------------------------------------------------------------------
     def read_rollingShutter(self, attr):
         val  = _PcoCam.talk("rollingShutter")
-        iVal = int(val)
-        attr.set_value(iVal)
+        key= _getDictKey(self._Pco__Rollingshutter, val)
+        attr.set_value(key)
+        #print "---- read_rollingShutter>", val, key
 
     def write_rollingShutter(self, attr):
         data = []
         attr.get_write_value(data)
-        iVal = data[0]
-        if(iVal != 0):
-            iVal = 1
-        cmd = '%s %d' % ('rollingShutter', iVal)
+        key = data[0]
+        value= _getDictValue(self._Pco__Rollingshutter, key)
+        cmd = '%s %s' % ('rollingShutter', value)
         val  = _PcoCam.talk(cmd)
+        #print "---- write_rollingShutter>", cmd, key, value
         
 
 #==================================================================
@@ -206,7 +223,6 @@ class Pco(PyTango.Device_4Impl):
     def talk(self, argin):
         val= _PcoCam.talk(argin)
         return val
-
 
 #==================================================================
 #
@@ -235,7 +251,7 @@ class PcoClass(PyTango.DeviceClass):
     #    Attribute definitions
     attr_list = {
          'rollingShutter':	  
-         [[PyTango.DevLong,
+         [[PyTango.DevString,
            PyTango.SCALAR,
            PyTango.READ_WRITE]],
          'lastError':	  
@@ -243,6 +259,10 @@ class PcoClass(PyTango.DeviceClass):
            PyTango.SCALAR,
            PyTango.READ]],
          'camInfo':	  
+         [[PyTango.DevString,
+           PyTango.SCALAR,
+           PyTango.READ]],
+         'camType':	  
          [[PyTango.DevString,
            PyTango.SCALAR,
            PyTango.READ]],
@@ -259,7 +279,7 @@ class PcoClass(PyTango.DeviceClass):
            PyTango.SCALAR,
            PyTango.READ]],
          'pixelRate':	  
-         [[PyTango.DevDouble,
+         [[PyTango.DevString,
            PyTango.SCALAR,
            PyTango.READ_WRITE]],
          'maxNbImages':	  
