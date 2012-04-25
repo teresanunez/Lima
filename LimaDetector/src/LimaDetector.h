@@ -57,9 +57,10 @@
 //- Tango
 #include <tango.h>
 
-//- YAT/4TANGO
+//- YAT/YAT4TANGO
 #include <yat4tango/InnerAppender.h>
 #include <yat4tango/DynamicAttributeManager.h>
+#include <yat/utils/XString.h>
 
 
 using namespace lima;
@@ -146,10 +147,10 @@ public :
 		Tango::DevUShort	*attr_y_read;
 		Tango::DevUShort	*attr_width_read;
 		Tango::DevUShort	*attr_height_read;
-		Tango::DevShort		*attr_binning_read;
-		Tango::DevLong		*attr_nbFrames_read;
-		Tango::DevLong		attr_nbFrames_write;
-		Tango::DevULong		*attr_currentFrame_read;
+		Tango::DevShort	*attr_binning_read;
+		Tango::DevLong	*attr_nbFrames_read;
+		Tango::DevLong	attr_nbFrames_write;
+		Tango::DevULong	*attr_currentFrame_read;
 		Tango::DevBoolean	*attr_fileGeneration_read;
 		Tango::DevBoolean	attr_fileGeneration_write;
 //@}
@@ -298,6 +299,39 @@ public :
  *	- 8<br>
  */
 	Tango::DevUShort	memorizedBinning;
+/**
+ *	Memorize/Define the acquisitionMode attribute at Init device<br>
+ *	Availables values :<br>
+ *	- SINGLE<br>
+ *	- ACCUMULATION<br>
+ */
+	string	memorizedAcquisitionMode;
+/**
+ *	Memorize/Define the triggerMode attribute at Init device<br>
+ *	Availables values :<br>
+ *	- INTERNAL_SINGLE<br>
+ *	- EXTERNAL_SINGLE<br>
+ *	- EXTERNAL_MULTI<br>
+ *	- EXTERNAL_GATE<br>
+ */
+	string	memorizedTriggerMode;
+/**
+ *	Memorize/Define the exposureTime attribute  at Init device<br>
+ *	
+ */
+	Tango::DevDouble	memorizedExposureTime;
+/**
+ *	Memorize/Define the exposureAccTime attribute at Init device<br>
+ */
+	Tango::DevDouble	memorizedExposureAccTime;
+/**
+ *	Memorize/Define the nbFrames attribute  at Init device<br>
+ */
+	Tango::DevLong	memorizedNbFrames;
+/**
+ *	Memorize/Define the fileGeneration attribute at Init device<br>
+ */
+	Tango::DevBoolean	memorizedFileGeneration;
 //@}
 
 /**
