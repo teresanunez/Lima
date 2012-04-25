@@ -77,16 +77,6 @@
          <artifactId>LimaSimulator-${aol}-shared-${mode}</artifactId>
          <version>1.1.8</version>
       </dependency>
-
-      <!--<dependency>
-         <groupId>fr.soleil.lib</groupId>
-         <artifactId>Nexus4Tango-${aol}-${library}-${mode}</artifactId>         
-      </dependency>   
-      
-      <dependency>
-         <groupId>fr.soleil.lib</groupId>
-         <artifactId>NexusCPP-${aol}-${library}-${mode}</artifactId>
-      </dependency>-->
                         
     </dependencies>
 	
