@@ -467,8 +467,8 @@ void LimaDetector::init_device()
     LimaDetector::m_is_created = true;
     set_state(Tango::STANDBY);
 
-    //write at init, only if device is STANDBY
-    if(dev_state() != Tango::INIT)
+    //write at init, only if device is correctly initialized
+    if(m_is_device_initialized)
     {
     	INFO_STREAM<<"Write tango hardware at Init - acquisitionMode."<<endl;
 
@@ -2303,75 +2303,29 @@ Tango::DevState LimaDetector::dev_state()
     stringstream    DeviceStatus;
     DeviceStatus     << "";
     Tango::DevState DeviceState    = Tango::STANDBY;
-    //if error during init_device
-    if(!m_is_device_initialized)
-    {
-        DeviceState        = Tango::INIT;
-        DeviceStatus    << m_status_message.str();
-        DeviceStatus    << endl;
-    }
-    else
-    {
-        // if error in acquisition task
-        if(m_acquisition_task->get_state()==Tango::FAULT)
-        {
-            DeviceState=Tango::FAULT;//FAULT
-            DeviceStatus<<m_acquisition_task->get_status()<<endl;
-        }
-        else
-        {
-            CtControl::Status status;
-            m_ct->getStatus(status);
-            if (status.AcquisitionStatus == lima::AcqReady)
-            {
-                HwInterface::StatusType state;
-                m_hw->getStatus(state); 
-                if(state.acq == AcqRunning && state.det == DetExposure)
-                {
-                    DeviceState=Tango::RUNNING;
-                    DeviceStatus<<"Acquisition is Running ...\n"<<endl;
-                }
-                else if(state.acq == AcqFault && state.det == DetFault)
-                {                 
-                    DeviceState=Tango::INIT;//INIT
-                    DeviceStatus<<"Acquisition is in Init\n"<<endl;
-                }
-                else if(state.acq == AcqFault && state.det == DetIdle)
-                {                 
-                    DeviceState=Tango::FAULT;//FAULT
-                    DeviceStatus<<"Acquisition is in Fault\n"<<endl;
-                }
-                else
-                {
-                    DeviceState=Tango::STANDBY;
-                    DeviceStatus<<"Waiting for Request ...\n"<<endl;
-                }
-            }
-            else if(status.AcquisitionStatus == lima::AcqRunning)
-            {           
-                DeviceState=Tango::RUNNING;
-                DeviceStatus<<"Acquisition is Running ...\n"<<endl;
-            }
-            else
-            {      
-                HwInterface::StatusType state;
-                m_hw->getStatus(state); 
-                if(state.acq == AcqFault && state.det == DetFault)
-                {                 
-                    DeviceState=Tango::INIT;//INIT
-                    DeviceStatus<<"Acquisition is in Init\n"<<endl;
-                }
-                else
-                {
-                  DeviceState=Tango::FAULT;//FAULT
-                  DeviceStatus<<"Acquisition is in Fault\n"<<endl;
-                }
-            }              
-        }
-        //DeviceStatus<< m_status_message.str();
-        //DeviceStatus<<endl;
-    }
 
+	//if error during init_device
+	if(!m_is_device_initialized)
+	{
+		DeviceState        = Tango::INIT;
+		DeviceStatus    << m_status_message.str();
+		DeviceStatus    << endl;
+	}
+	else
+	{
+		// if error in acquisition task
+		if(m_acquisition_task->get_state()== Tango::FAULT)
+		{
+			DeviceState = Tango::FAULT;//FAULT
+			DeviceStatus<<m_acquisition_task->get_status()<<endl;
+		}
+		else
+		{
+			//state&status are retrieved from specific device
+			DeviceState = ControlFactory::instance().get_state_specific_device(detectorType);
+			DeviceStatus << ControlFactory::instance().get_status_specific_device(detectorType);
+		}
+	}
     set_state(DeviceState);
     set_status(DeviceStatus.str());
 
@@ -2552,13 +2506,5 @@ int LimaDetector::find_index_from_property_name(Tango::DbData& dev_prop, string 
     if (i == iNbProperties) return -1;
     return i;
 }
-
-
-
-
-
-
-
-
 
 }	//	namespace

@@ -56,6 +56,8 @@ public:
 	CtControl*                     get_control( const string& detector_type);
 	void                           reset(const string& detector_type );
 	void                           init_specific_device(const string& detector_type );
+	Tango::DevState 			   get_state_specific_device(const string& detector_type );
+	std::string 				   get_status_specific_device(const string& detector_type );
 	ControlFactory();
 
 private:  

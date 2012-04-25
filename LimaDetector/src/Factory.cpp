@@ -431,8 +431,64 @@ void ControlFactory::init_specific_device(const string& detector_type )
     }
 
 }
-//-----------------------------------------------------------------------------------------
 
+//-----------------------------------------------------------------------------------------
+//- call dev_state() command of the specific device.
+//-----------------------------------------------------------------------------------------
+Tango::DevState ControlFactory::get_state_specific_device(const string& detector_type )
+{
+    yat::MutexLock scoped_lock(object_lock);
+    try
+    {
+    	Tango::DevState state = Tango::UNKNOWN;
+    	//get the tango device/instance
+        if(!ControlFactory::is_created)
+        {
+            string  detector = detector_type;
+            DbDatum db_datum;
+            my_server_name = Tango::Util::instance()->get_ds_name ();
+            db_datum = (Tango::Util::instance()->get_database())->get_device_name(my_server_name,detector);
+            db_datum >> my_device_name;
+        }
+
+         state = (Tango::Util::instance()->get_device_by_name(my_device_name))->dev_state();
+         return state;
+    }
+    catch(Tango::DevFailed& df)
+    {
+        //- rethrow exception
+        throw LIMA_HW_EXC(Error, string(df.errors[0].desc).c_str());
+    }
+}
+//-----------------------------------------------------------------------------------------
+//- call dev_status() command of the specific device.
+//-----------------------------------------------------------------------------------------
+std::string ControlFactory::get_status_specific_device(const string& detector_type )
+{
+    yat::MutexLock scoped_lock(object_lock);
+    try
+    {
+    	std::string status = "";
+    	//get the tango device/instance
+        if(!ControlFactory::is_created)
+        {
+            string  detector = detector_type;
+            DbDatum db_datum;
+            my_server_name = Tango::Util::instance()->get_ds_name ();
+            db_datum = (Tango::Util::instance()->get_database())->get_device_name(my_server_name,detector);
+            db_datum >> my_device_name;
+        }
+
+         status = (Tango::Util::instance()->get_device_by_name(my_device_name))->dev_status();
+         return status;
+    }
+    catch(Tango::DevFailed& df)
+    {
+        //- rethrow exception
+        throw LIMA_HW_EXC(Error, string(df.errors[0].desc).c_str());
+    }
+}
+//-----------------------------------------------------------------------------------------
 
 
 
