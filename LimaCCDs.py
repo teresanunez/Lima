@@ -266,9 +266,12 @@ class LimaCCDs(PyTango.Device_4Impl) :
             import traceback
             traceback.print_exc()
 	#INIT display shared memory
-        shared_memory = self.__control.display()
-        self.__shared_memory_names = ['LimaCCds',self.LimaCameraType]
-        shared_memory.setNames(*self.__shared_memory_names)
+	try:
+	    self.__shared_memory_names = ['LimaCCds',self.LimaCameraType]
+	    shared_memory = self.__control.display()
+	    shared_memory.setNames(*self.__shared_memory_names)
+	except AttributeError:
+	    self.__shared_memory_names = ['','']
 
         
     def __getattr__(self,name) :
