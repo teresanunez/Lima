@@ -559,8 +559,11 @@ class LimaTacoCCDs(PyTango.Device_4Impl):
     @Core.DEB_MEMBER_FUNCT
     def getLiveDisplay(self):
 	control = _control_ref()
-        display = control.display()
-        livedisplay_act = display.isActive()
+	try:
+	    display = control.display()
+	    livedisplay_act = display.isActive()
+	except AttributeError:
+	    livedisplay_act = False
         deb.Return('Getting live display active: %s' % livedisplay_act)
         return livedisplay_act
 
