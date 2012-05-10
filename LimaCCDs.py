@@ -265,6 +265,14 @@ class LimaCCDs(PyTango.Device_4Impl) :
         except AttributeError:
             import traceback
             traceback.print_exc()
+	#INIT display shared memory
+	try:
+	    self.__shared_memory_names = ['LimaCCds',self.LimaCameraType]
+	    shared_memory = self.__control.display()
+	    shared_memory.setNames(*self.__shared_memory_names)
+	except AttributeError:
+	    self.__shared_memory_names = ['','']
+
         
     def __getattr__(self,name) :
         if name.startswith('is_') and name.endswith('_allowed') :
@@ -1240,6 +1248,23 @@ class LimaCCDs(PyTango.Device_4Impl) :
             returnList.append(key.lower().replace('deviceserver',''))
             returnList.append(value)
         attr.set_value(returnList)
+
+    def read_shared_memory_names(self,attr) :
+        attr.set_value(self.__shared_memory_names)
+
+    def write_shared_memory_names(self,attr) :
+        self.__shared_memory_names = []
+        attr.get_write_value(self.__shared_memory_names)
+        shared_memory = self.__control.display()
+        shared_memory.setNames(*self.__shared_memory_names)
+
+    def read_shared_memory_active(self,attr):
+        attr.set_value(self.__control.display().isActive())
+
+    def write_shared_memory_active(self,attr):
+        data = []
+        attr.get_write_value(data)
+        self.__control.display().setActive(*data)
 #==================================================================
 #
 #    LimaCCDs command methods
@@ -1821,6 +1846,14 @@ class LimaCCDsClass(PyTango.DeviceClass) :
         [[PyTango.DevString,
           PyTango.SPECTRUM,
           PyTango.READ,256]],
+        'shared_memory_names':
+        [[PyTango.DevString,
+          PyTango.SPECTRUM,
+          PyTango.READ_WRITE,2]],
+        'shared_memory_active':
+        [[PyTango.DevBoolean,
+          PyTango.SCALAR,
+          PyTango.READ_WRITE]],
         }
 
 

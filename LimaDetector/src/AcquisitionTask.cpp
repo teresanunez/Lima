@@ -11,7 +11,6 @@
 //
 // ============================================================================
 #include <yat/threading/Mutex.h>
-#include <yat/time/Timer.h>
 #include <AcquisitionTask.h>
                     
 namespace LimaDetector_ns {
@@ -24,12 +23,12 @@ AcquisitionTask::AcquisitionTask(Tango::DeviceImpl* dev) :
 {
     INFO_STREAM << "AcquisitionTask::AcquisitionTask"<< endl;
 
-    this->enable_timeout_msg(false);
-    this->set_periodic_msg_period(kTASK_PERIODIC_TIMEOUT_MS);
-    this->enable_periodic_msg(false);
-    this->m_device = dev;
-    this->m_status<<""<<endl;
-    this->m_footer_status<<""<<endl;
+    enable_timeout_msg(false);
+    set_periodic_msg_period(kTASK_PERIODIC_TIMEOUT_MS);
+    enable_periodic_msg(false);
+    m_device = dev;
+    m_status<<""<<endl;
+    m_footer_status<<""<<endl;
     set_state(Tango::INIT);
     set_status("INIT");
 }
@@ -124,6 +123,7 @@ void AcquisitionTask::process_message(yat::Message& msg) throw (Tango::DevFailed
                 {                
                     set_state(Tango::RUNNING);    
                     set_status(string("Acquisition is Running in video mode ..."));
+                    m_acq_conf.ct->video()->startLive();
                 }
                 catch(Tango::DevFailed &df)
                 {

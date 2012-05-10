@@ -19,7 +19,7 @@
 
 //- LIMA
 #include "CtControl.h"
-
+#include "CtVideo.h"
 
 //- Tango
 #include <tango.h>
@@ -42,8 +42,8 @@ using namespace yat4tango;
 // ============================================================================
 const size_t DEVICE_STOP_MSG                        = yat::FIRST_USER_MSG + 200;
 const size_t DEVICE_SNAP_MSG                        = yat::FIRST_USER_MSG + 201;
-const size_t DEVICE_START_MSG                        = yat::FIRST_USER_MSG + 202;
-const size_t DEVICE_ABORT_MSG                        = yat::FIRST_USER_MSG + 203;
+const size_t DEVICE_START_MSG                       = yat::FIRST_USER_MSG + 202;
+const size_t DEVICE_ABORT_MSG                       = yat::FIRST_USER_MSG + 203;
 
 
 //--
@@ -70,9 +70,9 @@ namespace LimaDetector_ns
         //- Struct containing the Task configuration, configuration is set by the main Device
         struct AcqConfig
         {
-            CtControl*        ct;                            // lima control objet used in owner device (singleton)
-            std::string     file_target_path;                // define target Nexus directory
-            string            abort_status_message;        // status when abort is call                
+            CtControl*        	ct;                          // lima control objet used in owner device (singleton)
+            std::string     	file_target_path;            // define target Nexus directory
+            string            	abort_status_message;        // status when abort is call
         };
 
     protected://- [yat4tango::DeviceTask implementation]
@@ -92,18 +92,18 @@ namespace LimaDetector_ns
         void on_abort(const std::string& st);
         
         //- Struct containing the Task configuration
-        AcqConfig             m_acq_conf;      
+        AcqConfig             	m_acq_conf;
         
         //- Mutex
-        yat::Mutex             m_status_lock;
+        yat::Mutex             	m_status_lock;
         
         //- state&status stuf
-        stringstream           m_status;
-        stringstream           m_footer_status;
-        Tango::DevState     m_state;
+        stringstream           	m_status;
+        stringstream           	m_footer_status;
+        Tango::DevState     	m_state;
 
         //owner device server
-        Tango::DeviceImpl*     m_device;
+        Tango::DeviceImpl*     	m_device;
     
     };
 

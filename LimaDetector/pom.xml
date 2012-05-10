@@ -9,7 +9,7 @@
 
    <groupId>fr.soleil.device</groupId>
    <artifactId>LimaDetector-${aol}-${mode}</artifactId>
-   <version>1.1.6</version>
+   <version>1.1.8</version>
    <packaging>nar</packaging>
    <name>LimaDetector</name>
    <description>LimaDetector device</description>
@@ -33,51 +33,51 @@
       <dependency>
          <groupId>fr.soleil.lib.Lima</groupId>
          <artifactId>LimaControl-${aol}-shared-${mode}</artifactId>
-         <version>1.1.6</version>         
+         <version>1.1.8</version>         
       </dependency>
 
       <dependency>
          <groupId>fr.soleil.lib.Lima.Camera</groupId>
          <artifactId>LimaBasler-${aol}-shared-${mode}</artifactId>
-         <version>1.1.6</version>
-      </dependency>
-
-      <dependency>
-         <groupId>fr.soleil.lib.Lima.Camera</groupId>
-         <artifactId>LimaAdsc-${aol}-shared-${mode}</artifactId>
-         <version>1.1.6</version>
+         <version>1.1.8</version>
       </dependency>
    
       <dependency>
          <groupId>fr.soleil.lib.Lima.Camera</groupId>
          <artifactId>LimaMarccd-${aol}-shared-${mode}</artifactId>
-         <version>1.1.6</version>
+         <version>1.1.8</version>
       </dependency>
 
       <dependency>
          <groupId>fr.soleil.lib.Lima.Camera</groupId>
          <artifactId>LimaPilatus-${aol}-shared-${mode}</artifactId>
-         <version>1.1.6</version>
-      </dependency>
-
-      <dependency>
-         <groupId>fr.soleil.lib.Lima.Camera</groupId>
-         <artifactId>LimaProsilica-${aol}-shared-${mode}</artifactId>
-         <version>1.1.6</version>
-      </dependency>
-      
-      <dependency>
-         <groupId>fr.soleil.lib.Lima.Camera</groupId>
-         <artifactId>LimaSimulator-${aol}-shared-${mode}</artifactId>
-         <version>1.1.6</version>
+         <version>1.1.8</version>
       </dependency>
      
       <dependency>
          <groupId>fr.soleil.lib.Lima.Camera</groupId>
          <artifactId>LimaXpad-${aol}-shared-${mode}</artifactId>
-         <version>1.1.6</version>
+         <version>1.1.8</version>
+      </dependency>
+
+      <dependency>
+         <groupId>fr.soleil.lib.Lima.Camera</groupId>
+         <artifactId>LimaAdsc-${aol}-shared-${mode}</artifactId>
+         <version>1.1.8</version>
       </dependency>
       
+      <dependency>
+         <groupId>fr.soleil.lib.Lima.Camera</groupId>
+         <artifactId>LimaProsilica-${aol}-shared-${mode}</artifactId>
+         <version>1.1.8</version>
+      </dependency>
+      
+      <dependency>
+         <groupId>fr.soleil.lib.Lima.Camera</groupId>
+         <artifactId>LimaSimulator-${aol}-shared-${mode}</artifactId>
+         <version>1.1.8</version>
+      </dependency>
+                        
     </dependencies>
 	
 	<scm>
@@ -98,22 +98,24 @@
                            <define>LOG4TANGO_HAVE_INT64_T</define>
                            <define>USE_GIGE</define>
 						   
-						   <!-- define wich detector you need to ENABLE -->                           
+						   <!-- define wich detector you need to ENABLE -->
+				                             
                            <define>BASLER_ENABLED</define>
-                           <define>ADSC_ENABLED</define>    
                            <define>MARCCD_ENABLED</define>
                            <define>PILATUS_ENABLED</define>
-                           <define>PROSILICA_ENABLED</define>
-                           <define>SIMULATOR_ENABLED</define>
                        	   <define>XPAD_ENABLED</define>
+                           <define>ADSC_ENABLED</define>   
+                           <define>PROSILICA_ENABLED</define>
+                           <define>SIMULATOR_ENABLED</define>                       	   
 
                         </defines>
 
                         <systemIncludePaths>
+                       
                         	<systemIncludePath>${env.PYLON_ROOT}</systemIncludePath>
                             <systemIncludePath>${env.PYLON_ROOT}/include</systemIncludePath>
                             <systemIncludePath>${env.PYLON_ROOT}/genicam/library/CPP/include</systemIncludePath>
-                            
+                           
 							<systemIncludePath>../../../camera/prosilica/sdk/include</systemIncludePath>           
 
 							<systemIncludePath>../../../camera/adsc/src_std/incl</systemIncludePath>
@@ -124,15 +126,15 @@
 
                         <!-- exclude every detector who is NOT ENABLED -->
                         <excludes>
-<!--
-                            <exclude>Basler*.*</exclude>                                                         
+<!--                          
+        	                <exclude>Basler*.*</exclude>                                
                             <exclude>MarCCD*.*</exclude>                          
-                            <exclude>Pilatus*.*</exclude>
-                            <exclude>Adsc*.*</exclude>                            
-                            <exclude>Prosilica*.*</exclude>                     
-	                       	<exclude>Simulator*.*</exclude>                 	
-                            <exclude>Xpad*.*</exclude>
--->                           
+                            <exclude>Pilatus*.*</exclude>                                                      	
+                            <exclude>Xpad*.*</exclude>                        
+    	                    <exclude>Adsc*.*</exclude>                    
+                            <exclude>Prosilica*.*</exclude>        	                    
+            	            <exclude>Simulator*.*</exclude>           
+-->            	                         
                         </excludes>
 
                         <!-- define less verbose mode for gcc-->
@@ -142,6 +144,7 @@
                      </cpp>   
                     <linker>
                         <libs>
+                      
                             <lib>
                                 <name>pylonbase</name>
                                 <type>shared</type>
@@ -177,7 +180,7 @@
                                 <type>shared</type>
                                 <directory>${env.PYLON_ROOT}/lib</directory>
                             </lib>
-                            
+                        
                             <lib>
                                 <name>PvAPI</name>
                                 <type>shared</type>

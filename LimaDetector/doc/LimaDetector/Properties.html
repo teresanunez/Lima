@@ -136,8 +136,9 @@ Nota :<br>
 </Font></Td></Tr>
 
 <Tr><Td><b><a href=#Dev_DefaultValues>FileNbFrames </a></b></Td>
-<Td><Font Size=-1>Tango::DEV_SHORT</Font></Td>
-<Td><Font Size=-1>Define the amount of frames stored in the target file.</Font></Td></Tr>
+<Td><Font Size=-1>Tango::DEV_LONG</Font></Td>
+<Td><Font Size=-1>Define the amount of frames stored in the target file.
+If Nexus file, this is the NbAcqPerFile.</Font></Td></Tr>
 
 <Tr><Td><b><a href=#Dev_DefaultValues>FileTargetPath </a></b></Td>
 <Td><Font Size=-1>Tango::DEV_STRING</Font></Td>
@@ -179,9 +180,9 @@ Availables values :<BR>
 - Funct<BR>
 - FileLine<BR></Font></Td></Tr>
 
-<Tr><Td><b><a href=#Dev_DefaultValues>Roi </a></b></Td>
+<Tr><Td><b><a href=#Dev_DefaultValues>MemorizedRoi </a></b></Td>
 <Td><Font Size=-1>Array of short</Font></Td>
-<Td><Font Size=-1>Define the Region of Interest of the Acquisition: <br>
+<Td><Font Size=-1>Memorize/Define the Region of Interest of the Acquisition: <br>
 origin X<br>
 origin Y<br>
 Width<br>
@@ -190,15 +191,48 @@ Height<br>
 Nota:<br>
 if any roi value is <0, then we consider all detector area as Roi.</Font></Td></Tr>
 
-<Tr><Td><b><a href=#Dev_DefaultValues>Binning </a></b></Td>
+<Tr><Td><b><a href=#Dev_DefaultValues>MemorizedBinning </a></b></Td>
 <Td><Font Size=-1>Tango::DEV_USHORT</Font></Td>
-<Td><Font Size=-1>Define the Binning value of the Acquisition<br>
+<Td><Font Size=-1>Memorize/Define the Binning value of the Acquisition<br>
 Availables values :<br>
 - 1<br>
 - 2<br>
 - 3<br>
 - 4<br>
 - 8<br></Font></Td></Tr>
+
+<Tr><Td><b><a href=#Dev_DefaultValues>MemorizedAcquisitionMode </a></b></Td>
+<Td><Font Size=-1>Tango::DEV_STRING</Font></Td>
+<Td><Font Size=-1>Memorize/Define the acquisitionMode attribute at Init device<br>
+Availables values :<br>
+- SINGLE<br>
+- ACCUMULATION<br></Font></Td></Tr>
+
+<Tr><Td><b><a href=#Dev_DefaultValues>MemorizedTriggerMode </a></b></Td>
+<Td><Font Size=-1>Tango::DEV_STRING</Font></Td>
+<Td><Font Size=-1>Memorize/Define the triggerMode attribute at Init device<br>
+Availables values :<br>
+- INTERNAL_SINGLE<br>
+- EXTERNAL_SINGLE<br>
+- EXTERNAL_MULTI<br>
+- EXTERNAL_GATE<br></Font></Td></Tr>
+
+<Tr><Td><b><a href=#Dev_DefaultValues>MemorizedExposureTime </a></b></Td>
+<Td><Font Size=-1>Tango::DEV_DOUBLE</Font></Td>
+<Td><Font Size=-1>Memorize/Define the exposureTime attribute  at Init device<br>
+</Font></Td></Tr>
+
+<Tr><Td><b><a href=#Dev_DefaultValues>MemorizedExposureAccTime </a></b></Td>
+<Td><Font Size=-1>Tango::DEV_DOUBLE</Font></Td>
+<Td><Font Size=-1>Memorize/Define the exposureAccTime attribute at Init device<br></Font></Td></Tr>
+
+<Tr><Td><b><a href=#Dev_DefaultValues>MemorizedNbFrames </a></b></Td>
+<Td><Font Size=-1>Tango::DEV_LONG</Font></Td>
+<Td><Font Size=-1>Memorize/Define the nbFrames attribute  at Init device<br></Font></Td></Tr>
+
+<Tr><Td><b><a href=#Dev_DefaultValues>MemorizedFileGeneration </a></b></Td>
+<Td><Font Size=-1>Tango::DEV_BOOLEAN</Font></Td>
+<Td><Font Size=-1>Memorize/Define the fileGeneration attribute at Init device<br></Font></Td></Tr>
 
 </Table>
 
@@ -268,12 +302,36 @@ Availables values :<br>
 	Funct</td>
     </Tr>
     <Tr>
-        <Td>Roi</Td>
+        <Td>MemorizedRoi</Td>
         <td>-1, -1, -1, -1</td>
     </Tr>
     <Tr>
-        <Td>Binning</Td>
+        <Td>MemorizedBinning</Td>
         <td>1</td>
+    </Tr>
+    <Tr>
+        <Td>MemorizedAcquisitionMode</Td>
+        <td>SINGLE</td>
+    </Tr>
+    <Tr>
+        <Td>MemorizedTriggerMode</Td>
+        <td>INTERNAL_SINGLE</td>
+    </Tr>
+    <Tr>
+        <Td>MemorizedExposureTime</Td>
+        <td>1000</td>
+    </Tr>
+    <Tr>
+        <Td>MemorizedExposureAccTime</Td>
+        <td>100</td>
+    </Tr>
+    <Tr>
+        <Td>MemorizedNbFrames</Td>
+        <td>1</td>
+    </Tr>
+    <Tr>
+        <Td>MemorizedFileGeneration</Td>
+        <td>false</td>
     </Tr>
 </Table>
 

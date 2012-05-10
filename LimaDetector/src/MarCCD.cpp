@@ -193,6 +193,8 @@ void MarCCD::get_device_property()
 	dev_prop.push_back(Tango::DbDatum("DetectorIP"));
 	dev_prop.push_back(Tango::DbDatum("DetectorPort"));
 	dev_prop.push_back(Tango::DbDatum("DetectorTargetPath"));
+	dev_prop.push_back(Tango::DbDatum("ReaderTimeout"));
+	dev_prop.push_back(Tango::DbDatum("UseReader"));
 
 	//	Call database and extract values
 	//--------------------------------------------
@@ -236,6 +238,28 @@ void MarCCD::get_device_property()
 	//	And try to extract DetectorTargetPath value from database
 	if (dev_prop[i].is_empty()==false)	dev_prop[i]  >>  detectorTargetPath;
 
+	//	Try to initialize ReaderTimeout from class property
+	cl_prop = ds_class->get_class_property(dev_prop[++i].name);
+	if (cl_prop.is_empty()==false)	cl_prop  >>  readerTimeout;
+	else {
+		//	Try to initialize ReaderTimeout from default device value
+		def_prop = ds_class->get_default_device_property(dev_prop[i].name);
+		if (def_prop.is_empty()==false)	def_prop  >>  readerTimeout;
+	}
+	//	And try to extract ReaderTimeout value from database
+	if (dev_prop[i].is_empty()==false)	dev_prop[i]  >>  readerTimeout;
+
+	//	Try to initialize UseReader from class property
+	cl_prop = ds_class->get_class_property(dev_prop[++i].name);
+	if (cl_prop.is_empty()==false)	cl_prop  >>  useReader;
+	else {
+		//	Try to initialize UseReader from default device value
+		def_prop = ds_class->get_default_device_property(dev_prop[i].name);
+		if (def_prop.is_empty()==false)	def_prop  >>  useReader;
+	}
+	//	And try to extract UseReader value from database
+	if (dev_prop[i].is_empty()==false)	dev_prop[i]  >>  useReader;
+
 
 
 	//	End of Automatic code generation
@@ -243,6 +267,8 @@ void MarCCD::get_device_property()
 	create_property_if_empty(dev_prop,"127.0.0.1","DetectorIP");
 	create_property_if_empty(dev_prop,"-1","DetectorPort");
 	create_property_if_empty(dev_prop,"/no/path/defined/","DetectorTargetPath");
+	create_property_if_empty(dev_prop,"10000","ReaderTimeout");
+	create_property_if_empty(dev_prop,"true","UseReader");
 }
 //+----------------------------------------------------------------------------
 //
@@ -649,6 +675,7 @@ int MarCCD::FindIndexFromPropertyName(Tango::DbData& dev_prop, string property_n
     if (i == iNbProperties) return -1;
     return i;
 }
+
 
 
 
