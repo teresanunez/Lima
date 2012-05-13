@@ -70,14 +70,20 @@ def setup_lima_env(argv):
     aux_py.write(FindCoreVerHelperPy)
     aux_py.close()
     args = ['python', aux_py_name] + argv[1:]
-    pobj = Popen(args, stdout=PIPE, stderr=PIPE)
-    output = {}
-    for l in pobj.stdout.readlines():
-        key, val = l.strip().split('=')
-        output[key] = val
-    del aux_py
+    for r in range(2):
+        pobj = Popen(args, stdout=PIPE, stderr=PIPE)
+        output = {}
+        for l in pobj.stdout.readlines():
+            key, val = l.strip().split('=')
+            output[key] = val
+        print_debug('Retry %d - got from TANGO database: %s' % (r, output))
+        if 'LimaCameraType' in output.keys():
+            break
     os.unlink(aux_py_name)
-    print_debug('Got from TANGO database: %s' % output)
+    if 'LimaCameraType' not in output.keys():
+        print 'Warning: EnvHelper could not find LimaCameraType for server', \
+              argv[1]
+        return
     cdir = os.path.join(os.path.dirname(__file__), 'camera')
     cfile_name = os.path.join(cdir, output['LimaCameraType'] + '.py')
     cfile = open(cfile_name, 'rt')
