@@ -239,8 +239,10 @@ class LimaTacoCCDs(PyTango.Device_4Impl):
 #    Description: 
 #------------------------------------------------------------------
     @Core.DEB_MEMBER_FUNCT
-    def DevCcdWrite(self):
-        pass
+    def DevCcdWrite(self,frame_nb):
+        control = _control_ref()
+        saving = control.saving()
+        saving.writeFrame(frame_nb,1)
 
 #------------------------------------------------------------------
 #    DevCcdSetExposure command:
