@@ -239,10 +239,8 @@ class LimaTacoCCDs(PyTango.Device_4Impl):
 #    Description: 
 #------------------------------------------------------------------
     @Core.DEB_MEMBER_FUNCT
-    def DevCcdWrite(self,frame_nb):
-        control = _control_ref()
-        saving = control.saving()
-        saving.writeFrame(frame_nb,1)
+    def DevCcdWrite(self):
+	self.DevCcdWriteFile(-1)
 
 #------------------------------------------------------------------
 #    DevCcdSetExposure command:
@@ -577,8 +575,10 @@ class LimaTacoCCDs(PyTango.Device_4Impl):
 #    argin:    DevLong frame to write
 #------------------------------------------------------------------
     @Core.DEB_MEMBER_FUNCT
-    def DevCcdWriteFile(self, argin):
-       pass 
+    def DevCcdWriteFile(self, frame_nb):
+	control = _control_ref()
+        saving = control.saving()
+        saving.writeFrame(frame_nb,1)
 
 #------------------------------------------------------------------
 #    DevCcdGetBin command:
@@ -860,7 +860,7 @@ class LimaTacoCCDsClass(PyTango.DeviceClass):
             [[PyTango.DevShort, "jpeg compression"],
             [PyTango.DevVarCharArray, "jpeg compressed image"]],
         'DevCcdWrite':
-            [[PyTango.DevLong, ""],
+            [[PyTango.DevVoid, ""],
             [PyTango.DevVoid, ""]],
         'DevCcdSetExposure':
             [[PyTango.DevFloat, ""],
