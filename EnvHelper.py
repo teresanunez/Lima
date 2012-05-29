@@ -54,11 +54,13 @@ tango_util_inst.server_run()
 ModDepend = ['Core', 'Espia']
 Debug = 0
 LimaDir = None
+StrictVersionPolicy = None
+EnvVersionDepth = {'MAJOR': 1, 'MINOR': 2, 'FULL': 3}
 
 def setup_lima_env(argv):
     if not check_args(argv):
         return
-    if check_link_strict_version() != 'FULL':
+    if not check_link_strict_version():
         return
     tdir = tempfile.gettempdir()
     sname = os.path.basename(argv[0])
@@ -68,22 +70,32 @@ def setup_lima_env(argv):
     aux_py.write(FindCoreVerHelperPy)
     aux_py.close()
     args = ['python', aux_py_name] + argv[1:]
-    pobj = Popen(args, stdout=PIPE, stderr=PIPE)
-    output = {}
-    for l in pobj.stdout.readlines():
-        key, val = l.strip().split('=')
-        output[key] = val
-    del aux_py
+    for r in range(2):
+        pobj = Popen(args, stdout=PIPE, stderr=PIPE)
+        output = {}
+        for l in pobj.stdout.readlines():
+            key, val = l.strip().split('=')
+            output[key] = val
+        print_debug('Retry %d - got from TANGO database: %s' % (r, output))
+        if 'LimaCameraType' in output.keys():
+            break
     os.unlink(aux_py_name)
-    print_debug('Got from TANGO database: %s' % output)
+    if 'LimaCameraType' not in output.keys():
+        print 'Warning: EnvHelper could not find LimaCameraType for server', \
+              argv[1]
+        return
     cdir = os.path.join(os.path.dirname(__file__), 'camera')
     cfile_name = os.path.join(cdir, output['LimaCameraType'] + '.py')
     cfile = open(cfile_name, 'rt')
-    pre_str = '^[ \t]*from[ ]+Lima[ ]+import[ ]+(?P<plugin>[A-Za-z0-9_]+)'
-    pre_obj = re.compile(pre_str)
+    h = '^[ \t]*'
+    p = '(?P<plugin>[A-Za-z0-9_]+)'
+    s1 = h + 'import[ ]+Lima\\.' + p
+    s2 = h + 'from[ ]+Lima[ ]+import[ ]+' + p
+    s3 = h + 'from[ ]+Lima\\.' + p + '(\\.([A-Za-z0-9_]+))*[ ]+import[ ]+'
+    o1, o2, o3 = re.compile(s1), re.compile(s2), re.compile(s3)
     vers = {}
     for l in cfile.readlines():
-        m = pre_obj.match(l)
+        m = o1.match(l) or o2.match(l) or o3.match(l)
         if not m:
             continue
         pname = m.group('plugin')
@@ -91,7 +103,8 @@ def setup_lima_env(argv):
         if pname not in ['Core']:
             setup_env(pname)
     for k, v in os.environ.items():
-        if 'LIMA_' in k and '_VERSION' in k:
+        if 'LIMA_' in k and '_VERSION' in k and \
+               k not in ['LIMA_LINK_STRICT_VERSION']:
             print_debug('Env: %s=%s' % (k, v))
 
 def check_args(argv):
@@ -105,13 +118,18 @@ def check_args(argv):
     return 1
 
 def check_link_strict_version():
+    global StrictVersionPolicy
+    
     cmd = 'from Lima import Core; '
     cmd += 'import os; print os.environ["LIMA_LINK_STRICT_VERSION"]'
     args = ['python', '-c', cmd]
     pobj = Popen(args, stdout=PIPE)
-    strict_link = pobj.stdout.readline().strip()
+    strict_link = pobj.stdout.readline().strip().upper()
     print_debug('LIMA_LINK_STRICT_VERSION=%s' % strict_link)
-    return strict_link.upper()
+    StrictVersionPolicy = None
+    if strict_link and strict_link != 'NONE':
+        StrictVersionPolicy = strict_link
+    return StrictVersionPolicy
 
 def setup_env(mod):
     pvers = find_dep_vers(mod)
@@ -122,16 +140,19 @@ def setup_env(mod):
         ver = os.environ[env_var_name]
         if ver[0] != 'v':
             ver = 'v' + ver
-        if ver not in all_vers:
+        filt_vers = [set_env_version_depth(x) for x in all_vers]
+        if ver not in filt_vers:
             print 'Warning: could not find %s=%s' % (env_var_name, ver)
             return
     else:
         ver = all_vers[-1]
-        os.environ[env_var_name] = ver[1:]
-    deps = pvers[ver]
+        os.environ[env_var_name] = set_env_version_depth(ver[1:])
+    for full_ver, deps in pvers.items():
+        if set_env_version_depth(full_ver) == set_env_version_depth(ver):
+            break
     for dname, dver in deps.items():
         env_var_name = 'LIMA_%s_VERSION' % dname.upper()
-        os.environ[env_var_name] = dver
+        os.environ[env_var_name] = set_env_version_depth(dver)
         if dname != 'Core':
             setup_env(dname)
     
@@ -152,7 +173,16 @@ def find_dep_vers(mod):
                     vers[vdir][dep] = ver
     print_debug('%s vers=%s' % (mod, vers))
     return vers
-                           
+
+def set_env_version_depth(v):
+    hasv = (v[0] == 'v')
+    depth = EnvVersionDepth[StrictVersionPolicy]
+    env_code = version_code(v)[:depth]
+    env_str = '.'.join(map(str, env_code))
+    if hasv:
+        env_str = 'v' + env_str
+    return env_str
+
 def check_lima_dir():
     global LimaDir
     if LimaDir is not None:

@@ -739,6 +739,20 @@ class LimaCCDs(PyTango.Device_4Impl) :
         self.__key_header_delimiter = data[0]
         self.__entry_header_delimiter = data[1]
         self.__image_number_header_delimiter = data[2]
+
+    def read_saving_index_format(self,attr) :
+	saving = self.__control.saving()
+	params = saving.getParameters()
+	attr.set_value(params.indexFormat)
+
+    def write_saving_index_format(self,attr) :
+	data = []
+	attr.get_write_value(data)
+	saving = self.__control.saving()
+	params = saving.getParameters()
+	params.indexFormat = data[0]
+	saving.setParameters(params)
+
     ## @brief last image acquired
     #
     @Core.DEB_MEMBER_FUNCT
@@ -1754,6 +1768,10 @@ class LimaCCDsClass(PyTango.DeviceClass) :
         [[PyTango.DevString,
           PyTango.SPECTRUM,
           PyTango.READ_WRITE,3]],
+	'saving_index_format' :
+	[[PyTango.DevString,
+	  PyTango.SCALAR,
+	  PyTango.READ_WRITE]],
         'debug_modules_possible':
          [[PyTango.DevString,
           PyTango.SPECTRUM,
