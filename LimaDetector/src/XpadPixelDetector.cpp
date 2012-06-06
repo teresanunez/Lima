@@ -120,17 +120,7 @@ void XpadPixelDetector::delete_device()
 	DELETE_SCALAR_ATTRIBUTE(attr_gp3_read);
 	DELETE_SCALAR_ATTRIBUTE(attr_gp4_read);
 
-	/*DELETE_IMAGE_ATTRIBUTE(attr_dacl_read);
-	DELETE_IMAGE_ATTRIBUTE(attr_ithl_read);
-	DELETE_IMAGE_ATTRIBUTE(my_attr_dacl_write);
-	DELETE_IMAGE_ATTRIBUTE(my_attr_ithl_write);*/
-	
-	//!!!! ONLY LimaDetector device can do this !!!!
-	//if(m_ct!=0)
-	//{
-	//	ControlFactory::instance().reset("XpadPixelDetector");
-	//	m_ct = 0;
-	//}
+
 }
 
 //+----------------------------------------------------------------------------
@@ -176,34 +166,26 @@ void XpadPixelDetector::init_device()
 	attr_gp3_write = 0;
 	attr_gp4_write = 0;
 
-	try
-	{
-		//- get the main object used to pilot the lima framework
-		//in fact LimaDetector is create the singleton control objet
-		//so this call, will only return existing object, no need to give it the ip !!
-		m_ct = ControlFactory::instance().get_control("XpadPixelDetector");		
-		if(m_ct==0)
-		{
-			INFO_STREAM<<"Initialization Failed : Unable to get the lima control object !"<<endl;
-			m_status_message <<"Initialization Failed : Unable to get the lima control object !"<< endl;
-			m_is_device_initialized = false;
-			set_state(Tango::INIT);		
-			return;			
-		}
-		
-		//- get interface to specific detector
-		m_interface = dynamic_cast<Xpad::Interface*>(m_ct->hwInterface());
-		if(m_interface==0)
-		{
-			INFO_STREAM<<"Initialization Failed : Unable to get the interface of camera plugin !"<<endl;
-			m_status_message <<"Initialization Failed : Unable to get the interface of camera plugin !"<< endl;
-			m_is_device_initialized = false;
-			set_state(Tango::INIT);		
-			return;			
-		}
+    try
+    {
+        //- get the main object used to pilot the lima framework
+        //in fact LimaDetector is create the singleton control objet
+        //so this call, will only return existing object, no need to give it the ip !!
+        m_ct = ControlFactory::instance().get_control("XpadPixelDetector");
+
+        //- get interface to specific camera
+        m_hw = dynamic_cast<Xpad::Interface*>(m_ct->hwInterface());
+        if(m_hw==0)
+        {
+            INFO_STREAM<<"Initialization Failed : Unable to get the interface of camera plugin "<<"("<<"XpadPixelDetector"<<") !"<< endl;
+            m_status_message <<"Initialization Failed : Unable to get the interface of camera plugin "<<"("<<"XpadPixelDetector"<<") !"<< endl;
+            m_is_device_initialized = false;
+            set_state(Tango::INIT);
+            return;
+        }
 
         //- get camera to specific detector
-		m_camera = &(m_interface->getCamera());
+		m_camera = &(m_hw->getCamera());
 		if(m_camera == 0)
 		{
 			INFO_STREAM<<"Initialization Failed : Unable to get the camera of plugin !"<<endl;
@@ -212,33 +194,27 @@ void XpadPixelDetector::init_device()
 			set_state(Tango::INIT);		
 			return;			
 		}
-	}
-	catch(Exception& e)
-	{
-		INFO_STREAM<<"Initialization Failed : "<<e.getErrMsg()<<endl;
-		m_status_message <<"Initialization Failed : "<<e.getErrMsg( )<< endl;
-		m_is_device_initialized = false;
-		set_state(Tango::INIT);		
-		return;	
-	}
 
-	//- Xpad specific stuff:
-	try
-	{
-		INFO_STREAM << "acquisitionType = " << acquisitionType <<endl;
-        m_camera->setAcquisitionType(acquisitionType);
-	}
-	catch(Exception& e)
-	{
-		ERROR_STREAM << e.getErrMsg()<<endl;
-		m_status_message <<e.getErrMsg( )<< endl;
-		m_is_device_initialized = false;
-		set_state(Tango::INIT);		
-		return;		
-	}
-
-	set_state(Tango::STANDBY);	
-	this->dev_state();		
+    }
+    catch(Exception& e)
+    {
+        INFO_STREAM<<"Initialization Failed : "<<e.getErrMsg()<<endl;
+        m_status_message <<"Initialization Failed : "<<e.getErrMsg( )<< endl;
+        m_is_device_initialized = false;
+        set_state(Tango::INIT);
+        return;
+    }
+    catch(...)
+    {
+        INFO_STREAM<<"Initialization Failed : UNKNOWN"<<endl;
+        m_status_message <<"Initialization Failed : UNKNOWN"<< endl;
+        set_state(Tango::INIT);
+        m_is_device_initialized = false;
+        return;
+    }
+    m_is_device_initialized = true;
+    set_state(Tango::STANDBY);
+    this->dev_state();
 }
 
 
@@ -259,6 +235,7 @@ void XpadPixelDetector::get_device_property()
 	Tango::DbData	dev_prop;
 	dev_prop.push_back(Tango::DbDatum("AcquisitionType"));
 	dev_prop.push_back(Tango::DbDatum("AllConfigG"));
+	dev_prop.push_back(Tango::DbDatum("XpadModel"));
 
 	//	Call database and extract values
 	//--------------------------------------------
@@ -291,11 +268,37 @@ void XpadPixelDetector::get_device_property()
 	//	And try to extract AllConfigG value from database
 	if (dev_prop[i].is_empty()==false)	dev_prop[i]  >>  allConfigG;
 
+	//	Try to initialize XpadModel from class property
+	cl_prop = ds_class->get_class_property(dev_prop[++i].name);
+	if (cl_prop.is_empty()==false)	cl_prop  >>  xpadModel;
+	else {
+		//	Try to initialize XpadModel from default device value
+		def_prop = ds_class->get_default_device_property(dev_prop[i].name);
+		if (def_prop.is_empty()==false)	def_prop  >>  xpadModel;
+	}
+	//	And try to extract XpadModel value from database
+	if (dev_prop[i].is_empty()==false)	dev_prop[i]  >>  xpadModel;
+
 
 
 	//	End of Automatic code generation
 	//------------------------------------------------------------------
-
+    vector<string> myVector;
+	create_property_if_empty(dev_prop,"0","AcquisitionType");
+    myVector.clear();
+    myVector.push_back("0");
+    myVector.push_back("0");
+    myVector.push_back("0");
+    myVector.push_back("0");
+    myVector.push_back("0");
+    myVector.push_back("0");
+    myVector.push_back("0");
+    myVector.push_back("0");
+    myVector.push_back("0");
+    myVector.push_back("0");
+    myVector.push_back("0");
+	create_property_if_empty(dev_prop,myVector,"AllConfigG");
+    create_property_if_empty(dev_prop,"TO_BE_DEFINED","XpadModel");
 }
 //+----------------------------------------------------------------------------
 //
@@ -306,25 +309,35 @@ void XpadPixelDetector::get_device_property()
 //-----------------------------------------------------------------------------
 void XpadPixelDetector::always_executed_hook()
 {
-    try
+	try
     {
-    	//- get the singleton control objet used to pilot the lima framework
+	    m_status_message.str("");
+		//- get the singleton control objet used to pilot the lima framework
         m_ct = ControlFactory::instance().get_control("XpadPixelDetector");
 
         //- get interface to specific detector
-        if(m_ct != 0)
-        {
-            m_interface = dynamic_cast<Xpad::Interface*>(m_ct->hwInterface());
-            m_camera = &(m_interface->getCamera());
-        }
+        if(m_ct!=0)
+            m_hw = dynamic_cast<Xpad::Interface*>(m_ct->hwInterface());
+        m_camera = &(m_hw->getCamera());
+
     }
     catch(Exception& e)
     {
         ERROR_STREAM << e.getErrMsg() << endl;
-        Tango::Except::throw_exception(
-                    static_cast<const char*> ("TANGO_DEVICE_ERROR"),
-                    static_cast<const char*> (e.getErrMsg().c_str()),
-                    static_cast<const char*> ("XpadPixelDetector::always_executed_hook"));
+        m_status_message <<"Initialization Failed : "<<e.getErrMsg( )<< endl;
+        //- throw exception
+        set_state(Tango::INIT);
+        m_is_device_initialized = false;
+        return;
+    }
+    catch(...)
+    {
+        ERROR_STREAM<<"Initialization Failed : UNKNOWN"<<endl;
+        m_status_message <<"Initialization Failed : UNKNOWN"<< endl;
+        //- throw exception
+        set_state(Tango::INIT);
+        m_is_device_initialized = false;
+        return;
     }
 }
 //+----------------------------------------------------------------------------
@@ -702,33 +715,6 @@ void XpadPixelDetector::load_flat_config(Tango::DevULong argin)
 
 //+------------------------------------------------------------------
 /**
- *	method:	XpadPixelDetector::set_all_f_parameters
- *
- */
-//+------------------------------------------------------------------
-void XpadPixelDetector::set_all_f_parameters()
-{
-	DEBUG_STREAM << "XpadPixelDetector::set_all_f_parameters(): entering... !" << endl;
-
-	try
-	{
-		m_camera->setFParameters(	attr_deadTime_write,attr_init_write,
-								    attr_shutter_write,attr_ovf_write,attr_mode_write,
-								    attr_n_write,attr_p_write,
-								    attr_gp1_write,attr_gp2_write,attr_gp3_write,attr_gp4_write);
-	}
-	catch(Exception& e)
-	{
-		ERROR_STREAM << e.getErrMsg() << endl;
-		Tango::Except::throw_exception(
-					static_cast<const char*> ("TANGO_DEVICE_ERROR"),
-					static_cast<const char*> (e.getErrMsg().c_str()),
-					static_cast<const char*> ("XpadPixelDetector::set_all_f_parameters"));
-	}
-}
-
-//+------------------------------------------------------------------
-/**
  *	method:	XpadPixelDetector::dev_state
  *
  *	description:	method to execute "State"
@@ -740,32 +726,31 @@ void XpadPixelDetector::set_all_f_parameters()
 //+------------------------------------------------------------------
 Tango::DevState XpadPixelDetector::dev_state()
 {
-	Tango::DevState	argout = DeviceImpl::dev_state();
-	DEBUG_STREAM << "XpadPixelDetector::dev_state(): entering... !" << endl;
+    Tango::DevState    argout = DeviceImpl::dev_state();
+    DEBUG_STREAM << "XpadPixelDetector::dev_state(): entering... !" << endl;
+    //    Add your own code to control device here
 
-	//	Add your own code to control device here
-
-	stringstream    DeviceStatus;
-	DeviceStatus 	<< "";
-	Tango::DevState DeviceState	= Tango::STANDBY;
-	if(!m_is_device_initialized )
-	{
-		DeviceState			= Tango::INIT;
-		DeviceStatus		<< m_status_message.str();		
-	}
-	else if (m_ct==0)
-	{
-		DeviceState			= Tango::INIT;
-		DeviceStatus		<<"Initialization Failed : Unable to get the lima control object !\n\n";				
-	}
-	else
-	{
-		CtControl::Status status;
+    stringstream    DeviceStatus;
+    DeviceStatus     << "";
+    Tango::DevState DeviceState    = Tango::STANDBY;
+    if(!m_is_device_initialized )
+    {
+        DeviceState            = Tango::INIT;
+        DeviceStatus        << m_status_message.str();
+    }
+    else if (m_ct==0)
+    {
+        DeviceState            = Tango::INIT;
+        DeviceStatus        <<"Initialization Failed : Unable to get the lima control object !\n\n";
+    }
+    else
+    {
+    	CtControl::Status status;
 		m_ct->getStatus(status);
 		if (status.AcquisitionStatus == lima::AcqReady)
 		{
 			HwInterface::StatusType state;
-			m_interface->getStatus(state);
+			m_hw->getStatus(state);
 			if(state.acq == AcqRunning && state.det == DetExposure)
 			{
 				DeviceState=Tango::RUNNING;
@@ -795,7 +780,7 @@ Tango::DevState XpadPixelDetector::dev_state()
 		else
 		{
 			HwInterface::StatusType state;
-			m_interface->getStatus(state);
+			m_hw->getStatus(state);
 			if(state.acq == AcqFault && state.det == DetFault)
 			{
 				DeviceState=Tango::INIT;//INIT
@@ -807,13 +792,13 @@ Tango::DevState XpadPixelDetector::dev_state()
 			  DeviceStatus<<"Acquisition is in Fault\n"<<endl;
 			}
 		}
-	}
-	
-	set_state(DeviceState);
-	set_status(DeviceStatus.str());
-	
-	argout = DeviceState;
-	return argout;
+    }
+
+    set_state(DeviceState);
+    set_status(DeviceStatus.str());
+
+    argout = DeviceState;
+    return argout;
 }
 
 
@@ -1014,7 +999,7 @@ Tango::DevVarUShortArray *XpadPixelDetector::get_mod_config()
     {
         //- get the DACLs size, which is the same size of the image
         HwDetInfoCtrlObj *hw_det_info;
-        m_interface->getHwCtrlObj(hw_det_info);
+        m_hw->getHwCtrlObj(hw_det_info);
         Size image_size;
         hw_det_info->getDetectorImageSize(image_size);
     
@@ -1063,8 +1048,7 @@ Tango::DevVarUShortArray *XpadPixelDetector::get_mod_config()
  *	method:	XpadPixelDetector::load_all_config_g
  *
  *	description:	method to execute "LoadAllConfigG"
- *	This function loads in all the global registers the value passed as parameters.
- *	the order if the configG is as follow: CMOS_DSBL ; AMP_TP;ITHH;VADJ;VREF;IMFP;IOTA;IPRE;ITHL;ITUNE;IBUFFER
+ *	IBUFFER
  *
  * @param	argin	modNum(1..8), chipId(0..6), config_values (11 values)
  *
@@ -1097,5 +1081,110 @@ void XpadPixelDetector::load_all_config_g(const Tango::DevVarULongArray *argin)
                     static_cast<const char*> ("XpadPixelDetector::load_all_config_g"));
     }
 }
+
+//+------------------------------------------------------------------
+/**
+ *	method:	XpadPixelDetector::set_all_f_parameters
+ *
+ */
+//+------------------------------------------------------------------
+void XpadPixelDetector::set_all_f_parameters()
+{
+	DEBUG_STREAM << "XpadPixelDetector::set_all_f_parameters(): entering... !" << endl;
+
+	/*try
+	{
+		m_camera->setFParameters(	attr_deadTime_write,attr_init_write,
+								    attr_shutter_write,attr_ovf_write,attr_mode_write,
+								    attr_n_write,attr_p_write,
+								    attr_gp1_write,attr_gp2_write,attr_gp3_write,attr_gp4_write);
+	}
+	catch(Exception& e)
+	{
+		ERROR_STREAM << e.getErrMsg() << endl;
+		Tango::Except::throw_exception(
+					static_cast<const char*> ("TANGO_DEVICE_ERROR"),
+					static_cast<const char*> (e.getErrMsg().c_str()),
+					static_cast<const char*> ("XpadPixelDetector::set_all_f_parameters"));
+	}*/
+}
+/*-------------------------------------------------------------------------
+//       LimaDetector::store_value_as_property
+/-------------------------------------------------------------------------*/
+template <class T>
+void XpadPixelDetector::store_value_as_property (T value, string property_name)
+{
+    Tango::DbDatum current_value(property_name);
+    current_value << value;
+    Tango::DbData db_data;
+    db_data.push_back(current_value);
+    try
+    {
+        get_db_device()->put_property(db_data);
+    }
+    catch(Tango::DevFailed &df)
+    {
+        string message= "Error in storing " + property_name + " in Configuration DataBase ";
+        LOG_ERROR((message));
+        ERROR_STREAM<<df<<endl;
+        //- rethrow exception
+        Tango::Except::re_throw_exception(df,
+                    static_cast<const char*> ("TANGO_DEVICE_ERROR"),
+                    static_cast<const char*> (string(df.errors[0].desc).c_str()),
+                    static_cast<const char*> ("BaslerCCD::store_value_as_property"));
+    }
+
+}
+
+/*-------------------------------------------------------------------------
+//       LimaDetector::create_property_if_empty
+/-------------------------------------------------------------------------*/
+template <class T>
+void XpadPixelDetector::create_property_if_empty(Tango::DbData& dev_prop,T value,string property_name)
+{
+    int iPropertyIndex = FindIndexFromPropertyName(dev_prop,property_name);
+    if (iPropertyIndex == -1) return;
+    if (dev_prop[iPropertyIndex].is_empty())
+    {
+        Tango::DbDatum current_value(dev_prop[iPropertyIndex].name);
+        current_value << value;
+        Tango::DbData db_data;
+        db_data.push_back(current_value);
+
+        try
+        {
+            get_db_device()->put_property(db_data);
+        }
+        catch(Tango::DevFailed &df)
+        {
+            string message= "Error in storing " + property_name + " in Configuration DataBase ";
+            LOG_ERROR((message));
+            ERROR_STREAM<<df<<endl;
+            //- rethrow exception
+            Tango::Except::re_throw_exception(df,
+                        static_cast<const char*> ("TANGO_DEVICE_ERROR"),
+                        static_cast<const char*> (string(df.errors[0].desc).c_str()),
+                        static_cast<const char*> ("BaslerCCD::create_property_if_empty"));
+        }
+    }
+}
+
+
+/*-------------------------------------------------------------------------
+//       LimaDetector::FindIndexFromPropertyName
+/-------------------------------------------------------------------------*/
+int XpadPixelDetector::FindIndexFromPropertyName(Tango::DbData& dev_prop, string property_name)
+{
+    size_t iNbProperties = dev_prop.size();
+    unsigned int i;
+    for (i=0;i<iNbProperties;i++)
+    {
+        string sPropertyName(dev_prop[i].name);
+        if (sPropertyName == property_name) return i;
+    }
+    if (i == iNbProperties) return -1;
+    return i;
+}
+
 
 }	//	namespace

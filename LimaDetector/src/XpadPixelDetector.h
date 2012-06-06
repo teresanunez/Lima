@@ -124,20 +124,30 @@ public :
  */
 	Tango::DevShort	acquisitionType;
 /**
- *	list of the all config G, that will be used by the command LoadAllConfigG:
- *	CMOS_DSBL
- *	AMP_TP
- *	ITHH
- *	VADJ
- *	VREF
- *	IMFP
- *	IOTA
- *	IPRE
- *	ITHL
- *	ITUNE
- *	IBUFFER
+ *	list of the all config G, that will be used by the command LoadAllConfigG:<BR>
+ *	CMOS_DSBL<BR>
+ *	AMP_TP<BR>
+ *	ITHH<BR>
+ *	VADJ<BR>
+ *	VREF<BR>
+ *	IMFP<BR>
+ *	IOTA<BR>
+ *	IPRE<BR>
+ *	ITHL<BR>
+ *	ITUNE<BR>
+ *	IBUFFER<BR>
  */
 	vector<long>	allConfigG;
+/**
+ *	Define the model of the XPAD (architecture)<BR>
+ *	Availables models :<BR>
+ *	- BACKPLANE<BR>
+ *	- IMXPAD_S70<BR>
+ *	- IMXPAD_S140<BR>
+ *	- IMXPAD_S340<BR>
+ *	- IMXPAD_S540<BR>
+ */
+	string	xpadModel;
 //@}
 
 /**
@@ -383,8 +393,7 @@ public :
  */
 	void	load_flat_config(Tango::DevULong);
 /**
- * This function loads in all the global registers the value passed as parameters.
- *	the order if the configG is as follow: CMOS_DSBL ; AMP_TP;ITHH;VADJ;VREF;IMFP;IOTA;IPRE;ITHL;ITUNE;IBUFFER
+ * IBUFFER
  *	@param	argin	modNum(1..8), chipId(0..6), config_values (11 values)
  *	@exception DevFailed
  */
@@ -449,13 +458,18 @@ protected :
 
 	bool 			m_is_device_initialized ;
 	stringstream	m_status_message;
-	
-	void set_all_f_parameters();
+    //- Properties stuff
+    int             FindIndexFromPropertyName(Tango::DbData& dev_prop, string property_name);
+    template <class T>
+    void            create_property_if_empty(Tango::DbData& dev_prop,T value, string property_name);
+    template <class T>
+    void            store_value_as_property(T value, string property_name);
+    void 			set_all_f_parameters();
 
 	//lima OBJECTS
-	Xpad::Interface* 		m_interface;
+	Xpad::Interface* 		m_hw;
     Xpad::Camera*           m_camera;
-	CtControl*			  m_ct;
+	CtControl*			 	m_ct;
 };
 
 }	// namespace_ns

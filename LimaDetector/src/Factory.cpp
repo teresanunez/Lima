@@ -10,26 +10,45 @@ ControlFactory::ControlFactory()
 {
 	my_control				= 0;
 
+#ifdef SIMULATOR_ENABLED
 	my_camera_simulator 	= 0;
 	my_interface_simulator 	= 0;
+#endif
 
+#ifdef BASLER_ENABLED
 	my_camera_basler 		= 0;
 	my_interface_basler 	= 0;
+#endif
 
+#ifdef XPAD_ENABLED
 	my_camera_xpad 			= 0;
 	my_interface_xpad 		= 0;
+#endif
 
+#ifdef PILATUS_ENABLED
 	my_camera_pilatus 		= 0;
 	my_interface_pilatus 	= 0;
+#endif
 
+#ifdef MARCCD_ENABLED
 	my_camera_marccd 		= 0;
 	my_interface_marccd 	= 0;
+#endif
 
+#ifdef ADSC_ENABLED
 	my_camera_adsc 			= 0;
 	my_interface_adsc 		= 0;
+#endif
 
+#ifdef PROSILICA_ENABLED
 	my_camera_prosilica 	= 0;
 	my_interface_prosilica 	= 0;
+#endif
+
+#ifdef PRINCETON_ENABLED
+	my_camera_princeton 	= 0;
+	my_interface_princeton 	= 0;
+#endif
 
 	my_server_name 			= "none";
 	my_device_name 			= "none";
@@ -94,12 +113,16 @@ CtControl* ControlFactory::get_control( const string& detector_type)
 
 #ifdef XPAD_ENABLED
         if (detector_type.compare("XpadPixelDetector")== 0)
-        {
-
+        {    
+        
             if(!ControlFactory::is_created)
             {
-				my_camera_xpad                = new Xpad::Camera();
-                my_camera_xpad->go(2000);
+            	DbData db_data;
+				db_data.push_back(DbDatum("XpadModel"));
+				(Tango::Util::instance()->get_database())->get_device_property(my_device_name, db_data);
+				string xpad_model;
+				db_data[0] >> xpad_model;
+				my_camera_xpad                = new Xpad::Camera(xpad_model);
 				my_interface_xpad             = new Xpad::Interface(*my_camera_xpad);
                 my_control                    = new CtControl(my_interface_xpad);
                 ControlFactory::is_created    = true;
@@ -219,7 +242,6 @@ CtControl* ControlFactory::get_control( const string& detector_type)
 				db_data.push_back(DbDatum("DetectorIP"));
 				(Tango::Util::instance()->get_database())->get_device_property(my_device_name, db_data);
 				string camera_ip;
-				long camera_port;
 				db_data[0] >> camera_ip;
 
 				my_camera_prosilica           	= new Prosilica::Camera(camera_ip.c_str());
@@ -230,6 +252,27 @@ CtControl* ControlFactory::get_control( const string& detector_type)
             }
         }
 #endif
+
+#ifdef PRINCETON_ENABLED
+        if (detector_type.compare("PrincetonCCD")== 0)
+        {
+
+            if(!ControlFactory::is_created)
+            {
+				DbData db_data;
+				db_data.push_back(DbDatum("DetectorNum"));
+				(Tango::Util::instance()->get_database())->get_device_property(my_device_name, db_data);
+				long camera_num;
+				db_data[0] >> camera_num;
+				my_camera_princeton           	= new RoperScientific::Camera(camera_num);
+                my_interface_princeton        	= new RoperScientific::Interface(*my_camera_princeton);
+                my_control                  	= new CtControl(my_interface_princeton);
+                ControlFactory::is_created  	= true;
+                return my_control;
+            }
+        }
+#endif
+
         if(!ControlFactory::is_created)
             throw LIMA_HW_EXC(Error, "Unable to create the lima control object : Unknown Detector Type");
 
@@ -386,6 +429,23 @@ void ControlFactory::reset(const string& detector_type )
             }
         }
 #endif
+
+#ifdef PRINCETON_ENABLED
+        if (detector_type.compare("PrincetonCCD")==0)
+        {
+            if(my_camera_princeton)
+            {
+            	delete my_camera_princeton;
+            	my_camera_princeton = 0;
+            }
+
+            if(my_interface_princeton)
+            {
+            	delete my_interface_princeton;
+            	my_interface_princeton = 0;
+            }
+        }
+#endif
         }
     }
     catch(Tango::DevFailed& df)
@@ -440,7 +500,7 @@ Tango::DevState ControlFactory::get_state_specific_device(const string& detector
     yat::MutexLock scoped_lock(object_lock);
     try
     {
-    	Tango::DevState state = Tango::UNKNOWN;
+    	my_state_specific_device = Tango::UNKNOWN;
     	//get the tango device/instance
         if(!ControlFactory::is_created)
         {
@@ -451,24 +511,24 @@ Tango::DevState ControlFactory::get_state_specific_device(const string& detector
             db_datum >> my_device_name;
         }
 
-         state = (Tango::Util::instance()->get_device_by_name(my_device_name))->dev_state();
-         return state;
+        my_state_specific_device = (Tango::Util::instance()->get_device_by_name(my_device_name))->dev_state();
     }
     catch(Tango::DevFailed& df)
     {
         //- rethrow exception
         throw LIMA_HW_EXC(Error, string(df.errors[0].desc).c_str());
     }
+    return my_state_specific_device;
 }
 //-----------------------------------------------------------------------------------------
 //- call dev_status() command of the specific device.
 //-----------------------------------------------------------------------------------------
-std::string ControlFactory::get_status_specific_device(const string& detector_type )
+const string& ControlFactory::get_status_specific_device(const string& detector_type )
 {
     yat::MutexLock scoped_lock(object_lock);
     try
     {
-    	std::string status = "";
+    	my_status_specific_device = "";
     	//get the tango device/instance
         if(!ControlFactory::is_created)
         {
@@ -479,14 +539,14 @@ std::string ControlFactory::get_status_specific_device(const string& detector_ty
             db_datum >> my_device_name;
         }
 
-         status = (Tango::Util::instance()->get_device_by_name(my_device_name))->dev_status();
-         return status;
+        my_status_specific_device = (Tango::Util::instance()->get_device_by_name(my_device_name))->dev_status();
     }
     catch(Tango::DevFailed& df)
     {
         //- rethrow exception
         throw LIMA_HW_EXC(Error, string(df.errors[0].desc).c_str());
     }
+    return my_status_specific_device;
 }
 //-----------------------------------------------------------------------------------------
 

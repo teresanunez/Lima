@@ -178,7 +178,8 @@ void SimulatorCCD::always_executed_hook()
 	DEBUG_STREAM << "SimulatorCCD::always_executed_hook() entering... "<< endl;
 	try
     {
-    	//- get the singleton control objet used to pilot the lima framework
+	    m_status_message.str("");
+		//- get the singleton control objet used to pilot the lima framework
         m_ct = ControlFactory::instance().get_control("SimulatorCCD");
 
         //- get interface to specific detector

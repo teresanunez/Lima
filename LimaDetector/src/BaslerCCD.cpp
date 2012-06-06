@@ -250,7 +250,8 @@ void BaslerCCD::always_executed_hook()
 	DEBUG_STREAM << "BaslerCCD::always_executed_hook() entering... "<< endl;
 	try
     {
-    	//- get the singleton control objet used to pilot the lima framework
+	    m_status_message.str("");
+		//- get the singleton control objet used to pilot the lima framework
         m_ct = ControlFactory::instance().get_control("BaslerCCD");
 
         //- get interface to specific detector
@@ -445,7 +446,7 @@ void BaslerCCD::store_value_as_property (T value, string property_name)
         Tango::Except::re_throw_exception(df,
                     static_cast<const char*> ("TANGO_DEVICE_ERROR"),
                     static_cast<const char*> (string(df.errors[0].desc).c_str()),
-                    static_cast<const char*> ("LimaDetector::store_value_as_property"));
+                    static_cast<const char*> ("BaslerCCD::store_value_as_property"));
     }
 
 }
@@ -478,7 +479,7 @@ void BaslerCCD::create_property_if_empty(Tango::DbData& dev_prop,T value,string 
             Tango::Except::re_throw_exception(df,
                         static_cast<const char*> ("TANGO_DEVICE_ERROR"),
                         static_cast<const char*> (string(df.errors[0].desc).c_str()),
-                        static_cast<const char*> ("LimaDetector::create_property_if_empty"));
+                        static_cast<const char*> ("BaslerCCD::create_property_if_empty"));
         }
     }
 }

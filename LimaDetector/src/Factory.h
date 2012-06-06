@@ -13,27 +13,27 @@
 
 
 #ifdef SIMULATOR_ENABLED
-#include <SimulatorInterface.h>
+	#include <SimulatorInterface.h>
 #endif
 
 #ifdef BASLER_ENABLED  
-#include <BaslerInterface.h>
+	#include <BaslerInterface.h>
 #endif
 
 #ifdef XPAD_ENABLED
-#include <XpadInterface.h>
+	#include <XpadInterface.h>
 #endif
 
 #ifdef PILATUS_ENABLED
-#include <PilatusInterface.h>
+	#include <PilatusInterface.h>
 #endif
 
 #ifdef MARCCD_ENABLED
-#include <MarccdInterface.h>
+	#include <MarccdInterface.h>
 #endif
 
 #ifdef ADSC_ENABLED
-#include <AdscInterface.h>
+	#include <AdscInterface.h>
 #endif
 
 #ifdef PROSILICA_ENABLED
@@ -44,6 +44,11 @@
     #include <ProsilicaVideoCtrlObj.h>
     #include <ProsilicaSyncCtrlObj.h>   
 #endif
+
+#ifdef PRINCETON_ENABLED
+    #include <RoperScientificInterface.h>
+#endif
+
 
 using namespace lima;
 using namespace std;
@@ -57,7 +62,7 @@ public:
 	void                           reset(const string& detector_type );
 	void                           init_specific_device(const string& detector_type );
 	Tango::DevState 			   get_state_specific_device(const string& detector_type );
-	std::string 				   get_status_specific_device(const string& detector_type );
+	const string& 				   get_status_specific_device(const string& detector_type );
 	ControlFactory();
 
 private:  
@@ -77,31 +82,39 @@ private:
 #endif
 
 #ifdef PILATUS_ENABLED      
-	Pilatus::Camera*            	my_camera_pilatus;
-	Pilatus::Interface*         	my_interface_pilatus;
+	Pilatus::Camera*               my_camera_pilatus;
+	Pilatus::Interface*            my_interface_pilatus;
 #endif
 
 #ifdef MARCCD_ENABLED      
-	Marccd::Camera*     			my_camera_marccd;  
-	Marccd::Interface*         		my_interface_marccd;  
+	Marccd::Camera*                my_camera_marccd;
+	Marccd::Interface*             my_interface_marccd;
 #endif
 
 #ifdef ADSC_ENABLED      
-	Adsc::Camera*     				my_camera_adsc;  
-	Adsc::Interface*         		my_interface_adsc;  
+	Adsc::Camera*                  my_camera_adsc;
+	Adsc::Interface*               my_interface_adsc;
 #endif
 
 #ifdef PROSILICA_ENABLED      
 	Prosilica::Camera*             my_camera_prosilica;
 	Prosilica::Interface*          my_interface_prosilica;
 #endif
+
+#ifdef PRINCETON_ENABLED
+	RoperScientific::Camera*       my_camera_princeton;
+	RoperScientific::Interface*    my_interface_princeton;
+#endif
+
 	CtControl*                     my_control;
 	static bool                    is_created;
 	string                         my_server_name;  
 	string                         my_device_name;
+	Tango::DevState				   my_state_specific_device;
+	string						   my_status_specific_device;
 
 	//lock the singleton acess
-	yat::Mutex 								    object_lock;  
+	yat::Mutex                     object_lock;
 
 };
 

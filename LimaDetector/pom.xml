@@ -9,7 +9,7 @@
 
    <groupId>fr.soleil.device</groupId>
    <artifactId>LimaDetector-${aol}-${mode}</artifactId>
-   <version>1.1.8</version>
+   <version>1.1.9</version>
    <packaging>nar</packaging>
    <name>LimaDetector</name>
    <description>LimaDetector device</description>
@@ -33,49 +33,55 @@
       <dependency>
          <groupId>fr.soleil.lib.Lima</groupId>
          <artifactId>LimaControl-${aol}-shared-${mode}</artifactId>
-         <version>1.1.8</version>         
+         <version>1.1.9</version>         
       </dependency>
 
       <dependency>
          <groupId>fr.soleil.lib.Lima.Camera</groupId>
          <artifactId>LimaBasler-${aol}-shared-${mode}</artifactId>
-         <version>1.1.8</version>
+         <version>1.1.9</version>
       </dependency>
    
       <dependency>
          <groupId>fr.soleil.lib.Lima.Camera</groupId>
          <artifactId>LimaMarccd-${aol}-shared-${mode}</artifactId>
-         <version>1.1.8</version>
+         <version>1.1.9</version>
       </dependency>
 
       <dependency>
          <groupId>fr.soleil.lib.Lima.Camera</groupId>
          <artifactId>LimaPilatus-${aol}-shared-${mode}</artifactId>
-         <version>1.1.8</version>
+         <version>1.1.9</version>
       </dependency>
      
       <dependency>
          <groupId>fr.soleil.lib.Lima.Camera</groupId>
          <artifactId>LimaXpad-${aol}-shared-${mode}</artifactId>
-         <version>1.1.8</version>
+         <version>1.1.9</version>
       </dependency>
 
       <dependency>
          <groupId>fr.soleil.lib.Lima.Camera</groupId>
          <artifactId>LimaAdsc-${aol}-shared-${mode}</artifactId>
-         <version>1.1.8</version>
+         <version>1.1.9</version>
       </dependency>
       
       <dependency>
          <groupId>fr.soleil.lib.Lima.Camera</groupId>
          <artifactId>LimaProsilica-${aol}-shared-${mode}</artifactId>
-         <version>1.1.8</version>
+         <version>1.1.9</version>
       </dependency>
-      
+
+      <dependency>
+         <groupId>fr.soleil.lib.Lima.Camera</groupId>
+         <artifactId>LimaRoperScientific-${aol}-shared-${mode}</artifactId>
+         <version>1.1.9</version>
+      </dependency>
+            
       <dependency>
          <groupId>fr.soleil.lib.Lima.Camera</groupId>
          <artifactId>LimaSimulator-${aol}-shared-${mode}</artifactId>
-         <version>1.1.8</version>
+         <version>1.1.9</version>
       </dependency>
                         
     </dependencies>
@@ -94,8 +100,6 @@
                  <configuration>
                      <cpp>
                         <defines>
-                           <define>BOOST_ALL_DYN_LINK</define>
-                           <define>LOG4TANGO_HAVE_INT64_T</define>
                            <define>USE_GIGE</define>
 						   
 						   <!-- define wich detector you need to ENABLE -->
@@ -106,6 +110,7 @@
                        	   <define>XPAD_ENABLED</define>
                            <define>ADSC_ENABLED</define>   
                            <define>PROSILICA_ENABLED</define>
+                           <define>PRINCETON_ENABLED</define>                           
                            <define>SIMULATOR_ENABLED</define>                       	   
 
                         </defines>
@@ -117,10 +122,14 @@
                             <systemIncludePath>${env.PYLON_ROOT}/genicam/library/CPP/include</systemIncludePath>
                            
 							<systemIncludePath>../../../camera/prosilica/sdk/include</systemIncludePath>           
+							
+							<systemIncludePath>../../../camera/roperscientific/sdk/include</systemIncludePath>							
 
 							<systemIncludePath>../../../camera/adsc/src_std/incl</systemIncludePath>
 							<systemIncludePath>../../../camera/adsc/src_std/detcon_lib_th</systemIncludePath>
 							<systemIncludePath>../../../camera/adsc/src_std/auxlib</systemIncludePath>
+                            
+                            <systemIncludePath>/home/informatique/ica/noureddine/DeviceSources/temp/xpix_library_2_3/imxpad_lib/xpci_lib</systemIncludePath>
 							                            
                         </systemIncludePaths>
 
@@ -132,7 +141,8 @@
                             <exclude>Pilatus*.*</exclude>                                                      	
                             <exclude>Xpad*.*</exclude>                        
     	                    <exclude>Adsc*.*</exclude>                    
-                            <exclude>Prosilica*.*</exclude>        	                    
+                            <exclude>Prosilica*.*</exclude>
+                            <exclude>Princeton*.*</exclude>      
             	            <exclude>Simulator*.*</exclude>           
 -->            	                         
                         </excludes>
@@ -187,6 +197,12 @@
                                 <directory>../../../camera/prosilica/sdk/bin/x86</directory>
                             </lib>
 
+                            <lib>
+                                <name>pvcam</name>
+                                <type>shared</type>
+                                <directory>../../../camera/roperscientific/sdk/bin/x86</directory>
+                            </lib>
+                            
                             <lib>
                                 <name>auxlib</name>
                                 <type>shared</type>

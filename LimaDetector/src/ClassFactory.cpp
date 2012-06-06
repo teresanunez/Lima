@@ -66,6 +66,9 @@ static const char *RcsId = "$Id:  $";
 	#include <ProsilicaCCDClass.h>
 #endif
 
+#ifdef PRINCETON_ENABLED
+	#include <PrincetonCCDClass.h>
+#endif
 #include <tango.h>
 
 
@@ -99,6 +102,10 @@ void Tango::DServer::class_factory()
 
 #ifdef PROSILICA_ENABLED
 	add_class(ProsilicaCCD_ns::ProsilicaCCDClass::init("ProsilicaCCD"));
+#endif
+
+#ifdef PRINCETON_ENABLED
+	add_class(PrincetonCCD_ns::PrincetonCCDClass::init("PrincetonCCD"));
 #endif
 
 #ifdef ADSC_ENABLED	

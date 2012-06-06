@@ -172,6 +172,7 @@ public :
  *	- MarCCD<BR>
  *	- PilatusPixelDetector<BR>
  *	- ProsilicaCCD<BR>
+ *	- PrincetonCCD<BR>
  *	- SimulatorCCD<BR>
  *	- XpadPixelDetector<BR>
  *	

@@ -243,6 +243,7 @@ void AdscCCD::always_executed_hook()
 	DEBUG_STREAM << "AdscCCD::always_executed_hook() entering... "<< endl;
 	try
 	{
+	    m_status_message.str("");
 		//- get the singleton control objet used to pilot the lima framework
 		m_ct = ControlFactory::instance().get_control("AdscCCD");
 
