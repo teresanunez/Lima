@@ -236,6 +236,10 @@ class LimaCCDs(PyTango.Device_4Impl) :
 	    self.__AcqTriggerMode['INTERNAL_TRIGGER_MULTI'] = Core.IntTrigMult
 	except AttributeError:
 	    pass
+	try:
+	    self.__AcqTriggerMode['EXTERNAL_TRIGGER_READOUT'] = Core.ExtTrigReadout
+	except AttributeError:
+	    pass
 
         try:
             self.__ImageRotation = {'NONE' : Core.Rotation_0,
