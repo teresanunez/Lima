@@ -39,6 +39,7 @@
 #         (c) - Bliss - ESRF
 #=============================================================================
 #
+import time
 import PyTango
 from Lima import Core
 from Lima import Frelon as FrelonAcq
@@ -77,8 +78,8 @@ class Frelon(PyTango.Device_4Impl):
         self.__E2vCorrection = {'ON' : True,
                                 'OFF' : False}
 
-        self.__Spb2Config = {'PRECISION' : 1,
-                             'SPEED' : 0}
+        self.__Spb2Config = {'PRECISION' : 0,
+                             'SPEED' : 1}
 
         self.__Attribute2FunctionBase = {'image_mode' : 'FrameTransferMode',
                                          'input_channel' : 'InputChan',
@@ -100,6 +101,7 @@ class Frelon(PyTango.Device_4Impl):
     def init_device(self):
         self.set_state(PyTango.DevState.ON)
         self.get_device_properties(self.get_device_class())
+	self.ResetLinkWaitTime = 5	
 
     @Core.DEB_MEMBER_FUNCT
     def getAttrStringValueList(self, attr_name):
@@ -136,6 +138,11 @@ class Frelon(PyTango.Device_4Impl):
     def execSerialCommand(self, command_string) :
         return _FrelonAcq.execFrelonSerialCmd(command_string)
 
+    @Core.DEB_MEMBER_FUNCT
+    def resetLink(self) :
+        _FrelonAcq.getEspiaDev().resetLink()
+	time.sleep(self.ResetLinkWaitTime)
+
     ## @brief read the espia board id
     #
     def read_espia_dev_nb(self,attr) :
@@ -171,6 +178,9 @@ class FrelonClass(PyTango.DeviceClass):
         'execSerialCommand':
         [[PyTango.DevString,"command"],
          [PyTango.DevString,"return command"]],
+        'resetLink':
+        [[PyTango.DevVoid,""],
+         [PyTango.DevVoid,""]],
         }
 
     attr_list = {
