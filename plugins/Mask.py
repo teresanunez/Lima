@@ -48,7 +48,7 @@ class MaskDeviceServer(BasePostProcess) :
                 self.__maskTask = extOpt.addOp(Core.MASK,
                                                self.MASK_TASK_NAME,
                                                self._runLevel)
-                self.__maskTask.setBackgroundImage(self.__maskImage)
+                self.__maskTask.setMaskImage(self.__maskImage)
 	PyTango.Device_4Impl.set_state(self,state)
 
     def setMaskImage(self,filepath) :
