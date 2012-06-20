@@ -72,12 +72,13 @@
          <artifactId>LimaProsilica-${aol}-shared-${mode}</artifactId>
          <version>1.1.8</version>
       </dependency>
-
+<!--
       <dependency>
          <groupId>fr.soleil.lib.Lima.Camera</groupId>
          <artifactId>LimaRoperScientific-${aol}-shared-${mode}</artifactId>
          <version>1.1.8</version>
       </dependency>
+-->
 			
       <dependency>
          <groupId>fr.soleil.lib.Lima.Camera</groupId>
@@ -112,7 +113,7 @@
                        	   <define>XPAD_ENABLED</define>
                            <define>ADSC_ENABLED</define>   
                            <define>PROSILICA_ENABLED</define>
-                           <define>PRINCETON_ENABLED</define>
+                           <!--<define>PRINCETON_ENABLED</define>-->
                            <define>SIMULATOR_ENABLED</define>                       	   
                         </defines>
 
@@ -124,13 +125,15 @@
                            
 							<systemIncludePath>../../../camera/prosilica/sdk/include</systemIncludePath>           
 							
-							<systemIncludePath>../../../camera/roperscientific/sdk/include</systemIncludePath>							
+							<!--<systemIncludePath>../../../camera/roperscientific/sdk/include</systemIncludePath>-->
 
 							<systemIncludePath>../../../camera/adsc/src_std/incl</systemIncludePath>
 							<systemIncludePath>../../../camera/adsc/src_std/detcon_lib_th</systemIncludePath>
 							<systemIncludePath>../../../camera/adsc/src_std/auxlib</systemIncludePath>
                             
-                            <systemIncludePath>/home/informatique/ica/noureddine/DeviceSources/temp/xpix_library_2_3/imxpad_lib/xpci_lib</systemIncludePath>
+							 <systemIncludePath>/home/imxpad/ICA/xpix_library_2_3/imxpad_lib/xpci_lib</systemIncludePath>-->														
+               <!--<systemIncludePath>/home/informatique/ica/noureddine/DeviceSources/temp/xpix_library_2_3/imxpad_lib/xpci_lib</systemIncludePath>-->														
+														
 							                            
                         </systemIncludePaths>
 
@@ -143,9 +146,9 @@
                             <exclude>Xpad*.*</exclude>                        
     	                    <exclude>Adsc*.*</exclude>                    
                             <exclude>Prosilica*.*</exclude>
-                            <exclude>Princeton*.*</exclude>
             	            <exclude>Simulator*.*</exclude>           
--->            	                         
+-->
+                            <exclude>Princeton*.*</exclude>
                         </excludes>
 
                         <!-- define less verbose mode for gcc-->
@@ -197,13 +200,13 @@
                                 <type>shared</type>
                                 <directory>../../../camera/prosilica/sdk/bin/x86</directory>
                             </lib>
-
+<!--
                             <lib>
                                 <name>pvcam</name>
                                 <type>shared</type>
                                 <directory>../../../camera/roperscientific/sdk/bin/x86</directory>
                             </lib>
-                            
+-->                            
                             <lib>
                                 <name>auxlib</name>
                                 <type>shared</type>
