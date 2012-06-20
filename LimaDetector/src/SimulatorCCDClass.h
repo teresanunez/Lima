@@ -37,8 +37,8 @@
 #ifndef _SIMULATORCCDCLASS_H
 #define _SIMULATORCCDCLASS_H
 
-
 #include <SimulatorCCD.h>
+
 #include <tango.h>
 
 namespace SimulatorCCD_ns

@@ -34,8 +34,6 @@ static const char *RcsId = "$Id:  $";
 //         (c) - Software Engineering Group - ESRF
 //=============================================================================
 
-
-
 #include <LimaDetectorClass.h>
 
 #ifdef SIMULATOR_ENABLED

@@ -33,10 +33,10 @@ static const char *HttpServer = "http://www.esrf.fr/computing/cs/tango/tango_doc
 //=============================================================================
 
 
-
-
 #include <ProsilicaCCD.h>
 #include <ProsilicaCCDClass.h>
+
+
 #include <tango.h>
 
 //+----------------------------------------------------------------------------

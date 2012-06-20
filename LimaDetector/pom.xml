@@ -15,6 +15,7 @@
    <description>LimaDetector device</description>
 
     <dependencies>
+	
 	  <dependency>
          <groupId>fr.soleil.lib</groupId>
          <artifactId>YAT4Tango-${aol}-${library}-${mode}</artifactId>   
@@ -33,25 +34,25 @@
       <dependency>
          <groupId>fr.soleil.lib.Lima</groupId>
          <artifactId>LimaControl-${aol}-shared-${mode}</artifactId>
-         <version>1.1.9</version>         
+         <version>1.1.8</version>         
       </dependency>
 
       <dependency>
          <groupId>fr.soleil.lib.Lima.Camera</groupId>
          <artifactId>LimaBasler-${aol}-shared-${mode}</artifactId>
-         <version>1.1.9</version>
+         <version>1.1.8</version>
       </dependency>
-   
+			
       <dependency>
          <groupId>fr.soleil.lib.Lima.Camera</groupId>
          <artifactId>LimaMarccd-${aol}-shared-${mode}</artifactId>
-         <version>1.1.9</version>
+         <version>1.1.8</version>
       </dependency>
 
       <dependency>
          <groupId>fr.soleil.lib.Lima.Camera</groupId>
          <artifactId>LimaPilatus-${aol}-shared-${mode}</artifactId>
-         <version>1.1.9</version>
+         <version>1.1.8</version>
       </dependency>
      
       <dependency>
@@ -63,25 +64,25 @@
       <dependency>
          <groupId>fr.soleil.lib.Lima.Camera</groupId>
          <artifactId>LimaAdsc-${aol}-shared-${mode}</artifactId>
-         <version>1.1.9</version>
+         <version>1.1.8</version>
       </dependency>
       
       <dependency>
          <groupId>fr.soleil.lib.Lima.Camera</groupId>
          <artifactId>LimaProsilica-${aol}-shared-${mode}</artifactId>
-         <version>1.1.9</version>
+         <version>1.1.8</version>
       </dependency>
 
       <dependency>
          <groupId>fr.soleil.lib.Lima.Camera</groupId>
          <artifactId>LimaRoperScientific-${aol}-shared-${mode}</artifactId>
-         <version>1.1.9</version>
+         <version>1.1.8</version>
       </dependency>
-            
+			
       <dependency>
          <groupId>fr.soleil.lib.Lima.Camera</groupId>
          <artifactId>LimaSimulator-${aol}-shared-${mode}</artifactId>
-         <version>1.1.9</version>
+         <version>1.1.8</version>
       </dependency>
                         
     </dependencies>
@@ -104,15 +105,15 @@
 						   
 						   <!-- define wich detector you need to ENABLE -->
 				                             
-                           <define>BASLER_ENABLED</define>
+                          <define>BASLER_ENABLED</define>
+													
                            <define>MARCCD_ENABLED</define>
                            <define>PILATUS_ENABLED</define>
                        	   <define>XPAD_ENABLED</define>
                            <define>ADSC_ENABLED</define>   
                            <define>PROSILICA_ENABLED</define>
-                           <define>PRINCETON_ENABLED</define>                           
+                           <define>PRINCETON_ENABLED</define>
                            <define>SIMULATOR_ENABLED</define>                       	   
-
                         </defines>
 
                         <systemIncludePaths>
@@ -135,14 +136,14 @@
 
                         <!-- exclude every detector who is NOT ENABLED -->
                         <excludes>
-<!--                          
-        	                <exclude>Basler*.*</exclude>                                
+<!--                         
+													 <exclude>Basler*.*</exclude>
                             <exclude>MarCCD*.*</exclude>                          
                             <exclude>Pilatus*.*</exclude>                                                      	
                             <exclude>Xpad*.*</exclude>                        
     	                    <exclude>Adsc*.*</exclude>                    
                             <exclude>Prosilica*.*</exclude>
-                            <exclude>Princeton*.*</exclude>      
+                            <exclude>Princeton*.*</exclude>
             	            <exclude>Simulator*.*</exclude>           
 -->            	                         
                         </excludes>

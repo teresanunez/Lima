@@ -37,8 +37,8 @@
 #ifndef _ADSCCCDCLASS_H
 #define _ADSCCCDCLASS_H
 
-
 #include <AdscCCD.h>
+
 #include <tango.h>
 
 namespace AdscCCD_ns

@@ -51,21 +51,28 @@
 
 
 using namespace lima;
-using namespace std;
 using namespace Tango;
 
 class ControlFactory : public Singleton<ControlFactory>
 {
 public:
 
-	CtControl*                     get_control( const string& detector_type);
-	void                           reset(const string& detector_type );
-	void                           init_specific_device(const string& detector_type );
-	Tango::DevState 			   get_state_specific_device(const string& detector_type );
-	const string& 				   get_status_specific_device(const string& detector_type );
-	ControlFactory();
+	CtControl*                     	get_control( const std::string& detector_type);
+	void                           	reset(const std::string& detector_type );
+	//init the specif device, necessary when user call Init on generic device
+	void                           	init_specific_device(const std::string& detector_type );
+	//get the state in a AutoMutex lock
+	Tango::DevState 			   	get_state(void);
+	//get the status in a AutoMutex lock
+	std::string		 				   	get_status(void);
+    //fix the state in a AutoMutex lock
+    void 							set_state(Tango::DevState state);
+    //fix the status in a AutoMutex lock
+    void 							set_status (const std::string& status);	
 
-private:  
+	ControlFactory();	
+private:
+
 #ifdef SIMULATOR_ENABLED
 	Simulator::Camera*             my_camera_simulator;
 	Simulator::Interface*          my_interface_simulator;
@@ -108,13 +115,16 @@ private:
 
 	CtControl*                     my_control;
 	static bool                    is_created;
-	string                         my_server_name;  
-	string                         my_device_name;
-	Tango::DevState				   my_state_specific_device;
-	string						   my_status_specific_device;
+	std::string                         my_server_name;  
+	std::string                         my_device_name;
+	Tango::DevState				   my_state;
+	stringstream				   my_status;
 
 	//lock the singleton acess
 	yat::Mutex                     object_lock;
+
+	//lock the singleton acess
+	yat::Mutex                     object_state_lock;
 
 };
 

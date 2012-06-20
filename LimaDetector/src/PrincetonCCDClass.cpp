@@ -33,10 +33,9 @@ static const char *HttpServer = "http://www.esrf.fr/computing/cs/tango/tango_doc
 //=============================================================================
 
 
-
-
 #include <PrincetonCCD.h>
 #include <PrincetonCCDClass.h>
+
 #include <tango.h>
 
 //+----------------------------------------------------------------------------

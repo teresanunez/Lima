@@ -37,7 +37,6 @@
 #ifndef _MarCCDCLASS_H
 #define _MarCCDCLASS_H
 
-
 #include <MarCCD.h>
 #include <tango.h>
 

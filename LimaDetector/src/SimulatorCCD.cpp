@@ -51,10 +51,9 @@ static const char *RcsId = "$Id:  $";
 //  Status  |  dev_status()
 //
 //===================================================================
-
-
 #include <SimulatorCCD.h>
 #include <SimulatorCCDClass.h>
+
 #include <tango.h>
 #include <PogoHelper.h>
 
@@ -123,6 +122,8 @@ void SimulatorCCD::init_device()
     // Initialise variables to default values
     //--------------------------------------------
     CREATE_SCALAR_ATTRIBUTE(attr_exposureTime_read,1.0);
+    //By default INIT, need to ensure that all objets are OK before set the device to STANDBY
+    set_state(Tango::INIT);
     m_is_device_initialized = false;
     m_status_message.str("");
 
@@ -140,7 +141,7 @@ void SimulatorCCD::init_device()
             INFO_STREAM<<"Initialization Failed : Unable to get the interface of camera plugin "<<"("<<"SimulatorCCD"<<") !"<< endl;
             m_status_message <<"Initialization Failed : Unable to get the interface of camera plugin "<<"("<<"SimulatorCCD"<<") !"<< endl;
             m_is_device_initialized = false;
-            set_state(Tango::INIT);
+            set_state(Tango::FAULT);
             return;
         }
 
@@ -150,14 +151,14 @@ void SimulatorCCD::init_device()
         INFO_STREAM<<"Initialization Failed : "<<e.getErrMsg()<<endl;
         m_status_message <<"Initialization Failed : "<<e.getErrMsg( )<< endl;
         m_is_device_initialized = false;
-        set_state(Tango::INIT);
+        set_state(Tango::FAULT);
         return;
     }
     catch(...)
     {
         INFO_STREAM<<"Initialization Failed : UNKNOWN"<<endl;
         m_status_message <<"Initialization Failed : UNKNOWN"<< endl;
-        set_state(Tango::INIT);
+        set_state(Tango::FAULT);
         m_is_device_initialized = false;
         return;
     }
@@ -192,19 +193,18 @@ void SimulatorCCD::always_executed_hook()
         ERROR_STREAM << e.getErrMsg() << endl;
         m_status_message <<"Initialization Failed : "<<e.getErrMsg( )<< endl;
         //- throw exception
-        set_state(Tango::INIT);
-        m_is_device_initialized = false;
-        return;
+        set_state(Tango::FAULT);
+        m_is_device_initialized = false;        
     }
     catch(...)
     {
         ERROR_STREAM<<"Initialization Failed : UNKNOWN"<<endl;
         m_status_message <<"Initialization Failed : UNKNOWN"<< endl;
         //- throw exception
-        set_state(Tango::INIT);
+        set_state(Tango::FAULT);
         m_is_device_initialized = false;
-        return;
     }
+	DEBUG_STREAM << "SimulatorCCD::always_executed_hook() ending... "<< endl;	
 }
 //+----------------------------------------------------------------------------
 //
@@ -256,6 +256,7 @@ void SimulatorCCD::read_exposureTime(Tango::Attribute &attr)
                         static_cast<const char*> ("SimulatorCCD::read_exposureTime"));
         }
     }
+	DEBUG_STREAM << "SimulatorCCD::read_exposureTime() ending... "<< endl;		
 }
 
 //+----------------------------------------------------------------------------
@@ -294,6 +295,7 @@ void SimulatorCCD::write_exposureTime(Tango::WAttribute &attr)
                         static_cast<const char*> ("SimulatorCCD::write_exposureTime"));
         }
     }
+	DEBUG_STREAM << "SimulatorCCD::write_exposureTime() ending... "<< endl;		
 }
 
 
@@ -318,71 +320,25 @@ Tango::DevState SimulatorCCD::dev_state()
     Tango::DevState DeviceState    = Tango::STANDBY;
     if(!m_is_device_initialized )
     {
-        DeviceState            = Tango::INIT;
+        DeviceState            = Tango::FAULT;
         DeviceStatus        << m_status_message.str();
     }
-    else if (m_ct==0)
-    {
-        DeviceState            = Tango::INIT;
-        DeviceStatus        <<"Initialization Failed : Unable to get the lima control object !\n\n";
-    }
     else
-    {
-    	CtControl::Status status;
-		m_ct->getStatus(status);
-		if (status.AcquisitionStatus == lima::AcqReady)
-		{
-			HwInterface::StatusType state;
-			m_hw->getStatus(state);
-			if(state.acq == AcqRunning && state.det == DetExposure)
-			{
-				DeviceState=Tango::RUNNING;
-				DeviceStatus<<"Acquisition is Running ...\n"<<endl;
-			}
-			else if(state.acq == AcqFault && state.det == DetFault)
-			{
-				DeviceState=Tango::INIT;//INIT
-				DeviceStatus<<"Acquisition is in Init\n"<<endl;
-			}
-			else if(state.acq == AcqFault && state.det == DetIdle)
-			{
-				DeviceState=Tango::FAULT;//FAULT
-				DeviceStatus<<"Acquisition is in Fault\n"<<endl;
-			}
-			else
-			{
-				DeviceState=Tango::STANDBY;
-				DeviceStatus<<"Waiting for Request ...\n"<<endl;
-			}
-		}
-		else if(status.AcquisitionStatus == lima::AcqRunning)
-		{
-			DeviceState=Tango::RUNNING;
-			DeviceStatus<<"Acquisition is Running ...\n"<<endl;
-		}
-		else
-		{
-			HwInterface::StatusType state;
-			m_hw->getStatus(state);
-			if(state.acq == AcqFault && state.det == DetFault)
-			{
-				DeviceState=Tango::INIT;//INIT
-				DeviceStatus<<"Acquisition is in Init\n"<<endl;
-			}
-			else
-			{
-			  DeviceState=Tango::FAULT;//FAULT
-			  DeviceStatus<<"Acquisition is in Fault\n"<<endl;
-			}
-		}
+	{
+		//state&status are retrieved from generic device
+		DeviceState = ControlFactory::instance().get_state();
+		DeviceStatus << ControlFactory::instance().get_status();		
     }
 
     set_state(DeviceState);
     set_status(DeviceStatus.str());
 
     argout = DeviceState;
+	DEBUG_STREAM << "SimulatorCCD::dev_state() ending... "<< endl;		
     return argout;
 }
+
+
 
 
 

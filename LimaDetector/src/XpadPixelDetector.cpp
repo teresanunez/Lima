@@ -59,10 +59,9 @@ static const char *RcsId = "$Id:  $";
 //
 //===================================================================
 
-
-
 #include <XpadPixelDetector.h>
 #include <XpadPixelDetectorClass.h>
+
 #include <tango.h>
 #include <PogoHelper.h>
 
@@ -151,7 +150,8 @@ void XpadPixelDetector::init_device()
 	CREATE_SCALAR_ATTRIBUTE(attr_gp4_read);
 
 	m_is_device_initialized = true;
-	set_state(Tango::INIT);		
+    //By default INIT, need to ensure that all objets are OK before set the device to STANDBY
+    set_state(Tango::INIT);
 	m_status_message.str("");
 
 	attr_deadTime_write = 0;
@@ -180,7 +180,7 @@ void XpadPixelDetector::init_device()
             INFO_STREAM<<"Initialization Failed : Unable to get the interface of camera plugin "<<"("<<"XpadPixelDetector"<<") !"<< endl;
             m_status_message <<"Initialization Failed : Unable to get the interface of camera plugin "<<"("<<"XpadPixelDetector"<<") !"<< endl;
             m_is_device_initialized = false;
-            set_state(Tango::INIT);
+            set_state(Tango::FAULT);
             return;
         }
 
@@ -191,7 +191,7 @@ void XpadPixelDetector::init_device()
 			INFO_STREAM<<"Initialization Failed : Unable to get the camera of plugin !"<<endl;
 			m_status_message <<"Initialization Failed : Unable to get the camera object !"<< endl;
 			m_is_device_initialized = false;
-			set_state(Tango::INIT);		
+			set_state(Tango::FAULT);
 			return;			
 		}
 
@@ -201,14 +201,14 @@ void XpadPixelDetector::init_device()
         INFO_STREAM<<"Initialization Failed : "<<e.getErrMsg()<<endl;
         m_status_message <<"Initialization Failed : "<<e.getErrMsg( )<< endl;
         m_is_device_initialized = false;
-        set_state(Tango::INIT);
+        set_state(Tango::FAULT);
         return;
     }
     catch(...)
     {
         INFO_STREAM<<"Initialization Failed : UNKNOWN"<<endl;
         m_status_message <<"Initialization Failed : UNKNOWN"<< endl;
-        set_state(Tango::INIT);
+        set_state(Tango::FAULT);
         m_is_device_initialized = false;
         return;
     }
@@ -326,7 +326,7 @@ void XpadPixelDetector::always_executed_hook()
         ERROR_STREAM << e.getErrMsg() << endl;
         m_status_message <<"Initialization Failed : "<<e.getErrMsg( )<< endl;
         //- throw exception
-        set_state(Tango::INIT);
+        set_state(Tango::FAULT);
         m_is_device_initialized = false;
         return;
     }
@@ -335,7 +335,7 @@ void XpadPixelDetector::always_executed_hook()
         ERROR_STREAM<<"Initialization Failed : UNKNOWN"<<endl;
         m_status_message <<"Initialization Failed : UNKNOWN"<< endl;
         //- throw exception
-        set_state(Tango::INIT);
+        set_state(Tango::FAULT);
         m_is_device_initialized = false;
         return;
     }
@@ -735,63 +735,14 @@ Tango::DevState XpadPixelDetector::dev_state()
     Tango::DevState DeviceState    = Tango::STANDBY;
     if(!m_is_device_initialized )
     {
-        DeviceState            = Tango::INIT;
+        DeviceState            = Tango::FAULT;
         DeviceStatus        << m_status_message.str();
     }
-    else if (m_ct==0)
-    {
-        DeviceState            = Tango::INIT;
-        DeviceStatus        <<"Initialization Failed : Unable to get the lima control object !\n\n";
-    }
     else
-    {
-    	CtControl::Status status;
-		m_ct->getStatus(status);
-		if (status.AcquisitionStatus == lima::AcqReady)
-		{
-			HwInterface::StatusType state;
-			m_hw->getStatus(state);
-			if(state.acq == AcqRunning && state.det == DetExposure)
-			{
-				DeviceState=Tango::RUNNING;
-				DeviceStatus<<"Acquisition is Running ...\n"<<endl;
-			}
-			else if(state.acq == AcqFault && state.det == DetFault)
-			{
-				DeviceState=Tango::INIT;//INIT
-				DeviceStatus<<"Acquisition is in Init\n"<<endl;
-			}
-			else if(state.acq == AcqFault && state.det == DetIdle)
-			{
-				DeviceState=Tango::FAULT;//FAULT
-				DeviceStatus<<"Acquisition is in Fault\n"<<endl;
-			}
-			else
-			{
-				DeviceState=Tango::STANDBY;
-				DeviceStatus<<"Waiting for Request ...\n"<<endl;
-			}
-		}
-		else if(status.AcquisitionStatus == lima::AcqRunning)
-		{
-			DeviceState=Tango::RUNNING;
-			DeviceStatus<<"Acquisition is Running ...\n"<<endl;
-		}
-		else
-		{
-			HwInterface::StatusType state;
-			m_hw->getStatus(state);
-			if(state.acq == AcqFault && state.det == DetFault)
-			{
-				DeviceState=Tango::INIT;//INIT
-				DeviceStatus<<"Acquisition is in Init\n"<<endl;
-			}
-			else
-			{
-			  DeviceState=Tango::FAULT;//FAULT
-			  DeviceStatus<<"Acquisition is in Fault\n"<<endl;
-			}
-		}
+	{
+		//state&status are retrieved from specific device
+		DeviceState = ControlFactory::instance().get_state();
+		DeviceStatus << ControlFactory::instance().get_status();		
     }
 
     set_state(DeviceState);
@@ -1185,6 +1136,7 @@ int XpadPixelDetector::FindIndexFromPropertyName(Tango::DbData& dev_prop, string
     if (i == iNbProperties) return -1;
     return i;
 }
+
 
 
 }	//	namespace

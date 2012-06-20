@@ -58,12 +58,12 @@ static const char *RcsId = "$Id:  $";
 //===================================================================
 
 
-
 #include <LimaDetector.h>
 #include <LimaDetectorClass.h>
 
 #include <tango.h>
 #include <PogoHelper.h>
+
 
 #define MAX_ATTRIBUTE_STRING_LENGTH     256
 
@@ -186,6 +186,8 @@ void LimaDetector::init_device()
     m_acquisition_task = 0;
     m_is_device_initialized = false;
     m_status_message.str("");
+    //By default INIT, need to ensure that all objets are OK before set the device to STANDBY
+    set_state(Tango::INIT);
 
     //- instanciate the appender in order to manage logs
     try
@@ -197,13 +199,10 @@ void LimaDetector::init_device()
     catch( Tango::DevFailed& df )
     {
         ERROR_STREAM << df << endl;
-        this->set_state(Tango::INIT);
+        this->set_state(Tango::FAULT);
         m_status_message <<"Initialization Failed :  could not instanciate the InnerAppender ! "<< endl;
         return;
     }
-
-    //By default INIT, need to ensure that all objets are OK before set the device to STANDBY
-    set_state(Tango::INIT);
 
     get_device_property();
 
@@ -253,7 +252,7 @@ void LimaDetector::init_device()
 							INFO_STREAM<<"Initialization Failed : DetectorPixelDepth "<<"("<<detectorPixelDepth<<") is not supported!"<< endl;
 							m_status_message <<"Initialization Failed : DetectorPixelDepth "<<"("<<detectorPixelDepth<<") is not supported!"<< endl;
 							m_is_device_initialized = false;
-							set_state(Tango::INIT);
+							set_state(Tango::FAULT);
 				return;
         }
 
@@ -289,7 +288,7 @@ void LimaDetector::init_device()
             INFO_STREAM<<"Initialization Failed : Unable to get the interface of camera plugin "<<"("<<detectorType<<") !"<< endl;
             m_status_message <<"Initialization Failed : Unable to get the interface of camera plugin "<<"("<<detectorType<<") !"<< endl;
             m_is_device_initialized = false;
-            set_state(Tango::INIT);
+            set_state(Tango::FAULT);
             return;
         }
 
@@ -312,7 +311,7 @@ void LimaDetector::init_device()
 				INFO_STREAM<<"Initialization Failed : DetectorPixelDepth "<<"("<<detectorPixelDepth<<") is not supported!"<< endl;
 				m_status_message <<"Initialization Failed : DetectorPixelDepth "<<"("<<detectorPixelDepth<<") is not supported!"<< endl;
 				m_is_device_initialized = false;
-				set_state(Tango::INIT);
+				set_state(Tango::FAULT);
 				return;
         }
 
@@ -418,7 +417,7 @@ void LimaDetector::init_device()
     			ERROR_STREAM<<"Initialization Failed : VideoMode "<<"("<<detectorVideoMode<<") is not supported!"<< endl;
     			m_status_message<<"Initialization Failed : VideoMode "<<"("<<detectorVideoMode<<") is not supported!"<< endl;
     			m_is_device_initialized = false;
-    			set_state(Tango::INIT);
+    			set_state(Tango::FAULT);
     			return;
     		}
 
@@ -432,14 +431,14 @@ void LimaDetector::init_device()
     	ERROR_STREAM<<"Initialization Failed : "<<e.getErrMsg()<<endl;
         m_status_message <<"Initialization Failed : "<<e.getErrMsg( )<< endl;
         m_is_device_initialized = false;
-        set_state(Tango::INIT);
+        set_state(Tango::FAULT);
         return;
     }
     catch(...)
     {
     	ERROR_STREAM<<"Initialization Failed : UNKNOWN"<<endl;
         m_status_message <<"Initialization Failed : UNKNOWN"<< endl;
-        set_state(Tango::INIT);
+        set_state(Tango::FAULT);
         m_is_device_initialized = false;
         return;
     }
@@ -449,7 +448,7 @@ void LimaDetector::init_device()
     INFO_STREAM<<"Create acquisition yat::DeviceTask."<<endl;
     if(create_acquisition_task() == false )
     {
-        set_state(Tango::INIT);
+        set_state(Tango::FAULT);
         m_is_device_initialized = false;
         return;
     }
@@ -465,7 +464,6 @@ void LimaDetector::init_device()
     // everything seems ok
     m_is_device_initialized = true;
     LimaDetector::m_is_created = true;
-    set_state(Tango::STANDBY);
 
     //write at init, only if device is correctly initialized
     if(m_is_device_initialized)
@@ -509,6 +507,7 @@ void LimaDetector::init_device()
 		fileGeneration.set_write_value(*attr_fileGeneration_read);
 		write_fileGeneration(fileGeneration);
     }
+    set_state(Tango::STANDBY);	
 }
 
 
@@ -1775,7 +1774,7 @@ void LimaDetector::read_currentFrame(Tango::Attribute &attr)
     DEBUG_STREAM << "LimaDetector::read_currentFrame(Tango::Attribute &attr) entering... "<< endl;
     try
     {
-        *attr_currentFrame_read =       get_last_image_counter()+1;////m_hw->getNbHwAcquiredFrames();
+        *attr_currentFrame_read =      m_hw->getNbHwAcquiredFrames();  ///get_last_image_counter()+1;
         attr.set_value(attr_currentFrame_read);
     }
     catch(Tango::DevFailed& df)
@@ -2307,27 +2306,79 @@ Tango::DevState LimaDetector::dev_state()
 	//if error during init_device
 	if(!m_is_device_initialized)
 	{
-		DeviceState        = Tango::INIT;
+		DeviceState        = Tango::FAULT;
 		DeviceStatus    << m_status_message.str();
 		DeviceStatus    << endl;
 	}
+	else if (m_ct==0)
+    {
+        DeviceState            = Tango::FAULT;
+        DeviceStatus        <<"Initialization Failed : Unable to get the lima control object !\n\n";
+    }	
 	else
 	{
 		// if error in acquisition task
 		if(m_acquisition_task->get_state()== Tango::FAULT)
 		{
-			DeviceState = Tango::FAULT;//FAULT
+			DeviceState = Tango::FAULT;
 			DeviceStatus<<m_acquisition_task->get_status()<<endl;
 		}
 		else
 		{
-			//state&status are retrieved from specific device
-			DeviceState = ControlFactory::instance().get_state_specific_device(detectorType);
-			DeviceStatus << ControlFactory::instance().get_status_specific_device(detectorType);
+			CtControl::Status status;
+			m_ct->getStatus(status);
+			if (status.AcquisitionStatus == lima::AcqReady)
+			{
+				HwInterface::StatusType state;
+				m_hw->getStatus(state);
+				if(state.acq == AcqRunning && state.det == DetExposure)
+				{
+					DeviceState=Tango::RUNNING;
+					DeviceStatus<<"Acquisition is Running ...\n"<<endl;
+				}
+				else if(state.acq == AcqFault && state.det == DetFault)
+				{
+					DeviceState=Tango::FAULT;//INIT if state could be more accurate
+					DeviceStatus<<"Acquisition is in Init\n"<<endl;
+				}
+				else if(state.acq == AcqFault && state.det == DetIdle)
+				{
+					DeviceState=Tango::FAULT;
+					DeviceStatus<<"Acquisition is in Fault\n"<<endl;
+				}
+				else
+				{
+					DeviceState=Tango::STANDBY;
+					DeviceStatus<<"Waiting for Request ...\n"<<endl;
+				}
+			}
+			else if(status.AcquisitionStatus == lima::AcqRunning)
+			{
+				DeviceState=Tango::RUNNING;
+				DeviceStatus<<"Acquisition is Running ...\n"<<endl;
+			}
+			else
+			{
+				HwInterface::StatusType state;
+				m_hw->getStatus(state);
+				if(state.acq == AcqFault && state.det == DetFault)
+				{
+					DeviceState=Tango::FAULT;//INIT if state could be more accurate
+					DeviceStatus<<"Acquisition is in Init\n"<<endl;
+				}
+				else
+				{
+				  DeviceState=Tango::FAULT;
+				  DeviceStatus<<"Acquisition is in Fault\n"<<endl;
+				}
+			}
 		}
 	}
     set_state(DeviceState);
     set_status(DeviceStatus.str());
+	
+	ControlFactory::instance().set_state(DeviceState);
+    ControlFactory::instance().set_status(DeviceStatus.str());
 
     argout = DeviceState;
     return argout;
@@ -2350,7 +2401,6 @@ bool LimaDetector::create_acquisition_task(void)
 
         //- prepare the conf to be passed to the task
         m_acq_conf.ct                = m_ct;
-        m_acq_conf.file_target_path  = fileTargetPath;        //property, no need to refresh on each START_MSG
 
         //- create an INIT msg to pass it some data (Conf)
         yat::Message* msg = yat::Message::allocate( yat::TASK_INIT, INIT_MSG_PRIORITY, true );
@@ -2506,5 +2556,8 @@ int LimaDetector::find_index_from_property_name(Tango::DbData& dev_prop, string 
     if (i == iNbProperties) return -1;
     return i;
 }
+
+
+
 
 }	//	namespace

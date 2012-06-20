@@ -37,7 +37,6 @@
 #ifndef _LimaDetectorCLASS_H
 #define _LimaDetectorCLASS_H
 
-
 #include <LimaDetector.h>
 #include <tango.h>
 

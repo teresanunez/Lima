@@ -54,11 +54,12 @@ static const char *RcsId = "$Id:  $";
 //===================================================================
 
 
-
 #include <AdscCCD.h>
 #include <AdscCCDClass.h>
+
 #include <tango.h>
 #include <PogoHelper.h>
+
 namespace AdscCCD_ns
 {
 
@@ -134,6 +135,7 @@ void AdscCCD::init_device()
     CREATE_SCALAR_ATTRIBUTE(attr_isLastImage_read);    
 	m_is_device_initialized = false;
 	m_status_message.str("");
+    set_state(Tango::INIT);
 
   try
   {
@@ -149,7 +151,7 @@ void AdscCCD::init_device()
           INFO_STREAM<<"Initialization Failed : Unable to get the interface of camera plugin "<<"("<<"AdscCCD"<<") !"<< endl;
           m_status_message <<"Initialization Failed : Unable to get the interface of camera plugin "<<"("<<"AdscCCD"<<") !"<< endl;
           m_is_device_initialized = false;
-          set_state(Tango::INIT);
+          set_state(Tango::FAULT);
           return;
       }
   }
@@ -158,14 +160,14 @@ void AdscCCD::init_device()
       INFO_STREAM<<"Initialization Failed : "<<e.getErrMsg()<<endl;
       m_status_message <<"Initialization Failed : "<<e.getErrMsg( )<< endl;
       m_is_device_initialized = false;
-      set_state(Tango::INIT);
+      set_state(Tango::FAULT);
       return;
   }
   catch(...)
   {
       INFO_STREAM<<"Initialization Failed : UNKNOWN"<<endl;
       m_status_message <<"Initialization Failed : UNKNOWN"<< endl;
-      set_state(Tango::INIT);
+      set_state(Tango::FAULT);
       m_is_device_initialized = false;
       return;
   }
@@ -257,7 +259,7 @@ void AdscCCD::always_executed_hook()
 		ERROR_STREAM << e.getErrMsg() << endl;
 		m_status_message <<"Initialization Failed : "<<e.getErrMsg( )<< endl;
 		//- throw exception
-		set_state(Tango::INIT);
+		set_state(Tango::FAULT);
 		m_is_device_initialized = false;
 		return;
 	}
@@ -266,7 +268,7 @@ void AdscCCD::always_executed_hook()
 		ERROR_STREAM<<"Initialization Failed : UNKNOWN"<<endl;
 		m_status_message <<"Initialization Failed : UNKNOWN"<< endl;
 		//- throw exception
-		set_state(Tango::INIT);
+		set_state(Tango::FAULT);
 		m_is_device_initialized = false;
 		return;
 	}
@@ -609,65 +611,14 @@ Tango::DevState AdscCCD::dev_state()
     Tango::DevState DeviceState    = Tango::STANDBY;
     if(!m_is_device_initialized )
     {
-        DeviceState            = Tango::INIT;
+        DeviceState            = Tango::FAULT;
         DeviceStatus        << m_status_message.str();
     }
-    else if (m_ct==0)
-    {
-        DeviceState            = Tango::INIT;
-        DeviceStatus        <<"Initialization Failed : Unable to get the lima control object !\n\n";
-    }
     else
-    {
-            CtControl::Status status;
-            m_ct->getStatus(status);
-            if (status.AcquisitionStatus == lima::AcqReady)
-            {
-                HwInterface::StatusType state;
-                m_hw->getStatus(state); 
-
-                if(state.acq == AcqRunning && state.det == DetExposure)
-                {
-                    DeviceState=Tango::RUNNING;
-                    DeviceStatus<<"Acquisition is Running ...\n"<<endl;
-                }
-                else if(state.acq == AcqFault && state.det == DetFault)
-                {                 
-                    DeviceState=Tango::INIT;//INIT
-                    DeviceStatus<<"Acquisition is in Init\n"<<endl;
-                }
-                else if(state.acq == AcqFault && state.det == DetIdle)
-                {                 
-                    DeviceState=Tango::FAULT;//FAULT
-                    DeviceStatus<<"Acquisition is in Fault\n"<<endl;
-                }
-                else
-                {
-                    DeviceState=Tango::STANDBY;
-                    DeviceStatus<<"Waiting for Request ...\n"<<endl;
-                }
-            }
-            else if(status.AcquisitionStatus == lima::AcqRunning)
-            {           
-                DeviceState=Tango::RUNNING;
-                DeviceStatus<<"Acquisition is Running ...\n"<<endl;
-            }
-            else
-            {      
-                HwInterface::StatusType state;
-                m_hw->getStatus(state); 
-                if(state.acq == AcqFault && state.det == DetFault)
-                {                 
-                    DeviceState=Tango::INIT;//INIT
-                    DeviceStatus<<"Acquisition is in Init\n"<<endl;
-                }
-                else
-                {
-                  DeviceState=Tango::FAULT;//FAULT
-                  DeviceStatus<<"Acquisition is in Fault\n"<<endl;
-                }
-            }
-        
+	{
+		//state&status are retrieved from specific device
+		DeviceState = ControlFactory::instance().get_state();
+		DeviceStatus << ControlFactory::instance().get_status();		
     }
 
     set_state(DeviceState);
@@ -807,6 +758,7 @@ int AdscCCD::FindIndexFromPropertyName(Tango::DbData& dev_prop, string property_
     if (i == iNbProperties) return -1;
     return i;
 }
+
 
 
 
