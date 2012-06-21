@@ -39,6 +39,7 @@
 
 
 #include <PrincetonCCD.h>
+
 #include <tango.h>
 
 namespace PrincetonCCD_ns

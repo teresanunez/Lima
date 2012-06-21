@@ -36,7 +36,6 @@ static const char *RcsId = "$Id $";
 
 #include <tango.h>
 
-
 #if defined(ENABLE_CRASH_REPORT)
 # include <crashreporting/crash_report.h>
 #else

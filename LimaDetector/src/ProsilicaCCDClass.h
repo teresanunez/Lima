@@ -37,8 +37,8 @@
 #ifndef _PROSILICACCDCLASS_H
 #define _PROSILICACCDCLASS_H
 
-
 #include <ProsilicaCCD.h>
+
 #include <tango.h>
 
 namespace ProsilicaCCD_ns

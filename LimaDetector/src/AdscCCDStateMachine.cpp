@@ -32,9 +32,9 @@ static const char *RcsId = "$Id $";
 //         (c) - Software Engineering Group - ESRF
 //=============================================================================
 
-
 #include <AdscCCD.h>
 #include <AdscCCDClass.h>
+
 #include <tango.h>
 /*====================================================================
  *	This file contains the methods to allow commands and attributes
@@ -64,10 +64,16 @@ namespace AdscCCD_ns
 bool AdscCCD::is_fileName_allowed(Tango::AttReqType type)
 {
 	if (get_state() == Tango::INIT	||
-		get_state() == Tango::RUNNING)
+		get_state() == Tango::RUNNING	||
+		get_state() == Tango::FAULT)
 	{
 		//	End of Generated Code
-		if ( (get_state()==Tango::RUNNING )&& type==Tango::READ_REQ )
+		if ( get_state()==Tango::RUNNING && type==Tango::READ_REQ )
+		{
+           return true;
+		}
+		
+		if ( get_state()==Tango::FAULT && is_device_initialized() )
 		{
            return true;
 		}
@@ -86,10 +92,16 @@ bool AdscCCD::is_fileName_allowed(Tango::AttReqType type)
 bool AdscCCD::is_imagePath_allowed(Tango::AttReqType type)
 {
 	if (get_state() == Tango::INIT	||
-		get_state() == Tango::RUNNING)
+		get_state() == Tango::RUNNING	||
+		get_state() == Tango::FAULT)
 	{
 		//	End of Generated Code
-		if ( (get_state()==Tango::RUNNING )&& type==Tango::READ_REQ )
+		if ( get_state()==Tango::RUNNING && type==Tango::READ_REQ )
+		{
+           return true;
+		}
+		
+		if ( get_state()==Tango::FAULT && is_device_initialized() )
 		{
            return true;
 		}
@@ -108,10 +120,16 @@ bool AdscCCD::is_imagePath_allowed(Tango::AttReqType type)
 bool AdscCCD::is_useStoredImageDark_allowed(Tango::AttReqType type)
 {
 	if (get_state() == Tango::INIT	||
-		get_state() == Tango::RUNNING)
+		get_state() == Tango::RUNNING	||
+		get_state() == Tango::FAULT)
 	{
 		//	End of Generated Code
-		if ( (get_state()==Tango::RUNNING )&& type==Tango::READ_REQ )
+		if ( get_state()==Tango::RUNNING && type==Tango::READ_REQ )
+		{
+           return true;
+		}
+		
+		if ( get_state()==Tango::FAULT && is_device_initialized() )
 		{
            return true;
 		}
@@ -130,10 +148,16 @@ bool AdscCCD::is_useStoredImageDark_allowed(Tango::AttReqType type)
 bool AdscCCD::is_imageKind_allowed(Tango::AttReqType type)
 {
 	if (get_state() == Tango::INIT	||
-		get_state() == Tango::RUNNING)
+		get_state() == Tango::RUNNING	||
+		get_state() == Tango::FAULT)
 	{
 		//	End of Generated Code
-		if ( (get_state()==Tango::RUNNING )&& type==Tango::READ_REQ )
+		if ( get_state()==Tango::RUNNING && type==Tango::READ_REQ )
+		{
+           return true;
+		}
+		
+		if ( get_state()==Tango::FAULT && is_device_initialized() )
 		{
            return true;
 		}
@@ -151,10 +175,17 @@ bool AdscCCD::is_imageKind_allowed(Tango::AttReqType type)
 //-----------------------------------------------------------------------------
 bool AdscCCD::is_isLastImage_allowed(Tango::AttReqType type)
 {
-	if (get_state() == Tango::INIT)
+	if (get_state() == Tango::INIT	||
+		get_state() == Tango::RUNNING	||
+		get_state() == Tango::FAULT)
 	{
 		//	End of Generated Code
-		if ( (get_state()==Tango::RUNNING )&& type==Tango::READ_REQ )
+		if ( get_state()==Tango::RUNNING && type==Tango::READ_REQ )
+		{
+           return true;
+		}
+		
+		if ( get_state()==Tango::FAULT && is_device_initialized() )
 		{
            return true;
 		}
@@ -178,10 +209,14 @@ bool AdscCCD::is_isLastImage_allowed(Tango::AttReqType type)
 bool AdscCCD::is_SetHeaderParameters_allowed(const CORBA::Any &any)
 {
 	if (get_state() == Tango::INIT	||
-		get_state() == Tango::RUNNING)
+		get_state() == Tango::RUNNING	||
+		get_state() == Tango::FAULT)
 	{
 		//	End of Generated Code
-
+		if ( get_state()==Tango::FAULT && is_device_initialized() )
+		{
+           return true;
+		}
 		//	Re-Start of Generated Code
 		return false;
 	}

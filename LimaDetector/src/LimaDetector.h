@@ -38,6 +38,7 @@
 #include <string>
 #include <iostream>
 
+
 //- LIMA
 #include "Debug.h"
 #include "HwInterface.h"
@@ -645,6 +646,9 @@ public :
 
 	//method in charge of displaying image in the "image" dynamic attribute
     void                read_image_callback(yat4tango::DynamicAttributeReadCallbackData& cbd);
+
+    // return true if the device is correctly initialized in init_device
+    bool is_device_initialized(){return m_is_device_initialized;};
 protected :    
     //    Add your own data members here
     //-----------------------------------------

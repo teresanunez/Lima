@@ -32,7 +32,6 @@ static const char *RcsId = "$Id $";
 //         (c) - Software Engineering Group - ESRF
 //=============================================================================
 
-
 #include <LimaDetector.h>
 #include <LimaDetectorClass.h>
 #include <tango.h>
@@ -66,13 +65,19 @@ namespace LimaDetector_ns
 bool LimaDetector::is_detectorType_allowed(Tango::AttReqType type)
 {
 	if (get_state() == Tango::INIT	||
+		get_state() == Tango::FAULT	||
 		get_state() == Tango::RUNNING)
 	{
 		//	End of Generated Code
-		if ( (get_state()==Tango::FAULT || get_state()==Tango::RUNNING )&& type==Tango::READ_REQ )
+		if ( get_state()==Tango::RUNNING && type==Tango::READ_REQ )
 		{
            return true;
 		}
+		
+		if ( get_state()==Tango::FAULT && is_device_initialized() )
+		{
+           return true;
+		}		
 		//	Re-Start of Generated Code
 		return false;
 	}
@@ -88,13 +93,19 @@ bool LimaDetector::is_detectorType_allowed(Tango::AttReqType type)
 bool LimaDetector::is_detectorModel_allowed(Tango::AttReqType type)
 {
 	if (get_state() == Tango::INIT	||
+		get_state() == Tango::FAULT	||
 		get_state() == Tango::RUNNING)
 	{
 		//	End of Generated Code
-		if ( (get_state()==Tango::FAULT || get_state()==Tango::RUNNING )&& type==Tango::READ_REQ )
+		if ( get_state()==Tango::RUNNING && type==Tango::READ_REQ )
 		{
            return true;
 		}
+		
+		if ( get_state()==Tango::FAULT && is_device_initialized() )
+		{
+           return true;
+		}	
 		//	Re-Start of Generated Code
 		return false;
 	}
@@ -111,13 +122,19 @@ bool LimaDetector::is_detectorModel_allowed(Tango::AttReqType type)
 bool LimaDetector::is_depth_allowed(Tango::AttReqType type)
 {
 	if (get_state() == Tango::INIT	||
+		get_state() == Tango::FAULT	||
 		get_state() == Tango::RUNNING)
 	{
 		//	End of Generated Code
-		if ( (get_state()==Tango::FAULT || get_state()==Tango::RUNNING )&& type==Tango::READ_REQ )
+		if ( get_state()==Tango::RUNNING && type==Tango::READ_REQ )
 		{
            return true;
 		}
+		
+		if ( get_state()==Tango::FAULT && is_device_initialized() )
+		{
+           return true;
+		}	
 		//	Re-Start of Generated Code
 		return false;
 	}
@@ -132,13 +149,20 @@ bool LimaDetector::is_depth_allowed(Tango::AttReqType type)
 //-----------------------------------------------------------------------------
 bool LimaDetector::is_exposureTime_allowed(Tango::AttReqType type)
 {
-	if (get_state() == Tango::INIT)
+	if (get_state() == Tango::INIT	||
+		get_state() == Tango::FAULT	||
+		get_state() == Tango::RUNNING)
 	{
 		//	End of Generated Code
-		if ( (get_state()==Tango::FAULT )&& type==Tango::READ_REQ )
+		if ( get_state()==Tango::RUNNING && type==Tango::READ_REQ )
 		{
            return true;
 		}
+		
+		if ( get_state()==Tango::FAULT && is_device_initialized() )
+		{
+           return true;
+		}	
 		//	Re-Start of Generated Code
 		return false;
 	}
@@ -154,13 +178,19 @@ bool LimaDetector::is_exposureTime_allowed(Tango::AttReqType type)
 bool LimaDetector::is_sensorWidth_allowed(Tango::AttReqType type)
 {
 	if (get_state() == Tango::INIT	||
+		get_state() == Tango::FAULT	||
 		get_state() == Tango::RUNNING)
 	{
 		//	End of Generated Code
-		if ( (get_state()==Tango::FAULT || get_state()==Tango::RUNNING )&& type==Tango::READ_REQ )
+		if ( get_state()==Tango::RUNNING && type==Tango::READ_REQ )
 		{
            return true;
 		}
+		
+		if ( get_state()==Tango::FAULT && is_device_initialized() )
+		{
+           return true;
+		}	
 		//	Re-Start of Generated Code
 		return false;
 	}
@@ -176,13 +206,19 @@ bool LimaDetector::is_sensorWidth_allowed(Tango::AttReqType type)
 bool LimaDetector::is_sensorHeight_allowed(Tango::AttReqType type)
 {
 	if (get_state() == Tango::INIT	||
+		get_state() == Tango::FAULT	||
 		get_state() == Tango::RUNNING)
 	{
 		//	End of Generated Code
-		if ( (get_state()==Tango::FAULT || get_state()==Tango::RUNNING )&& type==Tango::READ_REQ )
+		if ( get_state()==Tango::RUNNING && type==Tango::READ_REQ )
 		{
            return true;
 		}
+		
+		if ( get_state()==Tango::FAULT && is_device_initialized() )
+		{
+           return true;
+		}	
 		//	Re-Start of Generated Code
 		return false;
 	}
@@ -198,13 +234,19 @@ bool LimaDetector::is_sensorHeight_allowed(Tango::AttReqType type)
 bool LimaDetector::is_nbFrames_allowed(Tango::AttReqType type)
 {
 	if (get_state() == Tango::INIT	||
+		get_state() == Tango::FAULT	||
 		get_state() == Tango::RUNNING)
 	{
 		//	End of Generated Code
-		if ( (get_state()==Tango::FAULT || get_state()==Tango::RUNNING )&& type==Tango::READ_REQ )
+		if ( get_state()==Tango::RUNNING && type==Tango::READ_REQ )
 		{
            return true;
 		}
+		
+		if ( get_state()==Tango::FAULT && is_device_initialized() )
+		{
+           return true;
+		}	
 		//	Re-Start of Generated Code
 		return false;
 	}
@@ -220,13 +262,19 @@ bool LimaDetector::is_nbFrames_allowed(Tango::AttReqType type)
 bool LimaDetector::is_detectorDescription_allowed(Tango::AttReqType type)
 {
 	if (get_state() == Tango::INIT	||
+		get_state() == Tango::FAULT	||
 		get_state() == Tango::RUNNING)
 	{
 		//	End of Generated Code
-		if ( (get_state()==Tango::FAULT || get_state()==Tango::RUNNING )&& type==Tango::READ_REQ )
+		if ( get_state()==Tango::RUNNING && type==Tango::READ_REQ )
 		{
            return true;
 		}
+		
+		if ( get_state()==Tango::FAULT && is_device_initialized() )
+		{
+           return true;
+		}	
 		//	Re-Start of Generated Code
 		return false;
 	}
@@ -242,13 +290,19 @@ bool LimaDetector::is_detectorDescription_allowed(Tango::AttReqType type)
 bool LimaDetector::is_acquisitionMode_allowed(Tango::AttReqType type)
 {
 	if (get_state() == Tango::INIT	||
+		get_state() == Tango::FAULT	||
 		get_state() == Tango::RUNNING)
 	{
 		//	End of Generated Code
-		if ( (get_state()==Tango::FAULT || get_state()==Tango::RUNNING )&& type==Tango::READ_REQ )
+		if ( get_state()==Tango::RUNNING && type==Tango::READ_REQ )
 		{
            return true;
 		}
+		
+		if ( get_state()==Tango::FAULT && is_device_initialized() )
+		{
+           return true;
+		}	
 		//	Re-Start of Generated Code
 		return false;
 	}
@@ -264,13 +318,19 @@ bool LimaDetector::is_acquisitionMode_allowed(Tango::AttReqType type)
 bool LimaDetector::is_exposureAccTime_allowed(Tango::AttReqType type)
 {
 	if (get_state() == Tango::INIT	||
+		get_state() == Tango::FAULT	||
 		get_state() == Tango::RUNNING)
 	{
 		//	End of Generated Code
-		if ( (get_state()==Tango::FAULT || get_state()==Tango::RUNNING )&& type==Tango::READ_REQ )
+		if ( get_state()==Tango::RUNNING && type==Tango::READ_REQ )
 		{
            return true;
 		}
+		
+		if ( get_state()==Tango::FAULT && is_device_initialized() )
+		{
+           return true;
+		}	
 		//	Re-Start of Generated Code
 		return false;
 	}
@@ -286,13 +346,19 @@ bool LimaDetector::is_exposureAccTime_allowed(Tango::AttReqType type)
 bool LimaDetector::is_triggerMode_allowed(Tango::AttReqType type)
 {
 	if (get_state() == Tango::INIT	||
+		get_state() == Tango::FAULT	||
 		get_state() == Tango::RUNNING)
 	{
 		//	End of Generated Code
-		if ( (get_state()==Tango::FAULT || get_state()==Tango::RUNNING )&& type==Tango::READ_REQ )
+		if ( get_state()==Tango::RUNNING && type==Tango::READ_REQ )
 		{
-			return true;
+           return true;
 		}
+		
+		if ( get_state()==Tango::FAULT && is_device_initialized() )
+		{
+           return true;
+		}	
 		//	Re-Start of Generated Code
 		return false;
 	}
@@ -308,13 +374,19 @@ bool LimaDetector::is_triggerMode_allowed(Tango::AttReqType type)
 bool LimaDetector::is_fileGeneration_allowed(Tango::AttReqType type)
 {
 	if (get_state() == Tango::INIT	||
+		get_state() == Tango::FAULT	||
 		get_state() == Tango::RUNNING)
 	{
 		//	End of Generated Code
-		if ( (get_state()==Tango::FAULT || get_state()==Tango::RUNNING )&& type==Tango::READ_REQ )
+		if ( get_state()==Tango::RUNNING && type==Tango::READ_REQ )
 		{
-			return true;
+           return true;
 		}
+		
+		if ( get_state()==Tango::FAULT && is_device_initialized() )
+		{
+           return true;
+		}	
 		//	Re-Start of Generated Code
 		return false;
 	}
@@ -330,13 +402,19 @@ bool LimaDetector::is_fileGeneration_allowed(Tango::AttReqType type)
 bool LimaDetector::is_currentFrame_allowed(Tango::AttReqType type)
 {
 	if (get_state() == Tango::INIT	||
+		get_state() == Tango::FAULT	||
 		get_state() == Tango::RUNNING)
 	{
 		//	End of Generated Code
-		if ( (get_state()==Tango::FAULT || get_state()==Tango::RUNNING )&& type==Tango::READ_REQ )
+		if ( get_state()==Tango::RUNNING && type==Tango::READ_REQ )
 		{
-			return true;
+           return true;
 		}
+		
+		if ( get_state()==Tango::FAULT && is_device_initialized() )
+		{
+           return true;
+		}	
 		//	Re-Start of Generated Code
 		return false;
 	}
@@ -352,13 +430,19 @@ bool LimaDetector::is_currentFrame_allowed(Tango::AttReqType type)
 bool LimaDetector::is_x_allowed(Tango::AttReqType type)
 {
 	if (get_state() == Tango::INIT	||
+		get_state() == Tango::FAULT	||
 		get_state() == Tango::RUNNING)
 	{
 		//	End of Generated Code
-		if ( (get_state()==Tango::FAULT || get_state()==Tango::RUNNING )&& type==Tango::READ_REQ )
+		if ( get_state()==Tango::RUNNING && type==Tango::READ_REQ )
 		{
            return true;
 		}
+		
+		if ( get_state()==Tango::FAULT && is_device_initialized() )
+		{
+           return true;
+		}	
 		//	Re-Start of Generated Code
 		return false;
 	}
@@ -374,13 +458,19 @@ bool LimaDetector::is_x_allowed(Tango::AttReqType type)
 bool LimaDetector::is_y_allowed(Tango::AttReqType type)
 {
 	if (get_state() == Tango::INIT	||
+		get_state() == Tango::FAULT	||
 		get_state() == Tango::RUNNING)
 	{
 		//	End of Generated Code
-		if ( (get_state()==Tango::FAULT || get_state()==Tango::RUNNING )&& type==Tango::READ_REQ )
+		if ( get_state()==Tango::RUNNING && type==Tango::READ_REQ )
 		{
            return true;
 		}
+		
+		if ( get_state()==Tango::FAULT && is_device_initialized() )
+		{
+           return true;
+		}	
 		//	Re-Start of Generated Code
 		return false;
 	}
@@ -396,13 +486,19 @@ bool LimaDetector::is_y_allowed(Tango::AttReqType type)
 bool LimaDetector::is_width_allowed(Tango::AttReqType type)
 {
 	if (get_state() == Tango::INIT	||
+		get_state() == Tango::FAULT	||
 		get_state() == Tango::RUNNING)
 	{
 		//	End of Generated Code
-		if ( (get_state()==Tango::FAULT || get_state()==Tango::RUNNING )&& type==Tango::READ_REQ )
+		if ( get_state()==Tango::RUNNING && type==Tango::READ_REQ )
 		{
            return true;
 		}
+		
+		if ( get_state()==Tango::FAULT && is_device_initialized() )
+		{
+           return true;
+		}	
 		//	Re-Start of Generated Code
 		return false;
 	}
@@ -418,13 +514,19 @@ bool LimaDetector::is_width_allowed(Tango::AttReqType type)
 bool LimaDetector::is_height_allowed(Tango::AttReqType type)
 {
 	if (get_state() == Tango::INIT	||
+		get_state() == Tango::FAULT	||
 		get_state() == Tango::RUNNING)
 	{
 		//	End of Generated Code
-		if ( (get_state()==Tango::FAULT || get_state()==Tango::RUNNING )&& type==Tango::READ_REQ )
+		if ( get_state()==Tango::RUNNING && type==Tango::READ_REQ )
 		{
            return true;
 		}
+		
+		if ( get_state()==Tango::FAULT && is_device_initialized() )
+		{
+           return true;
+		}	
 		//	Re-Start of Generated Code
 		return false;
 	}
@@ -440,13 +542,19 @@ bool LimaDetector::is_height_allowed(Tango::AttReqType type)
 bool LimaDetector::is_binning_allowed(Tango::AttReqType type)
 {
 	if (get_state() == Tango::INIT	||
+		get_state() == Tango::FAULT	||
 		get_state() == Tango::RUNNING)
 	{
 		//	End of Generated Code
-		if ( (get_state()==Tango::FAULT || get_state()==Tango::RUNNING )&& type==Tango::READ_REQ )
+		if ( get_state()==Tango::RUNNING && type==Tango::READ_REQ )
 		{
            return true;
 		}
+		
+		if ( get_state()==Tango::FAULT && is_device_initialized() )
+		{
+           return true;
+		}	
 		//	Re-Start of Generated Code
 		return false;
 	}
@@ -466,10 +574,15 @@ bool LimaDetector::is_binning_allowed(Tango::AttReqType type)
 //-----------------------------------------------------------------------------
 bool LimaDetector::is_Snap_allowed(const CORBA::Any &any)
 {
-	if (get_state() == Tango::INIT)
+	if (get_state() == Tango::INIT	||
+		get_state() == Tango::FAULT	||
+		get_state() == Tango::RUNNING)
 	{
 		//	End of Generated Code
-
+		if ( get_state()==Tango::FAULT && is_device_initialized() )
+		{
+           return true;
+		}	
 		//	Re-Start of Generated Code
 		return false;
 	}
@@ -484,10 +597,14 @@ bool LimaDetector::is_Snap_allowed(const CORBA::Any &any)
 //-----------------------------------------------------------------------------
 bool LimaDetector::is_Stop_allowed(const CORBA::Any &any)
 {
-	if (get_state() == Tango::INIT)
+	if (get_state() == Tango::INIT	||
+		get_state() == Tango::FAULT)
 	{
 		//	End of Generated Code
-
+		if ( get_state()==Tango::FAULT && is_device_initialized() )
+		{
+           return true;
+		}	
 		//	Re-Start of Generated Code
 		return false;
 	}
@@ -502,10 +619,15 @@ bool LimaDetector::is_Stop_allowed(const CORBA::Any &any)
 //-----------------------------------------------------------------------------
 bool LimaDetector::is_Start_allowed(const CORBA::Any &any)
 {
-	if (get_state() == Tango::INIT)
+	if (get_state() == Tango::INIT	||
+		get_state() == Tango::FAULT	||
+		get_state() == Tango::RUNNING)
 	{
 		//	End of Generated Code
-
+		if ( get_state()==Tango::FAULT && is_device_initialized() )
+		{
+           return true;
+		}	
 		//	Re-Start of Generated Code
 		return false;
 	}
@@ -521,10 +643,14 @@ bool LimaDetector::is_Start_allowed(const CORBA::Any &any)
 bool LimaDetector::is_SetROI_allowed(const CORBA::Any &any)
 {
 	if (get_state() == Tango::INIT	||
+		get_state() == Tango::FAULT	||
 		get_state() == Tango::RUNNING)
 	{
 		//	End of Generated Code
-
+		if ( get_state()==Tango::FAULT && is_device_initialized() )
+		{
+           return true;
+		}	
 		//	Re-Start of Generated Code
 		return false;
 	}
@@ -540,10 +666,14 @@ bool LimaDetector::is_SetROI_allowed(const CORBA::Any &any)
 bool LimaDetector::is_SetBinning_allowed(const CORBA::Any &any)
 {
 	if (get_state() == Tango::INIT	||
+		get_state() == Tango::FAULT	||
 		get_state() == Tango::RUNNING)
 	{
 		//	End of Generated Code
-
+		if ( get_state()==Tango::FAULT && is_device_initialized() )
+		{
+           return true;
+		}	
 		//	Re-Start of Generated Code
 		return false;
 	}

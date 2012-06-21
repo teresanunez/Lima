@@ -42,6 +42,7 @@
 
  //    Add your own constant definitions here.
  //-----------------------------------------------
+
 #include "HwInterface.h"
 #include "CtControl.h"
 #include "CtAcquisition.h"
@@ -203,7 +204,8 @@ public :
     //    Here is the end of the automatic code generation part
     //-------------------------------------------------------------    
 
-
+	// return true if the device is correctly initialized in init_device
+	bool is_device_initialized(){return m_is_device_initialized;};
 
 protected :    
     //    Add your own data members here

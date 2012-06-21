@@ -32,10 +32,11 @@ static const char *RcsId = "$Id $";
 //         (c) - Software Engineering Group - ESRF
 //=============================================================================
 
-
 #include <ProsilicaCCD.h>
 #include <ProsilicaCCDClass.h>
+
 #include <tango.h>
+
 /*====================================================================
  *	This file contains the methods to allow commands and attributes
  * read or write execution.

@@ -32,9 +32,9 @@ static const char *RcsId = "$Id $";
 //         (c) - Software Engineering Group - ESRF
 //=============================================================================
 
-
 #include <MarCCD.h>
 #include <MarCCDClass.h>
+
 #include <tango.h>
 
 /*====================================================================
@@ -64,9 +64,23 @@ namespace MarCCD_ns
 //-----------------------------------------------------------------------------
 bool MarCCD::is_imageName_allowed(Tango::AttReqType type)
 {
+	if (get_state() == Tango::INIT	||
+		get_state() == Tango::FAULT	||
+		get_state() == Tango::RUNNING)
+	{
 		//	End of Generated Code
-
+		if ( get_state()==Tango::RUNNING && type==Tango::READ_REQ )
+		{
+           return true;
+		}
+		
+		if ( get_state()==Tango::FAULT && is_device_initialized() )
+		{
+           return true;
+		}
 		//	Re-Start of Generated Code
+		return false;
+	}
 	return true;
 }
 //+----------------------------------------------------------------------------
@@ -78,9 +92,23 @@ bool MarCCD::is_imageName_allowed(Tango::AttReqType type)
 //-----------------------------------------------------------------------------
 bool MarCCD::is_imageIndex_allowed(Tango::AttReqType type)
 {
+	if (get_state() == Tango::INIT	||
+		get_state() == Tango::FAULT	||
+		get_state() == Tango::RUNNING)
+	{
 		//	End of Generated Code
-
+		if ( get_state()==Tango::RUNNING && type==Tango::READ_REQ )
+		{
+           return true;
+		}
+		
+		if ( get_state()==Tango::FAULT && is_device_initialized() )
+		{
+           return true;
+		}
 		//	Re-Start of Generated Code
+		return false;
+	}
 	return true;
 }
 
@@ -97,9 +125,18 @@ bool MarCCD::is_imageIndex_allowed(Tango::AttReqType type)
 //-----------------------------------------------------------------------------
 bool MarCCD::is_TakeBackground_allowed(const CORBA::Any &any)
 {
+	if (get_state() == Tango::INIT	||
+		get_state() == Tango::FAULT	||
+		get_state() == Tango::RUNNING)
+	{
 		//	End of Generated Code
-
+		if ( get_state()==Tango::FAULT && is_device_initialized() )
+		{
+           return true;
+		}
 		//	Re-Start of Generated Code
+		return false;
+	}
 	return true;
 }
 

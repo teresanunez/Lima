@@ -37,7 +37,6 @@
 #ifndef _PILATUSPIXELDETECTORCLASS_H
 #define _PILATUSPIXELDETECTORCLASS_H
 
-
 #include <PilatusPixelDetector.h>
 #include <tango.h>
 
