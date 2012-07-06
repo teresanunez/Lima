@@ -33,6 +33,21 @@
 #ifndef _LimaDetector_H
 #define _LimaDetector_H
 
+#ifdef WIN32
+#include "Factory.h"
+
+//- Tango
+#include <tango.h>
+
+//- YAT/YAT4TANGO
+#include <yat4tango/InnerAppender.h>
+#include <yat4tango/DynamicAttributeManager.h>
+#include <yat/utils/XString.h>
+
+#endif
+
+
+
 
 #include <algorithm>
 #include <string>
@@ -53,8 +68,10 @@
 
 //- This Device
 #include "AcquisitionTask.h"
-#include "Factory.h"
 
+
+#ifndef WIN32
+#include "Factory.h"
 //- Tango
 #include <tango.h>
 
@@ -62,6 +79,9 @@
 #include <yat4tango/InnerAppender.h>
 #include <yat4tango/DynamicAttributeManager.h>
 #include <yat/utils/XString.h>
+
+#endif
+
 
 
 using namespace lima;

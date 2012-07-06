@@ -53,12 +53,18 @@ static const char *RcsId = "$Id:  $";
 //
 //===================================================================
 
+#ifdef WIN32
+#include <tango.h>
+#include <PogoHelper.h>
+#endif
 
 #include <AdscCCD.h>
 #include <AdscCCDClass.h>
 
+#ifndef WIN32
 #include <tango.h>
 #include <PogoHelper.h>
+#endif
 
 namespace AdscCCD_ns
 {

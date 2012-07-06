@@ -34,7 +34,9 @@ static const char *RcsId = "$Id $";
 //         (c) - Software Engineering Group - ESRF
 //=============================================================================
 
+
 #include <tango.h>
+
 
 #if defined(ENABLE_CRASH_REPORT)
 # include <crashreporting/crash_report.h>

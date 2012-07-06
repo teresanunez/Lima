@@ -1,6 +1,9 @@
 #ifndef _FACTORY_H_
 #define _FACTORY_H_
 
+#ifdef WIN32
+#include <tango.h>
+#endif
 
 #include <Singleton.h>
 
@@ -9,8 +12,9 @@
 #include "Debug.h"
 #include <yat/threading/Mutex.h>
 
+#ifndef WIN32
 #include <tango.h>
-
+#endif
 
 #ifdef SIMULATOR_ENABLED
 	#include <SimulatorInterface.h>

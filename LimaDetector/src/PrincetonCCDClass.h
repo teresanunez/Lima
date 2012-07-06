@@ -37,15 +37,45 @@
 #ifndef _PRINCETONCCDCLASS_H
 #define _PRINCETONCCDCLASS_H
 
-
+#ifdef WIN32
+#include <tango.h>
+#endif
 #include <PrincetonCCD.h>
 
+#ifndef WIN32
 #include <tango.h>
+#endif
 
 namespace PrincetonCCD_ns
 {//=====================================
 //	Define classes for attributes
 //=====================================
+class temperatureTargetAttrib: public Tango::Attr
+{
+public:
+	temperatureTargetAttrib():Attr("temperatureTarget", Tango::DEV_DOUBLE, Tango::READ_WRITE) {};
+	~temperatureTargetAttrib() {};
+	
+	virtual void read(Tango::DeviceImpl *dev,Tango::Attribute &att)
+	{(static_cast<PrincetonCCD *>(dev))->read_temperatureTarget(att);}
+	virtual void write(Tango::DeviceImpl *dev,Tango::WAttribute &att)
+	{(static_cast<PrincetonCCD *>(dev))->write_temperatureTarget(att);}
+	virtual bool is_allowed(Tango::DeviceImpl *dev,Tango::AttReqType ty)
+	{return (static_cast<PrincetonCCD *>(dev))->is_temperatureTarget_allowed(ty);}
+};
+
+class temperatureAttrib: public Tango::Attr
+{
+public:
+	temperatureAttrib():Attr("temperature", Tango::DEV_DOUBLE, Tango::READ) {};
+	~temperatureAttrib() {};
+	
+	virtual void read(Tango::DeviceImpl *dev,Tango::Attribute &att)
+	{(static_cast<PrincetonCCD *>(dev))->read_temperature(att);}
+	virtual bool is_allowed(Tango::DeviceImpl *dev,Tango::AttReqType ty)
+	{return (static_cast<PrincetonCCD *>(dev))->is_temperature_allowed(ty);}
+};
+
 //=========================================
 //	Define classes for commands
 //=========================================
@@ -83,6 +113,7 @@ protected:
 	static PrincetonCCDClass *_instance;
 	void command_factory();
 	void get_class_property();
+	void attribute_factory(vector<Tango::Attr *> &);
 	void write_class_property();
 	void set_default_property();
 	string get_cvstag();

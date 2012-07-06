@@ -436,16 +436,16 @@ void ControlFactory::reset(const std::string& detector_type )
 #ifdef PRINCETON_ENABLED
         if (detector_type.compare("PrincetonCCD")==0)
         {
-            if(my_camera_princeton)
-            {
-            	delete my_camera_princeton;
-            	my_camera_princeton = 0;
-            }
-
             if(my_interface_princeton)
             {
             	delete my_interface_princeton;
             	my_interface_princeton = 0;
+            }
+			
+			if(my_camera_princeton)
+            {
+            	delete my_camera_princeton;
+            	my_camera_princeton = 0;
             }
         }
 #endif

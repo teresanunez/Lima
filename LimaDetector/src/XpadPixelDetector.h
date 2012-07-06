@@ -33,6 +33,10 @@
 #ifndef _XPADPIXELDETECTOR_H
 #define _XPADPIXELDETECTOR_H
 
+#ifdef WIN32
+#include <tango.h>
+#endif
+
 #include "HwInterface.h"
 #include "CtControl.h"
 #include "CtAcquisition.h"
@@ -40,7 +44,9 @@
 #include <XpadInterface.h>
 #include "Factory.h"
 
+#ifndef WIN32
 #include <tango.h>
+#endif
 
 //using namespace Tango;
 

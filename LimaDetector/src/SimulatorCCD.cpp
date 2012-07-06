@@ -51,11 +51,19 @@ static const char *RcsId = "$Id:  $";
 //  Status  |  dev_status()
 //
 //===================================================================
+#ifdef WIN32
+#include <tango.h>
+#include <PogoHelper.h>
+#endif
+
 #include <SimulatorCCD.h>
 #include <SimulatorCCDClass.h>
 
+#ifndef WIN32
 #include <tango.h>
 #include <PogoHelper.h>
+#endif
+
 
 namespace SimulatorCCD_ns
 {

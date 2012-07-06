@@ -32,11 +32,15 @@ static const char *HttpServer = "http://www.esrf.fr/computing/cs/tango/tango_doc
 //         (c) - Software Engineering Group - ESRF
 //=============================================================================
 
-
+#ifdef WIN32
+#include <tango.h>
+#endif
 #include <PrincetonCCD.h>
 #include <PrincetonCCDClass.h>
 
+#ifndef WIN32
 #include <tango.h>
+#endif
 
 //+----------------------------------------------------------------------------
 /**
@@ -222,7 +226,7 @@ void PrincetonCCDClass::device_factory(const Tango::DevVarStringArray *devlist_p
 						
 		// Create devices and add it into the device list
 		//----------------------------------------------------
-		device_list.push_back(new PrincetonCCD(this, (*devlist_ptr)[i]));
+		device_list.push_back(new PrincetonCCD(this, (*devlist_ptr)[i]));							 
 
 		// Export device to the outside world
 		// Check before if database used.
@@ -235,6 +239,30 @@ void PrincetonCCDClass::device_factory(const Tango::DevVarStringArray *devlist_p
 	//	End of Automatic code generation
 	//-------------------------------------------------------------
 
+}
+//+----------------------------------------------------------------------------
+//	Method: PrincetonCCDClass::attribute_factory(vector<Tango::Attr *> &att_list)
+//-----------------------------------------------------------------------------
+void PrincetonCCDClass::attribute_factory(vector<Tango::Attr *> &att_list)
+{
+	//	Attribute : temperature
+	temperatureAttrib	*temperature = new temperatureAttrib();
+	Tango::UserDefaultAttrProp	temperature_prop;
+	temperature_prop.set_unit("°");
+	temperature_prop.set_format("%6.2f");
+	temperature->set_default_properties(temperature_prop);
+	att_list.push_back(temperature);
+
+	//	Attribute : temperatureTarget
+	temperatureTargetAttrib	*temperature_target = new temperatureTargetAttrib();
+	Tango::UserDefaultAttrProp	temperature_target_prop;
+	temperature_target_prop.set_unit("°");
+	temperature_target_prop.set_format("%6.2f");
+	temperature_target->set_default_properties(temperature_target_prop);
+	att_list.push_back(temperature_target);
+
+	//	End of Automatic code generation
+	//-------------------------------------------------------------
 }
 
 
@@ -299,11 +327,10 @@ void PrincetonCCDClass::set_default_property()
 	vector<string>	vect_data;
 	//	Set Default Class Properties
 	//	Set Default Device Properties
-	prop_name = "DetectorIP";
-	prop_desc = "Ip Address of the Detector.";
-	prop_def  = "127.0.0.1";
+	prop_name = "DetectorNum";
+	prop_desc = "Detector Number.";
+	prop_def  = "";
 	vect_data.clear();
-	vect_data.push_back("127.0.0.1");
 	if (prop_def.length()>0)
 	{
 		Tango::DbDatum	data(prop_name);

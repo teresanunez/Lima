@@ -51,12 +51,18 @@ static const char *RcsId = "$Id:  $";
 //  Status  |  dev_status()
 //
 //===================================================================
+#ifdef WIN32
+#include <tango.h>
+#include <PogoHelper.h>
+#endif
 
 #include <BaslerCCD.h>
 #include <BaslerCCDClass.h>
 
+#ifndef WIN32
 #include <tango.h>
 #include <PogoHelper.h>
+#endif
 
 namespace BaslerCCD_ns
 {

@@ -44,15 +44,24 @@
  //    Add your own constant definitions here.
  //-----------------------------------------------
 
+#ifdef WIN32
+#include <tango.h>
+#include "Factory.h"
+#endif
+
 #include "HwInterface.h"
 #include "CtControl.h"
 #include "CtAcquisition.h"
 #include "CtImage.h"
 
 #include <SimulatorInterface.h>
-#include "Factory.h"
 
+#ifndef WIN32
 #include <tango.h>
+#include "Factory.h"
+#endif
+
+
 
 using namespace lima;
 using namespace std;

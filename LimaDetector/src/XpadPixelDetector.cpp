@@ -58,12 +58,19 @@ static const char *RcsId = "$Id:  $";
 //  GetModConfig    |  get_mod_config()
 //
 //===================================================================
+#ifdef WIN32
+#include <tango.h>
+#include <PogoHelper.h>
+#endif
 
 #include <XpadPixelDetector.h>
 #include <XpadPixelDetectorClass.h>
 
+#ifndef WIN32
 #include <tango.h>
 #include <PogoHelper.h>
+#endif
+
 
 namespace XpadPixelDetector_ns
 {

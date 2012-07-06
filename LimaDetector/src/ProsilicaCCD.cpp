@@ -50,12 +50,19 @@ static const char *RcsId = "$Id:  $";
 //  State  |  dev_state()
 //
 //===================================================================
+#ifdef WIN32
+#include <tango.h>
+#include <PogoHelper.h>
+#endif
 
 #include <ProsilicaCCD.h>
 #include <ProsilicaCCDClass.h>
 
+#ifndef WIN32
 #include <tango.h>
 #include <PogoHelper.h>
+#endif
+
 
 namespace ProsilicaCCD_ns
 {

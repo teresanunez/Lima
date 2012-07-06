@@ -55,12 +55,18 @@ static const char *RcsId = "$Id:  $";
 //  SendAnyCommand       |  send_any_command()
 //
 //===================================================================
+#ifdef WIN32
+#include <tango.h>
+#include <PogoHelper.h>
+#endif
 
 #include <PilatusPixelDetector.h>
 #include <PilatusPixelDetectorClass.h>
 
+#ifndef WIN32
 #include <tango.h>
 #include <PogoHelper.h>
+#endif
 
 namespace PilatusPixelDetector_ns
 {

@@ -33,7 +33,9 @@ static const char *RcsId = "$Id:  $";
 //
 //         (c) - Software Engineering Group - ESRF
 //=============================================================================
-
+#ifdef WIN32
+#include <tango.h>
+#endif
 #include <LimaDetectorClass.h>
 
 #ifdef SIMULATOR_ENABLED
@@ -67,8 +69,10 @@ static const char *RcsId = "$Id:  $";
 #ifdef PRINCETON_ENABLED
 	#include <PrincetonCCDClass.h>
 #endif
-#include <tango.h>
 
+#ifndef WIN32
+#include <tango.h>
+#endif
 
 /**
  *	Create LimaDetectorClass singleton and store it in DServer object.

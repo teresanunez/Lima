@@ -36,10 +36,14 @@
 
 #ifndef _LimaDetectorCLASS_H
 #define _LimaDetectorCLASS_H
-
-#include <LimaDetector.h>
+#ifdef WIN32
 #include <tango.h>
+#endif
+#include <LimaDetector.h>
 
+#ifndef WIN32
+#include <tango.h>
+#endif
 
 namespace LimaDetector_ns
 {//=====================================

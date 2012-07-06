@@ -31,10 +31,17 @@ static const char *RcsId = "$Id $";
 //
 //         (c) - Software Engineering Group - ESRF
 //=============================================================================
+#ifdef WIN32
+#include <tango.h>
+#endif
+
 #include <PrincetonCCD.h>
 #include <PrincetonCCDClass.h>
 
+#ifndef WIN32
 #include <tango.h>
+#endif
+
 
 /*====================================================================
  *	This file contains the methods to allow commands and attributes
@@ -56,6 +63,62 @@ namespace PrincetonCCD_ns
 
 
 
+//+----------------------------------------------------------------------------
+//
+// method : 		PrincetonCCD::is_temperature_allowed
+// 
+// description : 	Read/Write allowed for temperature attribute.
+//
+//-----------------------------------------------------------------------------
+bool PrincetonCCD::is_temperature_allowed(Tango::AttReqType type)
+{
+	if (get_state() == Tango::INIT	||
+		get_state() == Tango::FAULT	||
+		get_state() == Tango::RUNNING)
+	{
+		//	End of Generated Code
+		if ( get_state()==Tango::RUNNING && type==Tango::READ_REQ )
+		{
+           return true;
+		}
+		
+		if ( get_state()==Tango::FAULT && is_device_initialized() )
+		{
+           return true;
+		}
+		//	Re-Start of Generated Code
+		return false;
+	}
+	return true;
+}
+//+----------------------------------------------------------------------------
+//
+// method : 		PrincetonCCD::is_temperatureTarget_allowed
+// 
+// description : 	Read/Write allowed for temperatureTarget attribute.
+//
+//-----------------------------------------------------------------------------
+bool PrincetonCCD::is_temperatureTarget_allowed(Tango::AttReqType type)
+{
+	if (get_state() == Tango::INIT	||
+		get_state() == Tango::FAULT	||
+		get_state() == Tango::RUNNING)
+	{
+		//	End of Generated Code
+		if ( get_state()==Tango::RUNNING && type==Tango::READ_REQ )
+		{
+           return true;
+		}
+		
+		if ( get_state()==Tango::FAULT && is_device_initialized() )
+		{
+           return true;
+		}
+		//	Re-Start of Generated Code
+		return false;
+	}
+	return true;
+}
 
 //=================================================
 //		Commands Allowed Methods

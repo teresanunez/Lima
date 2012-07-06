@@ -33,10 +33,16 @@ static const char *HttpServer = "http://www.esrf.fr/computing/cs/tango/tango_doc
 //=============================================================================
 
 
+#ifdef WIN32
+#include <tango.h>
+#endif
+
 #include <XpadPixelDetector.h>
 #include <XpadPixelDetectorClass.h>
 
+#ifndef WIN32
 #include <tango.h>
+#endif
 
 //+----------------------------------------------------------------------------
 /**

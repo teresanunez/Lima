@@ -52,12 +52,18 @@ static const char *RcsId = "$Id:  $";
 //  TakeBackground  |  take_background()
 //
 //===================================================================
+#ifdef WIN32
+#include <tango.h>
+#include <PogoHelper.h>
+#endif
 
 #include <MarCCD.h>
 #include <MarCCDClass.h>
 
+#ifndef WIN32
 #include <tango.h>
 #include <PogoHelper.h>
+#endif
 
 const size_t MAX_STRING_LENGTH = 256;
 

@@ -43,6 +43,11 @@
 
  //    Add your own constant definitions here.
  //-----------------------------------------------
+#ifdef WIN32
+#include <tango.h>
+#include "Factory.h"
+#endif
+
 
 #include "HwInterface.h"
 #include "CtControl.h"
@@ -50,9 +55,11 @@
 #include "CtImage.h"
 #include <RoperScientificInterface.h>
 
-#include "Factory.h"
-
+#ifndef WIN32
 #include <tango.h>
+#include "Factory.h"
+#endif
+
 #define MAX_ATTRIBUTE_STRING_LENGTH     256
 
 using namespace lima;
@@ -89,6 +96,9 @@ public :
  *    Attribute member data.
  */
 //@{
+		Tango::DevDouble	*attr_temperature_read;
+		Tango::DevDouble	*attr_temperatureTarget_read;
+		Tango::DevDouble	attr_temperatureTarget_write;
 //@}
 
 /**
@@ -172,7 +182,26 @@ public :
  *	Hardware acquisition for attributes.
  */
 	virtual void read_attr_hardware(vector<long> &attr_list);
-    
+/**
+ *	Extract real attribute values for temperature acquisition result.
+ */
+	virtual void read_temperature(Tango::Attribute &attr);
+/**
+ *	Extract real attribute values for temperatureTarget acquisition result.
+ */
+	virtual void read_temperatureTarget(Tango::Attribute &attr);
+/**
+ *	Write temperatureTarget attribute values to hardware.
+ */
+	virtual void write_temperatureTarget(Tango::WAttribute &attr);
+/**
+ *	Read/Write allowed for temperature attribute.
+ */
+	virtual bool is_temperature_allowed(Tango::AttReqType type);
+/**
+ *	Read/Write allowed for temperatureTarget attribute.
+ */
+	virtual bool is_temperatureTarget_allowed(Tango::AttReqType type);
 /**
  * This command gets the device state (stored in its <i>device_state</i> data member) and returns it to the caller.
  *	@return	State Code
@@ -210,6 +239,7 @@ protected :
     //lima OBJECTS
     RoperScientific::Interface* m_hw;
     CtControl*                  m_ct;
+    RoperScientific::Camera*    m_camera;	
     
 };
 
