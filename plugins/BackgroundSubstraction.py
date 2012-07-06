@@ -19,6 +19,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program; if not, see <http://www.gnu.org/licenses/>.
 ############################################################################
+import os
 import PyTango
 
 from Lima import Core
@@ -31,7 +32,9 @@ class BackgroundSubstractionDeviceServer(BasePostProcess) :
     def __init__(self,cl,name) :
         self.__backGroundTask = None
         self.__backGroundImage = Core.Processlib.Data()
-        
+	self.get_device_properties(self.get_device_class())
+	self.__deleteDarkAfterRead = False
+
         BasePostProcess.__init__(self,cl,name)
         BackgroundSubstractionDeviceServer.init_device(self)
 
@@ -57,10 +60,20 @@ class BackgroundSubstractionDeviceServer(BasePostProcess) :
 			return
 	PyTango.Device_4Impl.set_state(self,state)
 
+    def read_delete_dark_after_read(self,attr) :
+	attr.set_value(self.__deleteDarkAfterRead)
+
+    def write_delete_dark_after_read(self,attr) :
+	data = []
+	attr.get_write_value(data)
+	self.__deleteDarkAfterRead = data[0]
+
     @Core.DEB_MEMBER_FUNCT
     def setBackgroundImage(self,filepath) :
         deb.Param('filepath=%s' % filepath)
         self.__backGroundImage = getDataFromFile(filepath)
+	if self.__deleteDarkAfterRead:
+	    os.unlink(filepath)
         if(self.__backGroundTask) :
             self.__backGroundTask.setBackgroundImage(self.__backGroundImage)
 
@@ -96,6 +109,10 @@ class BackgroundSubstractionDeviceServerClass(PyTango.DeviceClass) :
 	    [[PyTango.DevLong,
 	    PyTango.SCALAR,
 	    PyTango.READ_WRITE]],
+	'delete_dark_after_read':
+	[[PyTango.DevBoolean,
+	  PyTango.SCALAR,
+	  PyTango.READ_WRITE]],
 	}
 
 
