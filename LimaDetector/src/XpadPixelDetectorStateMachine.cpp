@@ -498,9 +498,7 @@ bool XpadPixelDetector::is_LoadConfig_allowed(const CORBA::Any &any)
 //-----------------------------------------------------------------------------
 bool XpadPixelDetector::is_Reset_allowed(const CORBA::Any &any)
 {
-	if (get_state() == Tango::INIT	||
-		get_state() == Tango::RUNNING	||
-		get_state() == Tango::FAULT)
+	if (get_state() == Tango::RUNNING)
 	{
 		//	End of Generated Code
 		if ( get_state()==Tango::FAULT && is_device_initialized() )
