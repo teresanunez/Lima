@@ -157,15 +157,11 @@ bool LimaDetector::is_depth_allowed(Tango::AttReqType type)
 bool LimaDetector::is_exposureTime_allowed(Tango::AttReqType type)
 {
 	if (get_state() == Tango::INIT	||
-		get_state() == Tango::FAULT	||
-		get_state() == Tango::RUNNING)
+		get_state() == Tango::FAULT	/*||
+		get_state() == Tango::RUNNING)*/)
 	{
 		//	End of Generated Code
-		if ( get_state()==Tango::RUNNING && type==Tango::READ_REQ )
-		{
-           return true;
-		}
-		
+
 		if ( get_state()==Tango::FAULT && is_device_initialized() )
 		{
            return true;
