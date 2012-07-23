@@ -655,8 +655,7 @@ bool LimaDetector::is_binningV_allowed(Tango::AttReqType type)
 bool LimaDetector::is_Snap_allowed(const CORBA::Any &any)
 {
 	if (get_state() == Tango::INIT	||
-		get_state() == Tango::FAULT	||
-		get_state() == Tango::RUNNING)
+		get_state() == Tango::FAULT)
 	{
 		//	End of Generated Code
 		if ( get_state()==Tango::FAULT && is_device_initialized() )
