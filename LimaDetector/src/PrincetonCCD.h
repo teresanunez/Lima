@@ -96,6 +96,10 @@ public :
  *    Attribute member data.
  */
 //@{
+		Tango::DevString	*attr_internalAcquisitionMode_read;
+		Tango::DevString	attr_internalAcquisitionMode_write;
+		Tango::DevString	*attr_shutterMode_read;
+		Tango::DevString	attr_shutterMode_write;
 		Tango::DevDouble	*attr_temperature_read;
 		Tango::DevDouble	*attr_temperatureTarget_read;
 		Tango::DevDouble	attr_temperatureTarget_write;
@@ -110,6 +114,21 @@ public :
  *	Detector Number.
  */
 	string	detectorNum;
+/**
+ *	Memorize/Define the internalAcquisitionMode attribute at Init device<br>
+ *	Availables values :<br>
+ *	- STANDARD<br>
+ *	- FOCUS<br>
+ */
+	string	memorizedInternalAcquisitionMode;
+/**
+ *	Memorize/Define the SHUTTERMode attribute at Init device<br>
+ *	Availables values :<br>
+ *	- OPEN_NEVER<br>
+ *	- OPEN_PRE_EXPOSURE<br>
+ *	- OPEN_NO_CHANGE<br>
+ */
+	string	memorizedShutterMode;
 //@}
 
 /**
@@ -183,6 +202,22 @@ public :
  */
 	virtual void read_attr_hardware(vector<long> &attr_list);
 /**
+ *	Extract real attribute values for internalAcquisitionMode acquisition result.
+ */
+	virtual void read_internalAcquisitionMode(Tango::Attribute &attr);
+/**
+ *	Write internalAcquisitionMode attribute values to hardware.
+ */
+	virtual void write_internalAcquisitionMode(Tango::WAttribute &attr);
+/**
+ *	Extract real attribute values for shutterMode acquisition result.
+ */
+	virtual void read_shutterMode(Tango::Attribute &attr);
+/**
+ *	Write shutterMode attribute values to hardware.
+ */
+	virtual void write_shutterMode(Tango::WAttribute &attr);
+/**
  *	Extract real attribute values for temperature acquisition result.
  */
 	virtual void read_temperature(Tango::Attribute &attr);
@@ -194,6 +229,14 @@ public :
  *	Write temperatureTarget attribute values to hardware.
  */
 	virtual void write_temperatureTarget(Tango::WAttribute &attr);
+/**
+ *	Read/Write allowed for internalAcquisitionMode attribute.
+ */
+	virtual bool is_internalAcquisitionMode_allowed(Tango::AttReqType type);
+/**
+ *	Read/Write allowed for shutterMode attribute.
+ */
+	virtual bool is_shutterMode_allowed(Tango::AttReqType type);
 /**
  *	Read/Write allowed for temperature attribute.
  */
@@ -240,6 +283,9 @@ protected :
     RoperScientific::Interface* m_hw;
     CtControl*                  m_ct;
     RoperScientific::Camera*    m_camera;	
+	
+	std::string                 m_acquisition_mode;	//aquisition mode name 	(STANDARD, CONTINUOUS, FOCUS)
+	std::string	                m_shutter_mode;	 //shutter mode name 	(OPEN_NEVER, OPEN_PRE_EXPOSURE, OPEN_NO_CHANGE)
     
 };
 

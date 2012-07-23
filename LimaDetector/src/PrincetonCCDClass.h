@@ -76,6 +76,34 @@ public:
 	{return (static_cast<PrincetonCCD *>(dev))->is_temperature_allowed(ty);}
 };
 
+class shutterModeAttrib: public Tango::Attr
+{
+public:
+	shutterModeAttrib():Attr("shutterMode", Tango::DEV_STRING, Tango::READ_WRITE) {};
+	~shutterModeAttrib() {};
+	
+	virtual void read(Tango::DeviceImpl *dev,Tango::Attribute &att)
+	{(static_cast<PrincetonCCD *>(dev))->read_shutterMode(att);}
+	virtual void write(Tango::DeviceImpl *dev,Tango::WAttribute &att)
+	{(static_cast<PrincetonCCD *>(dev))->write_shutterMode(att);}
+	virtual bool is_allowed(Tango::DeviceImpl *dev,Tango::AttReqType ty)
+	{return (static_cast<PrincetonCCD *>(dev))->is_shutterMode_allowed(ty);}
+};
+
+class internalAcquisitionModeAttrib: public Tango::Attr
+{
+public:
+	internalAcquisitionModeAttrib():Attr("internalAcquisitionMode", Tango::DEV_STRING, Tango::READ_WRITE) {};
+	~internalAcquisitionModeAttrib() {};
+	
+	virtual void read(Tango::DeviceImpl *dev,Tango::Attribute &att)
+	{(static_cast<PrincetonCCD *>(dev))->read_internalAcquisitionMode(att);}
+	virtual void write(Tango::DeviceImpl *dev,Tango::WAttribute &att)
+	{(static_cast<PrincetonCCD *>(dev))->write_internalAcquisitionMode(att);}
+	virtual bool is_allowed(Tango::DeviceImpl *dev,Tango::AttReqType ty)
+	{return (static_cast<PrincetonCCD *>(dev))->is_internalAcquisitionMode_allowed(ty);}
+};
+
 //=========================================
 //	Define classes for commands
 //=========================================

@@ -245,6 +245,20 @@ void PrincetonCCDClass::device_factory(const Tango::DevVarStringArray *devlist_p
 //-----------------------------------------------------------------------------
 void PrincetonCCDClass::attribute_factory(vector<Tango::Attr *> &att_list)
 {
+	//	Attribute : internalAcquisitionMode
+	internalAcquisitionModeAttrib	*internal_acquisition_mode = new internalAcquisitionModeAttrib();
+	Tango::UserDefaultAttrProp	internal_acquisition_mode_prop;
+	internal_acquisition_mode_prop.set_description("Available Internal Acquisition Modes are :<br>\nSTANDARD<br>\nFOCUS<br>");
+	internal_acquisition_mode->set_default_properties(internal_acquisition_mode_prop);
+	att_list.push_back(internal_acquisition_mode);
+
+	//	Attribute : shutterMode
+	shutterModeAttrib	*shutter_mode = new shutterModeAttrib();
+	Tango::UserDefaultAttrProp	shutter_mode_prop;
+	shutter_mode_prop.set_description("Available Shutter Modes are :<br>\nOPEN_NEVER<br>\nOPEN_PRE_EXPOSURE<br>\nOPEN_NO_CHANGE<br>");
+	shutter_mode->set_default_properties(shutter_mode_prop);
+	att_list.push_back(shutter_mode);
+
 	//	Attribute : temperature
 	temperatureAttrib	*temperature = new temperatureAttrib();
 	Tango::UserDefaultAttrProp	temperature_prop;
@@ -331,6 +345,36 @@ void PrincetonCCDClass::set_default_property()
 	prop_desc = "Detector Number.";
 	prop_def  = "";
 	vect_data.clear();
+	if (prop_def.length()>0)
+	{
+		Tango::DbDatum	data(prop_name);
+		data << vect_data ;
+		dev_def_prop.push_back(data);
+		add_wiz_dev_prop(prop_name, prop_desc,  prop_def);
+	}
+	else
+		add_wiz_dev_prop(prop_name, prop_desc);
+
+	prop_name = "MemorizedInternalAcquisitionMode";
+	prop_desc = "Memorize/Define the internalAcquisitionMode attribute at Init device<br>\nAvailables values :<br>\n- STANDARD<br>\n- FOCUS<br>";
+	prop_def  = "STANDARD";
+	vect_data.clear();
+	vect_data.push_back("STANDARD");
+	if (prop_def.length()>0)
+	{
+		Tango::DbDatum	data(prop_name);
+		data << vect_data ;
+		dev_def_prop.push_back(data);
+		add_wiz_dev_prop(prop_name, prop_desc,  prop_def);
+	}
+	else
+		add_wiz_dev_prop(prop_name, prop_desc);
+
+	prop_name = "MemorizedShutterMode";
+	prop_desc = "Memorize/Define the SHUTTERMode attribute at Init device<br>\nAvailables values :<br>\n- OPEN_NEVER<br>\n- OPEN_PRE_EXPOSURE<br>\n- OPEN_NO_CHANGE<br>";
+	prop_def  = "OPEN_NO_CHANGE";
+	vect_data.clear();
+	vect_data.push_back("OPEN_NO_CHANGE");
 	if (prop_def.length()>0)
 	{
 		Tango::DbDatum	data(prop_name);

@@ -83,7 +83,7 @@ CORBA::Any *SetBinningCmd::execute(Tango::DeviceImpl *device,const CORBA::Any &i
 
 	cout2 << "SetBinningCmd::execute(): arrived" << endl;
 
-	Tango::DevUShort	argin;
+	const Tango::DevVarULongArray	*argin;
 	extract(in_any, argin);
 
 	((static_cast<LimaDetector *>(device))->set_binning(argin));
@@ -131,7 +131,7 @@ CORBA::Any *SetROICmd::execute(Tango::DeviceImpl *device,const CORBA::Any &in_an
 
 	cout2 << "SetROICmd::execute(): arrived" << endl;
 
-	const Tango::DevVarLongArray	*argin;
+	const Tango::DevVarULongArray	*argin;
 	extract(in_any, argin);
 
 	((static_cast<LimaDetector *>(device))->set_roi(argin));
@@ -290,12 +290,12 @@ void LimaDetectorClass::command_factory()
 		"",
 		Tango::OPERATOR));
 	command_list.push_back(new SetROICmd("SetROI",
-		Tango::DEVVAR_LONGARRAY, Tango::DEV_VOID,
+		Tango::DEVVAR_ULONGARRAY, Tango::DEV_VOID,
 		"[origin_x, origin_y, width, height]",
 		"",
 		Tango::OPERATOR));
 	command_list.push_back(new SetBinningCmd("SetBinning",
-		Tango::DEV_USHORT, Tango::DEV_VOID,
+		Tango::DEVVAR_ULONGARRAY, Tango::DEV_VOID,
 		"",
 		"",
 		Tango::OPERATOR));
@@ -530,14 +530,22 @@ void LimaDetectorClass::attribute_factory(vector<Tango::Attr *> &att_list)
 	height->set_default_properties(height_prop);
 	att_list.push_back(height);
 
-	//	Attribute : binning
-	binningAttrib	*binning = new binningAttrib();
-	Tango::UserDefaultAttrProp	binning_prop;
-	binning_prop.set_unit(" ");
-	binning_prop.set_format("%6d");
-	binning_prop.set_description("Current Binning value");
-	binning->set_default_properties(binning_prop);
-	att_list.push_back(binning);
+	//	Attribute : binningH
+	binningHAttrib	*binning_h = new binningHAttrib();
+	Tango::UserDefaultAttrProp	binning_h_prop;
+	binning_h_prop.set_unit(" ");
+	binning_h_prop.set_format("%6d");
+	binning_h_prop.set_description("Current Binning Horizontal value");
+	binning_h->set_default_properties(binning_h_prop);
+	att_list.push_back(binning_h);
+
+	//	Attribute : binningV
+	binningVAttrib	*binning_v = new binningVAttrib();
+	Tango::UserDefaultAttrProp	binning_v_prop;
+	binning_v_prop.set_format("%6d");
+	binning_v_prop.set_description("Current Binning Vertical value");
+	binning_v->set_default_properties(binning_v_prop);
+	att_list.push_back(binning_v);
 
 	//	Attribute : nbFrames
 	nbFramesAttrib	*nb_frames = new nbFramesAttrib();
@@ -572,6 +580,16 @@ void LimaDetectorClass::attribute_factory(vector<Tango::Attr *> &att_list)
 	file_generation->set_memorized();
 	file_generation->set_memorized_init(false);
 	att_list.push_back(file_generation);
+
+	//	Attribute : flipX
+	flipXAttrib	*flip_x = new flipXAttrib();
+	flip_x->set_disp_level(Tango::EXPERT);
+	att_list.push_back(flip_x);
+
+	//	Attribute : flipY
+	flipYAttrib	*flip_y = new flipYAttrib();
+	flip_y->set_disp_level(Tango::EXPERT);
+	att_list.push_back(flip_y);
 
 	//	End of Automatic code generation
 	//-------------------------------------------------------------
@@ -828,8 +846,23 @@ void LimaDetectorClass::set_default_property()
 	else
 		add_wiz_dev_prop(prop_name, prop_desc);
 
-	prop_name = "MemorizedBinning";
-	prop_desc = "Memorize/Define the Binning value of the Acquisition<br>\nAvailables values :<br>\n- 1<br>\n- 2<br>\n- 3<br>\n- 4<br>\n- 8<br>";
+	prop_name = "MemorizedBinningH";
+	prop_desc = "Memorize/Define the Binning Horizontal value of the Acquisition<br>\n";
+	prop_def  = "1";
+	vect_data.clear();
+	vect_data.push_back("1");
+	if (prop_def.length()>0)
+	{
+		Tango::DbDatum	data(prop_name);
+		data << vect_data ;
+		dev_def_prop.push_back(data);
+		add_wiz_dev_prop(prop_name, prop_desc,  prop_def);
+	}
+	else
+		add_wiz_dev_prop(prop_name, prop_desc);
+
+	prop_name = "MemorizedBinningV";
+	prop_desc = "Memorize/Define the Binning Vertical value of the Acquisition<br>";
 	prop_def  = "1";
 	vect_data.clear();
 	vect_data.push_back("1");
@@ -920,6 +953,36 @@ void LimaDetectorClass::set_default_property()
 
 	prop_name = "MemorizedFileGeneration";
 	prop_desc = "Memorize/Define the fileGeneration attribute at Init device<br>";
+	prop_def  = "false";
+	vect_data.clear();
+	vect_data.push_back("false");
+	if (prop_def.length()>0)
+	{
+		Tango::DbDatum	data(prop_name);
+		data << vect_data ;
+		dev_def_prop.push_back(data);
+		add_wiz_dev_prop(prop_name, prop_desc,  prop_def);
+	}
+	else
+		add_wiz_dev_prop(prop_name, prop_desc);
+
+	prop_name = "MemorizedFlipX";
+	prop_desc = "Memorize/Define the flipX attribute at Init device<br>";
+	prop_def  = "false";
+	vect_data.clear();
+	vect_data.push_back("false");
+	if (prop_def.length()>0)
+	{
+		Tango::DbDatum	data(prop_name);
+		data << vect_data ;
+		dev_def_prop.push_back(data);
+		add_wiz_dev_prop(prop_name, prop_desc,  prop_def);
+	}
+	else
+		add_wiz_dev_prop(prop_name, prop_desc);
+
+	prop_name = "MemorizedFlipY";
+	prop_desc = "Memorize/Define the flipY attribute at Init device<br>";
 	prop_def  = "false";
 	vect_data.clear();
 	vect_data.push_back("false");

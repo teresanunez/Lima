@@ -49,6 +49,34 @@ namespace LimaDetector_ns
 {//=====================================
 //	Define classes for attributes
 //=====================================
+class flipYAttrib: public Tango::Attr
+{
+public:
+	flipYAttrib():Attr("flipY", Tango::DEV_BOOLEAN, Tango::READ_WRITE) {};
+	~flipYAttrib() {};
+	
+	virtual void read(Tango::DeviceImpl *dev,Tango::Attribute &att)
+	{(static_cast<LimaDetector *>(dev))->read_flipY(att);}
+	virtual void write(Tango::DeviceImpl *dev,Tango::WAttribute &att)
+	{(static_cast<LimaDetector *>(dev))->write_flipY(att);}
+	virtual bool is_allowed(Tango::DeviceImpl *dev,Tango::AttReqType ty)
+	{return (static_cast<LimaDetector *>(dev))->is_flipY_allowed(ty);}
+};
+
+class flipXAttrib: public Tango::Attr
+{
+public:
+	flipXAttrib():Attr("flipX", Tango::DEV_BOOLEAN, Tango::READ_WRITE) {};
+	~flipXAttrib() {};
+	
+	virtual void read(Tango::DeviceImpl *dev,Tango::Attribute &att)
+	{(static_cast<LimaDetector *>(dev))->read_flipX(att);}
+	virtual void write(Tango::DeviceImpl *dev,Tango::WAttribute &att)
+	{(static_cast<LimaDetector *>(dev))->write_flipX(att);}
+	virtual bool is_allowed(Tango::DeviceImpl *dev,Tango::AttReqType ty)
+	{return (static_cast<LimaDetector *>(dev))->is_flipX_allowed(ty);}
+};
+
 class fileGenerationAttrib: public Tango::Attr
 {
 public:
@@ -89,16 +117,28 @@ public:
 	{return (static_cast<LimaDetector *>(dev))->is_nbFrames_allowed(ty);}
 };
 
-class binningAttrib: public Tango::Attr
+class binningVAttrib: public Tango::Attr
 {
 public:
-	binningAttrib():Attr("binning", Tango::DEV_SHORT, Tango::READ) {};
-	~binningAttrib() {};
+	binningVAttrib():Attr("binningV", Tango::DEV_USHORT, Tango::READ) {};
+	~binningVAttrib() {};
 	
 	virtual void read(Tango::DeviceImpl *dev,Tango::Attribute &att)
-	{(static_cast<LimaDetector *>(dev))->read_binning(att);}
+	{(static_cast<LimaDetector *>(dev))->read_binningV(att);}
 	virtual bool is_allowed(Tango::DeviceImpl *dev,Tango::AttReqType ty)
-	{return (static_cast<LimaDetector *>(dev))->is_binning_allowed(ty);}
+	{return (static_cast<LimaDetector *>(dev))->is_binningV_allowed(ty);}
+};
+
+class binningHAttrib: public Tango::Attr
+{
+public:
+	binningHAttrib():Attr("binningH", Tango::DEV_USHORT, Tango::READ) {};
+	~binningHAttrib() {};
+	
+	virtual void read(Tango::DeviceImpl *dev,Tango::Attribute &att)
+	{(static_cast<LimaDetector *>(dev))->read_binningH(att);}
+	virtual bool is_allowed(Tango::DeviceImpl *dev,Tango::AttReqType ty)
+	{return (static_cast<LimaDetector *>(dev))->is_binningH_allowed(ty);}
 };
 
 class heightAttrib: public Tango::Attr
