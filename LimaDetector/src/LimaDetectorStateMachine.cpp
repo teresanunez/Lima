@@ -699,8 +699,7 @@ bool LimaDetector::is_Stop_allowed(const CORBA::Any &any)
 bool LimaDetector::is_Start_allowed(const CORBA::Any &any)
 {
 	if (get_state() == Tango::INIT	||
-		get_state() == Tango::FAULT	||
-		get_state() == Tango::RUNNING)
+		get_state() == Tango::FAULT)
 	{
 		//	End of Generated Code
 		if ( get_state()==Tango::FAULT && is_device_initialized() )
