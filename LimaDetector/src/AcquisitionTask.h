@@ -16,17 +16,23 @@
 // ============================================================================
 // DEPENDENCIES
 // ============================================================================
+#ifdef WIN32
+#include <tango.h>
+#include <yat/threading/Mutex.h>
+#include <yat4tango/DeviceTask.h>
+#include <TangoExceptionsHelper.h>
+#endif
 
 //- LIMA
 #include "CtControl.h"
 #include "CtVideo.h"
 
-//- Tango
+#ifndef WIN32
 #include <tango.h>
 #include <yat/threading/Mutex.h>
 #include <yat4tango/DeviceTask.h>
 #include <TangoExceptionsHelper.h>
-
+#endif
 using namespace lima;
 using namespace std;
 using namespace yat4tango;
@@ -71,7 +77,6 @@ namespace LimaDetector_ns
         struct AcqConfig
         {
             CtControl*        	ct;                          // lima control objet used in owner device (singleton)
-            std::string     	file_target_path;            // define target Nexus directory
             string            	abort_status_message;        // status when abort is call
         };
 

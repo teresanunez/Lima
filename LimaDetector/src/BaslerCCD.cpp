@@ -51,14 +51,18 @@ static const char *RcsId = "$Id:  $";
 //  Status  |  dev_status()
 //
 //===================================================================
-
-
+#ifdef WIN32
+#include <tango.h>
+#include <PogoHelper.h>
+#endif
 
 #include <BaslerCCD.h>
 #include <BaslerCCDClass.h>
 
+#ifndef WIN32
 #include <tango.h>
 #include <PogoHelper.h>
+#endif
 
 namespace BaslerCCD_ns
 {
@@ -142,7 +146,7 @@ void BaslerCCD::init_device()
         	ERROR_STREAM<<"Initialization Failed : Unable to get the interface of camera plugin "<<"("<<"BaslerCCD"<<") !"<< endl;
             m_status_message <<"Initialization Failed : Unable to get the interface of camera plugin "<<"("<<"BaslerCCD"<<") !"<< endl;
             m_is_device_initialized = false;
-            set_state(Tango::INIT);
+            set_state(Tango::FAULT);
             return;
         }
     }
@@ -151,14 +155,14 @@ void BaslerCCD::init_device()
     	ERROR_STREAM<<"Initialization Failed : "<<e.getErrMsg()<<endl;
         m_status_message <<"Initialization Failed : "<<e.getErrMsg( )<< endl;
         m_is_device_initialized = false;
-        set_state(Tango::INIT);
+        set_state(Tango::FAULT);
         return;
     }
     catch(...)
     {
         ERROR_STREAM<<"Initialization Failed : UNKNOWN"<<endl;
         m_status_message <<"Initialization Failed : UNKNOWN"<< endl;
-        set_state(Tango::INIT);
+        set_state(Tango::FAULT);
         m_is_device_initialized = false;
         return;
     }
@@ -250,7 +254,8 @@ void BaslerCCD::always_executed_hook()
 	DEBUG_STREAM << "BaslerCCD::always_executed_hook() entering... "<< endl;
 	try
     {
-    	//- get the singleton control objet used to pilot the lima framework
+	    m_status_message.str("");
+		//- get the singleton control objet used to pilot the lima framework
         m_ct = ControlFactory::instance().get_control("BaslerCCD");
 
         //- get interface to specific detector
@@ -263,7 +268,7 @@ void BaslerCCD::always_executed_hook()
         ERROR_STREAM << e.getErrMsg() << endl;
         m_status_message <<"Initialization Failed : "<<e.getErrMsg( )<< endl;
         //- throw exception
-        set_state(Tango::INIT);
+        set_state(Tango::FAULT);
         m_is_device_initialized = false;
         return;
     }
@@ -272,7 +277,7 @@ void BaslerCCD::always_executed_hook()
         ERROR_STREAM<<"Initialization Failed : UNKNOWN"<<endl;
         m_status_message <<"Initialization Failed : UNKNOWN"<< endl;
         //- throw exception
-        set_state(Tango::INIT);
+        set_state(Tango::FAULT);
         m_is_device_initialized = false;
         return;
     }
@@ -354,63 +359,14 @@ Tango::DevState BaslerCCD::dev_state()
     Tango::DevState DeviceState    = Tango::STANDBY;
     if(!m_is_device_initialized )
     {
-        DeviceState            = Tango::INIT;
+        DeviceState            = Tango::FAULT;
         DeviceStatus        << m_status_message.str();
     }
-    else if (m_ct==0)
-    {
-        DeviceState            = Tango::INIT;
-        DeviceStatus        <<"Initialization Failed : Unable to get the lima control object !\n\n";
-    }
     else
-    {
-    	CtControl::Status status;
-		m_ct->getStatus(status);
-		if (status.AcquisitionStatus == lima::AcqReady)
-		{
-			HwInterface::StatusType state;
-			m_hw->getStatus(state);
-			if(state.acq == AcqRunning && state.det == DetExposure)
-			{
-				DeviceState=Tango::RUNNING;
-				DeviceStatus<<"Acquisition is Running ...\n"<<endl;
-			}
-			else if(state.acq == AcqFault && state.det == DetFault)
-			{
-				DeviceState=Tango::INIT;//INIT
-				DeviceStatus<<"Acquisition is in Init\n"<<endl;
-			}
-			else if(state.acq == AcqFault && state.det == DetIdle)
-			{
-				DeviceState=Tango::FAULT;//FAULT
-				DeviceStatus<<"Acquisition is in Fault\n"<<endl;
-			}
-			else
-			{
-				DeviceState=Tango::STANDBY;
-				DeviceStatus<<"Waiting for Request ...\n"<<endl;
-			}
-		}
-		else if(status.AcquisitionStatus == lima::AcqRunning)
-		{
-			DeviceState=Tango::RUNNING;
-			DeviceStatus<<"Acquisition is Running ...\n"<<endl;
-		}
-		else
-		{
-			HwInterface::StatusType state;
-			m_hw->getStatus(state);
-			if(state.acq == AcqFault && state.det == DetFault)
-			{
-				DeviceState=Tango::INIT;//INIT
-				DeviceStatus<<"Acquisition is in Init\n"<<endl;
-			}
-			else
-			{
-			  DeviceState=Tango::FAULT;//FAULT
-			  DeviceStatus<<"Acquisition is in Fault\n"<<endl;
-			}
-		}
+	{
+		//state&status are retrieved from specific device
+		DeviceState = ControlFactory::instance().get_state();
+		DeviceStatus << ControlFactory::instance().get_status();		
     }
 
     set_state(DeviceState);
@@ -445,7 +401,7 @@ void BaslerCCD::store_value_as_property (T value, string property_name)
         Tango::Except::re_throw_exception(df,
                     static_cast<const char*> ("TANGO_DEVICE_ERROR"),
                     static_cast<const char*> (string(df.errors[0].desc).c_str()),
-                    static_cast<const char*> ("LimaDetector::store_value_as_property"));
+                    static_cast<const char*> ("BaslerCCD::store_value_as_property"));
     }
 
 }
@@ -478,7 +434,7 @@ void BaslerCCD::create_property_if_empty(Tango::DbData& dev_prop,T value,string 
             Tango::Except::re_throw_exception(df,
                         static_cast<const char*> ("TANGO_DEVICE_ERROR"),
                         static_cast<const char*> (string(df.errors[0].desc).c_str()),
-                        static_cast<const char*> ("LimaDetector::create_property_if_empty"));
+                        static_cast<const char*> ("BaslerCCD::create_property_if_empty"));
         }
     }
 }
@@ -499,6 +455,7 @@ int BaslerCCD::FindIndexFromPropertyName(Tango::DbData& dev_prop, string propert
     if (i == iNbProperties) return -1;
     return i;
 }
+
 
 
 

@@ -37,9 +37,15 @@
 #ifndef _MarCCDCLASS_H
 #define _MarCCDCLASS_H
 
+#ifdef WIN32
+#include <tango.h>
+#endif
 
 #include <MarCCD.h>
+
+#ifndef WIN32
 #include <tango.h>
+#endif
 
 
 namespace MarCCD_ns

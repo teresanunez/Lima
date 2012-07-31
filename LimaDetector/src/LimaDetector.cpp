@@ -56,14 +56,20 @@ static const char *RcsId = "$Id:  $";
 //  SetBinning  |  set_binning()
 //
 //===================================================================
-
-
+#ifdef WIN32
+#include <tango.h>
+#include <PogoHelper.h>
+#endif
 
 #include <LimaDetector.h>
 #include <LimaDetectorClass.h>
 
+#ifndef WIN32
 #include <tango.h>
 #include <PogoHelper.h>
+#endif
+
+
 
 #define MAX_ATTRIBUTE_STRING_LENGTH     256
 
@@ -130,7 +136,10 @@ void LimaDetector::delete_device()
     DELETE_SCALAR_ATTRIBUTE(attr_y_read);
     DELETE_SCALAR_ATTRIBUTE(attr_width_read);
     DELETE_SCALAR_ATTRIBUTE(attr_height_read);
-    DELETE_SCALAR_ATTRIBUTE(attr_binning_read);
+    DELETE_SCALAR_ATTRIBUTE(attr_binningH_read);
+	DELETE_SCALAR_ATTRIBUTE(attr_binningV_read);
+	DELETE_SCALAR_ATTRIBUTE(attr_flipX_read);	
+	DELETE_SCALAR_ATTRIBUTE(attr_flipY_read);		
 
     //remove attributes from dam
     INFO_STREAM<<"Remove image dynamic attribute."<<endl;
@@ -186,6 +195,8 @@ void LimaDetector::init_device()
     m_acquisition_task = 0;
     m_is_device_initialized = false;
     m_status_message.str("");
+    //By default INIT, need to ensure that all objets are OK before set the device to STANDBY
+    set_state(Tango::INIT);
 
     //- instanciate the appender in order to manage logs
     try
@@ -197,13 +208,10 @@ void LimaDetector::init_device()
     catch( Tango::DevFailed& df )
     {
         ERROR_STREAM << df << endl;
-        this->set_state(Tango::INIT);
+        this->set_state(Tango::FAULT);
         m_status_message <<"Initialization Failed :  could not instanciate the InnerAppender ! "<< endl;
         return;
     }
-
-    //By default INIT, need to ensure that all objets are OK before set the device to STANDBY
-    set_state(Tango::INIT);
 
     get_device_property();
 
@@ -224,7 +232,10 @@ void LimaDetector::init_device()
     CREATE_SCALAR_ATTRIBUTE(attr_y_read);
     CREATE_SCALAR_ATTRIBUTE(attr_width_read);
     CREATE_SCALAR_ATTRIBUTE(attr_height_read);
-    CREATE_SCALAR_ATTRIBUTE(attr_binning_read);
+    CREATE_SCALAR_ATTRIBUTE(attr_binningH_read);
+	CREATE_SCALAR_ATTRIBUTE(attr_binningV_read);
+	CREATE_SCALAR_ATTRIBUTE(attr_flipX_read);	
+	CREATE_SCALAR_ATTRIBUTE(attr_flipY_read);		
 
 
 
@@ -253,7 +264,7 @@ void LimaDetector::init_device()
 							INFO_STREAM<<"Initialization Failed : DetectorPixelDepth "<<"("<<detectorPixelDepth<<") is not supported!"<< endl;
 							m_status_message <<"Initialization Failed : DetectorPixelDepth "<<"("<<detectorPixelDepth<<") is not supported!"<< endl;
 							m_is_device_initialized = false;
-							set_state(Tango::INIT);
+							set_state(Tango::FAULT);
 				return;
         }
 
@@ -289,7 +300,7 @@ void LimaDetector::init_device()
             INFO_STREAM<<"Initialization Failed : Unable to get the interface of camera plugin "<<"("<<detectorType<<") !"<< endl;
             m_status_message <<"Initialization Failed : Unable to get the interface of camera plugin "<<"("<<detectorType<<") !"<< endl;
             m_is_device_initialized = false;
-            set_state(Tango::INIT);
+            set_state(Tango::FAULT);
             return;
         }
 
@@ -312,7 +323,7 @@ void LimaDetector::init_device()
 				INFO_STREAM<<"Initialization Failed : DetectorPixelDepth "<<"("<<detectorPixelDepth<<") is not supported!"<< endl;
 				m_status_message <<"Initialization Failed : DetectorPixelDepth "<<"("<<detectorPixelDepth<<") is not supported!"<< endl;
 				m_is_device_initialized = false;
-				set_state(Tango::INIT);
+				set_state(Tango::FAULT);
 				return;
         }
 
@@ -336,7 +347,7 @@ void LimaDetector::init_device()
 
         //- reload Binning from property
         INFO_STREAM<<"Reload BIN of detector from Binning property."<<endl;
-        Bin myBin(memorizedBinning, memorizedBinning);
+        Bin myBin(memorizedBinningH, memorizedBinningV);
         m_ct->image()->setBin(myBin);
 
         //- Set default nb frames of acquisition at start-up
@@ -418,7 +429,7 @@ void LimaDetector::init_device()
     			ERROR_STREAM<<"Initialization Failed : VideoMode "<<"("<<detectorVideoMode<<") is not supported!"<< endl;
     			m_status_message<<"Initialization Failed : VideoMode "<<"("<<detectorVideoMode<<") is not supported!"<< endl;
     			m_is_device_initialized = false;
-    			set_state(Tango::INIT);
+    			set_state(Tango::FAULT);
     			return;
     		}
 
@@ -432,14 +443,14 @@ void LimaDetector::init_device()
     	ERROR_STREAM<<"Initialization Failed : "<<e.getErrMsg()<<endl;
         m_status_message <<"Initialization Failed : "<<e.getErrMsg( )<< endl;
         m_is_device_initialized = false;
-        set_state(Tango::INIT);
+        set_state(Tango::FAULT);
         return;
     }
     catch(...)
     {
     	ERROR_STREAM<<"Initialization Failed : UNKNOWN"<<endl;
         m_status_message <<"Initialization Failed : UNKNOWN"<< endl;
-        set_state(Tango::INIT);
+        set_state(Tango::FAULT);
         m_is_device_initialized = false;
         return;
     }
@@ -449,7 +460,7 @@ void LimaDetector::init_device()
     INFO_STREAM<<"Create acquisition yat::DeviceTask."<<endl;
     if(create_acquisition_task() == false )
     {
-        set_state(Tango::INIT);
+        set_state(Tango::FAULT);
         m_is_device_initialized = false;
         return;
     }
@@ -465,7 +476,6 @@ void LimaDetector::init_device()
     // everything seems ok
     m_is_device_initialized = true;
     LimaDetector::m_is_created = true;
-    set_state(Tango::STANDBY);
 
     //write at init, only if device is correctly initialized
     if(m_is_device_initialized)
@@ -508,7 +518,22 @@ void LimaDetector::init_device()
 		*attr_fileGeneration_read = memorizedFileGeneration;
 		fileGeneration.set_write_value(*attr_fileGeneration_read);
 		write_fileGeneration(fileGeneration);
+
+		/********* TODO : activate when Lima flip is correct
+		INFO_STREAM<<"Write tango hardware at Init - flipX."<<endl;
+		Tango::WAttribute &flipX = dev_attr->get_w_attr_by_name("flipX");
+		*attr_flipX_read = memorizedFlipX;
+		flipX.set_write_value(*attr_flipX_read);
+		write_flipX(flipX);
+
+		INFO_STREAM<<"Write tango hardware at Init - flipY."<<endl;
+		Tango::WAttribute &flipY = dev_attr->get_w_attr_by_name("flipY");
+		*attr_flipY_read = memorizedFlipY;
+		flipY.set_write_value(*attr_flipY_read);
+		write_flipY(flipY);
+		**********/
     }
+    set_state(Tango::STANDBY);	
 }
 
 
@@ -540,13 +565,16 @@ void LimaDetector::get_device_property()
 	dev_prop.push_back(Tango::DbDatum("DebugLevels"));
 	dev_prop.push_back(Tango::DbDatum("DebugFormats"));
 	dev_prop.push_back(Tango::DbDatum("MemorizedRoi"));
-	dev_prop.push_back(Tango::DbDatum("MemorizedBinning"));
+	dev_prop.push_back(Tango::DbDatum("MemorizedBinningH"));
+	dev_prop.push_back(Tango::DbDatum("MemorizedBinningV"));
 	dev_prop.push_back(Tango::DbDatum("MemorizedAcquisitionMode"));
 	dev_prop.push_back(Tango::DbDatum("MemorizedTriggerMode"));
 	dev_prop.push_back(Tango::DbDatum("MemorizedExposureTime"));
 	dev_prop.push_back(Tango::DbDatum("MemorizedExposureAccTime"));
 	dev_prop.push_back(Tango::DbDatum("MemorizedNbFrames"));
 	dev_prop.push_back(Tango::DbDatum("MemorizedFileGeneration"));
+	dev_prop.push_back(Tango::DbDatum("MemorizedFlipX"));
+	dev_prop.push_back(Tango::DbDatum("MemorizedFlipY"));
 
 	//	Call database and extract values
 	//--------------------------------------------
@@ -700,16 +728,27 @@ void LimaDetector::get_device_property()
 	//	And try to extract MemorizedRoi value from database
 	if (dev_prop[i].is_empty()==false)	dev_prop[i]  >>  memorizedRoi;
 
-	//	Try to initialize MemorizedBinning from class property
+	//	Try to initialize MemorizedBinningH from class property
 	cl_prop = ds_class->get_class_property(dev_prop[++i].name);
-	if (cl_prop.is_empty()==false)	cl_prop  >>  memorizedBinning;
+	if (cl_prop.is_empty()==false)	cl_prop  >>  memorizedBinningH;
 	else {
-		//	Try to initialize MemorizedBinning from default device value
+		//	Try to initialize MemorizedBinningH from default device value
 		def_prop = ds_class->get_default_device_property(dev_prop[i].name);
-		if (def_prop.is_empty()==false)	def_prop  >>  memorizedBinning;
+		if (def_prop.is_empty()==false)	def_prop  >>  memorizedBinningH;
 	}
-	//	And try to extract MemorizedBinning value from database
-	if (dev_prop[i].is_empty()==false)	dev_prop[i]  >>  memorizedBinning;
+	//	And try to extract MemorizedBinningH value from database
+	if (dev_prop[i].is_empty()==false)	dev_prop[i]  >>  memorizedBinningH;
+
+	//	Try to initialize MemorizedBinningV from class property
+	cl_prop = ds_class->get_class_property(dev_prop[++i].name);
+	if (cl_prop.is_empty()==false)	cl_prop  >>  memorizedBinningV;
+	else {
+		//	Try to initialize MemorizedBinningV from default device value
+		def_prop = ds_class->get_default_device_property(dev_prop[i].name);
+		if (def_prop.is_empty()==false)	def_prop  >>  memorizedBinningV;
+	}
+	//	And try to extract MemorizedBinningV value from database
+	if (dev_prop[i].is_empty()==false)	dev_prop[i]  >>  memorizedBinningV;
 
 	//	Try to initialize MemorizedAcquisitionMode from class property
 	cl_prop = ds_class->get_class_property(dev_prop[++i].name);
@@ -777,6 +816,28 @@ void LimaDetector::get_device_property()
 	//	And try to extract MemorizedFileGeneration value from database
 	if (dev_prop[i].is_empty()==false)	dev_prop[i]  >>  memorizedFileGeneration;
 
+	//	Try to initialize MemorizedFlipX from class property
+	cl_prop = ds_class->get_class_property(dev_prop[++i].name);
+	if (cl_prop.is_empty()==false)	cl_prop  >>  memorizedFlipX;
+	else {
+		//	Try to initialize MemorizedFlipX from default device value
+		def_prop = ds_class->get_default_device_property(dev_prop[i].name);
+		if (def_prop.is_empty()==false)	def_prop  >>  memorizedFlipX;
+	}
+	//	And try to extract MemorizedFlipX value from database
+	if (dev_prop[i].is_empty()==false)	dev_prop[i]  >>  memorizedFlipX;
+
+	//	Try to initialize MemorizedFlipY from class property
+	cl_prop = ds_class->get_class_property(dev_prop[++i].name);
+	if (cl_prop.is_empty()==false)	cl_prop  >>  memorizedFlipY;
+	else {
+		//	Try to initialize MemorizedFlipY from default device value
+		def_prop = ds_class->get_default_device_property(dev_prop[i].name);
+		if (def_prop.is_empty()==false)	def_prop  >>  memorizedFlipY;
+	}
+	//	And try to extract MemorizedFlipY value from database
+	if (dev_prop[i].is_empty()==false)	dev_prop[i]  >>  memorizedFlipY;
+
 
 
     //    End of Automatic code generation
@@ -821,7 +882,8 @@ void LimaDetector::get_device_property()
 	myVector.push_back("-1");
 	create_property_if_empty(dev_prop,myVector,"MemorizedRoi");
 	
-	create_property_if_empty(dev_prop,"1","MemorizedBinning");
+	create_property_if_empty(dev_prop,"1","MemorizedBinningH");
+	create_property_if_empty(dev_prop,"1","MemorizedBinningV");
 
 	create_property_if_empty(dev_prop,"SINGLE","MemorizedAcquisitionMode");
 	create_property_if_empty(dev_prop,"INTERNAL_SINGLE","MemorizedTriggerMode");
@@ -829,6 +891,10 @@ void LimaDetector::get_device_property()
 	create_property_if_empty(dev_prop,"100","MemorizedExposureAccTime");
 	create_property_if_empty(dev_prop,"1","MemorizedNbFrames");
 	create_property_if_empty(dev_prop,"false","MemorizedFileGeneration");
+	/*** TODO : activate when Lima flip is correct
+	create_property_if_empty(dev_prop,"false","MemorizedFlipX");	
+	create_property_if_empty(dev_prop,"false","MemorizedFlipY");	
+	***/
 
 }
 //+----------------------------------------------------------------------------
@@ -1655,20 +1721,20 @@ void LimaDetector::read_height(Tango::Attribute &attr)
 
 //+----------------------------------------------------------------------------
 //
-// method : 		LimaDetector::read_binning
-//
-// description : 	Extract real attribute values for binning acquisition result.
+// method : 		LimaDetector::read_binningH
+// 
+// description : 	Extract real attribute values for binningH acquisition result.
 //
 //-----------------------------------------------------------------------------
-void LimaDetector::read_binning(Tango::Attribute &attr)
+void LimaDetector::read_binningH(Tango::Attribute &attr)
 {
-	DEBUG_STREAM << "LimaDetector::read_binning(Tango::Attribute &attr) entering... "<< endl;
+	DEBUG_STREAM << "LimaDetector::read_binningH(Tango::Attribute &attr) entering... "<< endl;
 	try
 	{
 		Bin bin;
 		m_ct->image()->getBin(bin);
-		*attr_binning_read = bin.getX();
-		attr.set_value(attr_binning_read);
+		*attr_binningH_read = bin.getX();
+		attr.set_value(attr_binningH_read);
 	}
 	catch(Tango::DevFailed& df)
 	{
@@ -1677,7 +1743,7 @@ void LimaDetector::read_binning(Tango::Attribute &attr)
 		Tango::Except::re_throw_exception(df,
 					static_cast<const char*> ("TANGO_DEVICE_ERROR"),
 					static_cast<const char*> (string(df.errors[0].desc).c_str()),
-					static_cast<const char*> ("LimaDetector::read_binning"));
+					static_cast<const char*> ("LimaDetector::read_binningH"));
 	}
 	catch(Exception& e)
 	{
@@ -1686,8 +1752,45 @@ void LimaDetector::read_binning(Tango::Attribute &attr)
 		Tango::Except::throw_exception(
 					static_cast<const char*> ("TANGO_DEVICE_ERROR"),
 					static_cast<const char*> (e.getErrMsg().c_str()),
-					static_cast<const char*> ("LimaDetector::read_binning"));
+					static_cast<const char*> ("LimaDetector::read_binningH"));
+	}	
+}
+
+//+----------------------------------------------------------------------------
+//
+// method : 		LimaDetector::read_binningV
+// 
+// description : 	Extract real attribute values for binningV acquisition result.
+//
+//-----------------------------------------------------------------------------
+void LimaDetector::read_binningV(Tango::Attribute &attr)
+{
+	DEBUG_STREAM << "LimaDetector::read_binningV(Tango::Attribute &attr) entering... "<< endl;
+	try
+	{
+		Bin bin;
+		m_ct->image()->getBin(bin);
+		*attr_binningV_read = bin.getY();
+		attr.set_value(attr_binningV_read);
 	}
+	catch(Tango::DevFailed& df)
+	{
+		ERROR_STREAM << df << endl;
+		//- rethrow exception
+		Tango::Except::re_throw_exception(df,
+					static_cast<const char*> ("TANGO_DEVICE_ERROR"),
+					static_cast<const char*> (string(df.errors[0].desc).c_str()),
+					static_cast<const char*> ("LimaDetector::read_binningV"));
+	}
+	catch(Exception& e)
+	{
+		ERROR_STREAM << e.getErrMsg() << endl;
+		//- throw exception
+		Tango::Except::throw_exception(
+					static_cast<const char*> ("TANGO_DEVICE_ERROR"),
+					static_cast<const char*> (e.getErrMsg().c_str()),
+					static_cast<const char*> ("LimaDetector::read_binningV"));
+	}	
 }
 
 //+----------------------------------------------------------------------------
@@ -1775,7 +1878,7 @@ void LimaDetector::read_currentFrame(Tango::Attribute &attr)
     DEBUG_STREAM << "LimaDetector::read_currentFrame(Tango::Attribute &attr) entering... "<< endl;
     try
     {
-        *attr_currentFrame_read =       m_hw->getNbHwAcquiredFrames();////get_last_image_counter()+1;
+        *attr_currentFrame_read =      m_hw->getNbHwAcquiredFrames();  ///get_last_image_counter()+1;
         attr.set_value(attr_currentFrame_read);
     }
     catch(Tango::DevFailed& df)
@@ -1820,7 +1923,7 @@ long long LimaDetector::get_last_image_counter(void)
                     static_cast<const char*> (e.getErrMsg().c_str()),
                     static_cast<const char*> ("LimaDetector::get_last_image_counter"));
 	}
-	return (last_image_counter);
+	return last_image_counter;
 }
 
 //+----------------------------------------------------------------------------
@@ -1838,7 +1941,7 @@ void LimaDetector::read_image_callback(yat4tango::DynamicAttributeReadCallbackDa
     	if(!m_ct || !m_hw)
             return; //NOP
 
-    	int counter = get_last_image_counter();
+    	long long counter = get_last_image_counter();
 
     	if(counter >= 0)
     	{
@@ -1970,6 +2073,150 @@ void LimaDetector::write_fileGeneration(Tango::WAttribute &attr)
                     static_cast<const char*> (string(df.errors[0].desc).c_str()),
                     static_cast<const char*> ("LimaDetector::write_fileGeneration"));
     }
+}
+
+//+----------------------------------------------------------------------------
+//
+// method : 		LimaDetector::read_flipX
+// 
+// description : 	Extract real attribute values for flipX acquisition result.
+//
+//-----------------------------------------------------------------------------
+void LimaDetector::read_flipX(Tango::Attribute &attr)
+{
+	DEBUG_STREAM << "LimaDetector::read_flipX(Tango::Attribute &attr) entering... "<< endl;
+    try
+    {
+
+		Flip flip;
+        m_ct->image()->getFlip(flip);
+        if(flip.x)
+            *attr_flipX_read = true;
+        else
+            *attr_flipX_read = false;
+
+        attr.set_value(attr_flipX_read);
+    }
+    catch(Tango::DevFailed& df)
+    {
+        ERROR_STREAM << df << endl;
+        //- rethrow exception
+        Tango::Except::re_throw_exception(df,
+                    static_cast<const char*> ("TANGO_DEVICE_ERROR"),
+                    static_cast<const char*> (string(df.errors[0].desc).c_str()),
+                    static_cast<const char*> ("LimaDetector::read_flipX"));
+    }		
+}
+
+//+----------------------------------------------------------------------------
+//
+// method : 		LimaDetector::write_flipX
+// 
+// description : 	Write flipX attribute values to hardware.
+//
+//-----------------------------------------------------------------------------
+void LimaDetector::write_flipX(Tango::WAttribute &attr)
+{
+	DEBUG_STREAM << "LimaDetector::write_flipX(Tango::WAttribute &attr) entering... "<< endl;
+    try
+    {
+		//- throw exception
+		Tango::Except::throw_exception( (const char*) ("CONFIGURATION_ERROR"),
+										(const char*) ("This functionnality is not already Available !\n"),
+										(const char*) ("LimaDetector::write_flipX"));     
+		
+		attr.get_write_value(attr_flipX_write);
+
+		Flip flip;
+		m_ct->image()->getFlip(flip);
+        if(attr_flipX_write == true)
+			flip.x = true;            
+        else
+            flip.x = false;	
+		m_ct->image()->setFlip(flip);
+
+		store_value_as_property(attr_flipX_write,"MemorizedFlipX");		
+    }
+    catch(Tango::DevFailed& df)
+    {
+        ERROR_STREAM << df << endl;
+        //- rethrow exception
+        Tango::Except::re_throw_exception(df,
+                    static_cast<const char*> ("TANGO_DEVICE_ERROR"),
+                    static_cast<const char*> (string(df.errors[0].desc).c_str()),
+                    static_cast<const char*> ("LimaDetector::write_flipX"));
+    }		
+}
+
+//+----------------------------------------------------------------------------
+//
+// method : 		LimaDetector::read_flipY
+// 
+// description : 	Extract real attribute values for flipY acquisition result.
+//
+//-----------------------------------------------------------------------------
+void LimaDetector::read_flipY(Tango::Attribute &attr)
+{
+	DEBUG_STREAM << "LimaDetector::read_flipY(Tango::Attribute &attr) entering... "<< endl;
+    try
+    {
+		Flip flip;
+        m_ct->image()->getFlip(flip);
+        if(flip.y)
+            *attr_flipY_read = true;
+        else
+            *attr_flipY_read = false;
+
+        attr.set_value(attr_flipY_read);
+    }
+    catch(Tango::DevFailed& df)
+    {
+        ERROR_STREAM << df << endl;
+        //- rethrow exception
+        Tango::Except::re_throw_exception(df,
+                    static_cast<const char*> ("TANGO_DEVICE_ERROR"),
+                    static_cast<const char*> (string(df.errors[0].desc).c_str()),
+                    static_cast<const char*> ("LimaDetector::read_flipY"));
+    }		
+}
+
+//+----------------------------------------------------------------------------
+//
+// method : 		LimaDetector::write_flipY
+// 
+// description : 	Write flipY attribute values to hardware.
+//
+//-----------------------------------------------------------------------------
+void LimaDetector::write_flipY(Tango::WAttribute &attr)
+{
+	DEBUG_STREAM << "LimaDetector::write_flipY(Tango::WAttribute &attr) entering... "<< endl;
+    try
+    {
+        
+		//- throw exception
+		Tango::Except::throw_exception( (const char*) ("CONFIGURATION_ERROR"),
+										(const char*) ("This functionnality is not already Available !\n"),
+										(const char*) ("LimaDetector::write_flipY"));
+		
+		attr.get_write_value(attr_flipY_write);
+		Flip flip;
+		m_ct->image()->getFlip(flip);
+        if(attr_flipY_write == true)
+			flip.y = true;            
+        else
+            flip.y = false;
+		m_ct->image()->setFlip(flip);
+		store_value_as_property(attr_flipY_write,"MemorizedFlipY");		
+    }
+    catch(Tango::DevFailed& df)
+    {
+        ERROR_STREAM << df << endl;
+        //- rethrow exception
+        Tango::Except::re_throw_exception(df,
+                    static_cast<const char*> ("TANGO_DEVICE_ERROR"),
+                    static_cast<const char*> (string(df.errors[0].desc).c_str()),
+                    static_cast<const char*> ("LimaDetector::write_flipY"));
+    }		
 }
 
 //+------------------------------------------------------------------
@@ -2162,7 +2409,7 @@ void LimaDetector::stop()
  *
  */
 //+------------------------------------------------------------------
-void LimaDetector::set_roi(const Tango::DevVarLongArray *argin)
+void LimaDetector::set_roi(const Tango::DevVarULongArray *argin)
 {
     DEBUG_STREAM << "LimaDetector::set_roi(): entering... !" << endl;
 
@@ -2225,40 +2472,39 @@ void LimaDetector::set_roi(const Tango::DevVarLongArray *argin)
  *	method:	LimaDetector::set_binning
  *
  *	description:	method to execute "SetBinning"
- *	Define a binning for the image. <br>
- *	Availables values are  :<br>
- *	1->binning(1,1)<br>
- *	2->binning(2,2)<br>
- *	3->binning(3,3)<br>
- *	4->binning(4,4)<br>
- *	8->binning(8,8)<br>
+ *	Define a binning Horizontal (x) & Vertical (y) for the image. <br>
+ *	
  *
  * @param	argin	
  *
  */
 //+------------------------------------------------------------------
-void LimaDetector::set_binning(Tango::DevUShort argin)
+void LimaDetector::set_binning(const Tango::DevVarULongArray *argin)
 {
 	DEBUG_STREAM << "LimaDetector::set_binning(): entering... !" << endl;
 
 	//	Add your own code to control device here
 	try
 	{
-		if(argin != 1 && argin !=2 && argin!=3 && argin!=4 && argin!=8)
-		{
-			//- throw exception
-			Tango::Except::throw_exception( (const char*) ("TANGO_DEVICE_ERROR"),
-											(const char*) ("Availables values are : 1, 2, 3, 4 or 8\n"),
-											(const char*) ("LimaDetector::set_binning"));
-		}
-
+        if(argin->length()!= 2)
+        {
+            //- throw exception
+            Tango::Except::throw_exception( (const char*) ("TANGO_DEVICE_ERROR"),
+                                            (const char*) ("Invalid number of parameters. Check input parameters (binning H, binning V)\n"),
+                                            (const char*) ("LimaDetector::set_binning"));
+        }
+		
+        unsigned long binH      = (*argin)[0];
+        unsigned long binV      = (*argin)[1];
+		
 		//- reset image number (this will disable the refresh of image attribute)
 		m_ct->resetStatus(false);
 
 		//- set the new BIN
-		Bin bin(argin, argin);
+		Bin bin(binH, binV);
 		m_ct->image()->setBin(bin);
-		store_value_as_property(argin,"MemorizedBinning");
+		store_value_as_property(binH,"MemorizedBinningH");
+		store_value_as_property(binV,"MemorizedBinningV");
 		//- reset image number (this will disable the refresh of image attribute)
 		m_ct->resetStatus(false);
 	}
@@ -2279,7 +2525,7 @@ void LimaDetector::set_binning(Tango::DevUShort argin)
 					static_cast<const char*> ("TANGO_DEVICE_ERROR"),
 					static_cast<const char*> (e.getErrMsg().c_str()),
 					static_cast<const char*> ("LimaDetector::set_binning"));
-	}
+	}		
 }
 
 
@@ -2307,27 +2553,79 @@ Tango::DevState LimaDetector::dev_state()
 	//if error during init_device
 	if(!m_is_device_initialized)
 	{
-		DeviceState        = Tango::INIT;
+		DeviceState        = Tango::FAULT;
 		DeviceStatus    << m_status_message.str();
 		DeviceStatus    << endl;
 	}
+	else if (m_ct==0)
+    {
+        DeviceState            = Tango::FAULT;
+        DeviceStatus        <<"Initialization Failed : Unable to get the lima control object !\n\n";
+    }	
 	else
 	{
 		// if error in acquisition task
 		if(m_acquisition_task->get_state()== Tango::FAULT)
 		{
-			DeviceState = Tango::FAULT;//FAULT
+			DeviceState = Tango::FAULT;
 			DeviceStatus<<m_acquisition_task->get_status()<<endl;
 		}
 		else
 		{
-			//state&status are retrieved from specific device
-			DeviceState = ControlFactory::instance().get_state_specific_device(detectorType);
-			DeviceStatus << ControlFactory::instance().get_status_specific_device(detectorType);
+			CtControl::Status status;
+			m_ct->getStatus(status);
+			if (status.AcquisitionStatus == lima::AcqReady)
+			{
+				HwInterface::StatusType state;
+				m_hw->getStatus(state);
+				if(state.acq == AcqRunning && state.det == DetExposure)
+				{
+					DeviceState=Tango::RUNNING;
+					DeviceStatus<<"Acquisition is Running ...\n"<<endl;
+				}
+				else if(state.acq == AcqFault && state.det == DetFault)
+				{
+					DeviceState=Tango::FAULT;//INIT if state could be more accurate
+					DeviceStatus<<"Acquisition is in Init\n"<<endl;
+				}
+				else if(state.acq == AcqFault && state.det == DetIdle)
+				{
+					DeviceState=Tango::FAULT;
+					DeviceStatus<<"Acquisition is in Fault\n"<<endl;
+				}
+				else
+				{
+					DeviceState=Tango::STANDBY;
+					DeviceStatus<<"Waiting for Request ...\n"<<endl;
+				}
+			}
+			else if(status.AcquisitionStatus == lima::AcqRunning)
+			{
+				DeviceState=Tango::RUNNING;
+				DeviceStatus<<"Acquisition is Running ...\n"<<endl;
+			}
+			else
+			{
+				HwInterface::StatusType state;
+				m_hw->getStatus(state);
+				if(state.acq == AcqFault && state.det == DetFault)
+				{
+					DeviceState=Tango::FAULT;//INIT if state could be more accurate
+					DeviceStatus<<"Acquisition is in Init\n"<<endl;
+				}
+				else
+				{
+				  DeviceState=Tango::FAULT;
+				  DeviceStatus<<"Acquisition is in Fault\n"<<endl;
+				}
+			}
 		}
 	}
     set_state(DeviceState);
     set_status(DeviceStatus.str());
+	
+	ControlFactory::instance().set_state(DeviceState);
+    ControlFactory::instance().set_status(DeviceStatus.str());
 
     argout = DeviceState;
     return argout;
@@ -2350,7 +2648,6 @@ bool LimaDetector::create_acquisition_task(void)
 
         //- prepare the conf to be passed to the task
         m_acq_conf.ct                = m_ct;
-        m_acq_conf.file_target_path  = fileTargetPath;        //property, no need to refresh on each START_MSG
 
         //- create an INIT msg to pass it some data (Conf)
         yat::Message* msg = yat::Message::allocate( yat::TASK_INIT, INIT_MSG_PRIORITY, true );
@@ -2417,6 +2714,10 @@ void LimaDetector::print_acq_conf(void)
     INFO_STREAM<<"framesPerFile\t  = "      <<m_saving_par.framesPerFile<<endl;
     INFO_STREAM<<"nbframes\t  = "           <<m_saving_par.nbframes<<endl;
     INFO_STREAM<<"fileGeneration\t  = "     <<attr_fileGeneration_write<<endl;
+    /***TODO : activate when flip is correct
+	INFO_STREAM<<"flipX\t  = "     			<<attr_flipX_write<<endl;
+	INFO_STREAM<<"flipY\t  = "     			<<attr_flipY_write<<endl;
+	***/
 
     //display BIN
 	Bin bin;
@@ -2506,5 +2807,12 @@ int LimaDetector::find_index_from_property_name(Tango::DbData& dev_prop, string 
     if (i == iNbProperties) return -1;
     return i;
 }
+
+
+
+
+
+
+
 
 }	//	namespace

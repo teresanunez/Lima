@@ -32,10 +32,16 @@ static const char *RcsId = "$Id $";
 //         (c) - Software Engineering Group - ESRF
 //=============================================================================
 
+#ifdef WIN32
+#include <tango.h>
+#endif
 
 #include <PilatusPixelDetector.h>
 #include <PilatusPixelDetectorClass.h>
+
+#ifndef WIN32
 #include <tango.h>
+#endif
 
 /*====================================================================
  *	This file contains the methods to allow commands and attributes
@@ -65,10 +71,16 @@ namespace PilatusPixelDetector_ns
 bool PilatusPixelDetector::is_threshold_allowed(Tango::AttReqType type)
 {
 	if (get_state() == Tango::INIT	||
+		get_state() == Tango::FAULT	||
 		get_state() == Tango::RUNNING)
 	{
 		//	End of Generated Code
-		if ( (get_state()==Tango::FAULT || get_state()==Tango::RUNNING )&& type==Tango::READ_REQ )
+		if ( get_state()==Tango::RUNNING && type==Tango::READ_REQ )
+		{
+           return true;
+		}
+		
+		if ( get_state()==Tango::FAULT && is_device_initialized() )
 		{
            return true;
 		}
@@ -87,10 +99,16 @@ bool PilatusPixelDetector::is_threshold_allowed(Tango::AttReqType type)
 bool PilatusPixelDetector::is_gain_allowed(Tango::AttReqType type)
 {
 	if (get_state() == Tango::INIT	||
+		get_state() == Tango::FAULT	||
 		get_state() == Tango::RUNNING)
 	{
 		//	End of Generated Code
-		if ( (get_state()==Tango::FAULT || get_state()==Tango::RUNNING )&& type==Tango::READ_REQ )
+		if ( get_state()==Tango::RUNNING && type==Tango::READ_REQ )
+		{
+           return true;
+		}
+		
+		if ( get_state()==Tango::FAULT && is_device_initialized() )
 		{
            return true;
 		}
@@ -109,10 +127,16 @@ bool PilatusPixelDetector::is_gain_allowed(Tango::AttReqType type)
 bool PilatusPixelDetector::is_imagePath_allowed(Tango::AttReqType type)
 {
 	if (get_state() == Tango::INIT	||
+		get_state() == Tango::FAULT	||
 		get_state() == Tango::RUNNING)
 	{
 		//	End of Generated Code
-		if ( (get_state()==Tango::FAULT || get_state()==Tango::RUNNING )&& type==Tango::READ_REQ )
+		if ( get_state()==Tango::RUNNING && type==Tango::READ_REQ )
+		{
+           return true;
+		}
+		
+		if ( get_state()==Tango::FAULT && is_device_initialized() )
 		{
            return true;
 		}
@@ -131,10 +155,16 @@ bool PilatusPixelDetector::is_imagePath_allowed(Tango::AttReqType type)
 bool PilatusPixelDetector::is_fileName_allowed(Tango::AttReqType type)
 {
 	if (get_state() == Tango::INIT	||
+		get_state() == Tango::FAULT	||
 		get_state() == Tango::RUNNING)
 	{
 		//	End of Generated Code
-		if ( (get_state()==Tango::FAULT || get_state()==Tango::RUNNING )&& type==Tango::READ_REQ )
+		if ( get_state()==Tango::RUNNING && type==Tango::READ_REQ )
+		{
+           return true;
+		}
+		
+		if ( get_state()==Tango::FAULT && is_device_initialized() )
 		{
            return true;
 		}
@@ -153,10 +183,16 @@ bool PilatusPixelDetector::is_fileName_allowed(Tango::AttReqType type)
 bool PilatusPixelDetector::is_latency_allowed(Tango::AttReqType type)
 {
 	if (get_state() == Tango::INIT	||
+		get_state() == Tango::FAULT	||
 		get_state() == Tango::RUNNING)
 	{
 		//	End of Generated Code
-		if ( (get_state()==Tango::FAULT || get_state()==Tango::RUNNING )&& type==Tango::READ_REQ )
+		if ( get_state()==Tango::RUNNING && type==Tango::READ_REQ )
+		{
+           return true;
+		}
+		
+		if ( get_state()==Tango::FAULT && is_device_initialized() )
 		{
            return true;
 		}
@@ -180,10 +216,14 @@ bool PilatusPixelDetector::is_latency_allowed(Tango::AttReqType type)
 bool PilatusPixelDetector::is_SetThresholdAndGain_allowed(const CORBA::Any &any)
 {
 	if (get_state() == Tango::INIT	||
+		get_state() == Tango::FAULT	||
 		get_state() == Tango::RUNNING)
 	{
 		//	End of Generated Code
-
+		if ( get_state()==Tango::FAULT && is_device_initialized() )
+		{
+           return true;
+		}
 		//	Re-Start of Generated Code
 		return false;
 	}
@@ -199,10 +239,14 @@ bool PilatusPixelDetector::is_SetThresholdAndGain_allowed(const CORBA::Any &any)
 bool PilatusPixelDetector::is_SetMxSettings_allowed(const CORBA::Any &any)
 {
 	if (get_state() == Tango::INIT	||
+		get_state() == Tango::FAULT	||
 		get_state() == Tango::RUNNING)
 	{
 		//	End of Generated Code
-
+		if ( get_state()==Tango::FAULT && is_device_initialized() )
+		{
+           return true;
+		}
 		//	Re-Start of Generated Code
 		return false;
 	}
@@ -217,10 +261,15 @@ bool PilatusPixelDetector::is_SetMxSettings_allowed(const CORBA::Any &any)
 //-----------------------------------------------------------------------------
 bool PilatusPixelDetector::is_SendAnyCommand_allowed(const CORBA::Any &any)
 {
-	if (get_state() == Tango::INIT)
+	if (get_state() == Tango::INIT	||
+		get_state() == Tango::FAULT	||
+		get_state() == Tango::RUNNING)
 	{
 		//	End of Generated Code
-
+		if ( get_state()==Tango::FAULT && is_device_initialized() )
+		{
+           return true;
+		}
 		//	Re-Start of Generated Code
 		return false;
 	}
@@ -236,10 +285,14 @@ bool PilatusPixelDetector::is_SendAnyCommand_allowed(const CORBA::Any &any)
 bool PilatusPixelDetector::is_SetEnergy_allowed(const CORBA::Any &any)
 {
 	if (get_state() == Tango::INIT	||
+		get_state() == Tango::FAULT	||
 		get_state() == Tango::RUNNING)
 	{
 		//	End of Generated Code
-
+		if ( get_state()==Tango::FAULT && is_device_initialized() )
+		{
+           return true;
+		}
 		//	Re-Start of Generated Code
 		return false;
 	}

@@ -37,9 +37,15 @@
 #ifndef _XPADPIXELDETECTORCLASS_H
 #define _XPADPIXELDETECTORCLASS_H
 
+#ifdef WIN32
+#include <tango.h>
+#endif
 
 #include <XpadPixelDetector.h>
+
+#ifndef WIN32
 #include <tango.h>
+#endif
 
 namespace XpadPixelDetector_ns
 {//=====================================
@@ -375,7 +381,7 @@ public:
 //
 
 class
-#ifdef WIN32
+#ifdef _TG_WINDOWS_
 	__declspec(dllexport)
 #endif
 	XpadPixelDetectorClass : public Tango::DeviceClass

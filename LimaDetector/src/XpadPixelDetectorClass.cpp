@@ -33,11 +33,16 @@ static const char *HttpServer = "http://www.esrf.fr/computing/cs/tango/tango_doc
 //=============================================================================
 
 
-
+#ifdef WIN32
+#include <tango.h>
+#endif
 
 #include <XpadPixelDetector.h>
 #include <XpadPixelDetectorClass.h>
+
+#ifndef WIN32
 #include <tango.h>
+#endif
 
 //+----------------------------------------------------------------------------
 /**
@@ -602,7 +607,7 @@ void XpadPixelDetectorClass::set_default_property()
 		add_wiz_dev_prop(prop_name, prop_desc);
 
 	prop_name = "AllConfigG";
-	prop_desc = "list of the all config G, that will be used by the command LoadAllConfigG:\nCMOS_DSBL\nAMP_TP\nITHH\nVADJ\nVREF\nIMFP\nIOTA\nIPRE\nITHL\nITUNE\nIBUFFER";
+	prop_desc = "list of the all config G, that will be used by the command LoadAllConfigG:<BR>\nCMOS_DSBL<BR>\nAMP_TP<BR>\nITHH<BR>\nVADJ<BR>\nVREF<BR>\nIMFP<BR>\nIOTA<BR>\nIPRE<BR>\nITHL<BR>\nITUNE<BR>\nIBUFFER<BR>";
 	prop_def  = "0\n0\n0\n0\n0\n0\n0\n0\n0\n0";
 	vect_data.clear();
 	vect_data.push_back("0");
@@ -615,6 +620,21 @@ void XpadPixelDetectorClass::set_default_property()
 	vect_data.push_back("0");
 	vect_data.push_back("0");
 	vect_data.push_back("0");
+	if (prop_def.length()>0)
+	{
+		Tango::DbDatum	data(prop_name);
+		data << vect_data ;
+		dev_def_prop.push_back(data);
+		add_wiz_dev_prop(prop_name, prop_desc,  prop_def);
+	}
+	else
+		add_wiz_dev_prop(prop_name, prop_desc);
+
+	prop_name = "XpadModel";
+	prop_desc = "Define the model of the XPAD (architecture)<BR>\nAvailables models :<BR>\n- BACKPLANE<BR>\n- IMXPAD_S70<BR>\n- IMXPAD_S140<BR>\n- IMXPAD_S340<BR>\n- IMXPAD_S540<BR>";
+	prop_def  = "UNKNOWN";
+	vect_data.clear();
+	vect_data.push_back("UNKNOWN");
 	if (prop_def.length()>0)
 	{
 		Tango::DbDatum	data(prop_name);

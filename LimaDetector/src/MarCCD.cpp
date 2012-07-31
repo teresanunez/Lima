@@ -52,13 +52,18 @@ static const char *RcsId = "$Id:  $";
 //  TakeBackground  |  take_background()
 //
 //===================================================================
-
-
+#ifdef WIN32
+#include <tango.h>
+#include <PogoHelper.h>
+#endif
 
 #include <MarCCD.h>
 #include <MarCCDClass.h>
+
+#ifndef WIN32
 #include <tango.h>
 #include <PogoHelper.h>
+#endif
 
 const size_t MAX_STRING_LENGTH = 256;
 
@@ -131,6 +136,8 @@ void MarCCD::init_device()
 
 	get_device_property();
 
+    //By default INIT, need to ensure that all objets are OK before set the device to STANDBY
+    set_state(Tango::INIT);
 	m_is_device_initialized = false;
 	m_status_message.str("");
 	
@@ -148,7 +155,7 @@ void MarCCD::init_device()
 			INFO_STREAM<<"Initialization Failed : Unable to get the interface of camera plugin !" << std::endl;
 			m_status_message <<"Initialization Failed : Unable to get the interface of camera plugin !" << std::endl;
 			m_is_device_initialized = false;
-			set_state(Tango::INIT);		
+			set_state(Tango::FAULT);
 			return;			
 		}
 		
@@ -158,14 +165,14 @@ void MarCCD::init_device()
 		INFO_STREAM<<"Initialization Failed : " << e.getErrMsg() << std::endl;
 		m_status_message <<"Initialization Failed : " << e.getErrMsg( ) << std::endl;
 		m_is_device_initialized = false;
-		set_state(Tango::INIT);		
+		set_state(Tango::FAULT);
 		return;
 	}
 	catch(...)
 	{
 		INFO_STREAM<<"Initialization Failed : UNKNOWN"<<endl;
 		m_status_message <<"Initialization Failed : UNKNOWN"<< endl;
-		set_state(Tango::INIT);
+		set_state(Tango::FAULT);
 		m_is_device_initialized = false;
 		return;
 	}
@@ -282,6 +289,7 @@ void MarCCD::always_executed_hook()
 	DEBUG_STREAM << "MarCCD::always_executed_hook() entering... "<< endl;
 	try
 	{
+	    m_status_message.str("");
 		//- get the singleton control objet used to pilot the lima framework
 		m_ct = ControlFactory::instance().get_control("MarCCD");
 
@@ -295,7 +303,7 @@ void MarCCD::always_executed_hook()
 		ERROR_STREAM << e.getErrMsg() << endl;
 		m_status_message <<"Initialization Failed : "<<e.getErrMsg( )<< endl;
 		//- throw exception
-		set_state(Tango::INIT);
+		set_state(Tango::FAULT);
 		m_is_device_initialized = false;
 		return;
 	}
@@ -304,7 +312,7 @@ void MarCCD::always_executed_hook()
 		ERROR_STREAM<<"Initialization Failed : UNKNOWN"<<endl;
 		m_status_message <<"Initialization Failed : UNKNOWN"<< endl;
 		//- throw exception
-		set_state(Tango::INIT);
+		set_state(Tango::FAULT);
 		m_is_device_initialized = false;
 		return;
 	}
@@ -531,66 +539,17 @@ Tango::DevState MarCCD::dev_state()
 	stringstream    DeviceStatus;
 	DeviceStatus 	<< "";
 	Tango::DevState DeviceState	= Tango::STANDBY;
-	if( !m_is_device_initialized )
+    if(!m_is_device_initialized )
+    {
+        DeviceState            = Tango::FAULT;
+        DeviceStatus        << m_status_message.str();
+    }
+    else
 	{
-		DeviceState			= Tango::INIT;
-		DeviceStatus		<< m_status_message.str();
-	}
-	else if ( !m_ct )
-	{
-		DeviceState			= Tango::INIT;
-		DeviceStatus		<<"Initialization Failed : Unable to get the lima control object !\n\n";				
-	}
-	else
-	{
-        CtControl::Status status;
-        m_ct->getStatus(status);
-        if (status.AcquisitionStatus == lima::AcqReady)
-        {
-            HwInterface::StatusType state;
-            m_hw->getStatus(state);
-            if(state.acq == AcqRunning && state.det == DetExposure)
-            {
-                DeviceState=Tango::RUNNING;
-                DeviceStatus<<"Acquisition is Running ...\n"<<endl;
-            }
-            else if(state.acq == AcqFault && state.det == DetFault)
-            {
-                DeviceState=Tango::INIT;//INIT
-                DeviceStatus<<"Acquisition is in Init\n"<<endl;
-            }
-            else if(state.acq == AcqFault && state.det == DetIdle)
-            {
-                DeviceState=Tango::FAULT;//FAULT
-                DeviceStatus<<"Acquisition is in Fault\n"<<endl;
-            }
-            else
-            {
-                DeviceState=Tango::STANDBY;
-                DeviceStatus<<"Waiting for Request ...\n"<<endl;
-            }
-        }
-        else if(status.AcquisitionStatus == lima::AcqRunning)
-        {
-            DeviceState=Tango::RUNNING;
-            DeviceStatus<<"Acquisition is Running ...\n"<<endl;
-        }
-        else
-        {
-            HwInterface::StatusType state;
-            m_hw->getStatus(state);
-            if(state.acq == AcqFault && state.det == DetFault)
-            {
-                DeviceState=Tango::INIT;//INIT
-                DeviceStatus<<"Acquisition is in Init\n"<<endl;
-            }
-            else
-            {
-              DeviceState=Tango::FAULT;//FAULT
-              DeviceStatus<<"Acquisition is in Fault\n"<<endl;
-            }
-        }
-	}
+		//state&status are retrieved from specific device
+		DeviceState = ControlFactory::instance().get_state();
+		DeviceStatus << ControlFactory::instance().get_status();		
+    }
 	
 	set_state(DeviceState);
 	set_status(DeviceStatus.str());
@@ -622,7 +581,7 @@ void MarCCD::store_value_as_property (T value, string property_name)
         Tango::Except::re_throw_exception(df,
                     static_cast<const char*> ("TANGO_DEVICE_ERROR"),
                     static_cast<const char*> (string(df.errors[0].desc).c_str()),
-                    static_cast<const char*> ("LimaDetector::store_value_as_property"));
+                    static_cast<const char*> ("MarCCD::store_value_as_property"));
     }
 
 }
@@ -655,7 +614,7 @@ void MarCCD::create_property_if_empty(Tango::DbData& dev_prop,T value,string pro
             Tango::Except::re_throw_exception(df,
                         static_cast<const char*> ("TANGO_DEVICE_ERROR"),
                         static_cast<const char*> (string(df.errors[0].desc).c_str()),
-                        static_cast<const char*> ("LimaDetector::create_property_if_empty"));
+                        static_cast<const char*> ("MarCCD::create_property_if_empty"));
         }
     }
 }
@@ -675,6 +634,7 @@ int MarCCD::FindIndexFromPropertyName(Tango::DbData& dev_prop, string property_n
     if (i == iNbProperties) return -1;
     return i;
 }
+
 
 
 

@@ -33,10 +33,26 @@
 #ifndef _LimaDetector_H
 #define _LimaDetector_H
 
+#ifdef WIN32
+#include "Factory.h"
+
+//- Tango
+#include <tango.h>
+
+//- YAT/YAT4TANGO
+#include <yat4tango/InnerAppender.h>
+#include <yat4tango/DynamicAttributeManager.h>
+#include <yat/utils/XString.h>
+
+#endif
+
+
+
 
 #include <algorithm>
 #include <string>
 #include <iostream>
+
 
 //- LIMA
 #include "Debug.h"
@@ -52,8 +68,10 @@
 
 //- This Device
 #include "AcquisitionTask.h"
-#include "Factory.h"
 
+
+#ifndef WIN32
+#include "Factory.h"
 //- Tango
 #include <tango.h>
 
@@ -61,6 +79,9 @@
 #include <yat4tango/InnerAppender.h>
 #include <yat4tango/DynamicAttributeManager.h>
 #include <yat/utils/XString.h>
+
+#endif
+
 
 
 using namespace lima;
@@ -147,12 +168,17 @@ public :
 		Tango::DevUShort	*attr_y_read;
 		Tango::DevUShort	*attr_width_read;
 		Tango::DevUShort	*attr_height_read;
-		Tango::DevShort	*attr_binning_read;
+		Tango::DevUShort	*attr_binningH_read;
+		Tango::DevUShort	*attr_binningV_read;
 		Tango::DevLong	*attr_nbFrames_read;
 		Tango::DevLong	attr_nbFrames_write;
 		Tango::DevULong	*attr_currentFrame_read;
 		Tango::DevBoolean	*attr_fileGeneration_read;
 		Tango::DevBoolean	attr_fileGeneration_write;
+		Tango::DevBoolean	*attr_flipX_read;
+		Tango::DevBoolean	attr_flipX_write;
+		Tango::DevBoolean	*attr_flipY_read;
+		Tango::DevBoolean	attr_flipY_write;
 //@}
 
 /**
@@ -172,6 +198,7 @@ public :
  *	- MarCCD<BR>
  *	- PilatusPixelDetector<BR>
  *	- ProsilicaCCD<BR>
+ *	- PrincetonCCD<BR>
  *	- SimulatorCCD<BR>
  *	- XpadPixelDetector<BR>
  *	
@@ -290,15 +317,14 @@ public :
  */
 	vector<short>	memorizedRoi;
 /**
- *	Memorize/Define the Binning value of the Acquisition<br>
- *	Availables values :<br>
- *	- 1<br>
- *	- 2<br>
- *	- 3<br>
- *	- 4<br>
- *	- 8<br>
+ *	Memorize/Define the Binning Horizontal value of the Acquisition<br>
+ *	
  */
-	Tango::DevUShort	memorizedBinning;
+	Tango::DevUShort	memorizedBinningH;
+/**
+ *	Memorize/Define the Binning Vertical value of the Acquisition<br>
+ */
+	Tango::DevUShort	memorizedBinningV;
 /**
  *	Memorize/Define the acquisitionMode attribute at Init device<br>
  *	Availables values :<br>
@@ -332,6 +358,14 @@ public :
  *	Memorize/Define the fileGeneration attribute at Init device<br>
  */
 	Tango::DevBoolean	memorizedFileGeneration;
+/**
+ *	Memorize/Define the flipX attribute at Init device<br>
+ */
+	Tango::DevBoolean	memorizedFlipX;
+/**
+ *	Memorize/Define the flipY attribute at Init device<br>
+ */
+	Tango::DevBoolean	memorizedFlipY;
 //@}
 
 /**
@@ -477,9 +511,13 @@ public :
  */
 	virtual void read_height(Tango::Attribute &attr);
 /**
- *	Extract real attribute values for binning acquisition result.
+ *	Extract real attribute values for binningH acquisition result.
  */
-	virtual void read_binning(Tango::Attribute &attr);
+	virtual void read_binningH(Tango::Attribute &attr);
+/**
+ *	Extract real attribute values for binningV acquisition result.
+ */
+	virtual void read_binningV(Tango::Attribute &attr);
 /**
  *	Extract real attribute values for nbFrames acquisition result.
  */
@@ -500,6 +538,22 @@ public :
  *	Write fileGeneration attribute values to hardware.
  */
 	virtual void write_fileGeneration(Tango::WAttribute &attr);
+/**
+ *	Extract real attribute values for flipX acquisition result.
+ */
+	virtual void read_flipX(Tango::Attribute &attr);
+/**
+ *	Write flipX attribute values to hardware.
+ */
+	virtual void write_flipX(Tango::WAttribute &attr);
+/**
+ *	Extract real attribute values for flipY acquisition result.
+ */
+	virtual void read_flipY(Tango::Attribute &attr);
+/**
+ *	Write flipY attribute values to hardware.
+ */
+	virtual void write_flipY(Tango::WAttribute &attr);
 /**
  *	Read/Write allowed for detectorDescription attribute.
  */
@@ -557,9 +611,13 @@ public :
  */
 	virtual bool is_height_allowed(Tango::AttReqType type);
 /**
- *	Read/Write allowed for binning attribute.
+ *	Read/Write allowed for binningH attribute.
  */
-	virtual bool is_binning_allowed(Tango::AttReqType type);
+	virtual bool is_binningH_allowed(Tango::AttReqType type);
+/**
+ *	Read/Write allowed for binningV attribute.
+ */
+	virtual bool is_binningV_allowed(Tango::AttReqType type);
 /**
  *	Read/Write allowed for nbFrames attribute.
  */
@@ -572,6 +630,14 @@ public :
  *	Read/Write allowed for fileGeneration attribute.
  */
 	virtual bool is_fileGeneration_allowed(Tango::AttReqType type);
+/**
+ *	Read/Write allowed for flipX attribute.
+ */
+	virtual bool is_flipX_allowed(Tango::AttReqType type);
+/**
+ *	Read/Write allowed for flipY attribute.
+ */
+	virtual bool is_flipY_allowed(Tango::AttReqType type);
 /**
  *	Execution allowed for Snap command.
  */
@@ -619,19 +685,14 @@ public :
  *	@param	argin	[origin_x, origin_y, width, height]
  *	@exception DevFailed
  */
-	void	set_roi(const Tango::DevVarLongArray *);
+	void	set_roi(const Tango::DevVarULongArray *);
 /**
- * Define a binning for the image. <br>
- *	Availables values are  :<br>
- *	1->binning(1,1)<br>
- *	2->binning(2,2)<br>
- *	3->binning(3,3)<br>
- *	4->binning(4,4)<br>
- *	8->binning(8,8)<br>
+ * Define a binning Horizontal (x) & Vertical (y) for the image. <br>
+ *	
  *	@param	argin	
  *	@exception DevFailed
  */
-	void	set_binning(Tango::DevUShort);
+	void	set_binning(const Tango::DevVarULongArray *);
 
 /**
  *	Read the device properties from database
@@ -644,6 +705,9 @@ public :
 
 	//method in charge of displaying image in the "image" dynamic attribute
     void                read_image_callback(yat4tango::DynamicAttributeReadCallbackData& cbd);
+
+    // return true if the device is correctly initialized in init_device
+    bool is_device_initialized(){return m_is_device_initialized;};
 protected :    
     //    Add your own data members here
     //-----------------------------------------

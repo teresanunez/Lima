@@ -31,6 +31,9 @@ class MaskDeviceServer(BasePostProcess) :
         self.__maskTask = None
         self.__maskImage = Core.Processlib.Data()
         
+        self.__Type = {'STANDARD' : 0,
+                       'DUMMY' : 1}
+
         BasePostProcess.__init__(self,cl,name)
         MaskDeviceServer.init_device(self)
 
@@ -48,7 +51,7 @@ class MaskDeviceServer(BasePostProcess) :
                 self.__maskTask = extOpt.addOp(Core.MASK,
                                                self.MASK_TASK_NAME,
                                                self._runLevel)
-                self.__maskTask.setBackgroundImage(self.__maskImage)
+                self.__maskTask.setMaskImage(self.__maskImage)
 	PyTango.Device_4Impl.set_state(self,state)
 
     def setMaskImage(self,filepath) :
@@ -56,6 +59,44 @@ class MaskDeviceServer(BasePostProcess) :
         if(self.__maskTask) :
             self.__maskTask.setMaskImage(self.__maskImage)
 
+#------------------------------------------------------------------
+#    getAttrStringValueList command:
+#
+#    Description: return a list of authorized values if any
+#    argout: DevVarStringArray   
+#------------------------------------------------------------------
+    def getAttrStringValueList(self, attr_name):
+        valueList = []
+        dict_name = '_' + self.__class__.__name__ + '__' + ''.join([x.title() for x in attr_name.split('_')])
+        d = getattr(self,dict_name,None)
+        if d:
+            valueList = d.keys()
+        return valueList
+
+    def write_type(self,attr) :
+        data = []
+        attr.get_write_value(data)
+        t = _getDictValue(self.__Type,data[0])
+        self.__maskImage.setType(t)
+
+    def read_type(self,attr) :
+        t = self.__maskImage.getType()
+        attr.set_value(_getDictKey(self.__Type,t))
+        attr.set_value(t)
+        
+def _getDictKey(dict, value):
+    try:
+        ind = dict.values().index(value)                            
+    except ValueError:
+        return None
+    return dict.keys()[ind]
+
+def _getDictValue(dict, key):
+    try:
+        value = dict[key.upper()]
+    except KeyError:
+        return None
+    return value
 
 class MaskDeviceServerClass(PyTango.DeviceClass) :
         #	 Class Properties
@@ -73,6 +114,9 @@ class MaskDeviceServerClass(PyTango.DeviceClass) :
         'setMaskImage':
         [[PyTango.DevString,"Full path of mask image file"],
          [PyTango.DevVoid,""]],
+        'getAttrStringValueList':
+        [[PyTango.DevString, "Attribute name"],
+         [PyTango.DevVarStringArray, "Authorized String value list"]],
 	'Start':
 	[[PyTango.DevVoid,""],
 	 [PyTango.DevVoid,""]],
@@ -88,7 +132,11 @@ class MaskDeviceServerClass(PyTango.DeviceClass) :
 	    [[PyTango.DevLong,
 	    PyTango.SCALAR,
 	    PyTango.READ_WRITE]],
-	}
+        'type':
+        [[PyTango.DevString,
+          PyTango.SCALAR,
+          PyTango.READ_WRITE]],
+        }
 
 
 #------------------------------------------------------------------

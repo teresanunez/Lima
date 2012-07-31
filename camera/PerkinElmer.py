@@ -45,12 +45,13 @@ class PerkinElmer(PyTango.Device_4Impl):
         PyTango.Device_4Impl.__init__(self,cl,name)
         self.init_device()
 
-        self.__FillMode = {'ON':True,
-                           'OFF':False}
         self.__CorrectionMode = {'NO' : _PerkinElmerIterface.No,
                                  'OFFSET ONLY' : _PerkinElmerIterface.OffsetOnly,
                                  'OFFSET AND GAIN' : _PerkinElmerIterface.OffsetAndGain}
-        
+	
+	self.__KeepFirstImage = {'YES' : True,
+				 'NO' : False}
+	
         self.__Attribute2FunctionBase = {
             }
 #------------------------------------------------------------------
@@ -94,6 +95,15 @@ class PerkinElmer(PyTango.Device_4Impl):
                 return callable_obj
         raise AttributeError('PerkinElmer has no attribute %s' % name)
 
+    def read_gain(self,attr) :
+	gain = _PerkinElmerIterface.getGain()
+	attr.set_value(gain)
+
+    def write_gain(self,attr) :
+	data = []
+	attr.get_write_value(data)
+	_PerkinElmerIterface.setGain(*data)
+	
 #==================================================================
 #
 #    PerkinElmer command methods
@@ -164,6 +174,14 @@ class PerkinElmerClass(PyTango.DeviceClass):
             [[PyTango.DevString,
             PyTango.SCALAR,
             PyTango.READ_WRITE]],
+	'gain':
+	[[PyTango.DevLong,
+	  PyTango.SCALAR,
+	  PyTango.READ_WRITE]],
+	'keep_first_image':
+	[[PyTango.DevString,
+	  PyTango.SCALAR,
+	  PyTango.READ_WRITE]],
         }
 
 

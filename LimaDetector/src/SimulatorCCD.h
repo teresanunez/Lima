@@ -43,14 +43,25 @@
 
  //    Add your own constant definitions here.
  //-----------------------------------------------
+
+#ifdef WIN32
+#include <tango.h>
+#include "Factory.h"
+#endif
+
 #include "HwInterface.h"
 #include "CtControl.h"
 #include "CtAcquisition.h"
 #include "CtImage.h"
-#include <SimulatorInterface.h>
-#include "Factory.h"
 
+#include <SimulatorInterface.h>
+
+#ifndef WIN32
 #include <tango.h>
+#include "Factory.h"
+#endif
+
+
 
 using namespace lima;
 using namespace std;
@@ -194,7 +205,8 @@ public :
 
     //    Here is the end of the automatic code generation part
     //-------------------------------------------------------------    
-
+	// return true if the device is correctly initialized in init_device
+	bool is_device_initialized(){return m_is_device_initialized;};
 
 
 protected :    

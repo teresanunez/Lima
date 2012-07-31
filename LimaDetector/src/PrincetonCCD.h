@@ -1,10 +1,10 @@
 //=============================================================================
 //
-// file :        BaslerCCD.h
+// file :        PrincetonCCD.h
 //
-// description : Include for the BaslerCCD class.
+// description : Include for the PrincetonCCD class.
 //
-// project :	
+// project :	Device specific for Princeton CCD detector
 //
 // $Author:  $
 //
@@ -30,8 +30,9 @@
 //
 //         (c) - Software Engineering Group - ESRF
 //=============================================================================
-#ifndef _BASLERCCD_H
-#define _BASLERCCD_H
+#ifndef _PRINCETONCCD_H
+#define _PRINCETONCCD_H
+
 
 //using namespace Tango;
 
@@ -44,26 +45,27 @@
  //-----------------------------------------------
 #ifdef WIN32
 #include <tango.h>
+#include "Factory.h"
 #endif
+
 
 #include "HwInterface.h"
 #include "CtControl.h"
 #include "CtAcquisition.h"
 #include "CtImage.h"
-#include "Factory.h"
+#include <RoperScientificInterface.h>
 
 #ifndef WIN32
 #include <tango.h>
+#include "Factory.h"
 #endif
 
-
-#include <BaslerInterface.h>
 #define MAX_ATTRIBUTE_STRING_LENGTH     256
 
 using namespace lima;
 using namespace std;
 
-namespace BaslerCCD_ns
+namespace PrincetonCCD_ns
 {
 
 /**
@@ -80,7 +82,7 @@ namespace BaslerCCD_ns
  */
 
 
-class BaslerCCD: public Tango::Device_4Impl
+class PrincetonCCD: public Tango::Device_4Impl
 {
 public :
     //    Add your own data members here
@@ -94,7 +96,13 @@ public :
  *    Attribute member data.
  */
 //@{
-		Tango::DevDouble	*attr_frameRate_read;
+		Tango::DevString	*attr_internalAcquisitionMode_read;
+		Tango::DevString	attr_internalAcquisitionMode_write;
+		Tango::DevString	*attr_shutterMode_read;
+		Tango::DevString	attr_shutterMode_write;
+		Tango::DevDouble	*attr_temperature_read;
+		Tango::DevDouble	*attr_temperatureTarget_read;
+		Tango::DevDouble	attr_temperatureTarget_write;
 //@}
 
 /**
@@ -103,17 +111,24 @@ public :
  */
 //@{
 /**
- *	Ip Address of the Detector.
+ *	Detector Number.
  */
-	string	detectorIP;
+	string	detectorNum;
 /**
- *	During acquisition, this is the time before declaring that is no available image returned by detector. (in ms)
+ *	Memorize/Define the internalAcquisitionMode attribute at Init device<br>
+ *	Availables values :<br>
+ *	- STANDARD<br>
+ *	- FOCUS<br>
  */
-	Tango::DevShort	detectorTimeout;
+	string	memorizedInternalAcquisitionMode;
 /**
- *	Sets the packet size in bytes for the selected steam channel of the Transport Layer.<br>
+ *	Memorize/Define the SHUTTERMode attribute at Init device<br>
+ *	Availables values :<br>
+ *	- OPEN_NEVER<br>
+ *	- OPEN_PRE_EXPOSURE<br>
+ *	- OPEN_NO_CHANGE<br>
  */
-	Tango::DevLong	detectorPacketSize;
+	string	memorizedShutterMode;
 //@}
 
 /**
@@ -132,14 +147,14 @@ public :
  *    @param cl    Class.
  *    @param s     Device Name
  */
-    BaslerCCD(Tango::DeviceClass *cl,string &s);
+    PrincetonCCD(Tango::DeviceClass *cl,string &s);
 /**
  * Constructs a newly allocated Command object.
  *
  *    @param cl    Class.
  *    @param s     Device Name
  */
-    BaslerCCD(Tango::DeviceClass *cl,const char *s);
+    PrincetonCCD(Tango::DeviceClass *cl,const char *s);
 /**
  * Constructs a newly allocated Command object.
  *
@@ -147,7 +162,7 @@ public :
  *    @param s     Device name
  *    @param d    Device description.
  */
-    BaslerCCD(Tango::DeviceClass *cl,const char *s,const char *d);
+    PrincetonCCD(Tango::DeviceClass *cl,const char *s,const char *d);
 //@}
 
 /**@name Destructor
@@ -156,7 +171,7 @@ public :
 /**
  * The object destructor.
  */    
-    ~BaslerCCD() {delete_device();};
+    ~PrincetonCCD() {delete_device();};
 /**
  *    will be called at device destruction or at init command.
  */
@@ -178,7 +193,7 @@ public :
 //@}
 
 /**
- * @name BaslerCCD methods prototypes
+ * @name PrincetonCCD methods prototypes
  */
 
 //@{
@@ -187,13 +202,49 @@ public :
  */
 	virtual void read_attr_hardware(vector<long> &attr_list);
 /**
- *	Extract real attribute values for frameRate acquisition result.
+ *	Extract real attribute values for internalAcquisitionMode acquisition result.
  */
-	virtual void read_frameRate(Tango::Attribute &attr);
+	virtual void read_internalAcquisitionMode(Tango::Attribute &attr);
 /**
- *	Read/Write allowed for frameRate attribute.
+ *	Write internalAcquisitionMode attribute values to hardware.
  */
-	virtual bool is_frameRate_allowed(Tango::AttReqType type);
+	virtual void write_internalAcquisitionMode(Tango::WAttribute &attr);
+/**
+ *	Extract real attribute values for shutterMode acquisition result.
+ */
+	virtual void read_shutterMode(Tango::Attribute &attr);
+/**
+ *	Write shutterMode attribute values to hardware.
+ */
+	virtual void write_shutterMode(Tango::WAttribute &attr);
+/**
+ *	Extract real attribute values for temperature acquisition result.
+ */
+	virtual void read_temperature(Tango::Attribute &attr);
+/**
+ *	Extract real attribute values for temperatureTarget acquisition result.
+ */
+	virtual void read_temperatureTarget(Tango::Attribute &attr);
+/**
+ *	Write temperatureTarget attribute values to hardware.
+ */
+	virtual void write_temperatureTarget(Tango::WAttribute &attr);
+/**
+ *	Read/Write allowed for internalAcquisitionMode attribute.
+ */
+	virtual bool is_internalAcquisitionMode_allowed(Tango::AttReqType type);
+/**
+ *	Read/Write allowed for shutterMode attribute.
+ */
+	virtual bool is_shutterMode_allowed(Tango::AttReqType type);
+/**
+ *	Read/Write allowed for temperature attribute.
+ */
+	virtual bool is_temperature_allowed(Tango::AttReqType type);
+/**
+ *	Read/Write allowed for temperatureTarget attribute.
+ */
+	virtual bool is_temperatureTarget_allowed(Tango::AttReqType type);
 /**
  * This command gets the device state (stored in its <i>device_state</i> data member) and returns it to the caller.
  *	@return	State Code
@@ -209,9 +260,9 @@ public :
 
     //    Here is the end of the automatic code generation part
     //-------------------------------------------------------------    
-
 	// return true if the device is correctly initialized in init_device
 	bool is_device_initialized(){return m_is_device_initialized;};
+
 
 protected :    
     //    Add your own data members here
@@ -225,14 +276,19 @@ protected :
     template <class T>
     void            store_value_as_property(T value, string property_name);
 	
-    bool                 m_is_device_initialized ;
-    stringstream        m_status_message;
+    //state & status stuff
+    bool                        m_is_device_initialized ;
+    stringstream                m_status_message;
     //lima OBJECTS
-    Basler::Interface*    m_hw;
-    CtControl*            m_ct;
+    RoperScientific::Interface* m_hw;
+    CtControl*                  m_ct;
+    RoperScientific::Camera*    m_camera;	
+	
+	std::string                 m_acquisition_mode;	//aquisition mode name 	(STANDARD, CONTINUOUS, FOCUS)
+	std::string	                m_shutter_mode;	 //shutter mode name 	(OPEN_NEVER, OPEN_PRE_EXPOSURE, OPEN_NO_CHANGE)
     
 };
 
 }    // namespace_ns
 
-#endif    // _BASLERCCD_H
+#endif    // _PRINCETONCCD_H

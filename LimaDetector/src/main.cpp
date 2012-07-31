@@ -34,14 +34,9 @@ static const char *RcsId = "$Id $";
 //         (c) - Software Engineering Group - ESRF
 //=============================================================================
 
+
 #include <tango.h>
 
-#ifdef XPAD_ENABLED    
-    //- Xpix
-    #include <xpci_interface.h>
-    #include <xpci_interface_expert.h>
-    #include <xpci_time.h>
-#endif
 
 #if defined(ENABLE_CRASH_REPORT)
 # include <crashreporting/crash_report.h>
@@ -57,11 +52,7 @@ int main(int argc,char *argv[])
 	INSTALL_CRASH_HANDLER;
     
     Tango::Util *tg;
-#ifdef XPAD_ENABLED        
-    //- INIT of the PCI Express board
-    if(xpci_init(0,XPAD_32) == 0)
-        cout << "PCIe board succesfully initialized" << endl;
-#endif
+
     try
     {
         // Initialise the device server
@@ -92,10 +83,5 @@ int main(int argc,char *argv[])
     }
     tg->server_cleanup();
 
-#ifdef XPAD_ENABLED    
-    // Close XPCI Lib
-    xpci_close(0);
-    cout << "XPCI Lib closed" << endl;
-#endif
     return(0);
 }

@@ -32,10 +32,16 @@ static const char *RcsId = "$Id $";
 //         (c) - Software Engineering Group - ESRF
 //=============================================================================
 
+#ifdef WIN32
+#include <tango.h>
+#endif
 
 #include <XpadPixelDetector.h>
 #include <XpadPixelDetectorClass.h>
+
+#ifndef WIN32
 #include <tango.h>
+#endif
 
 /*====================================================================
  *	This file contains the methods to allow commands and attributes
@@ -64,10 +70,20 @@ namespace XpadPixelDetector_ns
 //-----------------------------------------------------------------------------
 bool XpadPixelDetector::is_deadTime_allowed(Tango::AttReqType type)
 {
-	if (get_state() == Tango::FAULT)
+	if (get_state() == Tango::INIT	||
+		get_state() == Tango::RUNNING	||
+		get_state() == Tango::FAULT)
 	{
 		//	End of Generated Code
-
+		if ( get_state()==Tango::RUNNING && type==Tango::READ_REQ )
+		{
+           return true;
+		}
+		
+		if ( get_state()==Tango::FAULT && is_device_initialized() )
+		{
+           return true;
+		}
 		//	Re-Start of Generated Code
 		return false;
 	}
@@ -82,10 +98,20 @@ bool XpadPixelDetector::is_deadTime_allowed(Tango::AttReqType type)
 //-----------------------------------------------------------------------------
 bool XpadPixelDetector::is_init_allowed(Tango::AttReqType type)
 {
-	if (get_state() == Tango::FAULT)
+	if (get_state() == Tango::INIT	||
+		get_state() == Tango::RUNNING	||
+		get_state() == Tango::FAULT)
 	{
 		//	End of Generated Code
-
+		if ( get_state()==Tango::RUNNING && type==Tango::READ_REQ )
+		{
+           return true;
+		}
+		
+		if ( get_state()==Tango::FAULT && is_device_initialized() )
+		{
+           return true;
+		}
 		//	Re-Start of Generated Code
 		return false;
 	}
@@ -100,10 +126,20 @@ bool XpadPixelDetector::is_init_allowed(Tango::AttReqType type)
 //-----------------------------------------------------------------------------
 bool XpadPixelDetector::is_shutter_allowed(Tango::AttReqType type)
 {
-	if (get_state() == Tango::FAULT)
+	if (get_state() == Tango::INIT	||
+		get_state() == Tango::RUNNING	||
+		get_state() == Tango::FAULT)
 	{
 		//	End of Generated Code
-
+		if ( get_state()==Tango::RUNNING && type==Tango::READ_REQ )
+		{
+           return true;
+		}
+		
+		if ( get_state()==Tango::FAULT && is_device_initialized() )
+		{
+           return true;
+		}
 		//	Re-Start of Generated Code
 		return false;
 	}
@@ -118,10 +154,20 @@ bool XpadPixelDetector::is_shutter_allowed(Tango::AttReqType type)
 //-----------------------------------------------------------------------------
 bool XpadPixelDetector::is_ovf_allowed(Tango::AttReqType type)
 {
-	if (get_state() == Tango::FAULT)
+	if (get_state() == Tango::INIT	||
+		get_state() == Tango::RUNNING	||
+		get_state() == Tango::FAULT)
 	{
 		//	End of Generated Code
-
+		if ( get_state()==Tango::RUNNING && type==Tango::READ_REQ )
+		{
+           return true;
+		}
+		
+		if ( get_state()==Tango::FAULT && is_device_initialized() )
+		{
+           return true;
+		}
 		//	Re-Start of Generated Code
 		return false;
 	}
@@ -136,10 +182,20 @@ bool XpadPixelDetector::is_ovf_allowed(Tango::AttReqType type)
 //-----------------------------------------------------------------------------
 bool XpadPixelDetector::is_mode_allowed(Tango::AttReqType type)
 {
-	if (get_state() == Tango::FAULT)
+	if (get_state() == Tango::INIT	||
+		get_state() == Tango::RUNNING	||
+		get_state() == Tango::FAULT)
 	{
 		//	End of Generated Code
-
+		if ( get_state()==Tango::RUNNING && type==Tango::READ_REQ )
+		{
+           return true;
+		}
+		
+		if ( get_state()==Tango::FAULT && is_device_initialized() )
+		{
+           return true;
+		}
 		//	Re-Start of Generated Code
 		return false;
 	}
@@ -154,10 +210,20 @@ bool XpadPixelDetector::is_mode_allowed(Tango::AttReqType type)
 //-----------------------------------------------------------------------------
 bool XpadPixelDetector::is_n_allowed(Tango::AttReqType type)
 {
-	if (get_state() == Tango::FAULT)
+	if (get_state() == Tango::INIT	||
+		get_state() == Tango::RUNNING	||
+		get_state() == Tango::FAULT)
 	{
 		//	End of Generated Code
-
+		if ( get_state()==Tango::RUNNING && type==Tango::READ_REQ )
+		{
+           return true;
+		}
+		
+		if ( get_state()==Tango::FAULT && is_device_initialized() )
+		{
+           return true;
+		}
 		//	Re-Start of Generated Code
 		return false;
 	}
@@ -172,10 +238,20 @@ bool XpadPixelDetector::is_n_allowed(Tango::AttReqType type)
 //-----------------------------------------------------------------------------
 bool XpadPixelDetector::is_p_allowed(Tango::AttReqType type)
 {
-	if (get_state() == Tango::FAULT)
+	if (get_state() == Tango::INIT	||
+		get_state() == Tango::RUNNING	||
+		get_state() == Tango::FAULT)
 	{
 		//	End of Generated Code
-
+		if ( get_state()==Tango::RUNNING && type==Tango::READ_REQ )
+		{
+           return true;
+		}
+		
+		if ( get_state()==Tango::FAULT && is_device_initialized() )
+		{
+           return true;
+		}
 		//	Re-Start of Generated Code
 		return false;
 	}
@@ -190,10 +266,20 @@ bool XpadPixelDetector::is_p_allowed(Tango::AttReqType type)
 //-----------------------------------------------------------------------------
 bool XpadPixelDetector::is_gp1_allowed(Tango::AttReqType type)
 {
-	if (get_state() == Tango::FAULT)
+	if (get_state() == Tango::INIT	||
+		get_state() == Tango::RUNNING	||
+		get_state() == Tango::FAULT)
 	{
 		//	End of Generated Code
-
+		if ( get_state()==Tango::RUNNING && type==Tango::READ_REQ )
+		{
+           return true;
+		}
+		
+		if ( get_state()==Tango::FAULT && is_device_initialized() )
+		{
+           return true;
+		}
 		//	Re-Start of Generated Code
 		return false;
 	}
@@ -208,10 +294,20 @@ bool XpadPixelDetector::is_gp1_allowed(Tango::AttReqType type)
 //-----------------------------------------------------------------------------
 bool XpadPixelDetector::is_gp2_allowed(Tango::AttReqType type)
 {
-	if (get_state() == Tango::FAULT)
+	if (get_state() == Tango::INIT	||
+		get_state() == Tango::RUNNING	||
+		get_state() == Tango::FAULT)
 	{
 		//	End of Generated Code
-
+		if ( get_state()==Tango::RUNNING && type==Tango::READ_REQ )
+		{
+           return true;
+		}
+		
+		if ( get_state()==Tango::FAULT && is_device_initialized() )
+		{
+           return true;
+		}
 		//	Re-Start of Generated Code
 		return false;
 	}
@@ -226,10 +322,20 @@ bool XpadPixelDetector::is_gp2_allowed(Tango::AttReqType type)
 //-----------------------------------------------------------------------------
 bool XpadPixelDetector::is_gp3_allowed(Tango::AttReqType type)
 {
-	if (get_state() == Tango::FAULT)
+	if (get_state() == Tango::INIT	||
+		get_state() == Tango::RUNNING	||
+		get_state() == Tango::FAULT)
 	{
 		//	End of Generated Code
-
+		if ( get_state()==Tango::RUNNING && type==Tango::READ_REQ )
+		{
+           return true;
+		}
+		
+		if ( get_state()==Tango::FAULT && is_device_initialized() )
+		{
+           return true;
+		}
 		//	Re-Start of Generated Code
 		return false;
 	}
@@ -244,10 +350,20 @@ bool XpadPixelDetector::is_gp3_allowed(Tango::AttReqType type)
 //-----------------------------------------------------------------------------
 bool XpadPixelDetector::is_gp4_allowed(Tango::AttReqType type)
 {
-	if (get_state() == Tango::FAULT)
+	if (get_state() == Tango::INIT	||
+		get_state() == Tango::RUNNING	||
+		get_state() == Tango::FAULT)
 	{
 		//	End of Generated Code
-
+		if ( get_state()==Tango::RUNNING && type==Tango::READ_REQ )
+		{
+           return true;
+		}
+		
+		if ( get_state()==Tango::FAULT && is_device_initialized() )
+		{
+           return true;
+		}
 		//	Re-Start of Generated Code
 		return false;
 	}
@@ -272,7 +388,10 @@ bool XpadPixelDetector::is_LoadFlatConfig_allowed(const CORBA::Any &any)
 		get_state() == Tango::FAULT)
 	{
 		//	End of Generated Code
-
+		if ( get_state()==Tango::FAULT && is_device_initialized() )
+		{
+           return true;
+		}
 		//	Re-Start of Generated Code
 		return false;
 	}
@@ -292,7 +411,10 @@ bool XpadPixelDetector::is_LoadAllConfigG_allowed(const CORBA::Any &any)
 		get_state() == Tango::FAULT)
 	{
 		//	End of Generated Code
-
+		if ( get_state()==Tango::FAULT && is_device_initialized() )
+		{
+           return true;
+		}
 		//	Re-Start of Generated Code
 		return false;
 	}
@@ -312,7 +434,10 @@ bool XpadPixelDetector::is_SaveConfigL_allowed(const CORBA::Any &any)
 		get_state() == Tango::FAULT)
 	{
 		//	End of Generated Code
-
+		if ( get_state()==Tango::FAULT && is_device_initialized() )
+		{
+           return true;
+		}
 		//	Re-Start of Generated Code
 		return false;
 	}
@@ -332,7 +457,10 @@ bool XpadPixelDetector::is_SaveConfigG_allowed(const CORBA::Any &any)
 		get_state() == Tango::FAULT)
 	{
 		//	End of Generated Code
-
+		if ( get_state()==Tango::FAULT && is_device_initialized() )
+		{
+           return true;
+		}
 		//	Re-Start of Generated Code
 		return false;
 	}
@@ -352,7 +480,10 @@ bool XpadPixelDetector::is_LoadConfig_allowed(const CORBA::Any &any)
 		get_state() == Tango::FAULT)
 	{
 		//	End of Generated Code
-
+		if ( get_state()==Tango::FAULT && is_device_initialized() )
+		{
+           return true;
+		}
 		//	Re-Start of Generated Code
 		return false;
 	}
@@ -367,9 +498,16 @@ bool XpadPixelDetector::is_LoadConfig_allowed(const CORBA::Any &any)
 //-----------------------------------------------------------------------------
 bool XpadPixelDetector::is_Reset_allowed(const CORBA::Any &any)
 {
+	if (get_state() == Tango::RUNNING)
+	{
 		//	End of Generated Code
-
+		if ( get_state()==Tango::FAULT && is_device_initialized() )
+		{
+           return true;
+		}
 		//	Re-Start of Generated Code
+		return false;
+	}
 	return true;
 }
 //+----------------------------------------------------------------------------
@@ -386,7 +524,10 @@ bool XpadPixelDetector::is_GetModConfig_allowed(const CORBA::Any &any)
 		get_state() == Tango::FAULT)
 	{
 		//	End of Generated Code
-
+		if ( get_state()==Tango::FAULT && is_device_initialized() )
+		{
+           return true;
+		}
 		//	Re-Start of Generated Code
 		return false;
 	}

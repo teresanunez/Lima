@@ -648,6 +648,10 @@ class LimaTacoCCDs(PyTango.Device_4Impl):
             triggerMode = Core.ExtTrigSingle
         elif argin == 2:
             triggerMode = Core.ExtTrigMult
+        elif argin == 3:
+	    triggerMode = Core.ExtStartStop
+	elif argin == 4:
+	    triggerMode = Core.ExtTrigReadout
         else:
             raise Core.Exception,'Invalid ext. trig: %s' % argin
 
@@ -670,6 +674,10 @@ class LimaTacoCCDs(PyTango.Device_4Impl):
             returnValue = 1
         elif triggerMode == Core.ExtTrigMult:
             returnValue = 2
+	elif triggerMode == Core.ExtStartStop:
+	    returnValue = 3
+	elif triggerMode == Core.ExtTrigReadout:
+	    returnValue = 4
         else:
             raise Core.Exception, 'Invalid trigger mode: %s' % triggerMode
         return returnValue

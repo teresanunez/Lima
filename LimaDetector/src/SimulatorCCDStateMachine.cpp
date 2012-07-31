@@ -32,10 +32,16 @@ static const char *RcsId = "$Id $";
 //         (c) - Software Engineering Group - ESRF
 //=============================================================================
 
+#ifdef WIN32
+#include <tango.h>
+#endif
 
 #include <SimulatorCCD.h>
 #include <SimulatorCCDClass.h>
+
+#ifndef WIN32
 #include <tango.h>
+#endif
 
 /*====================================================================
  *	This file contains the methods to allow commands and attributes
@@ -65,13 +71,19 @@ namespace SimulatorCCD_ns
 bool SimulatorCCD::is_exposureTime_allowed(Tango::AttReqType type)
 {
 	if (get_state() == Tango::INIT	||
+		get_state() == Tango::FAULT	||
 		get_state() == Tango::RUNNING)
 	{
 		//	End of Generated Code
-		if ( (get_state()==Tango::FAULT || get_state()==Tango::RUNNING )&& type==Tango::READ_REQ )
+		if ( get_state()==Tango::RUNNING && type==Tango::READ_REQ )
 		{
            return true;
 		}
+		
+		if ( get_state()==Tango::FAULT && is_device_initialized() )
+		{
+           return true;
+		}	
 		//	Re-Start of Generated Code
 		return false;
 	}

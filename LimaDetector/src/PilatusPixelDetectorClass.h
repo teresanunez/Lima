@@ -37,9 +37,15 @@
 #ifndef _PILATUSPIXELDETECTORCLASS_H
 #define _PILATUSPIXELDETECTORCLASS_H
 
+#ifdef WIN32
+#include <tango.h>
+#endif
 
 #include <PilatusPixelDetector.h>
+
+#ifndef WIN32
 #include <tango.h>
+#endif
 
 
 namespace PilatusPixelDetector_ns
