@@ -346,9 +346,7 @@ class CallableWrite:
         self.__func2Call = func2Call
         
     def __call__(self,attr) :
-        data = []
-        attr.get_write_value(data)
-        value = data[0]
+        value = attr.get_write_value()
         if value is None:
             PyTango.Except.throw_exception('WrongData',\
                                            'Wrong value %s: %s'%(self.__attr_name,data[0].upper()),\
