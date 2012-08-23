@@ -76,6 +76,7 @@ def setup_lima_env(argv):
         for l in pobj.stdout.readlines():
             key, val = l.strip().split('=')
             output[key] = val
+        pobj.wait()
         print_debug('Retry %d - got from TANGO database: %s' % (r, output))
         if 'LimaCameraType' in output.keys():
             break
@@ -127,6 +128,7 @@ def check_link_strict_version():
     strict_link = pobj.stdout.readline().strip().upper()
     print_debug('LIMA_LINK_STRICT_VERSION=%s' % strict_link)
     StrictVersionPolicy = None
+    pobj.wait()
     if strict_link and strict_link != 'NONE':
         StrictVersionPolicy = strict_link
     return StrictVersionPolicy
@@ -192,6 +194,7 @@ def check_lima_dir():
     core_init_dir = pobj.stdout.readline().strip()
     core_dir = os.path.dirname(core_init_dir)
     LimaDir = os.path.dirname(core_dir)
+    pobj.wait()
     return LimaDir
 
 def version_code(s):
