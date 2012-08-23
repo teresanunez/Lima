@@ -70,10 +70,11 @@ class Pilatus(PyTango.Device_4Impl):
 
         self.__FillMode = {'ON':True,
                            'OFF':False}
-        self.__ThresholdGain = {'LOW' : 0,
-                                'MID' : 1,
-                                'HIGH' : 2,
-                                'ULTRA HIGH' : 3}
+        self.__ThresholdGain = {'DEFAULT' : 0,
+                                'LOW' : 1,
+                                'MID' : 2,
+                                'HIGH' : 3,
+                                'ULTRA HIGH' : 4}
 
 #------------------------------------------------------------------
 #    Device destructor
@@ -117,8 +118,7 @@ class Pilatus(PyTango.Device_4Impl):
 #    Read threshold_gain attribute
 #------------------------------------------------------------------
     def read_threshold_gain(self, attr):
-        communication = _PilatusIterface.communication()
-        gain = communication.gain()
+        gain = _PilatusCamera.gain()
         if gain is None:
             gain = "not set"
         else:
@@ -132,18 +132,14 @@ class Pilatus(PyTango.Device_4Impl):
     def write_threshold_gain(self, attr):
         data = attr.get_write_value()
         gain = _getDictValue(self.__ThresholdGain,data)
-        communication = _PilatusIterface.communication()
-        threshold = communication.threshold()
-        communication.set_threshold_gain(threshold,gain)
+        threshold = _PilatusCamera.threshold()
+        _PilatusCamera.setThresholdGain(threshold,gain)
 
 #------------------------------------------------------------------
 #    Read threshold attribute
 #------------------------------------------------------------------
     def read_threshold(self, attr):
-        communication = _PilatusIterface.communication()
-        threshold = communication.threshold()
-        if threshold == None:           # Not set
-            threshold = -1
+        threshold = _PilatusCamera.threshold()
         attr.set_value(threshold)
 
 #------------------------------------------------------------------
@@ -151,45 +147,53 @@ class Pilatus(PyTango.Device_4Impl):
 #------------------------------------------------------------------
     def write_threshold(self, attr):
         data = attr.get_write_value()
-        communication = _PilatusIterface.communication()
-        communication.set_threshold_gain(data)
+        _PilatusCamera.setThresholdGain(data)
 
 #------------------------------------------------------------------
 #    Read energy_threshold attribute
 #------------------------------------------------------------------
-    def read_energy_threshold(self, attr):
-        communication = _PilatusIterface.communication()
-        threshold = communication.threshold()
-        if threshold == None:           # Not set
+    def read_energy_threshold(self, attr) :
+        energy = _PilatusCamera.energy()
+        attr.set_value(energy)
+#------------------------------------------------------------------
+#    Write energy_threshold attribute
+#------------------------------------------------------------------
+    def write_energy_threshold(self, attr) :
+        energy = attr.get_write_value()
+
+        _PilatusCamera.setEnergy(energy)
+#------------------------------------------------------------------
+#    Read Working_energy attribute
+#------------------------------------------------------------------
+    def read_working_energy(self, attr):
+        threshold = _PilatusCamera.threshold()
+        if threshold < 0:           # Not set
             energy = -1
         else:
             energy = threshold / 600.    # threshold is 60% of working energy
         attr.set_value(energy)
 
 #------------------------------------------------------------------
-#    Write energy_threshold attribute
+#    Write working_energy attribute
 #------------------------------------------------------------------
-    def write_energy_threshold(self, attr):
-        data = attr.get_write_value()
-        energy = data
+    def write_working_energy(self, attr):
+        energy = attr.get_write_value()
         threshold = energy * 600  # 60% of working energy
         if energy > 12 :
-            gain = 0                    # Low gain
+            gain = 1                    # Low gain
         elif energy > 8 and energy <= 12 :
-            gain = 1                    # Mid gain
+            gain = 2                    # Mid gain
         elif energy >= 6 and energy <= 8:
-            gain = 2                    # high gain
+            gain = 3                    # high gain
         else:
-            gain = 3                    # Ultra high gain
+            gain = 4                    # Ultra high gain
         
-        communication = _PilatusIterface.communication()
-        communication.set_threshold_gain(threshold,gain)
+        _PilatusCamera.setThresholdGain(threshold,gain)
 #----------------------------------------------------------------------------
 #     Read delay attribute
 #----------------------------------------------------------------------------
     def read_trigger_delay(self,attr) :
-        communication = _PilatusIterface.communication()
-        delay = communication.hardware_trigger_delay()
+        delay = communication.hardwareTriggerDelay()
         attr.set_value(delay)
 
 #----------------------------------------------------------------------------
@@ -199,15 +203,13 @@ class Pilatus(PyTango.Device_4Impl):
         data = attr.get_write_value()
         delay = data
         
-        communication = _PilatusIterface.communication()
-        communication.set_hardware_trigger_delay(delay)
+        _PilatusCamera.setHardwareTriggerDelay(delay)
 
 #----------------------------------------------------------------------------
 #     Read nb exposure per frame attribute
 #----------------------------------------------------------------------------
     def read_nb_exposure_per_frame(self,attr) :
-        communication = _PilatusIterface.communication()
-        nb_frames = communication.nb_exposure_per_frame()
+        nb_frames = _PilatusCamera.nbExposurePerFrame()
         attr.set_value(nb_frames)
 
 #----------------------------------------------------------------------------
@@ -217,8 +219,7 @@ class Pilatus(PyTango.Device_4Impl):
         data = attr.get_write_value()
         nb_frames = data
         
-        communication = _PilatusIterface.communication()
-        communication.set_nb_exposure_per_frame(nb_frames)
+        _PilatusCamera.setNbExposurePerFrame(nb_frames)
 
 
 
@@ -226,8 +227,7 @@ class Pilatus(PyTango.Device_4Impl):
 #    Read gapfill attribute
 #------------------------------------------------------------------
     def read_fill_mode(self, attr):
-        communication = _PilatusIterface.communication()
-        gapfill = communication.gapfill()
+        gapfill = _PilatusCamera.gapfill()
         gapfill = _getDictKey(self.__FillMode,gapfill)
         attr.set_value(gapfill)
 
@@ -237,8 +237,7 @@ class Pilatus(PyTango.Device_4Impl):
     def write_fill_mode(self, attr):
         data = attr.get_write_value()
         gapfill = _getDictValue(self.__FillMode,data)
-        communication = _PilatusIterface.communication()
-        communication.set_gapfill(gapfill)
+        _PilatusCamera.setGapfill(gapfill)
 
 #==================================================================
 #
@@ -284,6 +283,10 @@ class PilatusClass(PyTango.DeviceClass):
             [[PyTango.DevLong,
             PyTango.SCALAR,
             PyTango.READ_WRITE]],
+        "working_energy":
+         [[PyTango.DevFloat,
+            PyTango.SCALAR,
+            PyTango.READ_WRITE]],
         'energy_threshold':
             [[PyTango.DevFloat,
             PyTango.SCALAR,
@@ -327,22 +330,18 @@ def _getDictValue(dict, key):
 #----------------------------------------------------------------------------
 # Plugins
 #----------------------------------------------------------------------------
-from Lima.Pilatus import Interface
+from Lima import Pilatus as PilatusAcq
 
 _PilatusIterface = None
+_PilatusCamera = None
 
 def get_control(**keys) :
     global _PilatusIterface
+    global _PilatusCamera
     if _PilatusIterface is None:
-        _PilatusIterface = Interface.Interface()
+        _PilatusCamera = PilatusAcq.Camera()
+        _PilatusIterface = PilatusAcq.Interface(_PilatusCamera)
     return Core.CtControl(_PilatusIterface)
-
-def close_interface() :
-    global _PilatusIterface
-    if _PilatusIterface is not None:
-        _PilatusIterface.quit()
-        _PilatusIterface = None
-
 
 def get_tango_specific_class_n_device() :
     return PilatusClass,Pilatus
