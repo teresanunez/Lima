@@ -214,6 +214,7 @@ Configuration device
   pilatus
   prosilica 
   andor
+  pco
 
 Calculation devices
 -------------------
