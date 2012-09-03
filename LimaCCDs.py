@@ -56,6 +56,8 @@ if 'linux' in sys.platform:
     from EnvHelper import setup_lima_env
     setup_lima_env(sys.argv)
 
+from AttrHelper import CallableReadEnum,CallableWriteEnum
+
 from Lima import Core
 
 import plugins
@@ -1940,31 +1942,8 @@ def get_sub_devices() :
         className2deviceName[deviceName] = class_name
     return className2deviceName
 
-class CallableReadEnum:
-    def __init__(self,dictionnary,func2Call) :
-        self.__dict = dictionnary
-        self.__func2Call = func2Call
-
-    def __call__(self,attr) :
-        value = _getDictKey(self.__dict,self.__func2Call())
-        attr.set_value(value)
-
-class CallableWriteEnum:
-    def __init__(self,attr_name,dictionnary,func2Call) :
-        self.__attr_name = attr_name
-        self.__dict = dictionnary
-        self.__func2Call = func2Call
-        
-    def __call__(self,attr) :
-        data = attr.get_write_value()
-        value = _getDictValue(self.__dict,data.upper())
-        if value is None:
-            PyTango.Except.throw_exception('WrongData',\
-                                           'Wrong value %s: %s'%(self.__attr_name,data.upper()),\
-                                           'LimaCCD Class')
-        else:
-            self.__func2Call(value)
-        
+            
+     
 #==================================================================
 #
 #    LimaCCDs class main method

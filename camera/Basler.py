@@ -42,7 +42,7 @@
 import PyTango
 from Lima import Core
 from Lima import Basler as BaslerAcq
-from LimaCCDs import CallableReadEnum,CallableWriteEnum
+from AttrHelper import get_attr_4u, get_attr_string_value_list
 
 
 class Basler(PyTango.Device_4Impl):
@@ -58,6 +58,9 @@ class Basler(PyTango.Device_4Impl):
 
         self.init_device()
 
+        self.__Attribute2FunctionBase = {
+                                         }
+
 #------------------------------------------------------------------
 #    Device destructor
 #------------------------------------------------------------------
@@ -72,37 +75,31 @@ class Basler(PyTango.Device_4Impl):
         self.set_state(PyTango.DevState.ON)
         self.get_device_properties(self.get_device_class())
 
+#------------------------------------------------------------------
+#    getAttrStringValueList command:
+#
+#    Description: return a list of authorized values if any
+#    argout: DevVarStringArray   
+#------------------------------------------------------------------
     @Core.DEB_MEMBER_FUNCT
     def getAttrStringValueList(self, attr_name):
-        valueList=[]
-        dict_name = '_' + self.__class__.__name__ + '__' + ''.join([x.title() for x in attr_name.split('_')])
-        d = getattr(self,dict_name,None)
-        if d:
-            valueList = d.keys()
-
-        return valueList
-
+        #use AttrHelper
+        return get_attr_string_value_list(self, attr_name)
+#==================================================================
+#
+#    Basler read/write attribute methods
+#
+#==================================================================
     def __getattr__(self,name) :
-        if name.startswith('read_') or name.startswith('write_') :
-            split_name = name.split('_')[1:]
-            attr_name = ''.join([x.title() for x in split_name])
-            dict_name = '_' + self.__class__.__name__ + '__' + attr_name
-            d = getattr(self,dict_name,None)
-            attr_name = self.__Attribute2FunctionBase.get('_'.join(split_name),attr_name)
-            if d:
-                if name.startswith('read_') :
-                    functionName = 'get' + attr_name
-                    function2Call = getattr(_BaslerAcq,functionName)
-                    callable_obj = CallableReadEnum(d,function2Call)
-                else:
-                    functionName = 'set' + attr_name
-                    function2Call = getattr(_BaslerAcq,function2Call)
-                    callable_obj = CallableWriteEnum(d,function2Call)
-                self.__dict__[name] = callable_obj
-                return callable_obj
-        raise AttributeError('Basler has no attribute %s' % name)
+        #use AttrHelper
+        return get_attr_4u(self,name,_BaslerAcq)
 
 
+#==================================================================
+#
+#    BaslerClass class definition
+#
+#==================================================================
 class BaslerClass(PyTango.DeviceClass):
 
     class_property_list = {}

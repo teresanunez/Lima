@@ -1,7 +1,7 @@
 ############################################################################
 # This file is part of LImA, a Library for Image Acquisition
 #
-# Copyright (C) : 2009-2011
+# Copyright (C) : 2009-2012
 # European Synchrotron Radiation Facility
 # BP 220, Grenoble 38043
 # FRANCE
@@ -44,7 +44,9 @@ import sys, types, os, time
 
 from Lima import Core
 from Lima import Andor as AndorModule
-from LimaCCDs import CallableReadEnum,CallableWriteEnum
+# import some useful helpers to create direct mapping between tango attributes
+# and Lima interfaces.
+from AttrHelper import get_attr_4u, get_attr_string_value_list
 
 class Andor(PyTango.Device_4Impl):
 
@@ -68,7 +70,7 @@ class Andor(PyTango.Device_4Impl):
     def __init__(self,cl, name):
         PyTango.Device_4Impl.__init__(self,cl,name)
         self.init_device()
-
+        # dictionnaries to be used with AttrHelper.get_attr_4u
         self.__FastTrigger = {'ON':True,
                            'OFF':False}
         self.__Cooler = {'ON': True,
@@ -82,9 +84,7 @@ class Andor(PyTango.Device_4Impl):
                                          'cooler': 'Cooler',
                                          'cooling_status': 'CoolingStatus',
                                          }
-                                         
-
-        
+                                               
 #------------------------------------------------------------------
 #    Device destructor
 #------------------------------------------------------------------
@@ -132,37 +132,8 @@ class Andor(PyTango.Device_4Impl):
 
 
     def __getattr__(self,name) :
-        if name.startswith('read_') or name.startswith('write_') :
-            split_name = name.split('_')[1:]
-            attr_name = ''.join([x.title() for x in split_name])
-            dict_name = '_' + self.__class__.__name__ + '__' + attr_name
-            d = getattr(self,dict_name,None)
-            attr_name = self.__Attribute2FunctionBase.get('_'.join(split_name),attr_name)
-            if d:
-                if name.startswith('read_') :
-                    functionName = 'get' + attr_name
-                    function2Call = getattr(_AndorCamera,functionName)
-                    callable_obj = CallableReadEnum(d,function2Call)
-                else:
-                    functionName = 'set' + attr_name
-                    function2Call = getattr(_AndorCamera,functionName)
-                    callable_obj = CallableWriteEnum('_'.join(split_name),
-                                                     d,function2Call)
+        return get_attr_4u(self, name, _AndorCamera)
 
-            else:
-                if name.startswith('read_') :
-                    functionName = 'get' + attr_name
-                    function2Call = getattr(_AndorCamera,functionName)
-                    callable_obj = CallableRead(function2Call)
-                else:
-                    functionName = 'set' + attr_name
-                    function2Call = getattr(_AndorCamera,functionName)
-                    callable_obj = CallableWrite('_'.join(split_name),
-                                                     function2Call)
-                
-            self.__dict__[name] = callable_obj
-            return callable_obj
-        raise AttributeError('Andor has no attribute %s' % name)
 
     ## @brief return the timing times, exposure and latency
     #  
@@ -188,13 +159,8 @@ class Andor(PyTango.Device_4Impl):
 #------------------------------------------------------------------
     @Core.DEB_MEMBER_FUNCT
     def getAttrStringValueList(self, attr_name):
-        valueList = []
-        dict_name = '_' + self.__class__.__name__ + '__' + ''.join([x.title() for x in attr_name.split('_')])
-        d = getattr(self,dict_name,None)
-        if d:
-            valueList = d.keys()
-        return valueList
-
+        return get_attr_string_value_list(self, attr_name)
+    
 
 #==================================================================
 #
@@ -328,31 +294,6 @@ class AndorClass(PyTango.DeviceClass):
         PyTango.DeviceClass.__init__(self, name)
         self.set_type(name)
 
-#------------------------------------------------------------------
-#    Tools
-#------------------------------------------------------------------
-
-class CallableRead:
-    def __init__(self,func2Call) :        
-        self.__func2Call = func2Call
-
-    def __call__(self,attr) :
-        value = self.__func2Call()
-        attr.set_value(value)
-
-class CallableWrite:
-    def __init__(self,attr_name,func2Call) :
-        self.__attr_name = attr_name
-        self.__func2Call = func2Call
-        
-    def __call__(self,attr) :
-        value = attr.get_write_value()
-        if value is None:
-            PyTango.Except.throw_exception('WrongData',\
-                                           'Wrong value %s: %s'%(self.__attr_name,data[0].upper()),\
-                                           'LimaCCD Class')
-        else:
-            self.__func2Call(value)
             
 #----------------------------------------------------------------------------
 #                              Plugins

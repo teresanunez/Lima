@@ -184,7 +184,7 @@ class Maxipix(PyTango.Device_4Impl):
                 attrNewKey = key     
         else:
             # here set attribute from the property value
-            # if the property is missing (=[])i then initialize the attribute by reading the hardware
+            # if the property is missing (=[]) then initialize the attribute by reading the hardware
             if attr == []:
 	        attrNewKey = self.__getDictKey(dictInstance,getMethod())
             elif type(attr) is not types.StringType:
@@ -242,11 +242,10 @@ class Maxipix(PyTango.Device_4Impl):
     ## @brief Write dac name
     #
     def write_dac_name(self,attr) :
-        data = []
-        attr.get_write_value(data)
+        data = attr.get_write_value()
 
         dacs = _MaxipixAcq.mpxDacs
-        if data[0] not in dacs.getListKeys():
+        if data not in dacs.getListKeys():
             PyTango.Except.throw_exception('WrongData',\
                                            'Wrong value %s: %s'%('dac_name',data),\
                                            'Maxipix Class')          
@@ -274,8 +273,7 @@ class Maxipix(PyTango.Device_4Impl):
     ## @brief Write a DAC value of the named dac_name attribute
     #
     def write_dac_value(self,attr) :
-        data = 0
-        attr.get_write_value(data)
+        data = attr.get_write_value()
         dacs = _MaxipixAcq.mpxDacs
         dacs.setOneDac(0,self.__dacname, data)
         dacs.applyChipDacs(0)
@@ -291,8 +289,7 @@ class Maxipix(PyTango.Device_4Impl):
     ## @brief Write threshold noise of a maxipix chips
     #
     def write_threshold_noise(self,attr) :
-        data = []
-        attr.get_write_value(data)
+        data = attr.get_write_value()
 
         dacs = _MaxipixAcq.mpxDacs
         dacs.setThlNoise(0,data)
@@ -311,11 +308,10 @@ class Maxipix(PyTango.Device_4Impl):
     ## @brief Write the global threshold
     #
     def write_threshold(self,attr) :
-        data = []
-        attr.get_write_value(data)
+        data = attr.get_write_value()
         
         dacs = _MaxipixAcq.mpxDacs
-        dacs.setThl(data[0])
+        dacs.setThl(data)
         dacs.applyChipDacs(0)
 
     ## @brief Read the energy step
@@ -332,8 +328,7 @@ class Maxipix(PyTango.Device_4Impl):
     ## @brief Write the energy step
     #
     def write_energy_calibration(self,attr) :
-        data = []
-        attr.get_write_value(data)
+        data = attr.get_write_value()
 
         dacs  = _MaxipixAcq.mpxDacs
         dacs.setECalibration(data)
@@ -351,11 +346,10 @@ class Maxipix(PyTango.Device_4Impl):
     ## @brief Write the energy threshold
     #
     def write_energy_threshold(self,attr) :
-        data = []
-        attr.get_write_value(data)
+        data = attr.get_write_value()
         
         dacs = _MaxipixAcq.mpxDacs
-        dacs.setEThl(data[0])
+        dacs.setEThl(data)
         dacs.applyChipDacs(0)
         
     ## @brief read the config name
@@ -369,10 +363,9 @@ class Maxipix(PyTango.Device_4Impl):
     ## @brief Write the config name and load it
     #
     def write_config_name(self,attr) :
-        data = []
-        attr.get_write_value(data)
-        _MaxipixAcq.loadConfig(data[0])
-        self.config_name = data[0]
+        data = attr.get_write_value()
+        _MaxipixAcq.loadConfig(data)
+        self.config_name = data
 
     ## @brief read the config path
     #
@@ -385,10 +378,9 @@ class Maxipix(PyTango.Device_4Impl):
     ## @brief Write the config path
     #
     def write_config_path(self,attr) :
-        data = []
-        attr.get_write_value(data)
-        _MaxipixAcq.setPath(data[0])
-        self.config_path = data[0]
+        data = attr.get_write_value()
+        _MaxipixAcq.setPath(data)
+        self.config_path = data
 
     ## @brief read the fill mode
     #
@@ -399,9 +391,8 @@ class Maxipix(PyTango.Device_4Impl):
     ## @brief Write the gap fill mode
     #
     def write_fill_mode(self,attr) :
-        data = []
-        attr.get_write_value(data)
-        self.__setMaxipixAttr('fill_mode',data[0])
+        data = attr.get_write_value()
+        self.__setMaxipixAttr('fill_mode',data)
 
 
     ## @brief read the board id
@@ -422,9 +413,8 @@ class Maxipix(PyTango.Device_4Impl):
     ## @brief Write the ready_mode
     # EXPOSURE-0, EXPOSURE_READOUT-1
     def write_ready_mode(self,attr) :
-        data = []
-        attr.get_write_value(data)
-        self.__setMaxipixAttr('ready_mode',data[0])
+        data = attr.get_write_value()
+        self.__setMaxipixAttr('ready_mode',data)
 
     ## @brief read the ready_level
     # LOW_FALL-0, HIGH_RISE-1
@@ -435,9 +425,8 @@ class Maxipix(PyTango.Device_4Impl):
     ## @brief Write the ready_level
     # LOW_FALL-0, HIGH_RISE-1
     def write_ready_level(self,attr) :
-        data = []
-        attr.get_write_value(data)
-        self.__setMaxipixAttr('ready_level',data[0])
+        data = attr.get_write_value()
+        self.__setMaxipixAttr('ready_level',data)
 
     ## @brief read the shutter_level
     # LOW_FALL-0, HIGH_RISE-1
@@ -448,9 +437,8 @@ class Maxipix(PyTango.Device_4Impl):
     ## @brief Write the shutter_level
     # LOW_FALL-0, HIGH_RISE-1
     def write_shutter_level(self,attr) :
-        data = []
-        attr.get_write_value(data)
-        self.__setMaxipixAttr('shutter_level',data[0])
+        data = attr.get_write_value()
+        self.__setMaxipixAttr('shutter_level',data)
 
     ## @brief read the gate_mode
     # FRAME-0, SEQUENCE-1
@@ -461,9 +449,8 @@ class Maxipix(PyTango.Device_4Impl):
     ## @brief Write the gate_mode
     # FRAME-0, SEQUENCE-1
     def write_gate_mode(self,attr) :
-        data = []
-        attr.get_write_value(data)
-        self.__setMaxipixAttr('gate_mode',data[0])
+        data = attr.get_write_value()
+        self.__setMaxipixAttr('gate_mode',data)
 	
     ## @brief read the gate_level
     # LOW_FALL-0, HIGH_RISE-1
@@ -474,9 +461,8 @@ class Maxipix(PyTango.Device_4Impl):
     ## @brief Write the gate_level
     # LOW_FALL-0, HIGH_RISE-1
     def write_gate_level(self,attr) :
-        data = []
-        attr.get_write_value(data)
-        self.__setMaxipixAttr('gate_level',data[0])
+        data = attr.get_write_value()
+        self.__setMaxipixAttr('gate_level',data)
 	
     ## @brief read the trigger_level
     # LOW_FALL-0, HIGH_RISE-1
@@ -487,9 +473,8 @@ class Maxipix(PyTango.Device_4Impl):
     ## @brief Write the trigger_level
     # LOW_FALL-0, HIGH_RISE-1
     def write_trigger_level(self,attr) :
-        data = []
-        attr.get_write_value(data)
-        self.__setMaxipixAttr('trigger_level',data[0])
+        data = attr.get_write_value()
+        self.__setMaxipixAttr('trigger_level',data)
 
 #==================================================================
 #

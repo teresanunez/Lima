@@ -43,7 +43,7 @@ import PyTango
 from Lima import Core
 from Lima import Pco as PcoAcq
 from LimaCCDs import CallableReadEnum,CallableWriteEnum
-from LimaCCDs import _getDictKey, _getDictValue
+from AttrHelper import get_attr_4u, get_attr_string_value_list,_getDictKey, _getDictValue
 
 
 class Pco(PyTango.Device_4Impl):
@@ -77,43 +77,15 @@ class Pco(PyTango.Device_4Impl):
         self.get_device_properties(self.get_device_class())
         
 
-    @Core.DEB_MEMBER_FUNCT
-    def getAttrStringValueList(self, attr_name):
-        valueList=[]
-        dict_name = '_' + self.__class__.__name__ + '__' + ''.join([x.title() for x in attr_name.split('_')])
-        #print "getAttrStringValueList", attr_name, dict_name
-        d = getattr(self,dict_name,None)
-        if d:
-            valueList = d.keys()
-
-        return valueList
-
-    def __getattr__(self,name) :
-        #print "__getattr__ ", "name", name
-        if name.startswith('read_') or name.startswith('write_') :
-            split_name = name.split('_')[1:]
-            attr_name = ''.join([x.title() for x in split_name])
-            dict_name = '_' + self.__class__.__name__ + '__' + attr_name
-            d = getattr(self,dict_name,None)
-            attr_name = self.__Attribute2FunctionBase.get('_'.join(split_name),attr_name)
-            if d:
-                if name.startswith('read_') :
-                    functionName = 'get' + attr_name
-                    function2Call = getattr(_PcoAcq,functionName)
-                    callable_obj = CallableReadEnum(d,function2Call)
-                else:
-                    functionName = 'set' + attr_name
-                    function2Call = getattr(_PcoAcq,function2Call)
-                    callable_obj = CallableWriteEnum(d,function2Call)
-                self.__dict__[name] = callable_obj
-                return callable_obj
-        raise AttributeError('Pco has no attribute %s' % name)
+    
 
 #==================================================================
 #
 #    Pco read/write attribute methods
 #
 #==================================================================
+    def __getattr__(self,name) :
+        return get_attr_4u(self, name, _PcoAcq)
 
 #------------------------------------------------------------------
 #    lastError attribute R
@@ -188,9 +160,8 @@ class Pco(PyTango.Device_4Impl):
         #print "--- read_pixelRate>",val, key
 
     def write_pixelRate(self, attr):
-        data = []
-        attr.get_write_value(data)
-        key = data[0]
+        data = attr.get_write_value()
+        key = data
         value= _getDictValue(self._Pco__Pixelrate, key)
         cmd = '%s %s' % ('pixelRate', value)
         val  = _PcoCam.talk(cmd)
@@ -206,9 +177,8 @@ class Pco(PyTango.Device_4Impl):
         #print "---- read_rollingShutter>", val, key
 
     def write_rollingShutter(self, attr):
-        data = []
-        attr.get_write_value(data)
-        key = data[0]
+        data = attr.get_write_value()
+        key = data
         value= _getDictValue(self._Pco__Rollingshutter, key)
         cmd = '%s %s' % ('rollingShutter', value)
         val  = _PcoCam.talk(cmd)
@@ -220,6 +190,11 @@ class Pco(PyTango.Device_4Impl):
 #    Pco command methods
 #
 #==================================================================
+    @Core.DEB_MEMBER_FUNCT
+    def getAttrStringValueList(self, attr_name):
+        return get_attr_string_value_list(self, attr_name)
+
+    @Core.DEB_MEMBER_FUNCT
     def talk(self, argin):
         val= _PcoCam.talk(argin)
         return val

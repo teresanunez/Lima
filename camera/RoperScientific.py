@@ -124,9 +124,8 @@ class RoperScientific(PyTango.Device_4Impl):
 #------------------------------------------------------------------
 
     def write_TemperatureSetPoint(self, attr):
-        data = []
-        attr.get_write_value(data)
-        temperature = float(data[0])
+        data = attr.get_write_value()
+        temperature = float(data)
         _RoperScientificCam.setTemperatureSetPoint(temperature)
 
 #------------------------------------------------------------------
@@ -142,9 +141,8 @@ class RoperScientific(PyTango.Device_4Impl):
 #------------------------------------------------------------------
 
     def write_Gain(self, attr):
-        data = []
-        attr.get_write_value(data)
-        gain = int(data[0])
+        data = attr.get_write_value()
+        gain = int(data)
         _RoperScientificCam.setTemperatureSetPoint(gain)
 
 #------------------------------------------------------------------
@@ -160,9 +158,8 @@ class RoperScientific(PyTango.Device_4Impl):
 #------------------------------------------------------------------
 
     def write_InternalAcqMode(self, attr):
-        data = []
-        attr.get_write_value(data)
-        int_acq_mode = str(data[0])
+        data = attr.get_write_value()
+        int_acq_mode = str(data)
         if int_acq_mode.upper() != "STANDARD" and int_acq_mode.upper() != "CONTINUOUS" and int_acq_mode.upper() != "FOCUS":
             PyTango.Except.throw_exception('WrongData',\
                                            'Wrong value InternalAcqMode: %s'%(int_acq_mode.upper()),\
@@ -184,9 +181,8 @@ class RoperScientific(PyTango.Device_4Impl):
 #------------------------------------------------------------------
 
     def write_UseFullFrame(self, attr):
-        data = []
-        attr.get_write_value(data)
-        use_full_frame = int(data[0])
+        data = attr.get_write_value()
+        use_full_frame = int(data)
         _RoperScientificCam.setUseFullFrame(use_full_frame)
 
 
