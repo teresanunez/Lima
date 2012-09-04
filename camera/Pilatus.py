@@ -130,9 +130,8 @@ class Pilatus(PyTango.Device_4Impl):
 #    Write threshold_gain attribute
 #------------------------------------------------------------------
     def write_threshold_gain(self, attr):
-        data = []
-        attr.get_write_value(data)
-        gain = _getDictValue(self.__ThresholdGain,data[0])
+        data = attr.get_write_value()
+        gain = _getDictValue(self.__ThresholdGain,data)
         communication = _PilatusIterface.communication()
         threshold = communication.threshold()
         communication.set_threshold_gain(threshold,gain)
@@ -151,10 +150,9 @@ class Pilatus(PyTango.Device_4Impl):
 #    Write threshold attribute
 #------------------------------------------------------------------
     def write_threshold(self, attr):
-        data = []
-        attr.get_write_value(data)
+        data = attr.get_write_value()
         communication = _PilatusIterface.communication()
-        communication.set_threshold_gain(data[0])
+        communication.set_threshold_gain(data)
 
 #------------------------------------------------------------------
 #    Read energy_threshold attribute
@@ -172,9 +170,8 @@ class Pilatus(PyTango.Device_4Impl):
 #    Write energy_threshold attribute
 #------------------------------------------------------------------
     def write_energy_threshold(self, attr):
-        data = []
-        attr.get_write_value(data)
-        energy = data[0]
+        data = attr.get_write_value()
+        energy = data
         threshold = energy * 600  # 60% of working energy
         if energy > 12 :
             gain = 0                    # Low gain
@@ -199,9 +196,8 @@ class Pilatus(PyTango.Device_4Impl):
 #     Write delay attribute
 #----------------------------------------------------------------------------
     def write_trigger_delay(self,attr) :
-        data = []
-        attr.get_write_value(data)
-        delay = data[0]
+        data = attr.get_write_value()
+        delay = data
         
         communication = _PilatusIterface.communication()
         communication.set_hardware_trigger_delay(delay)
@@ -218,9 +214,8 @@ class Pilatus(PyTango.Device_4Impl):
 #     Write nb exposure per frame attribute
 #----------------------------------------------------------------------------
     def write_nb_exposure_per_frame(self,attr) :
-        data = []
-        attr.get_write_value(data)
-        nb_frames = data[0]
+        data = attr.get_write_value()
+        nb_frames = data
         
         communication = _PilatusIterface.communication()
         communication.set_nb_exposure_per_frame(nb_frames)
@@ -240,9 +235,8 @@ class Pilatus(PyTango.Device_4Impl):
 #    Write gapfill attribute
 #------------------------------------------------------------------
     def write_fill_mode(self, attr):
-        data = []
-        attr.get_write_value(data)
-        gapfill = _getDictValue(self.__FillMode,data[0])
+        data = attr.get_write_value()
+        gapfill = _getDictValue(self.__FillMode,data)
         communication = _PilatusIterface.communication()
         communication.set_gapfill(gapfill)
 

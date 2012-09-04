@@ -156,8 +156,7 @@ class Frelon(PyTango.Device_4Impl):
         #TODO
 
     def write_roi_bin_offset(self,attr) :
-        data = []
-        attr.get_write_value(data)
+        data = attr.get_write_value()
         #TODO
 
 

@@ -25,7 +25,8 @@ import sys
 
 from Lima import Core
 from Lima import PerkinElmer as PerkinElmerModule
-from LimaCCDs import CallableReadEnum,CallableWriteEnum
+from AttrHelper import get_attr_4u
+
 #==================================================================
 #   PerkinElmer Class Description:
 #
@@ -52,7 +53,9 @@ class PerkinElmer(PyTango.Device_4Impl):
 	self.__KeepFirstImage = {'YES' : True,
 				 'NO' : False}
 	
-        self.__Attribute2FunctionBase = {
+        self.__Attribute2FunctionBase = {'gain': 'Gain',
+                                         'correction_mode': 'CorrectionMode',
+                                         'keep_first_image': 'KeepFirstImage',
             }
 #------------------------------------------------------------------
 #    Device destructor
@@ -75,34 +78,7 @@ class PerkinElmer(PyTango.Device_4Impl):
 #==================================================================
 
     def __getattr__(self,name) :
-        if name.startswith('read_') or name.startswith('write_') :
-            split_name = name.split('_')[1:]
-            attr_name = ''.join([x.title() for x in split_name])
-            dict_name = '_' + self.__class__.__name__ + '__' + attr_name
-            d = getattr(self,dict_name,None)
-            attr_name = self.__Attribute2FunctionBase.get('_'.join(split_name),attr_name)
-            if d:
-                if name.startswith('read_') :
-                    functionName = 'get' + attr_name
-                    function2Call = getattr(_PerkinElmerIterface,functionName)
-                    callable_obj = CallableReadEnum(d,function2Call)
-                else:
-                    functionName = 'set' + attr_name
-                    function2Call = getattr(_PerkinElmerIterface,functionName)
-                    callable_obj = CallableWriteEnum('_'.join(split_name),
-                                                     d,function2Call)
-                self.__dict__[name] = callable_obj
-                return callable_obj
-        raise AttributeError('PerkinElmer has no attribute %s' % name)
-
-    def read_gain(self,attr) :
-	gain = _PerkinElmerIterface.getGain()
-	attr.set_value(gain)
-
-    def write_gain(self,attr) :
-	data = []
-	attr.get_write_value(data)
-	_PerkinElmerIterface.setGain(*data)
+        return get_attr_4u(self,name,_PerkinElmerIterface)
 	
 #==================================================================
 #
@@ -118,13 +94,7 @@ class PerkinElmer(PyTango.Device_4Impl):
 #------------------------------------------------------------------
     @Core.DEB_MEMBER_FUNCT
     def getAttrStringValueList(self, attr_name):
-        valueList = []
-        dict_name = '_' + self.__class__.__name__ + '__' + ''.join([x.title() for x in attr_name.split('_')])
-        d = getattr(self,dict_name,None)
-        if d:
-            valueList = d.keys()
-        return valueList
-
+        return get_attr_string_value_list(self, attr_name)
 
     @Core.DEB_MEMBER_FUNCT
     def startAcqOffsetImage(self,nbImageNtime) :
