@@ -58,7 +58,7 @@ class Pco(PyTango.Device_4Impl):
         PyTango.Device_4Impl.__init__(self,*args)
 
         self._Pco__Pixelrate = { "LOW": "95333333", "HIGH":"286000000" }    
-        self._Pco__Rollingshutter = { "GLOBAL": "0", "ROLLING":"1" }    
+        self._Pco__Rollingshutter = { "only for EDGE": "-1", "GLOBAL": "0", "ROLLING":"1" }    
         
         self.init_device()
 
