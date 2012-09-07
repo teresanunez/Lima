@@ -131,7 +131,10 @@ class LimaTacoCCDs(PyTango.Device_4Impl):
     def init_device(self):
         self.set_state(PyTango.DevState.ON)
         self.get_device_properties(self.get_device_class())
-        
+        try:
+            self.ManualAsynchronousWrite = int(self.ManualAsynchronousWrite)
+        except:
+            self.ManualAsynchronousWrite = 0
 
 #==================================================================
 #
@@ -576,9 +579,10 @@ class LimaTacoCCDs(PyTango.Device_4Impl):
 #------------------------------------------------------------------
     @Core.DEB_MEMBER_FUNCT
     def DevCcdWriteFile(self, frame_nb):
+        synchronous = not self.ManualAsynchronousWrite
 	control = _control_ref()
         saving = control.saving()
-        saving.writeFrame(frame_nb,1)
+        saving.writeFrame(frame_nb,1,synchronous)
 
 #------------------------------------------------------------------
 #    DevCcdGetBin command:
@@ -847,6 +851,9 @@ class LimaTacoCCDsClass(PyTango.DeviceClass):
 
     #    Device Properties
     device_property_list = {
+        'ManualAsynchronousWrite' :
+        [PyTango.DevString,
+         "Flag for manual writting",[0]],
         }
 
 
