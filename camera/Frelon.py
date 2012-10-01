@@ -39,7 +39,7 @@
 #         (c) - Bliss - ESRF
 #=============================================================================
 #
-import time
+import time, string
 import PyTango
 from Lima import Core
 from Lima import Frelon as FrelonAcq
@@ -48,7 +48,7 @@ from LimaCCDs import CallableReadEnum,CallableWriteEnum
 
 class Frelon(PyTango.Device_4Impl):
 
-    Core.DEB_CLASS(Core.DebModApplication, 'LimaCCDs')
+    Core.DEB_CLASS(Core.DebModApplication, 'LimaFrelon')
 
 
 #------------------------------------------------------------------
@@ -217,6 +217,194 @@ class FrelonClass(PyTango.DeviceClass):
         PyTango.DeviceClass.__init__(self,name)
         self.set_type(name)
 
+
+#----------------------------------------------------------------------------
+# TACO extensions
+#----------------------------------------------------------------------------
+
+FrelonTacoCmdList = {
+
+    'DevCcdGetType' :
+    [[PyTango.DevVoid, ""],
+     [PyTango.DevLong, "CCD type code"]],
+    'DevCcdGetLstErrMsg' :
+    [[PyTango.DevVoid, ""],
+     [PyTango.DevString, "Last error message"]],
+    'DevCcdSetChannel' :
+    [[PyTango.DevLong, "Input channel mode"],
+     [PyTango.DevVoid, ""]],
+    'DevCcdGetChannel' :
+    [[PyTango.DevVoid, ""],
+     [PyTango.DevLong, "Input channel mode"]], 
+    'DevCcdSetHwPar' :
+    [[PyTango.DevString, "Flip KinLineBeg KinStripes 0 RoiMode"],
+     [PyTango.DevVoid, ""]],
+    'DevCcdGetHwPar' :
+    [[PyTango.DevVoid, ""],
+     [PyTango.DevString, "Flip KinLineBeg KinStripes 0 RoiMode"]],
+    'DevCcdSetKinetics' :
+    [[PyTango.DevLong, "ImageMode: 0=FFM, 3=FTM"],
+     [PyTango.DevVoid, ""]],
+    'DevCcdGetKinetics' :
+    [[PyTango.DevVoid, ""],
+     [PyTango.DevLong, "ImageMode: 0=FFM, 3=FTM"]],
+    'DevCcdSetKinWinSize' :
+    [[PyTango.DevLong, "Kinetics window size"],
+     [PyTango.DevVoid, ""]],
+    'DevCcdGetKinWinSize' :
+    [[PyTango.DevVoid, ""],
+     [PyTango.DevLong, "Kinetics window size"]],
+    'DevCcdCommand' :
+    [[PyTango.DevString, "Frelon serial command"],
+     [PyTango.DevString, "Frelon serial response"]],
+    'DevCcdGetChanges':
+    [[PyTango.DevVoid, ""],
+     [PyTango.DevLong, "Change count"]],
+}
+
+class FrelonTacoProxy:
+
+    Core.DEB_CLASS(Core.DebModApplication, 'FrelonTacoProxy')
+
+    @Core.DEB_MEMBER_FUNCT
+    def DevCcdGetType(self):
+        model = _FrelonAcq.getCameraModel()
+        type_nb = ((model.getAdcBits() == 16) and 2016) or 2014
+        deb.Return('Getting type: %s' % type_nb)
+        return type_nb
+
+    @Core.DEB_MEMBER_FUNCT
+    def DevCcdGetLstErrMsg(self):
+        err_msg = ''
+        deb.Return('Getting last err. msg: %s' % err_msg)
+        return err_msg
+
+    @Core.DEB_MEMBER_FUNCT
+    def DevCcdSetChannel(self, input_chan):
+        _FrelonAcq.setInputChan(input_chan)
+    
+    @Core.DEB_MEMBER_FUNCT
+    def DevCcdGetChannel(self):
+        return _FrelonAcq.getInputChan()
+    
+    @Core.DEB_MEMBER_FUNCT
+    def DevCcdSetHwPar(self, hw_par_str):
+        hw_par = map(int, string.split(hw_par_str))
+        deb.Param('Setting hw par: %s' % hw_par)
+        kin_win_size, kin_line_beg, kin_stripes = self.getKinPars()
+        flip_mode, kin_line_beg, kin_stripes, d0, roi_mode_int = hw_par
+        flip = Core.Flip(flip_mode >> 1, flip_mode & 1)
+        _FrelonAcq.setFlip(flip)
+        roi_mode = FrelonAcq.RoiMode(roi_mode_int)
+        _FrelonAcq.setRoiMode(roi_mode)
+        if roi_mode == FrelonAcq.Kinetic:
+            max_frame_dim = _FrelonAcq.getFrameDim(max_dim=True)
+            frame_height = max_frame_dim.getSize().getHeight()
+            if kin_line_beg + kin_win_size > frame_height:
+                kin_win_size = frame_height - kin_line_beg
+                bin_y = _FrelonAcq.getBin().getY()
+                kin_win_size = (kin_win_size / bin_y) * bin_y
+                deb.Trace('Re-adjusting kin_win_size to %d to fit chip' %
+                          kin_win_size)
+            self.setKinPars(kin_win_size, kin_line_beg, kin_stripes)
+        else:
+            deb.Warning('Ingoring Kinetic parameters')
+
+    @Core.DEB_MEMBER_FUNCT
+    def DevCcdGetHwPar(self):
+        flip = _FrelonAcq.getFlip()
+        flip_mode = flip.x << 1 | flip.y
+        roi_mode = _FrelonAcq.getRoiMode()
+        kin_win_size, kin_line_beg, kin_stripes = self.getKinPars()
+        hw_par = [flip_mode, kin_line_beg, kin_stripes, 0, roi_mode]
+        deb.Return('Getting hw par: %s' % hw_par)
+        hw_par_str = string.join(map(str, hw_par))
+        return hw_par_str
+
+    @Core.DEB_MEMBER_FUNCT
+    def DevCcdSetKinetics(self, kinetics):
+        deb.Param('Setting the profile: %s' % kinetics)
+        if kinetics == 0:
+            ftm = FrelonAcq.FFM
+        elif kinetics == 3:
+            ftm = FrelonAcq.FTM
+        else:
+            raise Core.Exception, 'Invalid profile value: %s' % kinetics
+        _FrelonAcq.setFrameTransferMode(ftm)
+        
+    @Core.DEB_MEMBER_FUNCT
+    def DevCcdGetKinetics(self):
+        ftm = _FrelonAcq.getFrameTransferMode()
+        if ftm == FrelonAcq.FTM:
+            kinetics = 3
+        else:
+            kinetics = 0
+        deb.Return('Getting the profile: %s' % kinetics)
+        return kinetics
+    
+    @Core.DEB_MEMBER_FUNCT
+    def DevCcdSetKinWinSize(self, kin_win_size):
+        deb.Param('Setting the kinetics window size: %s' % kin_win_size)
+        prev_win_size, kin_line_beg, kin_stripes = self.getKinPars()
+        self.setKinPars(kin_win_size, kin_line_beg, kin_stripes)
+    
+    @Core.DEB_MEMBER_FUNCT
+    def DevCcdGetKinWinSize(self):
+        kin_win_size, kin_line_beg, kin_stripes = self.getKinPars()
+        deb.Return('Getting the kinetics window size: %s' % kin_win_size)
+        return kin_win_size
+
+    @Core.DEB_MEMBER_FUNCT
+    def setKinPars(self, kin_win_size, kin_line_beg, kin_stripes):
+        deb.Param('Setting kin pars: ' +
+                  'kin_win_size=%s, kin_line_beg=%s, kin_stripes=%s' % \
+                  (kin_win_size, kin_line_beg, kin_stripes))
+        if kin_stripes > 1:
+            deb.Warning('Ignoring kin_stripes=%d' % kin_stripes)
+            
+        bin = _FrelonAcq.getBin()
+        if kin_win_size % bin.getY() != 0:
+            msg = 'Invalid kinetics window size (%d): ' % kin_win_size + \
+                  'must be multiple of vert. bin (%d)' % bin.getY()
+            raise Core.Exception, msg
+
+        roi = _FrelonAcq.getRoi()
+        roi = roi.getUnbinned(bin)
+        tl = Core.Point(roi.getTopLeft().x, kin_line_beg)
+        size = Core.Size(roi.getSize().getWidth(), kin_win_size)
+        roi = Core.Roi(tl, size)
+        roi = roi.getBinned(bin)
+        _FrelonAcq.setRoi(roi)
+
+        _FrelonAcq.setRoiLineBegin(kin_line_beg)
+        
+    @Core.DEB_MEMBER_FUNCT
+    def getKinPars(self):
+        bin = _FrelonAcq.getBin()
+        roi = _FrelonAcq.getRoi()
+        roi = roi.getUnbinned(bin)
+        kin_win_size = roi.getSize().getHeight()
+        kin_line_beg = _FrelonAcq.getRoiLineBegin()
+        kin_stripes = 1
+        deb.Return('Getting kin pars: ' +
+                   'kin_win_size=%s, kin_line_beg=%s, kin_stripes=%s' % \
+                   (kin_win_size, kin_line_beg, kin_stripes))
+        return kin_win_size, kin_line_beg, kin_stripes
+
+    @Core.DEB_MEMBER_FUNCT
+    def DevCcdCommand(self, cmd):
+        return _FrelonAcq.execFrelonSerialCmd(cmd)
+
+    @Core.DEB_MEMBER_FUNCT
+    def DevCcdGetChanges(self):
+        changes = 0
+        deb.Trace('Getting changes: %s' % changes)
+        return changes
+
+
+FrelonTacoProxyCont = [FrelonTacoProxy()]
+
+
 #----------------------------------------------------------------------------
 # Plugins
 #----------------------------------------------------------------------------
@@ -230,3 +418,6 @@ def get_control(espia_dev_nb = 0,**keys) :
 
 def get_tango_specific_class_n_device():
     return FrelonClass,Frelon
+
+def get_taco_specific_cmd_list_n_proxy_cont():
+    return FrelonTacoCmdList,FrelonTacoProxyCont

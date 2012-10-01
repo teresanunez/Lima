@@ -67,6 +67,9 @@ try:
 except ImportError:
     EdfFile = None
     
+TacoSpecificDict = {}
+TacoSpecificName = []
+
 class LimaCCDs(PyTango.Device_4Impl) :
 
     Core.DEB_CLASS(Core.DebModApplication, 'LimaCCDs')
@@ -130,6 +133,8 @@ class LimaCCDs(PyTango.Device_4Impl) :
         self.__className2deviceName = get_sub_devices()
         dataBase = PyTango.Database()
 
+        TacoSpecificName.append(self.LimaCameraType)
+        
         try:
             m = __import__('camera.%s' % (self.LimaCameraType),None,None,'camera.%s' % (self.LimaCameraType))
         except ImportError:
@@ -1431,7 +1436,7 @@ class LimaCCDs(PyTango.Device_4Impl) :
 
 #==================================================================
 #
-#    LimaTacoCCDsClass class definition
+#    LimaCCDsClass class definition
 #
 #==================================================================
 class LimaCCDsClass(PyTango.DeviceClass) :
@@ -1817,9 +1822,15 @@ def declare_camera_n_commun_to_tango_world(util) :
 		func = getattr(m,'get_tango_specific_class_n_device')
                 specificClass,specificDevice = func()
             except AttributeError:
-                continue
+                pass
             else:
                 util.add_TgClass(specificClass,specificDevice,specificDevice.__name__)
+            try:
+                func = getattr(m, 'get_taco_specific_cmd_list_n_proxy_cont')
+                cmd_list, proxy_cont = func()
+                TacoSpecificDict[module_name] = cmd_list, proxy_cont
+            except AttributeError:
+                pass
 
     warningFlag = False
     for module_name in plugins.__all__:
@@ -1834,6 +1845,12 @@ def declare_camera_n_commun_to_tango_world(util) :
                 print
             continue
         else:
+            if 'Taco' in module_name:
+                try:
+                    func = getattr(m,'set_taco_specific_dict_n_name_cont')
+                    func(TacoSpecificDict, TacoSpecificName)
+                except AttributeError:
+                    pass
             try:
 		func = getattr(m,'get_tango_specific_class_n_device')
             except AttributeError:

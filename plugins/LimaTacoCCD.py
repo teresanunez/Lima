@@ -96,7 +96,7 @@ DevErrCcdProcessImage		= DevCcdBase + 13
 #   DevState.FAULT :  ccd is in FAULT, cannot take pictures
 #==================================================================
 
-class LimaTacoCCDs(PyTango.Device_4Impl):
+class LimaTacoCCDs(PyTango.Device_4Impl, object):
 
     Core.DEB_CLASS(Core.DebModApplication, 'LimaTacoCCDs')
 
@@ -106,6 +106,35 @@ class LimaTacoCCDs(PyTango.Device_4Impl):
     AutoSave     = 8
     AutoHeader   = 16
     
+#--------- TACO specific cmd_list & proxy -------------------------
+    TacoSpecificDict = {}
+    TacoSpecificName = []
+
+    TacoCmdList = []
+    TacoProxy = None
+    TacoProxySearched = False
+    
+#--------- Method proxy control -----------------------------------
+    def __getattribute__(self, name):
+        proxy = LimaTacoCCDs.TacoProxy
+        if not proxy:
+            if LimaTacoCCDs.TacoProxySearched:
+                return object.__getattribute__(self, name)
+                
+            name_cont = LimaTacoCCDs.TacoSpecificName
+            if name_cont:
+                taco_dict = LimaTacoCCDs.TacoSpecificDict
+                if name_cont[0] in taco_dict:
+                    cmd_list, proxy_cont = taco_dict[name_cont[0]]
+                    LimaTacoCCDs.TacoCmdList = cmd_list.keys()
+                    LimaTacoCCDs.TacoProxy = proxy = proxy_cont[0]
+                TacoProxySearched = True
+                
+        if proxy and name in LimaTacoCCDs.TacoCmdList:
+            return getattr(proxy, name)
+        else:
+            return object.__getattribute__(self, name)
+         
 #------------------------------------------------------------------
 #    Device constructor
 #------------------------------------------------------------------
@@ -837,6 +866,14 @@ class LimaTacoCCDs(PyTango.Device_4Impl):
         bufferCtrl = interface.getHwCtrlObj(Core.HwCap.Buffer)
         frame_dim = bufferCtrl.getFrameDim()
         return frame_dim
+
+#------------------------------------------------------------------
+#   dummy method
+#------------------------------------------------------------------
+    @Core.DEB_MEMBER_FUNCT
+    def dummy(self, *args) :
+        raise Core.Exception, 'Taco command not supported for this camera'
+
 #==================================================================
 #
 #    LimaTacoCCDsClass class definition
@@ -984,3 +1021,15 @@ def set_control_ref(ctrl) :
 
 def get_tango_specific_class_n_device() :
     return LimaTacoCCDsClass,LimaTacoCCDs
+
+def set_taco_specific_dict_n_name_cont(taco_dict, name_cont):
+    LimaTacoCCDs.TacoSpecificDict = taco_dict
+    LimaTacoCCDs.TacoSpecificName = name_cont
+    for cmd_list, proxy_cont in taco_dict.values():
+        LimaTacoCCDsClass.cmd_list.update(cmd_list)
+        proxy_class = proxy_cont[0].__class__
+        for cmd in cmd_list.keys():
+            try:
+                getattr(LimaTacoCCDs, cmd)
+            except:
+                setattr(LimaTacoCCDs, cmd, LimaTacoCCDs.dummy)
