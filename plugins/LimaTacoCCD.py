@@ -813,12 +813,12 @@ class LimaTacoCCDs(PyTango.Device_4Impl):
 #------------------------------------------------------------------
     @Core.DEB_MEMBER_FUNCT
     def DevGetDebugFlags(self):
-        deb.Trace('FormatFlags: %s' % DebParams.getFormatFlagsNameList())
-        deb.Trace('TypeFlags:   %s' % DebParams.getTypeFlagsNameList())
-        deb.Trace('ModuleFlags: %s' % DebParams.getModuleFlagsNameList())
+        deb.Trace('FormatFlags: %s' % Core.DebParams.getFormatFlagsNameList())
+        deb.Trace('TypeFlags:   %s' % Core.DebParams.getTypeFlagsNameList())
+        deb.Trace('ModuleFlags: %s' % Core.DebParams.getModuleFlagsNameList())
 
-        deb_flags = (((DebParams.getTypeFlags()    & 0xff)   << 16) |
-                     ((DebParams.getModuleFlags()  & 0xffff) <<  0))
+        deb_flags = (((Core.DebParams.getTypeFlags()    & 0xff)   << 16) |
+                     ((Core.DebParams.getModuleFlags()  & 0xffff) <<  0))
         deb_flags &= 0xffffffff
         deb.Return('Getting debug flags: 0x%08x' % deb_flags)
         return deb_flags
