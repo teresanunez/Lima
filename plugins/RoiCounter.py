@@ -134,16 +134,18 @@ class RoiCounterDeviceServer(BasePostProcess) :
 
             
             if minListSize :
-                returnArray = numpy.zeros(minListSize * len(roiResultCounterList) * 4 + 1,dtype = numpy.double)
+                returnArray = numpy.zeros(minListSize * len(roiResultCounterList) * 6 + 1,dtype = numpy.double)
                 returnArray[0] = float(minListSize)
                 indexArray = 1
                 for roiId,resultList in roiResultCounterList:
                     for result in resultList[:minListSize] :
-                        returnArray[indexArray:indexArray+4] = (float(result.frameNumber),
+                        returnArray[indexArray:indexArray+6] = (float(result.frameNumber),
                                                                 result.sum,
                                                                 result.average,
-                                                                result.std)
-                        indexArray += 4
+                                                                result.std,
+                                                                result.min,
+                                                                result.max)
+                        indexArray += 6
                 return returnArray
         return numpy.array([0],dtype = numpy.double)
 
@@ -192,7 +194,7 @@ class RoiCounterDeviceServerClass(PyTango.DeviceClass):
          [PyTango.DevVoid,""]],
         'readCounters':
         [[PyTango.DevLong,"from which frame"],
-         [PyTango.DevVarDoubleArray,"number of result for each roi,frame number 0,sum 0,average 0,std 0,frame number 0,sum 0,average 0,std 0..."]],
+         [PyTango.DevVarDoubleArray,"number of result for each roi,frame number 0,sum 0,average 0,std 0,min 0,max 0,frame number 1,sum 1,average 1,std 1,min 1,max 1..."]],
 	'Start':
 	[[PyTango.DevVoid,""],
 	 [PyTango.DevVoid,""]],
