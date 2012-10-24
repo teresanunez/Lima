@@ -441,7 +441,7 @@ class LimaCCDs(PyTango.Device_4Impl) :
     def write_acc_max_expo_time(self,attr) :
         data = attr.get_write_value()
 	acq = self.__control.acquisition()
-        acq.setAccMaxExpoTime(*data)
+        acq.setAccMaxExpoTime(data)
 
     ## @brief Read maximum accumulation exposure time
     #
@@ -457,7 +457,7 @@ class LimaCCDs(PyTango.Device_4Impl) :
     def write_concat_nb_frames(self,attr) :
         data = attr.get_write_value()
 	acq = self.__control.acquisition()
-        acq.setConcatNbFrames(*data)
+        acq.setConcatNbFrames(data)
 
     ## @brief Read calculated accumulation exposure time
     #
@@ -575,7 +575,7 @@ class LimaCCDs(PyTango.Device_4Impl) :
         data = attr.get_write_value()
         acq = self.__control.acquisition()
 
-        acq.setLatencyTime(*data)
+        acq.setLatencyTime(data)
 
     ## @brief Read image Roi
     #
@@ -595,7 +595,7 @@ class LimaCCDs(PyTango.Device_4Impl) :
     def write_image_roi(self,attr) :
         data = attr.get_write_value()
         image = self.__control.image()
-        roi = Core.Roi(*data)
+        roi = Core.Roi(data)
         image.setRoi(roi)
 
     ## @brief Read image type
@@ -683,7 +683,7 @@ class LimaCCDs(PyTango.Device_4Impl) :
         data = attr.get_write_value()
 
         image = self.__control.image()
-        binValue = Core.Bin(*data)
+        binValue = Core.Bin(data)
         image.setBin(binValue)
     
 
@@ -700,7 +700,7 @@ class LimaCCDs(PyTango.Device_4Impl) :
     @Core.DEB_MEMBER_FUNCT
     def write_image_flip(self,attr) :
         data = attr.get_write_value()
-        flip = Core.Flip(*data)
+        flip = Core.Flip(data)
         image = self.__control.image()
         image.setFlip(flip)
 
@@ -869,7 +869,7 @@ class LimaCCDs(PyTango.Device_4Impl) :
         data = attr.get_write_value()
         shutter = self.__control.shutter()
 
-        shutter.setOpenTime(*data)
+        shutter.setOpenTime(data)
 
     ## @brief Read shutter close time
     # in seconds
@@ -889,7 +889,7 @@ class LimaCCDs(PyTango.Device_4Impl) :
         data = attr.get_write_value()
         shutter = self.__control.shutter()
         
-        shutter.setCloseTime(*data)
+        shutter.setCloseTime(data)
 
     @Core.DEB_MEMBER_FUNCT
     def read_saving_directory(self,attr) :
@@ -943,7 +943,7 @@ class LimaCCDs(PyTango.Device_4Impl) :
         data = attr.get_write_value()
         saving = self.__control.saving()
 
-        saving.setSuffix(*data)
+        saving.setSuffix(data)
 
     @Core.DEB_MEMBER_FUNCT
     def read_saving_next_number(self,attr) :
@@ -956,7 +956,7 @@ class LimaCCDs(PyTango.Device_4Impl) :
         data = attr.get_write_value()
         saving = self.__control.saving()
 
-        saving.setNextNumber(*data)
+        saving.setNextNumber(data)
 
     @Core.DEB_MEMBER_FUNCT
     def read_saving_frame_per_file(self,attr) :
@@ -969,7 +969,7 @@ class LimaCCDs(PyTango.Device_4Impl) :
         data = attr.get_write_value()
         saving = self.__control.saving()
 
-        saving.setFramesPerFile(*data)
+        saving.setFramesPerFile(data)
         
     ## @brief Change the saving Format
     #
@@ -1098,7 +1098,7 @@ class LimaCCDs(PyTango.Device_4Impl) :
         data = attr.get_write_value()
         
         video = self.__control.video()
-        binValue = Core.Bin(*data)
+        binValue = Core.Bin(data)
         video.setBin(binValue)
 
 
@@ -1114,7 +1114,7 @@ class LimaCCDs(PyTango.Device_4Impl) :
     def write_video_roi(self,attr) :
         data = attr.get_write_value()
         video = self.__control.video()
-        roi = Core.Roi(*data)
+        roi = Core.Roi(data)
         video.setRoi(roi)
 
     def read_video_last_image(self,attr) :
@@ -1165,7 +1165,7 @@ class LimaCCDs(PyTango.Device_4Impl) :
 
     def write_shared_memory_active(self,attr):
         data = attr.get_write_value()
-        self.__control.display().setActive(*data)
+        self.__control.display().setActive(data)
 #==================================================================
 #
 #    LimaCCDs command methods
