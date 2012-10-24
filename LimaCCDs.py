@@ -605,7 +605,7 @@ class LimaCCDs(PyTango.Device_4Impl) :
     def write_image_roi(self,attr) :
         data = attr.get_write_value()
         image = self.__control.image()
-        roi = Core.Roi(data)
+        roi = Core.Roi(*data)
         image.setRoi(roi)
 
     ## @brief Read image type
@@ -693,7 +693,7 @@ class LimaCCDs(PyTango.Device_4Impl) :
         data = attr.get_write_value()
 
         image = self.__control.image()
-        binValue = Core.Bin(data)
+        binValue = Core.Bin(*data)
         image.setBin(binValue)
     
 
@@ -710,7 +710,7 @@ class LimaCCDs(PyTango.Device_4Impl) :
     @Core.DEB_MEMBER_FUNCT
     def write_image_flip(self,attr) :
         data = attr.get_write_value()
-        flip = Core.Flip(data)
+        flip = Core.Flip(*data)
         image = self.__control.image()
         image.setFlip(flip)
 
@@ -1108,7 +1108,7 @@ class LimaCCDs(PyTango.Device_4Impl) :
         data = attr.get_write_value()
         
         video = self.__control.video()
-        binValue = Core.Bin(data)
+        binValue = Core.Bin(*data)
         video.setBin(binValue)
 
 
@@ -1124,7 +1124,7 @@ class LimaCCDs(PyTango.Device_4Impl) :
     def write_video_roi(self,attr) :
         data = attr.get_write_value()
         video = self.__control.video()
-        roi = Core.Roi(data)
+        roi = Core.Roi(*data)
         video.setRoi(roi)
 
     def read_video_last_image(self,attr) :
