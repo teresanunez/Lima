@@ -577,6 +577,16 @@ class LimaCCDs(PyTango.Device_4Impl) :
 
         acq.setLatencyTime(data)
 
+    ## @brief Read the valid latency and exposure valid ranges
+    #
+    @Core.DEB_MEMBER_FUNCT
+    def read_valid_ranges(self,attr) :        
+        interface = self.__control.hwInterface()
+	sync = interface.getHwCtrlObj(Core.HwCap.Sync)
+	ranges = sync.getValidRanges()
+        attr.set_value([ranges.min_exp_time,ranges.max_exp_time,ranges.min_lat_time,ranges.max_lat_time])
+
+
     ## @brief Read image Roi
     #
     @Core.DEB_MEMBER_FUNCT
@@ -1599,7 +1609,19 @@ class LimaCCDsClass(PyTango.DeviceClass) :
         'latency_time':
         [[PyTango.DevDouble,
           PyTango.SCALAR,
-          PyTango.READ_WRITE]],	      	
+          PyTango.READ_WRITE]],
+        'valid_ranges':
+        [[PyTango.DevDouble,
+          PyTango.SPECTRUM,
+          PyTango.READ,4],
+         {
+             'label':"valid time ranges: min_exposure, max_exposure, min_latency, max_latency",
+             'unit': "second",
+             'standard unit':"second",
+             'display unit':"second",
+             'format':"%f",
+             'description':"min_exposure, max_exposure, min_latency, max_latency",
+         }],
         'acq_trigger_mode':
         [[PyTango.DevString,
           PyTango.SCALAR,
