@@ -65,25 +65,37 @@ Revision:  - Author:
 <Tr><Td><b><a href=#Dev_DefaultValues>AcquisitionType </a></b></Td>
 <Td><Font Size=-1>Tango::DEV_SHORT</Font></Td>
 <Td><Font Size=-1>Type of Acquisition:<BR>
-0->slow 16 bits (readOneImage)<BR>
-1->fast 16 bis (getImgSeq)<BR>
-2->slow 32 bits<BR>
-3->fast async 16 bits<BR></Font></Td></Tr>
+0->SYNC<BR>
+1->ASYNC (not supported yet)</Font></Td></Tr>
 
 <Tr><Td><b><a href=#Dev_DefaultValues>AllConfigG </a></b></Td>
 <Td><Font Size=-1>Array of long</Font></Td>
-<Td><Font Size=-1>list of the all config G, that will be used by the command LoadAllConfigG:
-CMOS_DSBL
-AMP_TP
-ITHH
-VADJ
-VREF
-IMFP
-IOTA
-IPRE
-ITHL
-ITUNE
-IBUFFER</Font></Td></Tr>
+<Td><Font Size=-1>list of the all config G, that will be used by the command LoadAllConfigG:<BR>
+CMOS_DSBL<BR>
+AMP_TP<BR>
+ITHH<BR>
+VADJ<BR>
+VREF<BR>
+IMFP<BR>
+IOTA<BR>
+IPRE<BR>
+ITHL<BR>
+ITUNE<BR>
+IBUFFER<BR></Font></Td></Tr>
+
+<Tr><Td><b><a href=#Dev_DefaultValues>XpadModel </a></b></Td>
+<Td><Font Size=-1>Tango::DEV_STRING</Font></Td>
+<Td><Font Size=-1>Define the model of the XPAD (architecture)<BR>
+Availables models :<BR>
+- BACKPLANE<BR>
+- IMXPAD_S70<BR>
+- IMXPAD_S140<BR>
+- IMXPAD_S340<BR>
+- IMXPAD_S540<BR></Font></Td></Tr>
+
+<Tr><Td><b><a href=#Dev_DefaultValues>CalibrationPath </a></b></Td>
+<Td><Font Size=-1>Tango::DEV_STRING</Font></Td>
+<Td><Font Size=-1>Path where the calibration files will be save, and from where the calibrations will be uploaded via an UploadCalibration command</Font></Td></Tr>
 
 </Table>
 
@@ -105,6 +117,14 @@ IBUFFER</Font></Td></Tr>
     <Tr>
         <Td>AllConfigG</Td>
         <td>0, 0, 0, 0, 0, 0, 0, 0, 0, 0</td>
+    </Tr>
+    <Tr>
+        <Td>XpadModel</Td>
+        <td>UNKNOWN</td>
+    </Tr>
+    <Tr>
+        <Td>CalibrationPath</Td>
+        <td>/no/path/defined</td>
     </Tr>
 </Table>
 

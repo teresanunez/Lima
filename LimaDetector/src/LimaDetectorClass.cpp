@@ -542,6 +542,7 @@ void LimaDetectorClass::attribute_factory(vector<Tango::Attr *> &att_list)
 	//	Attribute : binningV
 	binningVAttrib	*binning_v = new binningVAttrib();
 	Tango::UserDefaultAttrProp	binning_v_prop;
+	binning_v_prop.set_unit(" ");
 	binning_v_prop.set_format("%6d");
 	binning_v_prop.set_description("Current Binning Vertical value");
 	binning_v->set_default_properties(binning_v_prop);

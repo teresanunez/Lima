@@ -175,34 +175,6 @@ bool XpadPixelDetector::is_ovf_allowed(Tango::AttReqType type)
 }
 //+----------------------------------------------------------------------------
 //
-// method : 		XpadPixelDetector::is_mode_allowed
-// 
-// description : 	Read/Write allowed for mode attribute.
-//
-//-----------------------------------------------------------------------------
-bool XpadPixelDetector::is_mode_allowed(Tango::AttReqType type)
-{
-	if (get_state() == Tango::INIT	||
-		get_state() == Tango::RUNNING	||
-		get_state() == Tango::FAULT)
-	{
-		//	End of Generated Code
-		if ( get_state()==Tango::RUNNING && type==Tango::READ_REQ )
-		{
-           return true;
-		}
-		
-		if ( get_state()==Tango::FAULT && is_device_initialized() )
-		{
-           return true;
-		}
-		//	Re-Start of Generated Code
-		return false;
-	}
-	return true;
-}
-//+----------------------------------------------------------------------------
-//
 // method : 		XpadPixelDetector::is_n_allowed
 // 
 // description : 	Read/Write allowed for n attribute.
@@ -369,6 +341,43 @@ bool XpadPixelDetector::is_gp4_allowed(Tango::AttReqType type)
 	}
 	return true;
 }
+//+----------------------------------------------------------------------------
+//
+// method : 		XpadPixelDetector::is_dacl_allowed
+// 
+// description : 	Read/Write allowed for dacl attribute.
+//
+//-----------------------------------------------------------------------------
+bool XpadPixelDetector::is_dacl_allowed(Tango::AttReqType type)
+{
+	if (get_state() == Tango::INIT	||
+		get_state() == Tango::FAULT)
+	{
+		//	End of Generated Code
+
+		//	Re-Start of Generated Code
+		return false;
+	}
+	return true;
+}
+//+----------------------------------------------------------------------------
+//
+// method : 		XpadPixelDetector::is_ithl_allowed
+// 
+// description : 	Read/Write allowed for ithl attribute.
+//
+//-----------------------------------------------------------------------------
+bool XpadPixelDetector::is_ithl_allowed(Tango::AttReqType type)
+{
+	if (get_state() == Tango::INIT)
+	{
+		//	End of Generated Code
+
+		//	Re-Start of Generated Code
+		return false;
+	}
+	return true;
+}
 
 //=================================================
 //		Commands Allowed Methods
@@ -512,22 +521,146 @@ bool XpadPixelDetector::is_Reset_allowed(const CORBA::Any &any)
 }
 //+----------------------------------------------------------------------------
 //
-// method : 		XpadPixelDetector::is_GetModConfig_allowed
+// method : 		XpadPixelDetector::is_CalibrateOTNSlow_allowed
 // 
-// description : 	Execution allowed for GetModConfig command.
+// description : 	Execution allowed for CalibrateOTNSlow command.
 //
 //-----------------------------------------------------------------------------
-bool XpadPixelDetector::is_GetModConfig_allowed(const CORBA::Any &any)
+bool XpadPixelDetector::is_CalibrateOTNSlow_allowed(const CORBA::Any &any)
 {
 	if (get_state() == Tango::INIT	||
 		get_state() == Tango::RUNNING	||
-		get_state() == Tango::FAULT)
+		get_state() == Tango::FAULT	||
+		get_state() == Tango::DISABLE)
 	{
 		//	End of Generated Code
-		if ( get_state()==Tango::FAULT && is_device_initialized() )
-		{
-           return true;
-		}
+
+		//	Re-Start of Generated Code
+		return false;
+	}
+	return true;
+}
+//+----------------------------------------------------------------------------
+//
+// method : 		XpadPixelDetector::is_UploadCalibration_allowed
+// 
+// description : 	Execution allowed for UploadCalibration command.
+//
+//-----------------------------------------------------------------------------
+bool XpadPixelDetector::is_UploadCalibration_allowed(const CORBA::Any &any)
+{
+	if (get_state() == Tango::INIT	||
+		get_state() == Tango::RUNNING	||
+		get_state() == Tango::FAULT	||
+		get_state() == Tango::DISABLE)
+	{
+		//	End of Generated Code
+
+		//	Re-Start of Generated Code
+		return false;
+	}
+	return true;
+}
+//+----------------------------------------------------------------------------
+//
+// method : 		XpadPixelDetector::is_UploadWaitTimes_allowed
+// 
+// description : 	Execution allowed for UploadWaitTimes command.
+//
+//-----------------------------------------------------------------------------
+bool XpadPixelDetector::is_UploadWaitTimes_allowed(const CORBA::Any &any)
+{
+	if (get_state() == Tango::INIT	||
+		get_state() == Tango::RUNNING	||
+		get_state() == Tango::FAULT	||
+		get_state() == Tango::DISABLE)
+	{
+		//	End of Generated Code
+
+		//	Re-Start of Generated Code
+		return false;
+	}
+	return true;
+}
+//+----------------------------------------------------------------------------
+//
+// method : 		XpadPixelDetector::is_IncrementITHL_allowed
+// 
+// description : 	Execution allowed for IncrementITHL command.
+//
+//-----------------------------------------------------------------------------
+bool XpadPixelDetector::is_IncrementITHL_allowed(const CORBA::Any &any)
+{
+	if (get_state() == Tango::INIT	||
+		get_state() == Tango::RUNNING	||
+		get_state() == Tango::FAULT	||
+		get_state() == Tango::DISABLE)
+	{
+		//	End of Generated Code
+
+		//	Re-Start of Generated Code
+		return false;
+	}
+	return true;
+}
+//+----------------------------------------------------------------------------
+//
+// method : 		XpadPixelDetector::is_DecrementITHL_allowed
+// 
+// description : 	Execution allowed for DecrementITHL command.
+//
+//-----------------------------------------------------------------------------
+bool XpadPixelDetector::is_DecrementITHL_allowed(const CORBA::Any &any)
+{
+	if (get_state() == Tango::INIT	||
+		get_state() == Tango::RUNNING	||
+		get_state() == Tango::FAULT	||
+		get_state() == Tango::DISABLE)
+	{
+		//	End of Generated Code
+
+		//	Re-Start of Generated Code
+		return false;
+	}
+	return true;
+}
+//+----------------------------------------------------------------------------
+//
+// method : 		XpadPixelDetector::is_GetDacl_allowed
+// 
+// description : 	Execution allowed for GetDacl command.
+//
+//-----------------------------------------------------------------------------
+bool XpadPixelDetector::is_GetDacl_allowed(const CORBA::Any &any)
+{
+	if (get_state() == Tango::INIT	||
+		get_state() == Tango::RUNNING	||
+		get_state() == Tango::FAULT	||
+		get_state() == Tango::DISABLE)
+	{
+		//	End of Generated Code
+
+		//	Re-Start of Generated Code
+		return false;
+	}
+	return true;
+}
+//+----------------------------------------------------------------------------
+//
+// method : 		XpadPixelDetector::is_GetIthl_allowed
+// 
+// description : 	Execution allowed for GetIthl command.
+//
+//-----------------------------------------------------------------------------
+bool XpadPixelDetector::is_GetIthl_allowed(const CORBA::Any &any)
+{
+	if (get_state() == Tango::INIT	||
+		get_state() == Tango::RUNNING	||
+		get_state() == Tango::FAULT	||
+		get_state() == Tango::DISABLE)
+	{
+		//	End of Generated Code
+
 		//	Re-Start of Generated Code
 		return false;
 	}

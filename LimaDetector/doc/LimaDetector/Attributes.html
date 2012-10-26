@@ -104,8 +104,11 @@ Revision:  - Author:
 <Tr><Td><b>height</b>: <Font Size=-1>Region of Interest . (Height)</Font></Td>
 <Td><Center><Font Size=-1>DEV_USHORT</Font></Center></Td><Td><Center><Font Size=-1>READ</Font></Center></Td><Td><Center><Font Size=-1>No</Font></Center></Td></Tr>
 
-<Tr><Td><b>binning</b>: <Font Size=-1>Current Binning value</Font></Td>
-<Td><Center><Font Size=-1>DEV_SHORT</Font></Center></Td><Td><Center><Font Size=-1>READ</Font></Center></Td><Td><Center><Font Size=-1>No</Font></Center></Td></Tr>
+<Tr><Td><b>binningH</b>: <Font Size=-1>Current Binning Horizontal value</Font></Td>
+<Td><Center><Font Size=-1>DEV_USHORT</Font></Center></Td><Td><Center><Font Size=-1>READ</Font></Center></Td><Td><Center><Font Size=-1>No</Font></Center></Td></Tr>
+
+<Tr><Td><b>binningV</b>: <Font Size=-1>Current Binning Vertical value</Font></Td>
+<Td><Center><Font Size=-1>DEV_USHORT</Font></Center></Td><Td><Center><Font Size=-1>READ</Font></Center></Td><Td><Center><Font Size=-1>No</Font></Center></Td></Tr>
 
 <Tr><Td><b>nbFrames</b>: <Font Size=-1>Define the number of frames to acquire.</Font></Td>
 <Td><Center><Font Size=-1>DEV_LONG</Font></Center></Td><Td><Center><Font Size=-1>READ_WRITE</Font></Center></Td><Td><Center><Font Size=-1>No</Font></Center></Td></Tr>
@@ -114,6 +117,12 @@ Revision:  - Author:
 <Td><Center><Font Size=-1>DEV_ULONG</Font></Center></Td><Td><Center><Font Size=-1>READ</Font></Center></Td><Td><Center><Font Size=-1>No</Font></Center></Td></Tr>
 
 <Tr><Td><b>fileGeneration</b>: <Font Size=-1>Allow to save grabbed frames into a file on disk.<br> Available formats for the file are:  EDF, RAW, NXS<br> The format is fixed in FileFormat property.<br></Font></Td>
+<Td><Center><Font Size=-1>DEV_BOOLEAN</Font></Center></Td><Td><Center><Font Size=-1>READ_WRITE</Font></Center></Td><Td><Center><Font Size=-1>Yes</Font></Center></Td></Tr>
+
+<Tr><Td><b>flipX</b></Td>
+<Td><Center><Font Size=-1>DEV_BOOLEAN</Font></Center></Td><Td><Center><Font Size=-1>READ_WRITE</Font></Center></Td><Td><Center><Font Size=-1>Yes</Font></Center></Td></Tr>
+
+<Tr><Td><b>flipY</b></Td>
 <Td><Center><Font Size=-1>DEV_BOOLEAN</Font></Center></Td><Td><Center><Font Size=-1>READ_WRITE</Font></Center></Td><Td><Center><Font Size=-1>Yes</Font></Center></Td></Tr>
 
 </Table>

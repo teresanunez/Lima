@@ -75,6 +75,7 @@ namespace XpadPixelDetector_ns
 *  Tango::STANDBY :
 *  Tango::RUNNING :
 *  Tango::FAULT :
+*  Tango::DISABLE :  Xpad is calibrating
  */
 
 
@@ -100,8 +101,6 @@ public :
 		Tango::DevULong	attr_shutter_write;
 		Tango::DevULong	*attr_ovf_read;
 		Tango::DevULong	attr_ovf_write;
-		Tango::DevULong	*attr_mode_read;
-		Tango::DevULong	attr_mode_write;
 		Tango::DevULong	*attr_n_read;
 		Tango::DevULong	attr_n_write;
 		Tango::DevULong	*attr_p_read;
@@ -114,6 +113,8 @@ public :
 		Tango::DevULong	attr_gp3_write;
 		Tango::DevULong	*attr_gp4_read;
 		Tango::DevULong	attr_gp4_write;
+		Tango::DevULong	*attr_dacl_read;
+		Tango::DevULong	*attr_ithl_read;
 //@}
 
 /**
@@ -123,10 +124,8 @@ public :
 //@{
 /**
  *	Type of Acquisition:<BR>
- *	0->slow 16 bits (readOneImage)<BR>
- *	1->fast 16 bis (getImgSeq)<BR>
- *	2->slow 32 bits<BR>
- *	3->fast async 16 bits<BR>
+ *	0->SYNC<BR>
+ *	1->ASYNC (not supported yet)
  */
 	Tango::DevShort	acquisitionType;
 /**
@@ -154,6 +153,10 @@ public :
  *	- IMXPAD_S540<BR>
  */
 	string	xpadModel;
+/**
+ *	Path where the calibration files will be save, and from where the calibrations will be uploaded via an UploadCalibration command
+ */
+	string	calibrationPath;
 //@}
 
 /**
@@ -259,14 +262,6 @@ public :
  */
 	virtual void write_ovf(Tango::WAttribute &attr);
 /**
- *	Extract real attribute values for mode acquisition result.
- */
-	virtual void read_mode(Tango::Attribute &attr);
-/**
- *	Write mode attribute values to hardware.
- */
-	virtual void write_mode(Tango::WAttribute &attr);
-/**
  *	Extract real attribute values for n acquisition result.
  */
 	virtual void read_n(Tango::Attribute &attr);
@@ -315,6 +310,14 @@ public :
  */
 	virtual void write_gp4(Tango::WAttribute &attr);
 /**
+ *	Extract real attribute values for dacl acquisition result.
+ */
+	virtual void read_dacl(Tango::Attribute &attr);
+/**
+ *	Extract real attribute values for ithl acquisition result.
+ */
+	virtual void read_ithl(Tango::Attribute &attr);
+/**
  *	Read/Write allowed for deadTime attribute.
  */
 	virtual bool is_deadTime_allowed(Tango::AttReqType type);
@@ -330,10 +333,6 @@ public :
  *	Read/Write allowed for ovf attribute.
  */
 	virtual bool is_ovf_allowed(Tango::AttReqType type);
-/**
- *	Read/Write allowed for mode attribute.
- */
-	virtual bool is_mode_allowed(Tango::AttReqType type);
 /**
  *	Read/Write allowed for n attribute.
  */
@@ -359,6 +358,14 @@ public :
  */
 	virtual bool is_gp4_allowed(Tango::AttReqType type);
 /**
+ *	Read/Write allowed for dacl attribute.
+ */
+	virtual bool is_dacl_allowed(Tango::AttReqType type);
+/**
+ *	Read/Write allowed for ithl attribute.
+ */
+	virtual bool is_ithl_allowed(Tango::AttReqType type);
+/**
  *	Execution allowed for LoadFlatConfig command.
  */
 	virtual bool is_LoadFlatConfig_allowed(const CORBA::Any &any);
@@ -383,9 +390,33 @@ public :
  */
 	virtual bool is_Reset_allowed(const CORBA::Any &any);
 /**
- *	Execution allowed for GetModConfig command.
+ *	Execution allowed for GetDacl command.
  */
-	virtual bool is_GetModConfig_allowed(const CORBA::Any &any);
+	virtual bool is_GetDacl_allowed(const CORBA::Any &any);
+/**
+ *	Execution allowed for GetIthl command.
+ */
+	virtual bool is_GetIthl_allowed(const CORBA::Any &any);
+/**
+ *	Execution allowed for CalibrateOTNSlow command.
+ */
+	virtual bool is_CalibrateOTNSlow_allowed(const CORBA::Any &any);
+/**
+ *	Execution allowed for UploadCalibration command.
+ */
+	virtual bool is_UploadCalibration_allowed(const CORBA::Any &any);
+/**
+ *	Execution allowed for UploadWaitTimes command.
+ */
+	virtual bool is_UploadWaitTimes_allowed(const CORBA::Any &any);
+/**
+ *	Execution allowed for IncrementITHL command.
+ */
+	virtual bool is_IncrementITHL_allowed(const CORBA::Any &any);
+/**
+ *	Execution allowed for DecrementITHL command.
+ */
+	virtual bool is_DecrementITHL_allowed(const CORBA::Any &any);
 /**
  * This command gets the device state (stored in its <i>device_state</i> data member) and returns it to the caller.
  *	@return	State Code
@@ -434,18 +465,46 @@ public :
  */
 	void	reset();
 /**
- * This fonction read the values of the local configuration registers currently loaded 
- *	in the detector for all the chips on all the modules. Data are received in the format of 2 bytes per pixel with 
- *	the following format.<BR>
- *	• bit[0] enable counters<BR>
- *	• bit[1] enable ampli (validated at 0)<BR>
- *	• bit[2] enable test pulse<BR>
- *	• bit[8:3] DACL registers<BR>
- *	• bit[15:9] reserved (tied to 0)
- *	@return	array of data
+ * This fonction get the values of the DACL
+ *	@return	array of DACL data
  *	@exception DevFailed
  */
-	Tango::DevVarUShortArray	*get_mod_config();
+	Tango::DevVarUShortArray	*get_dacl();
+/**
+ * This fonction get the values of the ITHL
+ *	@return	array of ITHL data
+ *	@exception DevFailed
+ */
+	Tango::DevVarUShortArray	*get_ithl();
+/**
+ * Calibrate the Xpad over the noise with a slow  XXX and store the results in the directory defined by the CalibrationPath property
+ *	with theses hard coded config G values:
+ *	ITHL ...
+ *	...
+ *	@exception DevFailed
+ */
+	void	calibrate_otnslow();
+/**
+ * Upload the calibration (dacl + configg) which is stored the path defined in the CalibrationPath property
+ *	@exception DevFailed
+ */
+	void	upload_calibration();
+/**
+ * Upload the wait times between images: the number of values has to correspond to the number of images
+ *	@param	argin	the wait times
+ *	@exception DevFailed
+ */
+	void	upload_wait_times(const Tango::DevVarULongArray *);
+/**
+ * Increment the ITHL
+ *	@exception DevFailed
+ */
+	void	increment_ithl();
+/**
+ * Decrement the ITHL
+ *	@exception DevFailed
+ */
+	void	decrement_ithl();
 
 /**
  *	Read the device properties from database
@@ -471,7 +530,7 @@ protected :
     void            create_property_if_empty(Tango::DbData& dev_prop,T value, string property_name);
     template <class T>
     void            store_value_as_property(T value, string property_name);
-    void 			set_all_f_parameters();
+    void 			set_specific_parameters();
 
 	//lima OBJECTS
 	Xpad::Interface* 		m_hw;

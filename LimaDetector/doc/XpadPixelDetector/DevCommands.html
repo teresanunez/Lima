@@ -70,7 +70,7 @@ The language device desctructor automatically calls the <i> delete_device() </i>
 <Li><Strong>Argout:<Br>DEV_VOID</Strong>
  : none.<Br>&nbsp
 <Li><Strong>Command allowed for: </Strong><Ul>
-<Li>Tango::INIT<Li>Tango::STANDBY<Li>Tango::RUNNING<Li>Tango::FAULT</Ul>
+<Li>Tango::INIT<Li>Tango::STANDBY<Li>Tango::RUNNING<Li>Tango::FAULT<Li>Tango::DISABLE</Ul>
 <Br>&nbsp
 </ul><Br>
 <Br>
@@ -84,7 +84,7 @@ The language device desctructor automatically calls the <i> delete_device() </i>
 <Li><Strong>Argout:<Br>DEV_STATE</Strong>
  : State Code<Br>&nbsp
 <Li><Strong>Command allowed for: </Strong><Ul>
-<Li>Tango::INIT<Li>Tango::STANDBY<Li>Tango::RUNNING<Li>Tango::FAULT</Ul>
+<Li>Tango::INIT<Li>Tango::STANDBY<Li>Tango::RUNNING<Li>Tango::FAULT<Li>Tango::DISABLE</Ul>
 <Br>&nbsp
 </ul><Br>
 <Br>
@@ -98,7 +98,7 @@ The language device desctructor automatically calls the <i> delete_device() </i>
 <Li><Strong>Argout:<Br>CONST_DEV_STRING</Strong>
  : Status description<Br>&nbsp
 <Li><Strong>Command allowed for: </Strong><Ul>
-<Li>Tango::INIT<Li>Tango::STANDBY<Li>Tango::RUNNING<Li>Tango::FAULT</Ul>
+<Li>Tango::INIT<Li>Tango::STANDBY<Li>Tango::RUNNING<Li>Tango::FAULT<Li>Tango::DISABLE</Ul>
 <Br>&nbsp
 </ul><Br>
 <Br>
@@ -112,7 +112,7 @@ The language device desctructor automatically calls the <i> delete_device() </i>
 <Li><Strong>Argout:<Br>DEV_VOID</Strong>
  : <Br>&nbsp
 <Li><Strong>Command allowed for: </Strong><Ul>
-<Li>Tango::STANDBY</Ul>
+<Li>Tango::STANDBY<Li>Tango::DISABLE</Ul>
 <Br>&nbsp
 </ul><Br>
 <Br>
@@ -120,14 +120,13 @@ The language device desctructor automatically calls the <i> delete_device() </i>
 <A NAME="LoadAllConfigG"><!-- --></A>
 <h2>5 - LoadAllConfigG</h2>
 <ul>
-<Li><Strong>Description: </Strong> This function loads in all the global registers the value passed as parameters.
-the order if the configG is as follow: CMOS_DSBL ; AMP_TP;ITHH;VADJ;VREF;IMFP;IOTA;IPRE;ITHL;ITUNE;IBUFFER<Br>&nbsp
+<Li><Strong>Description: </Strong> IBUFFER<Br>&nbsp
 <Li><Strong>Argin:<Br>DEVVAR_ULONGARRAY</Strong>
  : modNum(1..8), chipId(0..6), config_values (11 values)<Br>&nbsp
 <Li><Strong>Argout:<Br>DEV_VOID</Strong>
  : <Br>&nbsp
 <Li><Strong>Command allowed for: </Strong><Ul>
-<Li>Tango::STANDBY</Ul>
+<Li>Tango::STANDBY<Li>Tango::DISABLE</Ul>
 <Br>&nbsp
 </ul><Br>
 <Br>
@@ -144,7 +143,7 @@ address value. Calibration data (80 words 16 bits) for one row of one chip (9 bi
 <Li><Strong>Argout:<Br>DEV_VOID</Strong>
  : <Br>&nbsp
 <Li><Strong>Command allowed for: </Strong><Ul>
-<Li>Tango::STANDBY</Ul>
+<Li>Tango::STANDBY<Li>Tango::DISABLE</Ul>
 <Br>&nbsp
 </ul><Br>
 <Br>
@@ -159,7 +158,7 @@ memory buffer identified by calibId.<Br>&nbsp
 <Li><Strong>Argout:<Br>DEV_VOID</Strong>
  : <Br>&nbsp
 <Li><Strong>Command allowed for: </Strong><Ul>
-<Li>Tango::STANDBY</Ul>
+<Li>Tango::STANDBY<Li>Tango::DISABLE</Ul>
 <Br>&nbsp
 </ul><Br>
 <Br>
@@ -175,7 +174,7 @@ into the config registers.<Br>&nbsp
 <Li><Strong>Argout:<Br>DEV_VOID</Strong>
  : <Br>&nbsp
 <Li><Strong>Command allowed for: </Strong><Ul>
-<Li>Tango::STANDBY</Ul>
+<Li>Tango::STANDBY<Li>Tango::DISABLE</Ul>
 <Br>&nbsp
 </ul><Br>
 <Br>
@@ -189,26 +188,106 @@ into the config registers.<Br>&nbsp
 <Li><Strong>Argout:<Br>DEV_VOID</Strong>
  : <Br>&nbsp
 <Li><Strong>Command allowed for: </Strong><Ul>
-<Li>Tango::INIT<Li>Tango::STANDBY<Li>Tango::RUNNING<Li>Tango::FAULT</Ul>
+<Li>Tango::INIT<Li>Tango::STANDBY<Li>Tango::FAULT<Li>Tango::DISABLE</Ul>
 <Br>&nbsp
 </ul><Br>
 <Br>
-<A NAME="GetModConfig"><!-- --></A>
-<A NAME="GetModConfig"><!-- --></A>
-<h2>10 - GetModConfig</h2>
+<A NAME="GetDacl"><!-- --></A>
+<A NAME="GetDacl"><!-- --></A>
+<h2>10 - GetDacl</h2>
 <ul>
-<Li><Strong>Description: </Strong> This fonction read the values of the local configuration registers currently loaded 
-in the detector for all the chips on all the modules. Data are received in the format of 2 bytes per pixel with 
-the following format.<BR>
-• bit[0] enable counters<BR>
-• bit[1] enable ampli (validated at 0)<BR>
-• bit[2] enable test pulse<BR>
-• bit[8:3] DACL registers<BR>
-• bit[15:9] reserved (tied to 0)<Br>&nbsp
+<Li><Strong>Description: </Strong> This fonction get the values of the DACL<Br>&nbsp
 <Li><Strong>Argin:<Br>DEV_VOID</Strong>
  : <Br>&nbsp
 <Li><Strong>Argout:<Br>DEVVAR_USHORTARRAY</Strong>
- : array of data<Br>&nbsp
+ : array of DACL data<Br>&nbsp
+<Li><Strong>Command allowed for: </Strong><Ul>
+<Li>Tango::STANDBY</Ul>
+<Br>&nbsp
+</ul><Br>
+<Br>
+<A NAME="GetIthl"><!-- --></A>
+<A NAME="GetIthl"><!-- --></A>
+<h2>11 - GetIthl</h2>
+<ul>
+<Li><Strong>Description: </Strong> This fonction get the values of the ITHL<Br>&nbsp
+<Li><Strong>Argin:<Br>DEV_VOID</Strong>
+ : <Br>&nbsp
+<Li><Strong>Argout:<Br>DEVVAR_USHORTARRAY</Strong>
+ : array of ITHL data<Br>&nbsp
+<Li><Strong>Command allowed for: </Strong><Ul>
+<Li>Tango::STANDBY</Ul>
+<Br>&nbsp
+</ul><Br>
+<Br>
+<A NAME="CalibrateOTNSlow"><!-- --></A>
+<A NAME="CalibrateOTNSlow"><!-- --></A>
+<h2>12 - CalibrateOTNSlow</h2>
+<ul>
+<Li><Strong>Description: </Strong> Calibrate the Xpad over the noise with a slow  XXX and store the results in the directory defined by the CalibrationPath property
+with theses hard coded config G values:
+ITHL ...
+...<Br>&nbsp
+<Li><Strong>Argin:<Br>DEV_VOID</Strong>
+ : <Br>&nbsp
+<Li><Strong>Argout:<Br>DEV_VOID</Strong>
+ : <Br>&nbsp
+<Li><Strong>Command allowed for: </Strong><Ul>
+<Li>Tango::STANDBY</Ul>
+<Br>&nbsp
+</ul><Br>
+<Br>
+<A NAME="UploadCalibration"><!-- --></A>
+<A NAME="UploadCalibration"><!-- --></A>
+<h2>13 - UploadCalibration</h2>
+<ul>
+<Li><Strong>Description: </Strong> Upload the calibration (dacl + configg) which is stored the path defined in the CalibrationPath property<Br>&nbsp
+<Li><Strong>Argin:<Br>DEV_VOID</Strong>
+ : <Br>&nbsp
+<Li><Strong>Argout:<Br>DEV_VOID</Strong>
+ : <Br>&nbsp
+<Li><Strong>Command allowed for: </Strong><Ul>
+<Li>Tango::STANDBY</Ul>
+<Br>&nbsp
+</ul><Br>
+<Br>
+<A NAME="UploadWaitTimes"><!-- --></A>
+<A NAME="UploadWaitTimes"><!-- --></A>
+<h2>14 - UploadWaitTimes</h2>
+<ul>
+<Li><Strong>Description: </Strong> Upload the wait times between images: the number of values has to correspond to the number of images<Br>&nbsp
+<Li><Strong>Argin:<Br>DEVVAR_ULONGARRAY</Strong>
+ : the wait times<Br>&nbsp
+<Li><Strong>Argout:<Br>DEV_VOID</Strong>
+ : <Br>&nbsp
+<Li><Strong>Command allowed for: </Strong><Ul>
+<Li>Tango::STANDBY</Ul>
+<Br>&nbsp
+</ul><Br>
+<Br>
+<A NAME="IncrementITHL"><!-- --></A>
+<A NAME="IncrementITHL"><!-- --></A>
+<h2>15 - IncrementITHL</h2>
+<ul>
+<Li><Strong>Description: </Strong> Increment the ITHL<Br>&nbsp
+<Li><Strong>Argin:<Br>DEV_VOID</Strong>
+ : <Br>&nbsp
+<Li><Strong>Argout:<Br>DEV_VOID</Strong>
+ : <Br>&nbsp
+<Li><Strong>Command allowed for: </Strong><Ul>
+<Li>Tango::STANDBY</Ul>
+<Br>&nbsp
+</ul><Br>
+<Br>
+<A NAME="DecrementITHL"><!-- --></A>
+<A NAME="DecrementITHL"><!-- --></A>
+<h2>16 - DecrementITHL</h2>
+<ul>
+<Li><Strong>Description: </Strong> Decrement the ITHL<Br>&nbsp
+<Li><Strong>Argin:<Br>DEV_VOID</Strong>
+ : <Br>&nbsp
+<Li><Strong>Argout:<Br>DEV_VOID</Strong>
+ : <Br>&nbsp
 <Li><Strong>Command allowed for: </Strong><Ul>
 <Li>Tango::STANDBY</Ul>
 <Br>&nbsp
