@@ -112,7 +112,7 @@ The language device desctructor automatically calls the <i> delete_device() </i>
 <Li><Strong>Argout:<Br>DEV_VOID</Strong>
  : <Br>&nbsp
 <Li><Strong>Command allowed for: </Strong><Ul>
-<Li>Tango::STANDBY<Li>Tango::FAULT<Li>Tango::RUNNING</Ul>
+<Li>Tango::STANDBY<Li>Tango::RUNNING</Ul>
 <Br>&nbsp
 </ul><Br>
 <Br>
@@ -127,7 +127,7 @@ It is not allowed to generate files in this mode.<Br>&nbsp
 <Li><Strong>Argout:<Br>DEV_VOID</Strong>
  : <Br>&nbsp
 <Li><Strong>Command allowed for: </Strong><Ul>
-<Li>Tango::STANDBY<Li>Tango::FAULT<Li>Tango::RUNNING</Ul>
+<Li>Tango::STANDBY<Li>Tango::RUNNING</Ul>
 <Br>&nbsp
 </ul><Br>
 <Br>
@@ -141,7 +141,7 @@ It is not allowed to generate files in this mode.<Br>&nbsp
 <Li><Strong>Argout:<Br>DEV_VOID</Strong>
  : <Br>&nbsp
 <Li><Strong>Command allowed for: </Strong><Ul>
-<Li>Tango::STANDBY<Li>Tango::FAULT<Li>Tango::RUNNING</Ul>
+<Li>Tango::STANDBY<Li>Tango::RUNNING</Ul>
 <Br>&nbsp
 </ul><Br>
 <Br>
@@ -150,12 +150,12 @@ It is not allowed to generate files in this mode.<Br>&nbsp
 <h2>7 - SetROI</h2>
 <ul>
 <Li><Strong>Description: </Strong> Define a Region of Interest . (OriginX, OriginY, Width, Height)<Br>&nbsp
-<Li><Strong>Argin:<Br>DEVVAR_LONGARRAY</Strong>
+<Li><Strong>Argin:<Br>DEVVAR_ULONGARRAY</Strong>
  : [origin_x, origin_y, width, height]<Br>&nbsp
 <Li><Strong>Argout:<Br>DEV_VOID</Strong>
  : <Br>&nbsp
 <Li><Strong>Command allowed for: </Strong><Ul>
-<Li>Tango::STANDBY<Li>Tango::FAULT</Ul>
+<Li>Tango::STANDBY</Ul>
 <Br>&nbsp
 </ul><Br>
 <Br>
@@ -163,19 +163,13 @@ It is not allowed to generate files in this mode.<Br>&nbsp
 <A NAME="SetBinning"><!-- --></A>
 <h2>8 - SetBinning</h2>
 <ul>
-<Li><Strong>Description: </Strong> Define a binning for the image. <br>
-Availables values are  :<br>
-1->binning(1,1)<br>
-2->binning(2,2)<br>
-3->binning(3,3)<br>
-4->binning(4,4)<br>
-8->binning(8,8)<br><Br>&nbsp
-<Li><Strong>Argin:<Br>DEV_USHORT</Strong>
+<Li><Strong>Description: </Strong> Define a binning Horizontal (x) & Vertical (y) for the image. <br><Br>&nbsp
+<Li><Strong>Argin:<Br>DEVVAR_ULONGARRAY</Strong>
  : <Br>&nbsp
 <Li><Strong>Argout:<Br>DEV_VOID</Strong>
  : <Br>&nbsp
 <Li><Strong>Command allowed for: </Strong><Ul>
-<Li>Tango::STANDBY<Li>Tango::FAULT</Ul>
+<Li>Tango::STANDBY</Ul>
 <Br>&nbsp
 </ul><Br>
 <Br>

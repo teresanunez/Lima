@@ -66,7 +66,7 @@ namespace XpadPixelDetector_ns
 {
 //+----------------------------------------------------------------------------
 //
-// method : 		GetModConfigClass::execute()
+// method : 		GetIthlCmd::execute()
 // 
 // description : 	method to trigger the execution of the command.
 //                PLEASE DO NOT MODIFY this method core without pogo   
@@ -77,13 +77,149 @@ namespace XpadPixelDetector_ns
 // returns : The command output data (packed in the Any object)
 //
 //-----------------------------------------------------------------------------
-CORBA::Any *GetModConfigClass::execute(Tango::DeviceImpl *device,const CORBA::Any &in_any)
+CORBA::Any *GetIthlCmd::execute(Tango::DeviceImpl *device,const CORBA::Any &in_any)
 {
 
-	cout2 << "GetModConfigClass::execute(): arrived" << endl;
+	cout2 << "GetIthlCmd::execute(): arrived" << endl;
 
-	return insert((static_cast<XpadPixelDetector *>(device))->get_mod_config());
+	return insert((static_cast<XpadPixelDetector *>(device))->get_ithl());
 }
+
+//+----------------------------------------------------------------------------
+//
+// method : 		GetDaclCmd::execute()
+// 
+// description : 	method to trigger the execution of the command.
+//                PLEASE DO NOT MODIFY this method core without pogo   
+//
+// in : - device : The device on which the command must be executed
+//		- in_any : The command input data
+//
+// returns : The command output data (packed in the Any object)
+//
+//-----------------------------------------------------------------------------
+CORBA::Any *GetDaclCmd::execute(Tango::DeviceImpl *device,const CORBA::Any &in_any)
+{
+
+	cout2 << "GetDaclCmd::execute(): arrived" << endl;
+
+	return insert((static_cast<XpadPixelDetector *>(device))->get_dacl());
+}
+
+//+----------------------------------------------------------------------------
+//
+// method : 		DecrementITHLClass::execute()
+// 
+// description : 	method to trigger the execution of the command.
+//                PLEASE DO NOT MODIFY this method core without pogo   
+//
+// in : - device : The device on which the command must be executed
+//		- in_any : The command input data
+//
+// returns : The command output data (packed in the Any object)
+//
+//-----------------------------------------------------------------------------
+CORBA::Any *DecrementITHLClass::execute(Tango::DeviceImpl *device,const CORBA::Any &in_any)
+{
+
+	cout2 << "DecrementITHLClass::execute(): arrived" << endl;
+
+	((static_cast<XpadPixelDetector *>(device))->decrement_ithl());
+	return new CORBA::Any();
+}
+
+//+----------------------------------------------------------------------------
+//
+// method : 		IncrementITHLClass::execute()
+// 
+// description : 	method to trigger the execution of the command.
+//                PLEASE DO NOT MODIFY this method core without pogo   
+//
+// in : - device : The device on which the command must be executed
+//		- in_any : The command input data
+//
+// returns : The command output data (packed in the Any object)
+//
+//-----------------------------------------------------------------------------
+CORBA::Any *IncrementITHLClass::execute(Tango::DeviceImpl *device,const CORBA::Any &in_any)
+{
+
+	cout2 << "IncrementITHLClass::execute(): arrived" << endl;
+
+	((static_cast<XpadPixelDetector *>(device))->increment_ithl());
+	return new CORBA::Any();
+}
+
+//+----------------------------------------------------------------------------
+//
+// method : 		UploadWaitTimesClass::execute()
+// 
+// description : 	method to trigger the execution of the command.
+//                PLEASE DO NOT MODIFY this method core without pogo   
+//
+// in : - device : The device on which the command must be executed
+//		- in_any : The command input data
+//
+// returns : The command output data (packed in the Any object)
+//
+//-----------------------------------------------------------------------------
+CORBA::Any *UploadWaitTimesClass::execute(Tango::DeviceImpl *device,const CORBA::Any &in_any)
+{
+
+	cout2 << "UploadWaitTimesClass::execute(): arrived" << endl;
+
+	const Tango::DevVarULongArray	*argin;
+	extract(in_any, argin);
+
+	((static_cast<XpadPixelDetector *>(device))->upload_wait_times(argin));
+	return new CORBA::Any();
+}
+
+//+----------------------------------------------------------------------------
+//
+// method : 		UploadCalibrationCmd::execute()
+// 
+// description : 	method to trigger the execution of the command.
+//                PLEASE DO NOT MODIFY this method core without pogo   
+//
+// in : - device : The device on which the command must be executed
+//		- in_any : The command input data
+//
+// returns : The command output data (packed in the Any object)
+//
+//-----------------------------------------------------------------------------
+CORBA::Any *UploadCalibrationCmd::execute(Tango::DeviceImpl *device,const CORBA::Any &in_any)
+{
+
+	cout2 << "UploadCalibrationCmd::execute(): arrived" << endl;
+
+	((static_cast<XpadPixelDetector *>(device))->upload_calibration());
+	return new CORBA::Any();
+}
+
+//+----------------------------------------------------------------------------
+//
+// method : 		CalibrateOTNSlowCmd::execute()
+// 
+// description : 	method to trigger the execution of the command.
+//                PLEASE DO NOT MODIFY this method core without pogo   
+//
+// in : - device : The device on which the command must be executed
+//		- in_any : The command input data
+//
+// returns : The command output data (packed in the Any object)
+//
+//-----------------------------------------------------------------------------
+CORBA::Any *CalibrateOTNSlowCmd::execute(Tango::DeviceImpl *device,const CORBA::Any &in_any)
+{
+
+	cout2 << "CalibrateOTNSlowCmd::execute(): arrived" << endl;
+
+	((static_cast<XpadPixelDetector *>(device))->calibrate_otnslow());
+	return new CORBA::Any();
+}
+
+
 
 //+----------------------------------------------------------------------------
 //
@@ -352,10 +488,40 @@ void XpadPixelDetectorClass::command_factory()
 		"",
 		"",
 		Tango::OPERATOR));
-	command_list.push_back(new GetModConfigClass("GetModConfig",
+	command_list.push_back(new GetDaclCmd("GetDacl",
 		Tango::DEV_VOID, Tango::DEVVAR_USHORTARRAY,
 		"",
-		"array of data",
+		"array of DACL data",
+		Tango::OPERATOR));
+	command_list.push_back(new GetIthlCmd("GetIthl",
+		Tango::DEV_VOID, Tango::DEVVAR_USHORTARRAY,
+		"",
+		"array of ITHL data",
+		Tango::OPERATOR));
+	command_list.push_back(new CalibrateOTNSlowCmd("CalibrateOTNSlow",
+		Tango::DEV_VOID, Tango::DEV_VOID,
+		"",
+		"",
+		Tango::OPERATOR));
+	command_list.push_back(new UploadCalibrationCmd("UploadCalibration",
+		Tango::DEV_VOID, Tango::DEV_VOID,
+		"",
+		"",
+		Tango::OPERATOR));
+	command_list.push_back(new UploadWaitTimesClass("UploadWaitTimes",
+		Tango::DEVVAR_ULONGARRAY, Tango::DEV_VOID,
+		"the wait times",
+		"",
+		Tango::OPERATOR));
+	command_list.push_back(new IncrementITHLClass("IncrementITHL",
+		Tango::DEV_VOID, Tango::DEV_VOID,
+		"",
+		"",
+		Tango::OPERATOR));
+	command_list.push_back(new DecrementITHLClass("DecrementITHL",
+		Tango::DEV_VOID, Tango::DEV_VOID,
+		"",
+		"",
 		Tango::OPERATOR));
 
 	//	add polling if any
@@ -484,14 +650,6 @@ void XpadPixelDetectorClass::attribute_factory(vector<Tango::Attr *> &att_list)
 	ovf->set_disp_level(Tango::EXPERT);
 	att_list.push_back(ovf);
 
-	//	Attribute : mode
-	modeAttrib	*mode = new modeAttrib();
-	Tango::UserDefaultAttrProp	mode_prop;
-	mode_prop.set_unit(" ");
-	mode->set_default_properties(mode_prop);
-	mode->set_disp_level(Tango::EXPERT);
-	att_list.push_back(mode);
-
 	//	Attribute : n
 	nAttrib	*n = new nAttrib();
 	Tango::UserDefaultAttrProp	n_prop;
@@ -539,6 +697,22 @@ void XpadPixelDetectorClass::attribute_factory(vector<Tango::Attr *> &att_list)
 	gp4->set_default_properties(gp4_prop);
 	gp4->set_disp_level(Tango::EXPERT);
 	att_list.push_back(gp4);
+
+	//	Attribute : dacl
+	daclAttrib	*dacl = new daclAttrib();
+	Tango::UserDefaultAttrProp	dacl_prop;
+	dacl_prop.set_label("Dacl matrix");
+	dacl_prop.set_description("Calibrated Dacl Matrix");
+	dacl->set_default_properties(dacl_prop);
+	att_list.push_back(dacl);
+
+	//	Attribute : ithl
+	ithlAttrib	*ithl = new ithlAttrib();
+	Tango::UserDefaultAttrProp	ithl_prop;
+	ithl_prop.set_label("Ithl matrix");
+	ithl_prop.set_description("Calibrated Ithl matrix");
+	ithl->set_default_properties(ithl_prop);
+	att_list.push_back(ithl);
 
 	//	End of Automatic code generation
 	//-------------------------------------------------------------
@@ -592,7 +766,7 @@ void XpadPixelDetectorClass::set_default_property()
 	//	Set Default Class Properties
 	//	Set Default Device Properties
 	prop_name = "AcquisitionType";
-	prop_desc = "Type of Acquisition:<BR>\n0->slow 16 bits (readOneImage)<BR>\n1->fast 16 bis (getImgSeq)<BR>\n2->slow 32 bits<BR>\n3->fast async 16 bits<BR>";
+	prop_desc = "Type of Acquisition:<BR>\n0->SYNC<BR>\n1->ASYNC (not supported yet)";
 	prop_def  = "0";
 	vect_data.clear();
 	vect_data.push_back("0");
@@ -635,6 +809,21 @@ void XpadPixelDetectorClass::set_default_property()
 	prop_def  = "UNKNOWN";
 	vect_data.clear();
 	vect_data.push_back("UNKNOWN");
+	if (prop_def.length()>0)
+	{
+		Tango::DbDatum	data(prop_name);
+		data << vect_data ;
+		dev_def_prop.push_back(data);
+		add_wiz_dev_prop(prop_name, prop_desc,  prop_def);
+	}
+	else
+		add_wiz_dev_prop(prop_name, prop_desc);
+
+	prop_name = "CalibrationPath";
+	prop_desc = "Path where the calibration files will be save, and from where the calibrations will be uploaded via an UploadCalibration command";
+	prop_def  = "/no/path/defined";
+	vect_data.clear();
+	vect_data.push_back("/no/path/defined");
 	if (prop_def.length()>0)
 	{
 		Tango::DbDatum	data(prop_name);

@@ -22,7 +22,7 @@
 __all__ = []
 def _init_module() :
     import os
-    for root,dirs,files in os.walk(__path__[0]) :
+    for root,dirs,files in os.walk(__path__[0],followlinks=True) :
         for file_name in files :
             if file_name.startswith('__') : continue
             base,ext = os.path.splitext(file_name)

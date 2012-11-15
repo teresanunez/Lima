@@ -2473,7 +2473,6 @@ void LimaDetector::set_roi(const Tango::DevVarULongArray *argin)
  *
  *	description:	method to execute "SetBinning"
  *	Define a binning Horizontal (x) & Vertical (y) for the image. <br>
- *	
  *
  * @param	argin	
  *
@@ -2604,6 +2603,11 @@ Tango::DevState LimaDetector::dev_state()
 				DeviceState=Tango::RUNNING;
 				DeviceStatus<<"Acquisition is Running ...\n"<<endl;
 			}
+            		/*else if(status.AcquisitionStatus == lima::AcqConfig)
+			{
+				DeviceState=Tango::DISABLE;
+				DeviceStatus<<"Detector is Calibrating...\n"<<endl;
+			}*/
 			else
 			{
 				HwInterface::StatusType state;
@@ -2807,6 +2811,7 @@ int LimaDetector::find_index_from_property_name(Tango::DbData& dev_prop, string 
     if (i == iNbProperties) return -1;
     return i;
 }
+
 
 
 

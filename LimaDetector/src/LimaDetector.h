@@ -688,7 +688,6 @@ public :
 	void	set_roi(const Tango::DevVarULongArray *);
 /**
  * Define a binning Horizontal (x) & Vertical (y) for the image. <br>
- *	
  *	@param	argin	
  *	@exception DevFailed
  */

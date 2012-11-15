@@ -16,7 +16,7 @@
 
     <dependencies>
 
-			<dependency>
+    <!--<dependency>
         <groupId>com.basler</groupId>
         <artifactId>Genicam-${aol}-shared-${mode}</artifactId>
         <version>2.1.0</version>
@@ -26,7 +26,7 @@
         <groupId>com.basler</groupId>
         <artifactId>Pylon-${aol}-shared-${mode}</artifactId>
         <version>2.3.3</version>
-      </dependency>
+      </dependency>-->
 			
 			<dependency>
          <groupId>fr.soleil.lib</groupId>
@@ -49,7 +49,7 @@
          <version>1.1.9</version>         
       </dependency>
 
-      <dependency>
+      <!--<dependency>
          <groupId>fr.soleil.lib.Lima.Camera</groupId>
          <artifactId>LimaBasler-${aol}-shared-${mode}</artifactId>
          <version>1.1.9</version>
@@ -65,7 +65,7 @@
          <groupId>fr.soleil.lib.Lima.Camera</groupId>
          <artifactId>LimaPilatus-${aol}-shared-${mode}</artifactId>
          <version>1.1.9</version>
-      </dependency>
+      </dependency>-->
     
       <dependency>
          <groupId>fr.soleil.lib.Lima.Camera</groupId>
@@ -73,7 +73,7 @@
          <version>1.1.9</version>
       </dependency>
 
-      <dependency>
+      <!--<dependency>
          <groupId>fr.soleil.lib.Lima.Camera</groupId>
          <artifactId>LimaAdsc-${aol}-shared-${mode}</artifactId>
          <version>1.1.9</version>
@@ -89,7 +89,7 @@
          <groupId>fr.soleil.lib.Lima.Camera</groupId>
          <artifactId>LimaRoperScientific-${aol}-shared-${mode}</artifactId>
          <version>1.1.9</version>
-      </dependency>
+      </dependency>-->
 
 			
       <dependency>
@@ -116,29 +116,29 @@
                         <defines>
                            <define>USE_GIGE</define>													 
 													 <!-- define wich detector you need to ENABLE -->
-													 <define>BASLER_ENABLED</define>												 
+													 <!--<define>BASLER_ENABLED</define>												 
                            <define>MARCCD_ENABLED</define>
-                           <define>PILATUS_ENABLED</define>
+                           <define>PILATUS_ENABLED</define>-->
                        	   <define>XPAD_ENABLED</define>
-                           <define>ADSC_ENABLED</define>   
+                           <!--<define>ADSC_ENABLED</define>   
                            <define>PROSILICA_ENABLED</define>
                            <define>PRINCETON_ENABLED</define>
-                           <define>SIMULATOR_ENABLED</define>
+                           <define>SIMULATOR_ENABLED</define>-->
                         </defines>
 
                         <systemIncludePaths>
-<!--                       
-                        	<systemIncludePath></systemIncludePath>
--->                      
+                       
+                        	<systemIncludePath>/home/informatique/ica/langlois/ImXpad/xpix_2_0_7/imxpad_lib/xpci_lib</systemIncludePath>
+                      
                         </systemIncludePaths>
 
                         <!-- exclude every detector who is NOT ENABLED -->
                         <excludes>
-<!-- 										                      
+										                      
 													 <exclude>Basler*.*</exclude>			 
 													 <exclude>MarCCD*.*</exclude>                          
 													 <exclude>Pilatus*.*</exclude>                                                      	
-													 <exclude>Xpad*.*</exclude>                        
+													 <!-- <exclude>Xpad*.*</exclude>-->                        
 													 <exclude>Adsc*.*</exclude>                    
 													 <exclude>Prosilica*.*</exclude>
 													 <exclude>Princeton*.*</exclude>
@@ -154,13 +154,12 @@
                      </cpp>   
                     <linker>
                         <libs>
-<!--                           
-                            <lib>
-                                <name>pvcam</name>
-                                <type>shared</type>
-                                <directory></directory>
-                            </lib>
--->                                                        
+<lib> 
+ 							<name>xpci_lib</name>
+ 							<type>static</type>
+ 							<!--<directory>/home/imxpad/ICA/xpix_library_2_3/imxpad_lib/xpci_lib</directory>-->
+ 							<directory>/home/informatique/ica/langlois/ImXpad/xpix_2_0_7/imxpad_lib/xpci_lib</directory>
+ 						</lib>       
                         </libs>
 
                     </linker>                  

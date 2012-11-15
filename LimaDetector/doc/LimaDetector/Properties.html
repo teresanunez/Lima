@@ -75,6 +75,7 @@ Availables types :<BR>
 - MarCCD<BR>
 - PilatusPixelDetector<BR>
 - ProsilicaCCD<BR>
+- PrincetonCCD<BR>
 - SimulatorCCD<BR>
 - XpadPixelDetector<BR>
 
@@ -191,15 +192,14 @@ Height<br>
 Nota:<br>
 if any roi value is <0, then we consider all detector area as Roi.</Font></Td></Tr>
 
-<Tr><Td><b><a href=#Dev_DefaultValues>MemorizedBinning </a></b></Td>
+<Tr><Td><b><a href=#Dev_DefaultValues>MemorizedBinningH </a></b></Td>
 <Td><Font Size=-1>Tango::DEV_USHORT</Font></Td>
-<Td><Font Size=-1>Memorize/Define the Binning value of the Acquisition<br>
-Availables values :<br>
-- 1<br>
-- 2<br>
-- 3<br>
-- 4<br>
-- 8<br></Font></Td></Tr>
+<Td><Font Size=-1>Memorize/Define the Binning Horizontal value of the Acquisition<br>
+</Font></Td></Tr>
+
+<Tr><Td><b><a href=#Dev_DefaultValues>MemorizedBinningV </a></b></Td>
+<Td><Font Size=-1>Tango::DEV_USHORT</Font></Td>
+<Td><Font Size=-1>Memorize/Define the Binning Vertical value of the Acquisition<br></Font></Td></Tr>
 
 <Tr><Td><b><a href=#Dev_DefaultValues>MemorizedAcquisitionMode </a></b></Td>
 <Td><Font Size=-1>Tango::DEV_STRING</Font></Td>
@@ -233,6 +233,14 @@ Availables values :<br>
 <Tr><Td><b><a href=#Dev_DefaultValues>MemorizedFileGeneration </a></b></Td>
 <Td><Font Size=-1>Tango::DEV_BOOLEAN</Font></Td>
 <Td><Font Size=-1>Memorize/Define the fileGeneration attribute at Init device<br></Font></Td></Tr>
+
+<Tr><Td><b><a href=#Dev_DefaultValues>MemorizedFlipX </a></b></Td>
+<Td><Font Size=-1>Tango::DEV_BOOLEAN</Font></Td>
+<Td><Font Size=-1>Memorize/Define the flipX attribute at Init device<br></Font></Td></Tr>
+
+<Tr><Td><b><a href=#Dev_DefaultValues>MemorizedFlipY </a></b></Td>
+<Td><Font Size=-1>Tango::DEV_BOOLEAN</Font></Td>
+<Td><Font Size=-1>Memorize/Define the flipY attribute at Init device<br></Font></Td></Tr>
 
 </Table>
 
@@ -306,7 +314,11 @@ Availables values :<br>
         <td>-1, -1, -1, -1</td>
     </Tr>
     <Tr>
-        <Td>MemorizedBinning</Td>
+        <Td>MemorizedBinningH</Td>
+        <td>1</td>
+    </Tr>
+    <Tr>
+        <Td>MemorizedBinningV</Td>
         <td>1</td>
     </Tr>
     <Tr>
@@ -331,6 +343,14 @@ Availables values :<br>
     </Tr>
     <Tr>
         <Td>MemorizedFileGeneration</Td>
+        <td>false</td>
+    </Tr>
+    <Tr>
+        <Td>MemorizedFlipX</Td>
+        <td>false</td>
+    </Tr>
+    <Tr>
+        <Td>MemorizedFlipY</Td>
         <td>false</td>
     </Tr>
 </Table>
