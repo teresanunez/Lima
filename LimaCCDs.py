@@ -836,20 +836,39 @@ class LimaCCDs(PyTango.Device_4Impl) :
             attr.set_value(stat,len(stat))
 	
 
-    ## @brief Read current shutter state 
+    ## @brief Write current shutter state if in manual mode
+    # True-Open, False-Close
+    @Core.DEB_MEMBER_FUNCT
+    def write_shutter_manual_state(self,attr) :
+        state = attr.get_write_value()
+        if state not in ["OPEN", "CLOSE", "NO_MANUAL_MODE"]:
+            raise Exception, "Invalid shutter state"
+
+        shutter = self.__control.shutter()
+	if (shutter.hasCapability() and 
+            shutter.getModeList().count(Core.ShutterManual) and
+            shutter.getMode() == Core.ShutterManual and
+            state in ["OPEN", "CLOSE"]):
+            if shutter.getState(): state = "OPEN"
+            else: state = "CLOSED"
+	else:
+            raise Exception, "Shutter not in manual mode"
+
+    ## @brief Read current shutter state if in manual mode
     # True-Open, False-Close
     @Core.DEB_MEMBER_FUNCT
     def read_shutter_manual_state(self,attr) :
         shutter = self.__control.shutter()
 
-	if shutter.hasCapability() and shutter.getModeList().count(Core.ShutterManual):
+	if (shutter.hasCapability() and 
+            shutter.getModeList().count(Core.ShutterManual) and
+            shutter.getMode() == Core.ShutterManual):
             if shutter.getState(): state = "OPEN"
             else: state = "CLOSED"
 	else:
             state = "NO_MANUAL_MODE"
 			
-        attr.set_value(value)
-
+        attr.set_value(state)
 
     ## @brief Read shutter open time
     # True-Open, False-Close
@@ -1677,6 +1696,10 @@ class LimaCCDsClass(PyTango.DeviceClass) :
           PyTango.SPECTRUM,
           PyTango.READ,256]],
         'shutter_mode':
+        [[PyTango.DevString,
+          PyTango.SCALAR,
+          PyTango.READ_WRITE]],
+        'shutter_manual_state':
         [[PyTango.DevString,
           PyTango.SCALAR,
           PyTango.READ_WRITE]],

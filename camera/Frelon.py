@@ -43,8 +43,7 @@ import time, string
 import PyTango
 from Lima import Core
 from Lima import Frelon as FrelonAcq
-from LimaCCDs import CallableReadEnum,CallableWriteEnum
-
+from AttrHelper import get_attr_4u, get_attr_string_value_list
 
 class Frelon(PyTango.Device_4Impl):
 
@@ -75,7 +74,7 @@ class Frelon(PyTango.Device_4Impl):
                                '2-4'     : 0xA,
                                '1-2-3-4' : 0xf} 
 
-        self.__E2vCorrection = {'ON' : True,
+        self.__E2VCorrection = {'ON' : True,
                                 'OFF' : False}
 
         self.__Spb2Config = {'PRECISION' : 0,
@@ -105,34 +104,10 @@ class Frelon(PyTango.Device_4Impl):
 
     @Core.DEB_MEMBER_FUNCT
     def getAttrStringValueList(self, attr_name):
-        valueList=[]
-        dict_name = '_' + self.__class__.__name__ + '__' + ''.join([x.title() for x in attr_name.split('_')])
-        d = getattr(self,dict_name,None)
-        if d:
-            valueList = d.keys()
-
-        return valueList
+        return get_attr_string_value_list(self, attr_name)
 
     def __getattr__(self,name) :
-        if name.startswith('read_') or name.startswith('write_') :
-            split_name = name.split('_')[1:]
-            attr_name = ''.join([x.title() for x in split_name])
-            dict_name = '_' + self.__class__.__name__ + '__' + attr_name
-            d = getattr(self,dict_name,None)
-            attr_name = self.__Attribute2FunctionBase.get('_'.join(split_name),attr_name)
-            if d:
-                if name.startswith('read_') :
-                    functionName = 'get' + attr_name
-                    function2Call = getattr(_FrelonAcq,functionName)
-                    callable_obj = CallableReadEnum(d,function2Call)
-                else:
-                    functionName = 'set' + attr_name
-                    function2Call = getattr(_FrelonAcq,functionName)
-                    callable_obj = CallableWriteEnum('_'.join(split_name),
-                                                     d,function2Call)
-                self.__dict__[name] = callable_obj
-                return callable_obj
-        raise AttributeError('Frelon has no attribute %s' % name)
+        return get_attr_4u(self, name, _FrelonAcq)
 
     @Core.DEB_MEMBER_FUNCT
     def execSerialCommand(self, command_string) :
@@ -152,12 +127,12 @@ class Frelon(PyTango.Device_4Impl):
         attr.set_value(espia_dev_nb)
 
     def read_roi_bin_offset(self,attr) :
-        attr.set_value(-1)
-        #TODO
+        roi_bin_offset = _FrelonAcq.getRoiBinOffset()
+        attr.set_value(roi_bin_offset.y)
 
     def write_roi_bin_offset(self,attr) :
-        data = attr.get_write_value()
-        #TODO
+        roi_bin_offset = Core.Point(0, attr.get_write_value())
+        _FrelonAcq.setRoiBinOffset(roi_bin_offset)
 
 
 class FrelonClass(PyTango.DeviceClass):

@@ -42,7 +42,7 @@
 #=============================================================================
 #
 
-import sys
+import sys, struct
 import PyTango
 
 from Lima import Core
@@ -102,9 +102,27 @@ class LimaTacoCCDs(PyTango.Device_4Impl, object):
 
 #--------- Add you global variables here --------------------------
     LiveDisplay  = 1
+    FrameAccum   = 2
     StripeConcat = 4
     AutoSave     = 8
     AutoHeader   = 16
+
+    LiveNbConcatFrames = 16    
+
+    ImageType2DataArrayType = {
+        Core.Bpp8:   0,
+        Core.Bpp10:  1,
+        Core.Bpp12:  1,
+        Core.Bpp14:  1,
+        Core.Bpp16:  1,
+        Core.Bpp32:  2,
+        Core.Bpp8S:  4,
+        Core.Bpp10S: 5,
+        Core.Bpp12S: 5,
+        Core.Bpp14S: 5,
+        Core.Bpp16S: 5,
+        Core.Bpp32S: 6,
+    }        
     
 #--------- TACO specific cmd_list & proxy -------------------------
     TacoSpecificDict = {}
@@ -246,13 +264,98 @@ class LimaTacoCCDs(PyTango.Device_4Impl, object):
 #    argout: DevVarCharArray 
 #------------------------------------------------------------------
     @Core.DEB_MEMBER_FUNCT
-    def DevCcdRead(self, argin):
+    def DevCcdRead(self, frame_data):
+        frame_nb, frame_size = frame_data
+        deb.Param('frame_nb=%s, frame_size=%s' % (frame_nb, frame_size))
         control = _control_ref()
-        self._data_cache = control.ReadImage(int(argin[0]))
+        self._data_cache = control.ReadImage(int(frame_nb))
 	dataflat = self._data_cache.buffer.ravel()
 	dataflat.dtype=numpy.uint8
+        if dataflat.shape[0] != frame_size:
+            raise Core.Exception, ('Client expects %d bytes, frame has %d' % 
+                                   (frame_size, dataflat.shape[0]))
 	return dataflat
 
+#------------------------------------------------------------------
+#    DevCcdReadAll command:
+#
+#    Description: 
+#    argin:    DevLong
+#    argout: DevEncoded
+#------------------------------------------------------------------
+    @Core.DEB_MEMBER_FUNCT
+    def DevCcdReadAll(self, frame_size):
+        deb.Param('frame_size=%s' % frame_size)
+        frame_dim = self.__getFrameDim()
+        nb_frames = frame_size / frame_dim.getMemSize()
+        control = _control_ref()
+        image = control.image()
+        image_type = image.getImageType()
+        da_type = self.ImageType2DataArrayType.get(image_type, "?")
+        image_size = frame_dim.getSize()
+        da_size = [image_size.getWidth(), image_size.getHeight() * nb_frames]
+    
+        # The DATA_ARRAY definition
+        #struct {
+          #unsigned int Magic= 0x44544159;
+          #unsigned short Version;
+          #unsigned  short HeaderLength;
+          #DataArrayCategory Category;
+          #DataArrayType DataType;
+          #unsigned short DataEndianness;
+          #unsigned short NbDim;
+          #unsigned short Dim[8]
+          #unsigned int DimStep[8]
+        #} DataArrayHeaderStruct;
+
+        #enum DataArrayCategory {
+            #ScalarStack = 0;
+            #Spectrum;
+            #Image;
+            #SpectrumStack;
+            #ImageStack;
+        #};
+
+        #enum DataArrayType{
+          #DARRAY_UINT8 = 0;
+          #DARRAY_UINT16;
+          #DARRAY_UINT32;
+          #DARRAY_UINT64;
+          #DARRAY_INT8;
+          #DARRAY_INT16;
+          #DARRAY_INT32;
+          #DARRAY_INT64;
+          #DARRAY_FLOAT32;
+          #DARRAY_FLOAT64;
+        #};
+
+        #prepare the structure
+        #  '>IHHHHHHHHHHHHHHIIIIIIII',
+        header_len = 64
+        data_header = struct.pack(
+          'IHHIIHHHHHHHHHHHHHHHHHHIII',
+          0x44544159,  				# 4bytes I  - magic number
+          1,           				# 2bytes H  - version
+          header_len,  				# 2 bytes H - this header size
+          2,           				# 4 bytes I - category (enum)
+          da_type,				# 4 bytes I - data type (enum)
+          0,           				# 2 bytes H - endianness
+          2,           				# 2 bytes H - nb of dims
+          da_size[0],da_size[1],0,0,0,0,0,0,	# 16 bytes Hx8 - dims
+          1,da_size[1],0,0,0,0,0,0,    		# 16 bytes H x 8 - dimsteps
+          0,0,0)    				# padding 3 x 4 bytes
+        if len(data_header) != header_len:
+            msg = ('Invalid DevEncoded DATA_ARRAY len: %d (expected %d)' %
+                   (len(data_header), header_len))
+            raise Core.Exception, msg
+        concat_frames = control.ReadImage(0, nb_frames)
+        self._concat_data_cache = data_header + concat_frames.buffer.tostring()
+        da_len = len(self._concat_data_cache) - header_len
+        if da_len != frame_size:
+            raise Core.Exception, ('Client expects %d bytes, frame has %d' % 
+                                   (frame_size, da_len))
+        return ('DATA_ARRAY',  self._concat_data_cache)
+    
 
 #------------------------------------------------------------------
 #    DevCcdReadJpeg command:
@@ -493,11 +596,8 @@ class LimaTacoCCDs(PyTango.Device_4Impl, object):
 #------------------------------------------------------------------
     @Core.DEB_MEMBER_FUNCT
     def DevCcdYSize(self):
-        #frame_dim = self.__getFrameDim()
-        #size = frame_dim.getSize()
-	control = _control_ref()
-        image = control.image()
-        size = image.getMaxImageSize()
+        frame_dim = self.__getFrameDim(max_dim=True)
+        size = frame_dim.getSize()
         return size.getHeight()
 
 #------------------------------------------------------------------
@@ -509,11 +609,8 @@ class LimaTacoCCDs(PyTango.Device_4Impl, object):
 #------------------------------------------------------------------
     @Core.DEB_MEMBER_FUNCT
     def DevCcdXSize(self):
-        #frame_dim = self.__getFrameDim()
-        #size = frame_dim.getSize()
-	control = _control_ref()
-        image = control.image()
-        size = image.getMaxImageSize()
+        frame_dim = self.__getFrameDim(max_dim=True)
+        size = frame_dim.getSize()
         return size.getWidth()
 
 #------------------------------------------------------------------
@@ -536,6 +633,9 @@ class LimaTacoCCDs(PyTango.Device_4Impl, object):
     @Core.DEB_MEMBER_FUNCT
     def DevCcdSetMode(self, mode):
         deb.Param('Setting mode: %s (0x%x)' % (mode, mode))
+        stripe_concat = (mode & self.StripeConcat)
+        frame_accum = (mode & self.FrameAccum)
+        self.setAcqMode(stripe_concat, frame_accum)
         live_display = (mode & self.LiveDisplay) != 0
         self.setLiveDisplay(live_display)
         auto_save = (mode & self.AutoSave) != 0
@@ -551,10 +651,18 @@ class LimaTacoCCDs(PyTango.Device_4Impl, object):
     @Core.DEB_MEMBER_FUNCT
     def DevCcdGetMode(self):
         mode = 0
+        stripe_concat, frame_accum = self.getAcqMode()
+        if stripe_concat:
+            mode |= self.StripeConcat
+        if frame_accum:
+            mode |= self.FrameAccum
         if self.getLiveDisplay():
             mode |= self.LiveDisplay
-        if self.getAutosave():
+        autosave_act, auto_header = self.getAutosave()
+        if autosave_act:
             mode |= self.AutoSave
+        if auto_header:
+            mode |= self.AutoHeader
         deb.Return('Getting mode: %s (0x%x)' % (mode, mode))
         return mode
 
@@ -573,9 +681,11 @@ class LimaTacoCCDs(PyTango.Device_4Impl, object):
     def getAutosave(self):
 	control = _control_ref()
         saving = control.saving()
-        autosave_act = (saving.getSavingMode() == Core.CtSaving.AutoFrame)
+        saving_mode = saving.getSavingMode()
+        auto_header = saving_mode == Core.CtSaving.AutoHeader
+        autosave_act = auto_header or (saving_mode == Core.CtSaving.AutoFrame)
         deb.Return('Getting autosave active: %s' % autosave_act)
-        return autosave_act
+        return autosave_act, auto_header
 
     @Core.DEB_MEMBER_FUNCT
     def setLiveDisplay(self, livedisplay_act):
@@ -599,6 +709,35 @@ class LimaTacoCCDs(PyTango.Device_4Impl, object):
         deb.Return('Getting live display active: %s' % livedisplay_act)
         return livedisplay_act
 
+    @Core.DEB_MEMBER_FUNCT
+    def setAcqMode(self, stripe_concat, frame_accum):
+        deb.Param('Setting acq. mode: stripe_concat=%s, frame_accum=%s' %
+                  (stripe_concat, frame_accum))
+        if not stripe_concat and not frame_accum:
+            acq_mode = Core.Single
+        elif stripe_concat and not frame_accum:
+            acq_mode = Core.Concatenation
+        elif not stripe_concat and frame_accum:
+            acq_mode = Core.Accumulation
+        else:
+            err_msg = ('Invalid acq. mode: stripe_concat=%s, frame_accum=%s' %
+                       (stripe_concat, frame_accum))
+            raise Core.Exception,err_msg
+	control = _control_ref()
+        acq = control.acquisition()
+        acq.setAcqMode(acq_mode)
+        
+    @Core.DEB_MEMBER_FUNCT
+    def getAcqMode(self):
+	control = _control_ref()
+        acq = control.acquisition()
+        acq_mode = acq.getAcqMode()
+        stripe_concat = (acq_mode == Core.Concatenation)
+        frame_accum = (acq_mode == Core.Accumulation)
+        deb.Return('Getting acq. mode: stripe_concat=%s, frame_accum=%s' %
+                  (stripe_concat, frame_accum))
+        return stripe_concat, frame_accum
+        
 
 #------------------------------------------------------------------
 #    DevCcdWriteFile command:
@@ -646,10 +785,14 @@ class LimaTacoCCDs(PyTango.Device_4Impl, object):
 #    argin:    DevLong 
 #------------------------------------------------------------------
     @Core.DEB_MEMBER_FUNCT
-    def DevCcdSetFrames(self, argin):
+    def DevCcdSetFrames(self, nb_frames):
         control = _control_ref()
         acquisition = control.acquisition()
-        acquisition.setAcqNbFrames(argin)
+        acquisition.setAcqNbFrames(nb_frames)
+        stripe_concat, frame_accum = self.getAcqMode()
+        if stripe_concat:
+            nb_concat_frames = nb_frames or self.LiveNbConcatFrames
+            acquisition.setConcatNbFrames(nb_concat_frames)
         
 #------------------------------------------------------------------
 #    DevCcdGetFrames command:
@@ -860,11 +1003,14 @@ class LimaTacoCCDs(PyTango.Device_4Impl, object):
 #    argout: DevVarDoubleArray    
 #------------------------------------------------------------------
     @Core.DEB_MEMBER_FUNCT
-    def __getFrameDim(self) :
+    def __getFrameDim(self, max_dim=False) :
         control = _control_ref()
-        interface = control.hwInterface()
-        bufferCtrl = interface.getHwCtrlObj(Core.HwCap.Buffer)
-        frame_dim = bufferCtrl.getFrameDim()
+        image = control.image()
+        if max_dim:
+            size = image.getMaxImageSize()
+            frame_dim = Core.FrameDim(size, image.getImageType())
+        else:
+            frame_dim = image.getImageDim()
         return frame_dim
 
 #------------------------------------------------------------------
@@ -906,8 +1052,11 @@ class LimaTacoCCDsClass(PyTango.DeviceClass):
             [[PyTango.DevVoid, ""],
             [PyTango.DevVoid, ""]],
         'DevCcdRead':
-            [[PyTango.DevVarLongArray, ""],
-            [PyTango.DevVarCharArray, ""]],
+            [[PyTango.DevVarLongArray, "frame_nb, frame_size"],
+            [PyTango.DevVarCharArray, "raw image"]],
+        'DevCcdReadAll':
+            [[PyTango.DevLong, "frame_size"],
+            [PyTango.DevEncoded, "concatenated image"]],
         'DevCcdReadJpeg':
             [[PyTango.DevShort, "jpeg compression"],
             [PyTango.DevVarCharArray, "jpeg compressed image"]],
