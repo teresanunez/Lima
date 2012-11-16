@@ -55,6 +55,7 @@
 #
 
 
+import PyTango
 
 def _getDictKey(dict, value):
     try:
