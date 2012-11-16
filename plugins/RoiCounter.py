@@ -143,8 +143,8 @@ class RoiCounterDeviceServer(BasePostProcess) :
                                                                 result.sum,
                                                                 result.average,
                                                                 result.std,
-                                                                result.min,
-                                                                result.max)
+                                                                result.minValue,
+                                                                result.maxValue)
                         indexArray += 6
                 return returnArray
         return numpy.array([0],dtype = numpy.double)
