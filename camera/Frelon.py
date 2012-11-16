@@ -376,6 +376,9 @@ class FrelonTacoProxy:
         deb.Trace('Getting changes: %s' % changes)
         return changes
 
+    @Core.DEB_MEMBER_FUNCT
+    def getAutoResetCtStatus(self):
+        return True
 
 FrelonTacoProxyCont = [FrelonTacoProxy()]
 

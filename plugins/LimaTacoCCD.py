@@ -131,6 +131,10 @@ class LimaTacoCCDs(PyTango.Device_4Impl, object):
     TacoCmdList = []
     TacoProxy = None
     TacoProxySearched = False
+
+#--------- Auto-reset Control Status on Error ---------------------
+    AutoResetCtStatus = False
+        
     
 #--------- Method proxy control -----------------------------------
     def __getattribute__(self, name):
@@ -146,6 +150,11 @@ class LimaTacoCCDs(PyTango.Device_4Impl, object):
                     cmd_list, proxy_cont = taco_dict[name_cont[0]]
                     LimaTacoCCDs.TacoCmdList = cmd_list.keys()
                     LimaTacoCCDs.TacoProxy = proxy = proxy_cont[0]
+                    try:
+                        auto_reset = proxy.getAutoResetCtStatus()
+                        LimaTacoCCDs.AutoResetCtStatus = auto_reset
+                    except:
+                        pass
                 TacoProxySearched = True
                 
         if proxy and name in LimaTacoCCDs.TacoCmdList:
@@ -166,6 +175,8 @@ class LimaTacoCCDs(PyTango.Device_4Impl, object):
 	self.__key_header_delimiter = '='
 	self.__entry_header_delimiter = '\n'
         self.__image_number_header_delimiter = ';'
+
+
 #------------------------------------------------------------------
 #    Device destructor
 #------------------------------------------------------------------
@@ -211,11 +222,20 @@ class LimaTacoCCDs(PyTango.Device_4Impl, object):
     def TacoState(self):
         state = self.State()
         if state == PyTango.DevState.OFF:
-            return DevCcdReady
+            taco_state = DevCcdReady
         elif state == PyTango.DevState.ON:
-            return DevCcdAcquiring
+            taco_state = DevCcdAcquiring
         else:
-            return DevCcdFault
+            control = _control_ref()
+            ct_status = control.getStatus()
+            msg = 'Acquisition error: %s' % ct_status
+            end = msg.index(', ImageCounters')
+            msg = msg[:end] + '>'
+            if self.AutoResetCtStatus:
+                control.resetStatus(True)
+            raise Core.Exception, msg
+        deb.Return('TACO state: 0x%08x (%d)' % (taco_state, taco_state))
+        return taco_state
 
 #------------------------------------------------------------------
 #    State command:
@@ -226,10 +246,11 @@ class LimaTacoCCDs(PyTango.Device_4Impl, object):
     @Core.DEB_MEMBER_FUNCT
     def State(self):
         control = _control_ref()
-        state = control.getStatus()
-        if state.AcquisitionStatus == Core.AcqReady:
+        ct_status = control.getStatus()
+        acq_status = ct_status.AcquisitionStatus
+        if acq_status == Core.AcqReady:
             return PyTango.DevState.OFF
-        elif state.AcquisitionStatus == Core.AcqRunning:
+        elif acq_status == Core.AcqRunning:
             return PyTango.DevState.ON
         else:
             return PyTango.DevState.FAULT
