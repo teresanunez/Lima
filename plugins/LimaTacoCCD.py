@@ -289,13 +289,13 @@ class LimaTacoCCDs(PyTango.Device_4Impl, object):
         frame_nb, frame_size = frame_data
         deb.Param('frame_nb=%s, frame_size=%s' % (frame_nb, frame_size))
         control = _control_ref()
-        self._data_cache = control.ReadImage(int(frame_nb))
-	dataflat = self._data_cache.buffer.ravel()
-	dataflat.dtype=numpy.uint8
-        if dataflat.shape[0] != frame_size:
+        data = control.ReadImage(int(frame_nb))
+        self._data_cache = numpy.array(data.buffer.ravel())
+	self._data_cache.dtype = numpy.uint8
+        if self._data_cache.shape[0] != frame_size:
             raise Core.Exception, ('Client expects %d bytes, frame has %d' % 
-                                   (frame_size, dataflat.shape[0]))
-	return dataflat
+                                   (frame_size, self._data_cache.shape[0]))
+	return self._data_cache
 
 #------------------------------------------------------------------
 #    DevCcdReadAll command:
