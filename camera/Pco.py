@@ -296,7 +296,7 @@ def get_control(**keys) :
         Core.DebParams.setTypeFlags(0)
         Core.DebParams.setModuleFlags(0)
 
-    Core.DebParams.setFormatFlags(0x30)
+    Core.DebParams.setFormatFlags(0x31)
 
     if _PcoCam is None:
         _PcoCam = PcoAcq.Camera("")
