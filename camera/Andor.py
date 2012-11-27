@@ -103,26 +103,26 @@ class Andor(PyTango.Device_4Impl):
         self.get_device_properties(self.get_device_class())
 
         # Apply properties if any
-        if self.preamp_gain:
-            _AndorCamera.setPGain(self.preamp_gain)
+        if self.p_gain:
+            _AndorInterface.setPGain(self.p_gain)
             
-        if self.vss:
-            _AndorCamera.setVSS(self.vss)
+        if self.vs_speed:
+            _AndorInterface.setVsSpeed(self.vs_speed)
             
-        if self.adc:
-            _AndorCamera.setAdcSpeed(self.adc)
+        if self.adc_speed:
+            _AndorInterface.setAdcSpeed(self.adc_speed)
 
         if self.temperature_sp:            
-            _AndorCamera.setTemperatureSP(self.temperature_sp)
+            _AndorInterface.setTemperatureSP(self.temperature_sp)
             
         if self.cooler:
-            _AndorCamera.setCooler(self.__Cooler[self.cooler])
+            _AndorInterface.setCooler(self.__Cooler[self.cooler])
             
         if self.fast_trigger:
-            _AndorCamera.setFastExtTrigger(self.__FastTrigger[self.fast_trigger])
+            _AndorInterface.setFastExtTrigger(self.__FastTrigger[self.fast_trigger])
             
         if self.shutter_level:
-            _AndorCamera.setShutterLevel(self.__ShutterLevel[self.shutter_level])
+            _AndorInterface.setShutterLevel(self.__ShutterLevel[self.shutter_level])
 
 #==================================================================
 #
@@ -132,7 +132,7 @@ class Andor(PyTango.Device_4Impl):
 
 
     def __getattr__(self,name) :
-        return get_attr_4u(self, name, _AndorCamera)
+        return get_attr_4u(self, name, _AndorInterface)
 
 
     ## @brief return the timing times, exposure and latency
@@ -181,15 +181,15 @@ class AndorClass(PyTango.DeviceClass):
         'camera_number':
         [PyTango.DevShort,
          'Camera number', []],
-        'preamp_gain':
+        'p_gain':
         [PyTango.DevShort,
          'Preamplifier gain', []],
-        'vss':
+        'vs_speed':
         [PyTango.DevShort,
          'Vertical shift speed', []],
-        'adc':
+        'adc_speed':
         [PyTango.DevShort,
-         'ADC speed pairs', []],
+         'ADC/HSspeed pairs', []],
         'temperature_sp':
         [PyTango.DevShort,
          'Temperature set point in Celsius', []],
@@ -285,6 +285,37 @@ class AndorClass(PyTango.DeviceClass):
              'format': '%f',
              'description': '[0]: exposure, [1]: latency',
              }],
+        'p_gain':
+        [[PyTango.DevShort,
+          PyTango.SCALAR,
+          PyTango.READ_WRITE],
+         {
+             'label':'Preamplifier Gain',
+             'unit': 'N/A',
+             'format': '%d',
+             'description': 'Premplifier Gain which can be apply to the readout, from 0-N, check the camera documentation for the valid range',
+             }],
+        'vs_speed':
+        [[PyTango.DevShort,
+          PyTango.SCALAR,
+          PyTango.READ_WRITE],
+         {
+             'label':'Vertical shift speed',
+             'unit': 'N/A',
+             'format': '%d',
+             'description': 'Vertical shift speed,  from 0-N, check the camera documentation for the valid range, -1 to set the max. speed',
+             }],
+        'adc_speed':
+        [[PyTango.DevShort,
+          PyTango.SCALAR,
+          PyTango.READ_WRITE],
+         {
+             'label': 'ADC/HSspeed pairs of possible combination',
+             'unit': 'N/A',
+             'format': '%d',
+             'description': 'ADC and Horizontal shift speed in the range [0-N], check the documentatio for more help, -1 to set the max ADC/speed pair',
+             }],
+
         }
 
 #------------------------------------------------------------------
