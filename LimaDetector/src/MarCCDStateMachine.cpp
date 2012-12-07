@@ -32,14 +32,14 @@ static const char *RcsId = "$Id $";
 //         (c) - Software Engineering Group - ESRF
 //=============================================================================
 #ifdef WIN32
-#include <tango.h>
+#include "tango.h"
 #endif
 
 #include <MarCCD.h>
 #include <MarCCDClass.h>
 
 #ifndef WIN32
-#include <tango.h>
+#include "tango.h"
 #endif
 
 /*====================================================================

@@ -67,6 +67,53 @@ namespace LimaDetector_ns
 {
 //+----------------------------------------------------------------------------
 //
+// method : 		GetAttributeAvailableValuesCmd::execute()
+// 
+// description : 	method to trigger the execution of the command.
+//                PLEASE DO NOT MODIFY this method core without pogo   
+//
+// in : - device : The device on which the command must be executed
+//		- in_any : The command input data
+//
+// returns : The command output data (packed in the Any object)
+//
+//-----------------------------------------------------------------------------
+CORBA::Any *GetAttributeAvailableValuesCmd::execute(Tango::DeviceImpl *device,const CORBA::Any &in_any)
+{
+
+	cout2 << "GetAttributeAvailableValuesCmd::execute(): arrived" << endl;
+
+	Tango::DevString	argin;
+	extract(in_any, argin);
+
+	return insert((static_cast<LimaDetector *>(device))->get_attribute_available_values(argin));
+}
+
+
+//+----------------------------------------------------------------------------
+//
+// method : 		ResetROICmd::execute()
+// 
+// description : 	method to trigger the execution of the command.
+//                PLEASE DO NOT MODIFY this method core without pogo   
+//
+// in : - device : The device on which the command must be executed
+//		- in_any : The command input data
+//
+// returns : The command output data (packed in the Any object)
+//
+//-----------------------------------------------------------------------------
+CORBA::Any *ResetROICmd::execute(Tango::DeviceImpl *device,const CORBA::Any &in_any)
+{
+
+	cout2 << "ResetROICmd::execute(): arrived" << endl;
+
+	((static_cast<LimaDetector *>(device))->reset_roi());
+	return new CORBA::Any();
+}
+
+//+----------------------------------------------------------------------------
+//
 // method : 		SetBinningCmd::execute()
 // 
 // description : 	method to trigger the execution of the command.
@@ -299,6 +346,16 @@ void LimaDetectorClass::command_factory()
 		"",
 		"",
 		Tango::OPERATOR));
+	command_list.push_back(new ResetROICmd("ResetROI",
+		Tango::DEV_VOID, Tango::DEV_VOID,
+		"",
+		"",
+		Tango::OPERATOR));
+	command_list.push_back(new GetAttributeAvailableValuesCmd("GetAttributeAvailableValues",
+		Tango::DEV_STRING, Tango::DEVVAR_STRINGARRAY,
+		"Attribute name",
+		"List of strings containing the available values",
+		Tango::EXPERT));
 
 	//	add polling if any
 	for (unsigned int i=0 ; i<command_list.size(); i++)

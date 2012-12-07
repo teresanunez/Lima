@@ -659,6 +659,14 @@ public :
  */
 	virtual bool is_SetBinning_allowed(const CORBA::Any &any);
 /**
+ *	Execution allowed for ResetROI command.
+ */
+	virtual bool is_ResetROI_allowed(const CORBA::Any &any);
+/**
+ *	Execution allowed for GetAttributeAvailableValues command.
+ */
+	virtual bool is_GetAttributeAvailableValues_allowed(const CORBA::Any &any);
+/**
  * This command gets the device state (stored in its <i>device_state</i> data member) and returns it to the caller.
  *	@return	State Code
  *	@exception DevFailed
@@ -692,6 +700,18 @@ public :
  *	@exception DevFailed
  */
 	void	set_binning(const Tango::DevVarULongArray *);
+/**
+ * Use the full frame of the detector according to current Binning.
+ *	@exception DevFailed
+ */
+	void	reset_roi();
+/**
+ * Return a list of string containing all available values of a DevString attribute.
+ *	@param	argin	Attribute name
+ *	@return	List of strings containing the available values
+ *	@exception DevFailed
+ */
+	Tango::DevVarStringArray	*get_attribute_available_values(Tango::DevString);
 
 /**
  *	Read the device properties from database

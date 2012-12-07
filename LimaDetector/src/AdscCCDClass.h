@@ -38,13 +38,13 @@
 #define _ADSCCCDCLASS_H
 
 #ifdef WIN32
-#include <tango.h>
+#include "tango.h"
 #endif
 
 #include <AdscCCD.h>
 
 #ifndef WIN32
-#include <tango.h>
+#include "tango.h"
 #endif
 
 namespace AdscCCD_ns

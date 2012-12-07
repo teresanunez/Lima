@@ -194,6 +194,7 @@ void SimulatorCCD::always_executed_hook()
         //- get interface to specific detector
         if(m_ct!=0)
             m_hw = dynamic_cast<Simulator::Interface*>(m_ct->hwInterface());
+        this->dev_state();
 
     }
     catch(Exception& e)

@@ -51,7 +51,7 @@
 #include <PilatusInterface.h>
 #include "Factory.h"
 
-#include <tango.h>
+#include "tango.h"
 
 
 #define MAX_ATTRIBUTE_STRING_LENGTH     256

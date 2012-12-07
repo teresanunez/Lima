@@ -38,13 +38,13 @@
 #define _XPADPIXELDETECTORCLASS_H
 
 #ifdef WIN32
-#include <tango.h>
+#include "tango.h"
 #endif
 
 #include <XpadPixelDetector.h>
 
 #ifndef WIN32
-#include <tango.h>
+#include "tango.h"
 #endif
 
 namespace XpadPixelDetector_ns

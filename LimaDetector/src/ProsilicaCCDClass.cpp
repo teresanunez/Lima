@@ -34,7 +34,7 @@ static const char *HttpServer = "http://www.esrf.fr/computing/cs/tango/tango_doc
 
 
 #ifdef WIN32
-#include <tango.h>
+#include "tango.h"
 #endif
 
 
@@ -42,7 +42,7 @@ static const char *HttpServer = "http://www.esrf.fr/computing/cs/tango/tango_doc
 #include <ProsilicaCCDClass.h>
 
 #ifndef WIN32
-#include <tango.h>
+#include "tango.h"
 #endif
 
 //+----------------------------------------------------------------------------

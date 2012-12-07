@@ -66,7 +66,7 @@ static const char *RcsId = "$Id:  $";
 //===================================================================
 //- Workaround to a include order problem win32 vs linux
 #ifdef WIN32
-#include <tango.h>
+#include "tango.h"
 #include <PogoHelper.h>
 #endif
 
@@ -74,7 +74,7 @@ static const char *RcsId = "$Id:  $";
 #include <XpadPixelDetectorClass.h>
 
 #ifndef WIN32
-#include <tango.h>
+#include "tango.h"
 #include <PogoHelper.h>
 #endif
 

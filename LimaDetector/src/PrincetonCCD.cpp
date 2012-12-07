@@ -52,14 +52,14 @@ static const char *RcsId = "$Id:  $";
 //
 //===================================================================
 #ifdef WIN32
-#include <tango.h>
+#include "tango.h"
 #include <PogoHelper.h>
 #endif
 #include <PrincetonCCD.h>
 #include <PrincetonCCDClass.h>
 
 #ifndef WIN32
-#include <tango.h>
+#include "tango.h"
 #include <PogoHelper.h>
 #endif
 
@@ -315,6 +315,7 @@ void PrincetonCCD::always_executed_hook()
 			m_hw = dynamic_cast<RoperScientific::Interface*>(m_ct->hwInterface());
 		//- get camera to specific detector
 		m_camera = &(m_hw->getCamera());
+		this->dev_state();
 
 	}
 	catch(Exception& e)
@@ -469,7 +470,7 @@ void PrincetonCCD::read_shutterMode(Tango::Attribute &attr)
         Tango::Except::re_throw_exception(df,
                     static_cast<const char*> ("TANGO_DEVICE_ERROR"),
                     static_cast<const char*> (string(df.errors[0].desc).c_str()),
-                    static_cast<const char*> ("PrincetonCCD::read_internalAcquisitionMode"));
+                    static_cast<const char*> ("PrincetonCCD::read_shutterMode"));
     }			
 }
 
@@ -530,7 +531,7 @@ void PrincetonCCD::write_shutterMode(Tango::WAttribute &attr)
         Tango::Except::re_throw_exception(df,
                     static_cast<const char*> ("TANGO_DEVICE_ERROR"),
                     static_cast<const char*> (string(df.errors[0].desc).c_str()),
-                    static_cast<const char*> ("PrincetonCCD::write_internalAcquisitionMode"));
+                    static_cast<const char*> ("PrincetonCCD::write_shutterMode"));
     }
     catch(Exception& e)
     {
@@ -539,7 +540,7 @@ void PrincetonCCD::write_shutterMode(Tango::WAttribute &attr)
         Tango::Except::throw_exception(
                     static_cast<const char*> ("TANGO_DEVICE_ERROR"),
                     static_cast<const char*> (e.getErrMsg().c_str()),
-                    static_cast<const char*> ("PrincetonCCD::write_internalAcquisitionMode"));
+                    static_cast<const char*> ("PrincetonCCD::write_shutterMode"));
     }		
 }
 
