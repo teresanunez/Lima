@@ -71,13 +71,13 @@ Revision:  - Author:
 <Tr><Td><b>detectorModel</b>: <Font Size=-1>Return the model of the Detector.</Font></Td>
 <Td><Center><Font Size=-1>DEV_STRING</Font></Center></Td><Td><Center><Font Size=-1>READ</Font></Center></Td><Td><Center><Font Size=-1>No</Font></Center></Td></Tr>
 
-<Tr><Td><b>sensorWidth</b>: <Font Size=-1>Detector width in pixels.</Font></Td>
+<Tr><Td><b>detectorWidthMax</b>: <Font Size=-1>Detector width in pixels.</Font></Td>
 <Td><Center><Font Size=-1>DEV_USHORT</Font></Center></Td><Td><Center><Font Size=-1>READ</Font></Center></Td><Td><Center><Font Size=-1>No</Font></Center></Td></Tr>
 
-<Tr><Td><b>sensorHeight</b>: <Font Size=-1>Detector height in pixels.</Font></Td>
+<Tr><Td><b>detectorHeightMax</b>: <Font Size=-1>Detector height in pixels.</Font></Td>
 <Td><Center><Font Size=-1>DEV_USHORT</Font></Center></Td><Td><Center><Font Size=-1>READ</Font></Center></Td><Td><Center><Font Size=-1>No</Font></Center></Td></Tr>
 
-<Tr><Td><b>depth</b>: <Font Size=-1>Pixel resolution in bits:<br> 8<br> 16<br> 32<br></Font></Td>
+<Tr><Td><b>detectorPixelDepth</b>: <Font Size=-1>Pixel resolution in bits:<br> 8<br> 16<br> 32<br></Font></Td>
 <Td><Center><Font Size=-1>DEV_USHORT</Font></Center></Td><Td><Center><Font Size=-1>READ</Font></Center></Td><Td><Center><Font Size=-1>No</Font></Center></Td></Tr>
 
 <Tr><Td><b>triggerMode</b>: <Font Size=-1>Available Trigger Modes :<br> INTERNAL_SINGLE<br> EXTERNAL_SINGLE<br> EXTERNAL_MULTI<br> EXTERNAL_GATE<br></Font></Td>
@@ -92,16 +92,16 @@ Revision:  - Author:
 <Tr><Td><b>exposureAccTime</b>: <Font Size=-1>Set/Get exposure time ONLY in mode ACCUMULATION (in ms)<br></Font></Td>
 <Td><Center><Font Size=-1>DEV_DOUBLE</Font></Center></Td><Td><Center><Font Size=-1>READ_WRITE</Font></Center></Td><Td><Center><Font Size=-1>No</Font></Center></Td></Tr>
 
-<Tr><Td><b>x</b>: <Font Size=-1>Region of Interest . (Origin X)</Font></Td>
+<Tr><Td><b>roiX</b>: <Font Size=-1>Region of Interest . (Origin X)</Font></Td>
 <Td><Center><Font Size=-1>DEV_USHORT</Font></Center></Td><Td><Center><Font Size=-1>READ</Font></Center></Td><Td><Center><Font Size=-1>No</Font></Center></Td></Tr>
 
-<Tr><Td><b>y</b>: <Font Size=-1>Region of Interest . (Origin Y)</Font></Td>
+<Tr><Td><b>roiY</b>: <Font Size=-1>Region of Interest . (Origin Y)</Font></Td>
 <Td><Center><Font Size=-1>DEV_USHORT</Font></Center></Td><Td><Center><Font Size=-1>READ</Font></Center></Td><Td><Center><Font Size=-1>No</Font></Center></Td></Tr>
 
-<Tr><Td><b>width</b>: <Font Size=-1>Region of Interest . (Width)</Font></Td>
+<Tr><Td><b>roiWidth</b>: <Font Size=-1>Region of Interest . (Width)</Font></Td>
 <Td><Center><Font Size=-1>DEV_USHORT</Font></Center></Td><Td><Center><Font Size=-1>READ</Font></Center></Td><Td><Center><Font Size=-1>No</Font></Center></Td></Tr>
 
-<Tr><Td><b>height</b>: <Font Size=-1>Region of Interest . (Height)</Font></Td>
+<Tr><Td><b>roiHeight</b>: <Font Size=-1>Region of Interest . (Height)</Font></Td>
 <Td><Center><Font Size=-1>DEV_USHORT</Font></Center></Td><Td><Center><Font Size=-1>READ</Font></Center></Td><Td><Center><Font Size=-1>No</Font></Center></Td></Tr>
 
 <Tr><Td><b>binningH</b>: <Font Size=-1>Current Binning Horizontal value</Font></Td>
