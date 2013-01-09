@@ -472,38 +472,38 @@ void LimaDetectorClass::attribute_factory(vector<Tango::Attr *> &att_list)
 	detector_model->set_default_properties(detector_model_prop);
 	att_list.push_back(detector_model);
 
-	//	Attribute : sensorWidth
-	sensorWidthAttrib	*sensor_width = new sensorWidthAttrib();
-	Tango::UserDefaultAttrProp	sensor_width_prop;
-	sensor_width_prop.set_unit(" ");
-	sensor_width_prop.set_standard_unit(" ");
-	sensor_width_prop.set_display_unit(" ");
-	sensor_width_prop.set_format("%6d");
-	sensor_width_prop.set_description("Detector width in pixels.");
-	sensor_width->set_default_properties(sensor_width_prop);
-	att_list.push_back(sensor_width);
+	//	Attribute : detectorWidthMax
+	detectorWidthMaxAttrib	*detector_width_max = new detectorWidthMaxAttrib();
+	Tango::UserDefaultAttrProp	detector_width_max_prop;
+	detector_width_max_prop.set_unit(" ");
+	detector_width_max_prop.set_standard_unit(" ");
+	detector_width_max_prop.set_display_unit(" ");
+	detector_width_max_prop.set_format("%6d");
+	detector_width_max_prop.set_description("Detector width in pixels.");
+	detector_width_max->set_default_properties(detector_width_max_prop);
+	att_list.push_back(detector_width_max);
 
-	//	Attribute : sensorHeight
-	sensorHeightAttrib	*sensor_height = new sensorHeightAttrib();
-	Tango::UserDefaultAttrProp	sensor_height_prop;
-	sensor_height_prop.set_unit(" ");
-	sensor_height_prop.set_standard_unit(" ");
-	sensor_height_prop.set_display_unit(" ");
-	sensor_height_prop.set_format("%6d");
-	sensor_height_prop.set_description("Detector height in pixels.");
-	sensor_height->set_default_properties(sensor_height_prop);
-	att_list.push_back(sensor_height);
+	//	Attribute : detectorHeightMax
+	detectorHeightMaxAttrib	*detector_height_max = new detectorHeightMaxAttrib();
+	Tango::UserDefaultAttrProp	detector_height_max_prop;
+	detector_height_max_prop.set_unit(" ");
+	detector_height_max_prop.set_standard_unit(" ");
+	detector_height_max_prop.set_display_unit(" ");
+	detector_height_max_prop.set_format("%6d");
+	detector_height_max_prop.set_description("Detector height in pixels.");
+	detector_height_max->set_default_properties(detector_height_max_prop);
+	att_list.push_back(detector_height_max);
 
-	//	Attribute : depth
-	depthAttrib	*depth = new depthAttrib();
-	Tango::UserDefaultAttrProp	depth_prop;
-	depth_prop.set_unit(" ");
-	depth_prop.set_standard_unit(" ");
-	depth_prop.set_display_unit(" ");
-	depth_prop.set_format("%6d");
-	depth_prop.set_description("Pixel resolution in bits:<br>\n8<br>\n16<br>\n32<br>");
-	depth->set_default_properties(depth_prop);
-	att_list.push_back(depth);
+	//	Attribute : detectorPixelDepth
+	detectorPixelDepthAttrib	*detector_pixel_depth = new detectorPixelDepthAttrib();
+	Tango::UserDefaultAttrProp	detector_pixel_depth_prop;
+	detector_pixel_depth_prop.set_unit(" ");
+	detector_pixel_depth_prop.set_standard_unit(" ");
+	detector_pixel_depth_prop.set_display_unit(" ");
+	detector_pixel_depth_prop.set_format("%6d");
+	detector_pixel_depth_prop.set_description("Pixel resolution in bits:<br>\n8<br>\n16<br>\n32<br>");
+	detector_pixel_depth->set_default_properties(detector_pixel_depth_prop);
+	att_list.push_back(detector_pixel_depth);
 
 	//	Attribute : triggerMode
 	triggerModeAttrib	*trigger_mode = new triggerModeAttrib();
@@ -551,41 +551,41 @@ void LimaDetectorClass::attribute_factory(vector<Tango::Attr *> &att_list)
 	exposure_acc_time->set_memorized_init(false);
 	att_list.push_back(exposure_acc_time);
 
-	//	Attribute : x
-	xAttrib	*x = new xAttrib();
-	Tango::UserDefaultAttrProp	x_prop;
-	x_prop.set_unit(" ");
-	x_prop.set_format("%6d");
-	x_prop.set_description("Region of Interest . (Origin X)");
-	x->set_default_properties(x_prop);
-	att_list.push_back(x);
+	//	Attribute : roiX
+	roiXAttrib	*roi_x = new roiXAttrib();
+	Tango::UserDefaultAttrProp	roi_x_prop;
+	roi_x_prop.set_unit(" ");
+	roi_x_prop.set_format("%6d");
+	roi_x_prop.set_description("Region of Interest . (Origin X)");
+	roi_x->set_default_properties(roi_x_prop);
+	att_list.push_back(roi_x);
 
-	//	Attribute : y
-	yAttrib	*y = new yAttrib();
-	Tango::UserDefaultAttrProp	y_prop;
-	y_prop.set_unit(" ");
-	y_prop.set_format("%6d");
-	y_prop.set_description("Region of Interest . (Origin Y)");
-	y->set_default_properties(y_prop);
-	att_list.push_back(y);
+	//	Attribute : roiY
+	roiYAttrib	*roi_y = new roiYAttrib();
+	Tango::UserDefaultAttrProp	roi_y_prop;
+	roi_y_prop.set_unit(" ");
+	roi_y_prop.set_format("%6d");
+	roi_y_prop.set_description("Region of Interest . (Origin Y)");
+	roi_y->set_default_properties(roi_y_prop);
+	att_list.push_back(roi_y);
 
-	//	Attribute : width
-	widthAttrib	*width = new widthAttrib();
-	Tango::UserDefaultAttrProp	width_prop;
-	width_prop.set_unit(" ");
-	width_prop.set_format("%6d");
-	width_prop.set_description("Region of Interest . (Width)");
-	width->set_default_properties(width_prop);
-	att_list.push_back(width);
+	//	Attribute : roiWidth
+	roiWidthAttrib	*roi_width = new roiWidthAttrib();
+	Tango::UserDefaultAttrProp	roi_width_prop;
+	roi_width_prop.set_unit(" ");
+	roi_width_prop.set_format("%6d");
+	roi_width_prop.set_description("Region of Interest . (Width)");
+	roi_width->set_default_properties(roi_width_prop);
+	att_list.push_back(roi_width);
 
-	//	Attribute : height
-	heightAttrib	*height = new heightAttrib();
-	Tango::UserDefaultAttrProp	height_prop;
-	height_prop.set_unit(" ");
-	height_prop.set_format("%6d");
-	height_prop.set_description("Region of Interest . (Height)");
-	height->set_default_properties(height_prop);
-	att_list.push_back(height);
+	//	Attribute : roiHeight
+	roiHeightAttrib	*roi_height = new roiHeightAttrib();
+	Tango::UserDefaultAttrProp	roi_height_prop;
+	roi_height_prop.set_unit(" ");
+	roi_height_prop.set_format("%6d");
+	roi_height_prop.set_description("Region of Interest . (Height)");
+	roi_height->set_default_properties(roi_height_prop);
+	att_list.push_back(roi_height);
 
 	//	Attribute : binningH
 	binningHAttrib	*binning_h = new binningHAttrib();

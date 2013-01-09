@@ -153,9 +153,9 @@ public :
 		Tango::DevString	*attr_detectorDescription_read;
 		Tango::DevString	*attr_detectorType_read;
 		Tango::DevString	*attr_detectorModel_read;
-		Tango::DevUShort	*attr_sensorWidth_read;
-		Tango::DevUShort	*attr_sensorHeight_read;
-		Tango::DevUShort	*attr_depth_read;
+		Tango::DevUShort	*attr_detectorWidthMax_read;
+		Tango::DevUShort	*attr_detectorHeightMax_read;
+		Tango::DevUShort	*attr_detectorPixelDepth_read;
 		Tango::DevString	*attr_triggerMode_read;
 		Tango::DevString	attr_triggerMode_write;
 		Tango::DevString	*attr_acquisitionMode_read;
@@ -164,10 +164,10 @@ public :
 		Tango::DevDouble	attr_exposureTime_write;
 		Tango::DevDouble	*attr_exposureAccTime_read;
 		Tango::DevDouble	attr_exposureAccTime_write;
-		Tango::DevUShort	*attr_x_read;
-		Tango::DevUShort	*attr_y_read;
-		Tango::DevUShort	*attr_width_read;
-		Tango::DevUShort	*attr_height_read;
+		Tango::DevUShort	*attr_roiX_read;
+		Tango::DevUShort	*attr_roiY_read;
+		Tango::DevUShort	*attr_roiWidth_read;
+		Tango::DevUShort	*attr_roiHeight_read;
 		Tango::DevUShort	*attr_binningH_read;
 		Tango::DevUShort	*attr_binningV_read;
 		Tango::DevLong	*attr_nbFrames_read;
@@ -451,17 +451,17 @@ public :
  */
 	virtual void read_detectorModel(Tango::Attribute &attr);
 /**
- *	Extract real attribute values for sensorWidth acquisition result.
+ *	Extract real attribute values for detectorWidthMax acquisition result.
  */
-	virtual void read_sensorWidth(Tango::Attribute &attr);
+	virtual void read_detectorWidthMax(Tango::Attribute &attr);
 /**
- *	Extract real attribute values for sensorHeight acquisition result.
+ *	Extract real attribute values for detectorHeightMax acquisition result.
  */
-	virtual void read_sensorHeight(Tango::Attribute &attr);
+	virtual void read_detectorHeightMax(Tango::Attribute &attr);
 /**
- *	Extract real attribute values for depth acquisition result.
+ *	Extract real attribute values for detectorPixelDepth acquisition result.
  */
-	virtual void read_depth(Tango::Attribute &attr);
+	virtual void read_detectorPixelDepth(Tango::Attribute &attr);
 /**
  *	Extract real attribute values for triggerMode acquisition result.
  */
@@ -495,21 +495,21 @@ public :
  */
 	virtual void write_exposureAccTime(Tango::WAttribute &attr);
 /**
- *	Extract real attribute values for x acquisition result.
+ *	Extract real attribute values for roiX acquisition result.
  */
-	virtual void read_x(Tango::Attribute &attr);
+	virtual void read_roiX(Tango::Attribute &attr);
 /**
- *	Extract real attribute values for y acquisition result.
+ *	Extract real attribute values for roiY acquisition result.
  */
-	virtual void read_y(Tango::Attribute &attr);
+	virtual void read_roiY(Tango::Attribute &attr);
 /**
- *	Extract real attribute values for width acquisition result.
+ *	Extract real attribute values for roiWidth acquisition result.
  */
-	virtual void read_width(Tango::Attribute &attr);
+	virtual void read_roiWidth(Tango::Attribute &attr);
 /**
- *	Extract real attribute values for height acquisition result.
+ *	Extract real attribute values for roiHeight acquisition result.
  */
-	virtual void read_height(Tango::Attribute &attr);
+	virtual void read_roiHeight(Tango::Attribute &attr);
 /**
  *	Extract real attribute values for binningH acquisition result.
  */
@@ -567,17 +567,17 @@ public :
  */
 	virtual bool is_detectorModel_allowed(Tango::AttReqType type);
 /**
- *	Read/Write allowed for sensorWidth attribute.
+ *	Read/Write allowed for detectorWidthMax attribute.
  */
-	virtual bool is_sensorWidth_allowed(Tango::AttReqType type);
+	virtual bool is_detectorWidthMax_allowed(Tango::AttReqType type);
 /**
- *	Read/Write allowed for sensorHeight attribute.
+ *	Read/Write allowed for detectorHeightMax attribute.
  */
-	virtual bool is_sensorHeight_allowed(Tango::AttReqType type);
+	virtual bool is_detectorHeightMax_allowed(Tango::AttReqType type);
 /**
- *	Read/Write allowed for depth attribute.
+ *	Read/Write allowed for detectorPixelDepth attribute.
  */
-	virtual bool is_depth_allowed(Tango::AttReqType type);
+	virtual bool is_detectorPixelDepth_allowed(Tango::AttReqType type);
 /**
  *	Read/Write allowed for triggerMode attribute.
  */
@@ -595,21 +595,21 @@ public :
  */
 	virtual bool is_exposureAccTime_allowed(Tango::AttReqType type);
 /**
- *	Read/Write allowed for x attribute.
+ *	Read/Write allowed for roiX attribute.
  */
-	virtual bool is_x_allowed(Tango::AttReqType type);
+	virtual bool is_roiX_allowed(Tango::AttReqType type);
 /**
- *	Read/Write allowed for y attribute.
+ *	Read/Write allowed for roiY attribute.
  */
-	virtual bool is_y_allowed(Tango::AttReqType type);
+	virtual bool is_roiY_allowed(Tango::AttReqType type);
 /**
- *	Read/Write allowed for width attribute.
+ *	Read/Write allowed for roiWidth attribute.
  */
-	virtual bool is_width_allowed(Tango::AttReqType type);
+	virtual bool is_roiWidth_allowed(Tango::AttReqType type);
 /**
- *	Read/Write allowed for height attribute.
+ *	Read/Write allowed for roiHeight attribute.
  */
-	virtual bool is_height_allowed(Tango::AttReqType type);
+	virtual bool is_roiHeight_allowed(Tango::AttReqType type);
 /**
  *	Read/Write allowed for binningH attribute.
  */

@@ -123,9 +123,9 @@ void LimaDetector::delete_device()
     //    Delete device allocated objects
     DELETE_SCALAR_ATTRIBUTE(attr_exposureTime_read);
     DELETE_SCALAR_ATTRIBUTE(attr_exposureAccTime_read);
-    DELETE_SCALAR_ATTRIBUTE(attr_sensorWidth_read);
-    DELETE_SCALAR_ATTRIBUTE(attr_sensorHeight_read);
-    DELETE_SCALAR_ATTRIBUTE(attr_depth_read);
+    DELETE_SCALAR_ATTRIBUTE(attr_detectorWidthMax_read);
+    DELETE_SCALAR_ATTRIBUTE(attr_detectorHeightMax_read);
+    DELETE_SCALAR_ATTRIBUTE(attr_detectorPixelDepth_read);
     DELETE_SCALAR_ATTRIBUTE(attr_nbFrames_read);
     DELETE_SCALAR_ATTRIBUTE(attr_currentFrame_read);
     DELETE_SCALAR_ATTRIBUTE(attr_fileGeneration_read);
@@ -134,10 +134,10 @@ void LimaDetector::delete_device()
     DELETE_DEVSTRING_ATTRIBUTE(attr_detectorModel_read);
     DELETE_DEVSTRING_ATTRIBUTE(attr_acquisitionMode_read);
     DELETE_DEVSTRING_ATTRIBUTE(attr_triggerMode_read);
-    DELETE_SCALAR_ATTRIBUTE(attr_x_read);
-    DELETE_SCALAR_ATTRIBUTE(attr_y_read);
-    DELETE_SCALAR_ATTRIBUTE(attr_width_read);
-    DELETE_SCALAR_ATTRIBUTE(attr_height_read);
+    DELETE_SCALAR_ATTRIBUTE(attr_roiX_read);
+    DELETE_SCALAR_ATTRIBUTE(attr_roiY_read);
+    DELETE_SCALAR_ATTRIBUTE(attr_roiWidth_read);
+    DELETE_SCALAR_ATTRIBUTE(attr_roiHeight_read);
     DELETE_SCALAR_ATTRIBUTE(attr_binningH_read);
 	DELETE_SCALAR_ATTRIBUTE(attr_binningV_read);
 	DELETE_SCALAR_ATTRIBUTE(attr_flipX_read);	
@@ -219,9 +219,9 @@ void LimaDetector::init_device()
 
     CREATE_SCALAR_ATTRIBUTE(attr_exposureTime_read,1.0);
     CREATE_SCALAR_ATTRIBUTE(attr_exposureAccTime_read,1.0);
-    CREATE_SCALAR_ATTRIBUTE(attr_sensorWidth_read);
-    CREATE_SCALAR_ATTRIBUTE(attr_sensorHeight_read);
-    CREATE_SCALAR_ATTRIBUTE(attr_depth_read);
+    CREATE_SCALAR_ATTRIBUTE(attr_detectorWidthMax_read);
+    CREATE_SCALAR_ATTRIBUTE(attr_detectorHeightMax_read);
+    CREATE_SCALAR_ATTRIBUTE(attr_detectorPixelDepth_read);
     CREATE_SCALAR_ATTRIBUTE(attr_nbFrames_read);
     CREATE_SCALAR_ATTRIBUTE(attr_currentFrame_read);
     CREATE_SCALAR_ATTRIBUTE(attr_fileGeneration_read);
@@ -230,10 +230,10 @@ void LimaDetector::init_device()
     CREATE_DEVSTRING_ATTRIBUTE(attr_detectorModel_read,MAX_ATTRIBUTE_STRING_LENGTH);
     CREATE_DEVSTRING_ATTRIBUTE(attr_acquisitionMode_read,MAX_ATTRIBUTE_STRING_LENGTH);
     CREATE_DEVSTRING_ATTRIBUTE(attr_triggerMode_read,MAX_ATTRIBUTE_STRING_LENGTH);
-    CREATE_SCALAR_ATTRIBUTE(attr_x_read);
-    CREATE_SCALAR_ATTRIBUTE(attr_y_read);
-    CREATE_SCALAR_ATTRIBUTE(attr_width_read);
-    CREATE_SCALAR_ATTRIBUTE(attr_height_read);
+    CREATE_SCALAR_ATTRIBUTE(attr_roiX_read);
+    CREATE_SCALAR_ATTRIBUTE(attr_roiY_read);
+    CREATE_SCALAR_ATTRIBUTE(attr_roiWidth_read);
+    CREATE_SCALAR_ATTRIBUTE(attr_roiHeight_read);
     CREATE_SCALAR_ATTRIBUTE(attr_binningH_read);
 	CREATE_SCALAR_ATTRIBUTE(attr_binningV_read);
 	CREATE_SCALAR_ATTRIBUTE(attr_flipX_read);	
@@ -402,9 +402,7 @@ void LimaDetector::init_device()
         mMyVideoMode["Y64"] 		= Y64;
         mMyVideoMode["RGB555"] 		= RGB555;
         mMyVideoMode["RGB565"] 		= RGB565;
-        /*TODO resolve compatibility with tango
-        mMyVideoMode["RGB24"] 		= RGB24;
-        */
+        ////mMyVideoMode["RGB24"] 		= RGB24;
         mMyVideoMode["RGB32"] 		= RGB32;
         mMyVideoMode["BGR24"] 		= BGR24;
         mMyVideoMode["BGR32"] 		= BGR32;
@@ -910,6 +908,7 @@ void LimaDetector::always_executed_hook()
 {
     this->dev_state();
 }
+
 //+----------------------------------------------------------------------------
 //
 // method :         LimaDetector::read_attr_hardware
@@ -1034,14 +1033,14 @@ void LimaDetector::read_detectorModel(Tango::Attribute &attr)
 
 //+----------------------------------------------------------------------------
 //
-// method :         LimaDetector::read_sensorWidth
-//
-// description :     Extract real attribute values for sensorWidth acquisition result.
+// method : 		LimaDetector::read_detectorWidthMax
+// 
+// description : 	Extract real attribute values for detectorWidthMax acquisition result.
 //
 //-----------------------------------------------------------------------------
-void LimaDetector::read_sensorWidth(Tango::Attribute &attr)
+void LimaDetector::read_detectorWidthMax(Tango::Attribute &attr)
 {
-    DEBUG_STREAM << "LimaDetector::read_sensorWidth(Tango::Attribute &attr) entering... "<< endl;
+	DEBUG_STREAM << "LimaDetector::read_detectorWidthMax(Tango::Attribute &attr) entering... "<< endl;
     try
     {
         HwDetInfoCtrlObj *hw_det_info;
@@ -1049,8 +1048,8 @@ void LimaDetector::read_sensorWidth(Tango::Attribute &attr)
         Size size;
         hw_det_info->getDetectorImageSize(size);
 
-        *attr_sensorWidth_read = size.getWidth();
-        attr.set_value(attr_sensorWidth_read);
+        *attr_detectorWidthMax_read = size.getWidth();
+        attr.set_value(attr_detectorWidthMax_read);
     }
     catch(Tango::DevFailed& df)
     {
@@ -1059,7 +1058,7 @@ void LimaDetector::read_sensorWidth(Tango::Attribute &attr)
         Tango::Except::re_throw_exception(df,
                     static_cast<const char*> ("TANGO_DEVICE_ERROR"),
                     static_cast<const char*> (string(df.errors[0].desc).c_str()),
-                    static_cast<const char*> ("LimaDetector::read_sensorWidth"));
+                    static_cast<const char*> ("LimaDetector::read_detectorWidthMax"));
     }
     catch(Exception& e)
     {
@@ -1068,20 +1067,20 @@ void LimaDetector::read_sensorWidth(Tango::Attribute &attr)
         Tango::Except::throw_exception(
                     static_cast<const char*> ("TANGO_DEVICE_ERROR"),
                     static_cast<const char*> (e.getErrMsg().c_str()),
-                    static_cast<const char*> ("LimaDetector::read_sensorWidth"));
-    }
+                    static_cast<const char*> ("LimaDetector::read_detectorWidthMax"));
+    }        
 }
 
 //+----------------------------------------------------------------------------
 //
-// method :         LimaDetector::read_sensorHeight
-//
-// description :     Extract real attribute values for sensorHeight acquisition result.
+// method : 		LimaDetector::read_detectorHeightMax
+// 
+// description : 	Extract real attribute values for detectorHeightMax acquisition result.
 //
 //-----------------------------------------------------------------------------
-void LimaDetector::read_sensorHeight(Tango::Attribute &attr)
+void LimaDetector::read_detectorHeightMax(Tango::Attribute &attr)
 {
-    DEBUG_STREAM << "LimaDetector::read_sensorHeight(Tango::Attribute &attr) entering... "<< endl;
+	DEBUG_STREAM << "LimaDetector::read_detectorHeightMax(Tango::Attribute &attr) entering... "<< endl;
     try
     {
         HwDetInfoCtrlObj *hw_det_info;
@@ -1089,8 +1088,8 @@ void LimaDetector::read_sensorHeight(Tango::Attribute &attr)
         Size size;
         hw_det_info->getDetectorImageSize(size);
 
-        *attr_sensorHeight_read = size.getHeight();
-        attr.set_value(attr_sensorHeight_read);
+        *attr_detectorHeightMax_read = size.getHeight();
+        attr.set_value(attr_detectorHeightMax_read);
     }
     catch(Tango::DevFailed& df)
     {
@@ -1099,7 +1098,7 @@ void LimaDetector::read_sensorHeight(Tango::Attribute &attr)
         Tango::Except::re_throw_exception(df,
                     static_cast<const char*> ("TANGO_DEVICE_ERROR"),
                     static_cast<const char*> (string(df.errors[0].desc).c_str()),
-                    static_cast<const char*> ("LimaDetector::read_sensorHeight"));
+                    static_cast<const char*> ("LimaDetector::read_detectorHeightMax"));
     }
     catch(Exception& e)
     {
@@ -1108,21 +1107,20 @@ void LimaDetector::read_sensorHeight(Tango::Attribute &attr)
         Tango::Except::throw_exception(
                     static_cast<const char*> ("TANGO_DEVICE_ERROR"),
                     static_cast<const char*> (e.getErrMsg().c_str()),
-                    static_cast<const char*> ("LimaDetector::read_sensorHeight"));
-    }
+                    static_cast<const char*> ("LimaDetector::read_detectorHeightMax"));
+    }        
 }
 
 //+----------------------------------------------------------------------------
 //
-// method :         LimaDetector::read_Depth
-//
-// description :     Extract real attribute values for Depth acquisition result.
+// method : 		LimaDetector::read_detectorPixelDepth
+// 
+// description : 	Extract real attribute values for detectorPixelDepth acquisition result.
 //
 //-----------------------------------------------------------------------------
-void LimaDetector::read_depth(Tango::Attribute &attr)
+void LimaDetector::read_detectorPixelDepth(Tango::Attribute &attr)
 {
-    DEBUG_STREAM << "LimaDetector::read_depth(Tango::Attribute &attr) entering... "<< endl;
-
+	DEBUG_STREAM << "LimaDetector::read_detectorPixelDepth(Tango::Attribute &attr) entering... "<< endl;
     try
     {
         HwDetInfoCtrlObj *hw_det_info;
@@ -1131,8 +1129,8 @@ void LimaDetector::read_depth(Tango::Attribute &attr)
         hw_det_info->getCurrImageType(image_type);
 
         FrameDim frame_dim;
-        *attr_depth_read = frame_dim.getImageTypeBpp(image_type);
-        attr.set_value(attr_depth_read);
+        *attr_detectorPixelDepth_read = frame_dim.getImageTypeBpp(image_type);
+        attr.set_value(attr_detectorPixelDepth_read);
     }
     catch(Tango::DevFailed& df)
     {
@@ -1141,7 +1139,7 @@ void LimaDetector::read_depth(Tango::Attribute &attr)
         Tango::Except::re_throw_exception(df,
                     static_cast<const char*> ("TANGO_DEVICE_ERROR"),
                     static_cast<const char*> (string(df.errors[0].desc).c_str()),
-                    static_cast<const char*> ("LimaDetector::read_depth"));
+                    static_cast<const char*> ("LimaDetector::read_detectorPixelDepth"));
     }
     catch(Exception& e)
     {
@@ -1150,8 +1148,8 @@ void LimaDetector::read_depth(Tango::Attribute &attr)
         Tango::Except::throw_exception(
                     static_cast<const char*> ("TANGO_DEVICE_ERROR"),
                     static_cast<const char*> (e.getErrMsg().c_str()),
-                    static_cast<const char*> ("LimaDetector::read_depth"));
-    }
+                    static_cast<const char*> ("LimaDetector::read_detectorPixelDepth"));
+    }        
 }
 
 //+----------------------------------------------------------------------------
@@ -1575,20 +1573,20 @@ void LimaDetector::write_exposureAccTime(Tango::WAttribute &attr)
 
 //+----------------------------------------------------------------------------
 //
-// method : 		LimaDetector::read_x
-//
-// description : 	Extract real attribute values for x acquisition result.
+// method : 		LimaDetector::read_roiX
+// 
+// description : 	Extract real attribute values for roiX acquisition result.
 //
 //-----------------------------------------------------------------------------
-void LimaDetector::read_x(Tango::Attribute &attr)
+void LimaDetector::read_roiX(Tango::Attribute &attr)
 {
-	DEBUG_STREAM << "LimaDetector::read_x(Tango::Attribute &attr) entering... "<< endl;
+	DEBUG_STREAM << "LimaDetector::read_roiX(Tango::Attribute &attr) entering... "<< endl;
 	try
 	{
 		Roi roi;
 		m_ct->image()->getRoi(roi);
-		*attr_x_read = roi.getTopLeft().x;
-		attr.set_value(attr_x_read);
+		*attr_roiX_read = roi.getTopLeft().x;
+		attr.set_value(attr_roiX_read);
 	}
 	catch(Tango::DevFailed& df)
 	{
@@ -1597,7 +1595,7 @@ void LimaDetector::read_x(Tango::Attribute &attr)
 		Tango::Except::re_throw_exception(df,
 					static_cast<const char*> ("TANGO_DEVICE_ERROR"),
 					static_cast<const char*> (string(df.errors[0].desc).c_str()),
-					static_cast<const char*> ("LimaDetector::read_x"));
+					static_cast<const char*> ("LimaDetector::read_roiX"));
 	}
 	catch(Exception& e)
 	{
@@ -1606,26 +1604,26 @@ void LimaDetector::read_x(Tango::Attribute &attr)
 		Tango::Except::throw_exception(
 					static_cast<const char*> ("TANGO_DEVICE_ERROR"),
 					static_cast<const char*> (e.getErrMsg().c_str()),
-					static_cast<const char*> ("LimaDetector::read_x"));
-	}
+					static_cast<const char*> ("LimaDetector::read_roiX"));
+	}        
 }
 
 //+----------------------------------------------------------------------------
 //
-// method : 		LimaDetector::read_y
-//
-// description : 	Extract real attribute values for y acquisition result.
+// method : 		LimaDetector::read_roiY
+// 
+// description : 	Extract real attribute values for roiY acquisition result.
 //
 //-----------------------------------------------------------------------------
-void LimaDetector::read_y(Tango::Attribute &attr)
+void LimaDetector::read_roiY(Tango::Attribute &attr)
 {
-	DEBUG_STREAM << "LimaDetector::read_y(Tango::Attribute &attr) entering... "<< endl;
+	DEBUG_STREAM << "LimaDetector::read_roiY(Tango::Attribute &attr) entering... "<< endl;
 	try
 	{
 		Roi roi;
 		m_ct->image()->getRoi(roi);
-		*attr_y_read = roi.getTopLeft().y;
-		attr.set_value(attr_y_read);
+		*attr_roiY_read = roi.getTopLeft().y;
+		attr.set_value(attr_roiY_read);
 	}
 	catch(Tango::DevFailed& df)
 	{
@@ -1634,7 +1632,7 @@ void LimaDetector::read_y(Tango::Attribute &attr)
 		Tango::Except::re_throw_exception(df,
 					static_cast<const char*> ("TANGO_DEVICE_ERROR"),
 					static_cast<const char*> (string(df.errors[0].desc).c_str()),
-					static_cast<const char*> ("LimaDetector::read_y"));
+					static_cast<const char*> ("LimaDetector::read_roiY"));
 	}
 	catch(Exception& e)
 	{
@@ -1643,26 +1641,26 @@ void LimaDetector::read_y(Tango::Attribute &attr)
 		Tango::Except::throw_exception(
 					static_cast<const char*> ("TANGO_DEVICE_ERROR"),
 					static_cast<const char*> (e.getErrMsg().c_str()),
-					static_cast<const char*> ("LimaDetector::read_y"));
-	}
+					static_cast<const char*> ("LimaDetector::read_roiY"));
+	}        
 }
 
 //+----------------------------------------------------------------------------
 //
-// method : 		LimaDetector::read_width
-//
-// description : 	Extract real attribute values for width acquisition result.
+// method : 		LimaDetector::read_roiWidth
+// 
+// description : 	Extract real attribute values for roiWidth acquisition result.
 //
 //-----------------------------------------------------------------------------
-void LimaDetector::read_width(Tango::Attribute &attr)
+void LimaDetector::read_roiWidth(Tango::Attribute &attr)
 {
-	DEBUG_STREAM << "LimaDetector::read_width(Tango::Attribute &attr) entering... "<< endl;
+	DEBUG_STREAM << "LimaDetector::read_roiWidth(Tango::Attribute &attr) entering... "<< endl;
 	try
 	{
 		Roi roi;
 		m_ct->image()->getRoi(roi);
-		*attr_width_read = roi.getSize().getWidth();
-		attr.set_value(attr_width_read);
+		*attr_roiWidth_read = roi.getSize().getWidth();
+		attr.set_value(attr_roiWidth_read);
 	}
 	catch(Tango::DevFailed& df)
 	{
@@ -1671,7 +1669,7 @@ void LimaDetector::read_width(Tango::Attribute &attr)
 		Tango::Except::re_throw_exception(df,
 					static_cast<const char*> ("TANGO_DEVICE_ERROR"),
 					static_cast<const char*> (string(df.errors[0].desc).c_str()),
-					static_cast<const char*> ("LimaDetector::read_width"));
+					static_cast<const char*> ("LimaDetector::read_roiWidth"));
 	}
 	catch(Exception& e)
 	{
@@ -1680,26 +1678,26 @@ void LimaDetector::read_width(Tango::Attribute &attr)
 		Tango::Except::throw_exception(
 					static_cast<const char*> ("TANGO_DEVICE_ERROR"),
 					static_cast<const char*> (e.getErrMsg().c_str()),
-					static_cast<const char*> ("LimaDetector::read_width"));
-	}
+					static_cast<const char*> ("LimaDetector::read_roiWidth"));
+	}        
 }
 
 //+----------------------------------------------------------------------------
 //
-// method : 		LimaDetector::read_height
-//
-// description : 	Extract real attribute values for height acquisition result.
+// method : 		LimaDetector::read_roiHeight
+// 
+// description : 	Extract real attribute values for roiHeight acquisition result.
 //
 //-----------------------------------------------------------------------------
-void LimaDetector::read_height(Tango::Attribute &attr)
+void LimaDetector::read_roiHeight(Tango::Attribute &attr)
 {
-	DEBUG_STREAM << "LimaDetector::read_height(Tango::Attribute &attr) entering... "<< endl;
+	DEBUG_STREAM << "LimaDetector::read_roiHeight(Tango::Attribute &attr) entering... "<< endl;
 	try
 	{
 		Roi roi;
 		m_ct->image()->getRoi(roi);
-		*attr_height_read = roi.getSize().getHeight();
-		attr.set_value(attr_height_read);
+		*attr_roiHeight_read = roi.getSize().getHeight();
+		attr.set_value(attr_roiHeight_read);
 	}
 	catch(Tango::DevFailed& df)
 	{
@@ -1708,7 +1706,7 @@ void LimaDetector::read_height(Tango::Attribute &attr)
 		Tango::Except::re_throw_exception(df,
 					static_cast<const char*> ("TANGO_DEVICE_ERROR"),
 					static_cast<const char*> (string(df.errors[0].desc).c_str()),
-					static_cast<const char*> ("LimaDetector::read_height"));
+					static_cast<const char*> ("LimaDetector::read_roiHeight"));
 	}
 	catch(Exception& e)
 	{
@@ -1717,9 +1715,10 @@ void LimaDetector::read_height(Tango::Attribute &attr)
 		Tango::Except::throw_exception(
 					static_cast<const char*> ("TANGO_DEVICE_ERROR"),
 					static_cast<const char*> (e.getErrMsg().c_str()),
-					static_cast<const char*> ("LimaDetector::read_height"));
-	}
+					static_cast<const char*> ("LimaDetector::read_roiHeight"));
+	}        
 }
+
 
 //+----------------------------------------------------------------------------
 //
@@ -2924,6 +2923,8 @@ int LimaDetector::find_index_from_property_name(Tango::DbData& dev_prop, string 
     if (i == iNbProperties) return -1;
     return i;
 }
+
+
 
 
 

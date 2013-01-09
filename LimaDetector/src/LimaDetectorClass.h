@@ -141,52 +141,52 @@ public:
 	{return (static_cast<LimaDetector *>(dev))->is_binningH_allowed(ty);}
 };
 
-class heightAttrib: public Tango::Attr
+class roiHeightAttrib: public Tango::Attr
 {
 public:
-	heightAttrib():Attr("height", Tango::DEV_USHORT, Tango::READ) {};
-	~heightAttrib() {};
+	roiHeightAttrib():Attr("roiHeight", Tango::DEV_USHORT, Tango::READ) {};
+	~roiHeightAttrib() {};
 	
 	virtual void read(Tango::DeviceImpl *dev,Tango::Attribute &att)
-	{(static_cast<LimaDetector *>(dev))->read_height(att);}
+	{(static_cast<LimaDetector *>(dev))->read_roiHeight(att);}
 	virtual bool is_allowed(Tango::DeviceImpl *dev,Tango::AttReqType ty)
-	{return (static_cast<LimaDetector *>(dev))->is_height_allowed(ty);}
+	{return (static_cast<LimaDetector *>(dev))->is_roiHeight_allowed(ty);}
 };
 
-class widthAttrib: public Tango::Attr
+class roiWidthAttrib: public Tango::Attr
 {
 public:
-	widthAttrib():Attr("width", Tango::DEV_USHORT, Tango::READ) {};
-	~widthAttrib() {};
+	roiWidthAttrib():Attr("roiWidth", Tango::DEV_USHORT, Tango::READ) {};
+	~roiWidthAttrib() {};
 	
 	virtual void read(Tango::DeviceImpl *dev,Tango::Attribute &att)
-	{(static_cast<LimaDetector *>(dev))->read_width(att);}
+	{(static_cast<LimaDetector *>(dev))->read_roiWidth(att);}
 	virtual bool is_allowed(Tango::DeviceImpl *dev,Tango::AttReqType ty)
-	{return (static_cast<LimaDetector *>(dev))->is_width_allowed(ty);}
+	{return (static_cast<LimaDetector *>(dev))->is_roiWidth_allowed(ty);}
 };
 
-class yAttrib: public Tango::Attr
+class roiYAttrib: public Tango::Attr
 {
 public:
-	yAttrib():Attr("y", Tango::DEV_USHORT, Tango::READ) {};
-	~yAttrib() {};
+	roiYAttrib():Attr("roiY", Tango::DEV_USHORT, Tango::READ) {};
+	~roiYAttrib() {};
 	
 	virtual void read(Tango::DeviceImpl *dev,Tango::Attribute &att)
-	{(static_cast<LimaDetector *>(dev))->read_y(att);}
+	{(static_cast<LimaDetector *>(dev))->read_roiY(att);}
 	virtual bool is_allowed(Tango::DeviceImpl *dev,Tango::AttReqType ty)
-	{return (static_cast<LimaDetector *>(dev))->is_y_allowed(ty);}
+	{return (static_cast<LimaDetector *>(dev))->is_roiY_allowed(ty);}
 };
 
-class xAttrib: public Tango::Attr
+class roiXAttrib: public Tango::Attr
 {
 public:
-	xAttrib():Attr("x", Tango::DEV_USHORT, Tango::READ) {};
-	~xAttrib() {};
+	roiXAttrib():Attr("roiX", Tango::DEV_USHORT, Tango::READ) {};
+	~roiXAttrib() {};
 	
 	virtual void read(Tango::DeviceImpl *dev,Tango::Attribute &att)
-	{(static_cast<LimaDetector *>(dev))->read_x(att);}
+	{(static_cast<LimaDetector *>(dev))->read_roiX(att);}
 	virtual bool is_allowed(Tango::DeviceImpl *dev,Tango::AttReqType ty)
-	{return (static_cast<LimaDetector *>(dev))->is_x_allowed(ty);}
+	{return (static_cast<LimaDetector *>(dev))->is_roiX_allowed(ty);}
 };
 
 class exposureAccTimeAttrib: public Tango::Attr
@@ -245,40 +245,40 @@ public:
 	{return (static_cast<LimaDetector *>(dev))->is_triggerMode_allowed(ty);}
 };
 
-class depthAttrib: public Tango::Attr
+class detectorPixelDepthAttrib: public Tango::Attr
 {
 public:
-	depthAttrib():Attr("depth", Tango::DEV_USHORT, Tango::READ) {};
-	~depthAttrib() {};
+	detectorPixelDepthAttrib():Attr("detectorPixelDepth", Tango::DEV_USHORT, Tango::READ) {};
+	~detectorPixelDepthAttrib() {};
 	
 	virtual void read(Tango::DeviceImpl *dev,Tango::Attribute &att)
-	{(static_cast<LimaDetector *>(dev))->read_depth(att);}
+	{(static_cast<LimaDetector *>(dev))->read_detectorPixelDepth(att);}
 	virtual bool is_allowed(Tango::DeviceImpl *dev,Tango::AttReqType ty)
-	{return (static_cast<LimaDetector *>(dev))->is_depth_allowed(ty);}
+	{return (static_cast<LimaDetector *>(dev))->is_detectorPixelDepth_allowed(ty);}
 };
 
-class sensorHeightAttrib: public Tango::Attr
+class detectorHeightMaxAttrib: public Tango::Attr
 {
 public:
-	sensorHeightAttrib():Attr("sensorHeight", Tango::DEV_USHORT, Tango::READ) {};
-	~sensorHeightAttrib() {};
+	detectorHeightMaxAttrib():Attr("detectorHeightMax", Tango::DEV_USHORT, Tango::READ) {};
+	~detectorHeightMaxAttrib() {};
 	
 	virtual void read(Tango::DeviceImpl *dev,Tango::Attribute &att)
-	{(static_cast<LimaDetector *>(dev))->read_sensorHeight(att);}
+	{(static_cast<LimaDetector *>(dev))->read_detectorHeightMax(att);}
 	virtual bool is_allowed(Tango::DeviceImpl *dev,Tango::AttReqType ty)
-	{return (static_cast<LimaDetector *>(dev))->is_sensorHeight_allowed(ty);}
+	{return (static_cast<LimaDetector *>(dev))->is_detectorHeightMax_allowed(ty);}
 };
 
-class sensorWidthAttrib: public Tango::Attr
+class detectorWidthMaxAttrib: public Tango::Attr
 {
 public:
-	sensorWidthAttrib():Attr("sensorWidth", Tango::DEV_USHORT, Tango::READ) {};
-	~sensorWidthAttrib() {};
+	detectorWidthMaxAttrib():Attr("detectorWidthMax", Tango::DEV_USHORT, Tango::READ) {};
+	~detectorWidthMaxAttrib() {};
 	
 	virtual void read(Tango::DeviceImpl *dev,Tango::Attribute &att)
-	{(static_cast<LimaDetector *>(dev))->read_sensorWidth(att);}
+	{(static_cast<LimaDetector *>(dev))->read_detectorWidthMax(att);}
 	virtual bool is_allowed(Tango::DeviceImpl *dev,Tango::AttReqType ty)
-	{return (static_cast<LimaDetector *>(dev))->is_sensorWidth_allowed(ty);}
+	{return (static_cast<LimaDetector *>(dev))->is_detectorWidthMax_allowed(ty);}
 };
 
 class detectorModelAttrib: public Tango::Attr
