@@ -2685,10 +2685,11 @@ Tango::DevState LimaDetector::dev_state()
 		{
 			CtControl::Status status;
 			m_ct->getStatus(status);
+            HwInterface::StatusType state;
+			m_hw->getStatus(state);
+
 			if (status.AcquisitionStatus == lima::AcqReady)
 			{
-				HwInterface::StatusType state;
-				m_hw->getStatus(state);
 				if(state.acq == AcqRunning && state.det == DetExposure)
 				{
 					DeviceState=Tango::RUNNING;
@@ -2715,15 +2716,16 @@ Tango::DevState LimaDetector::dev_state()
 				DeviceState=Tango::RUNNING;
 				DeviceStatus<<"Acquisition is Running ...\n"<<endl;
 			}
-            		/*else if(status.AcquisitionStatus == lima::AcqConfig)
+            else if(status.AcquisitionStatus == lima::AcqConfig)
+			{ 
+                if(state.acq == AcqConfig && state.det == DetExposure)
+				{
+					DeviceState=Tango::DISABLE;
+					DeviceStatus<<"Detector is Calibrating...\n"<<endl;
+				}
+			}
+			else //- lima::AcqFault
 			{
-				DeviceState=Tango::DISABLE;
-				DeviceStatus<<"Detector is Calibrating...\n"<<endl;
-			}*/
-			else
-			{
-				HwInterface::StatusType state;
-				m_hw->getStatus(state);
 				if(state.acq == AcqFault && state.det == DetFault)
 				{
 					DeviceState=Tango::FAULT;//INIT if state could be more accurate
