@@ -127,10 +127,17 @@ CtControl* ControlFactory::get_control( const std::string& detector_type)
             {
                 Tango::DbData db_data;
                 db_data.push_back(Tango::DbDatum("XpadModel"));
+                db_data.push_back(Tango::DbDatum("CalibrationAdjustingNumber"));
                 (Tango::Util::instance()->get_database())->get_device_property(my_device_name, db_data);
                 std::string xpad_model;
+                Tango::DevULong calibration_adjusting_number;
+
                 db_data[0] >> xpad_model;
+                db_data[1] >> calibration_adjusting_number;
+
                 my_camera_xpad                = new Xpad::Camera(xpad_model);
+                my_camera_xpad->setCalibrationAdjustingNumber(calibration_adjusting_number);
+
                 my_interface_xpad             = new Xpad::Interface(*my_camera_xpad);
                 my_control                    = new CtControl(my_interface_xpad);
                 ControlFactory::is_created    = true;

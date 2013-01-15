@@ -129,21 +129,6 @@ public :
  */
 	Tango::DevShort	acquisitionType;
 /**
- *	list of the all config G, that will be used by the command LoadAllConfigG:<BR>
- *	CMOS_DSBL<BR>
- *	AMP_TP<BR>
- *	ITHH<BR>
- *	VADJ<BR>
- *	VREF<BR>
- *	IMFP<BR>
- *	IOTA<BR>
- *	IPRE<BR>
- *	ITHL<BR>
- *	ITUNE<BR>
- *	IBUFFER<BR>
- */
-	vector<long>	allConfigG;
-/**
  *	Define the model of the XPAD (architecture)<BR>
  *	Availables models :<BR>
  *	- BACKPLANE<BR>
@@ -157,6 +142,10 @@ public :
  *	Path where the calibration files will be save, and from where the calibrations will be uploaded via an UploadCalibration command
  */
 	string	calibrationPath;
+/**
+ *	Number of Adjusting iteration for the Calibration
+ */
+	Tango::DevULong	calibrationAdjustingNumber;
 //@}
 
 /**

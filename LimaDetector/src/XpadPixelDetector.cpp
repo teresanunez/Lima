@@ -245,9 +245,9 @@ void XpadPixelDetector::get_device_property()
 	//------------------------------------------------------------------
 	Tango::DbData	dev_prop;
 	dev_prop.push_back(Tango::DbDatum("AcquisitionType"));
-	dev_prop.push_back(Tango::DbDatum("AllConfigG"));
 	dev_prop.push_back(Tango::DbDatum("XpadModel"));
 	dev_prop.push_back(Tango::DbDatum("CalibrationPath"));
+	dev_prop.push_back(Tango::DbDatum("CalibrationAdjustingNumber"));
 
 	//	Call database and extract values
 	//--------------------------------------------
@@ -268,17 +268,6 @@ void XpadPixelDetector::get_device_property()
 	}
 	//	And try to extract AcquisitionType value from database
 	if (dev_prop[i].is_empty()==false)	dev_prop[i]  >>  acquisitionType;
-
-	//	Try to initialize AllConfigG from class property
-	cl_prop = ds_class->get_class_property(dev_prop[++i].name);
-	if (cl_prop.is_empty()==false)	cl_prop  >>  allConfigG;
-	else {
-		//	Try to initialize AllConfigG from default device value
-		def_prop = ds_class->get_default_device_property(dev_prop[i].name);
-		if (def_prop.is_empty()==false)	def_prop  >>  allConfigG;
-	}
-	//	And try to extract AllConfigG value from database
-	if (dev_prop[i].is_empty()==false)	dev_prop[i]  >>  allConfigG;
 
 	//	Try to initialize XpadModel from class property
 	cl_prop = ds_class->get_class_property(dev_prop[++i].name);
@@ -302,27 +291,31 @@ void XpadPixelDetector::get_device_property()
 	//	And try to extract CalibrationPath value from database
 	if (dev_prop[i].is_empty()==false)	dev_prop[i]  >>  calibrationPath;
 
+	//	Try to initialize CalibrationAdjustingNumber from class property
+	cl_prop = ds_class->get_class_property(dev_prop[++i].name);
+	if (cl_prop.is_empty()==false)	cl_prop  >>  calibrationAdjustingNumber;
+	else {
+		//	Try to initialize CalibrationAdjustingNumber from default device value
+		def_prop = ds_class->get_default_device_property(dev_prop[i].name);
+		if (def_prop.is_empty()==false)	def_prop  >>  calibrationAdjustingNumber;
+	}
+	//	And try to extract CalibrationAdjustingNumber value from database
+	if (dev_prop[i].is_empty()==false)	dev_prop[i]  >>  calibrationAdjustingNumber;
+
 
 
 	//	End of Automatic code generation
 	//------------------------------------------------------------------
-    vector<string> myVector;
+    
 	create_property_if_empty(dev_prop,"0","AcquisitionType");
+    vector<string> myVector;
     myVector.clear();
-    myVector.push_back("0");
-    myVector.push_back("0");
-    myVector.push_back("0");
-    myVector.push_back("0");
-    myVector.push_back("0");
-    myVector.push_back("0");
-    myVector.push_back("0");
-    myVector.push_back("0");
-    myVector.push_back("0");
-    myVector.push_back("0");
-    myVector.push_back("0");
-	create_property_if_empty(dev_prop,myVector,"AllConfigG");
+    myVector.push_back("0 -> SYNC");
+    myVector.push_back("1 -> ASYNC (Not yet supported");
+	create_property_if_empty(dev_prop,myVector,"AcquisitionTypeDescription");
     create_property_if_empty(dev_prop,"TO_BE_DEFINED","XpadModel");
     create_property_if_empty(dev_prop,"/no/path/defined","CalibrationPath");
+    create_property_if_empty(dev_prop,"1","CalibrationAdjustingNumber");
 }
 //+----------------------------------------------------------------------------
 //
@@ -1346,5 +1339,6 @@ Tango::DevVarUShortArray *XpadPixelDetector::get_ithl()
 
 	return argout;
 }
+
 
 }	//	namespace

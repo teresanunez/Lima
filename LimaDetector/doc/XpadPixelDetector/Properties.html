@@ -68,21 +68,6 @@ Revision:  - Author:
 0->SYNC<BR>
 1->ASYNC (not supported yet)</Font></Td></Tr>
 
-<Tr><Td><b><a href=#Dev_DefaultValues>AllConfigG </a></b></Td>
-<Td><Font Size=-1>Array of long</Font></Td>
-<Td><Font Size=-1>list of the all config G, that will be used by the command LoadAllConfigG:<BR>
-CMOS_DSBL<BR>
-AMP_TP<BR>
-ITHH<BR>
-VADJ<BR>
-VREF<BR>
-IMFP<BR>
-IOTA<BR>
-IPRE<BR>
-ITHL<BR>
-ITUNE<BR>
-IBUFFER<BR></Font></Td></Tr>
-
 <Tr><Td><b><a href=#Dev_DefaultValues>XpadModel </a></b></Td>
 <Td><Font Size=-1>Tango::DEV_STRING</Font></Td>
 <Td><Font Size=-1>Define the model of the XPAD (architecture)<BR>
@@ -96,6 +81,10 @@ Availables models :<BR>
 <Tr><Td><b><a href=#Dev_DefaultValues>CalibrationPath </a></b></Td>
 <Td><Font Size=-1>Tango::DEV_STRING</Font></Td>
 <Td><Font Size=-1>Path where the calibration files will be save, and from where the calibrations will be uploaded via an UploadCalibration command</Font></Td></Tr>
+
+<Tr><Td><b><a href=#Dev_DefaultValues>CalibrationAdjustingNumber </a></b></Td>
+<Td><Font Size=-1>Tango::DEV_ULONG</Font></Td>
+<Td><Font Size=-1>Number of Adjusting iteration for the Calibration</Font></Td></Tr>
 
 </Table>
 
@@ -115,16 +104,16 @@ Availables models :<BR>
         <td>0</td>
     </Tr>
     <Tr>
-        <Td>AllConfigG</Td>
-        <td>0, 0, 0, 0, 0, 0, 0, 0, 0, 0</td>
-    </Tr>
-    <Tr>
         <Td>XpadModel</Td>
         <td>UNKNOWN</td>
     </Tr>
     <Tr>
         <Td>CalibrationPath</Td>
         <td>/no/path/defined</td>
+    </Tr>
+    <Tr>
+        <Td>CalibrationAdjustingNumber</Td>
+        <td>1</td>
     </Tr>
 </Table>
 
