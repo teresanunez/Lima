@@ -318,9 +318,9 @@ void BaslerCCDClass::set_default_property()
 
 	prop_name = "DetectorTimeout";
 	prop_desc = "During acquisition, this is the time before declaring that is no available image returned by detector. (in ms)";
-	prop_def  = "1000";
+	prop_def  = "11000";
 	vect_data.clear();
-	vect_data.push_back("1000");
+	vect_data.push_back("11000");
 	if (prop_def.length()>0)
 	{
 		Tango::DbDatum	data(prop_name);

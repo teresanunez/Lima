@@ -459,4 +459,6 @@ int BaslerCCD::FindIndexFromPropertyName(Tango::DbData& dev_prop, string propert
 
 
 
+
+
 }	//	namespace
