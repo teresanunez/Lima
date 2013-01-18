@@ -2688,6 +2688,23 @@ Tango::DevState LimaDetector::dev_state()
             HwInterface::StatusType state;
 			m_hw->getStatus(state);
 
+			//- FL tests
+            if(m_ct->event()->hasCapability())
+            {
+                //INFO_STREAM << "in hasCapability " << endl;
+
+                std::vector<lima::Event *> EventList;
+                m_ct->event()->getEventList(EventList);
+
+                //INFO_STREAM << "EventList.size()= " <<  EventList.size() << endl;
+                
+                for (int i = 0; i< EventList.size();++i)
+                {
+                    INFO_STREAM << "in LimaDetector::Event:" <<  EventList[i]->getMsgStr() << endl;
+                }
+            }
+
+
 			if (status.AcquisitionStatus == lima::AcqReady)
 			{
 				if(state.acq == AcqRunning && state.det == DetExposure)
@@ -2926,6 +2943,28 @@ int LimaDetector::find_index_from_property_name(Tango::DbData& dev_prop, string 
     return i;
 }
 
+/*******************************************************************
+ * \brief EventCallback constructor
+ *******************************************************************/
+/*LimaDetector::EventCallback::EventCallback() 
+{
+	DEB_CONSTRUCTOR();
+}
+
+LimaDetector::EventCallback::~EventCallback()
+{
+	DEB_DESTRUCTOR();
+}
+
+void LimaDetector::EventCallback::processEvent(lima::Event *my_event)
+{
+	DEB_MEMBER_FUNCT();
+
+    std::cout << "in LimaDetector::EventCallback::processEvent:" <<  my_event->getMsgStr() << endl;
+
+
+
+}*/
 
 
 

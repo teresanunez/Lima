@@ -38,7 +38,7 @@
 #define _PCOCLASS_H
 
 #include <tango.h>
-#include <Pco.h>
+#include "Pco.h"
 
 
 namespace Pco_ns

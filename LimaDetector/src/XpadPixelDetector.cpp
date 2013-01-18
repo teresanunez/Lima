@@ -308,11 +308,6 @@ void XpadPixelDetector::get_device_property()
 	//------------------------------------------------------------------
     
 	create_property_if_empty(dev_prop,"0","AcquisitionType");
-    vector<string> myVector;
-    myVector.clear();
-    myVector.push_back("0 -> SYNC");
-    myVector.push_back("1 -> ASYNC (Not yet supported");
-	create_property_if_empty(dev_prop,myVector,"AcquisitionTypeDescription");
     create_property_if_empty(dev_prop,"TO_BE_DEFINED","XpadModel");
     create_property_if_empty(dev_prop,"/no/path/defined","CalibrationPath");
     create_property_if_empty(dev_prop,"1","CalibrationAdjustingNumber");

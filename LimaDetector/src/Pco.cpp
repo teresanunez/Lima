@@ -57,7 +57,7 @@ static const char *RcsId = "$Id:  $";
 #include <tango.h>
 #include <PogoHelper.h>
 #endif
-#include <Pco.h>
+#include "Pco.h"
 #include <PcoClass.h>
 
 #ifndef WIN32
@@ -389,5 +389,6 @@ Tango::DevString Pco::talk(Tango::DevString argin)
 
 	return argout;
 }
+
 
 }	//	namespace

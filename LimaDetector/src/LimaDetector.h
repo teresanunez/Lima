@@ -64,6 +64,7 @@
 #include "CtImage.h"
 #include "CtVideo.h"
 #include "CtBuffer.h"
+#include "CtEvent.h"
 #include "AcqState.h"
 
 //- This Device
@@ -727,6 +728,23 @@ public :
 
     // return true if the device is correctly initialized in init_device
     bool is_device_initialized(){return m_is_device_initialized;};
+
+    /*******************************************************************
+     * \class EventCallback
+     * \brief Class that will receive the lima events
+     *******************************************************************/
+    /*class EventCallback : public lima::EventCallback
+    {
+	    DEB_CLASS_NAMESPC(DebModCamera, "EventCallback", "LimaDetector");
+
+     public:
+	    EventCallback();
+	    virtual ~EventCallback();
+
+     protected:
+         virtual void processEvent(lima::Event *my_event);
+    };*/
+
 protected :    
     //    Add your own data members here
     //-----------------------------------------

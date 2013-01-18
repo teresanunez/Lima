@@ -35,7 +35,7 @@ static const char *HttpServer = "http://www.esrf.fr/computing/cs/tango/tango_doc
 
 #include <tango.h>
 
-#include <Pco.h>
+#include "Pco.h"
 #include <PcoClass.h>
 
 
