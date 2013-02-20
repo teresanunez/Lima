@@ -33,14 +33,14 @@ static const char *RcsId = "$Id $";
 //=============================================================================
 
 #ifdef WIN32
-#include <tango.h>
+#include "tango.h"
 #endif
 
 #include <PilatusPixelDetector.h>
 #include <PilatusPixelDetectorClass.h>
 
 #ifndef WIN32
-#include <tango.h>
+#include "tango.h"
 #endif
 
 /*====================================================================

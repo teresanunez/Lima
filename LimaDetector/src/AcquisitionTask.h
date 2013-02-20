@@ -33,6 +33,7 @@
 #include <yat4tango/DeviceTask.h>
 #include <TangoExceptionsHelper.h>
 #endif
+
 using namespace lima;
 using namespace std;
 using namespace yat4tango;

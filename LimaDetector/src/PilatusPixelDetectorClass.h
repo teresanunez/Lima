@@ -38,13 +38,13 @@
 #define _PILATUSPIXELDETECTORCLASS_H
 
 #ifdef WIN32
-#include <tango.h>
+#include "tango.h"
 #endif
 
 #include <PilatusPixelDetector.h>
 
 #ifndef WIN32
-#include <tango.h>
+#include "tango.h"
 #endif
 
 

@@ -38,14 +38,14 @@
 #define _PROSILICACCDCLASS_H
 
 #ifdef WIN32
-#include <tango.h>
+#include "tango.h"
 #endif
 
 
 #include <ProsilicaCCD.h>
 
 #ifndef WIN32
-#include <tango.h>
+#include "tango.h"
 #endif
 
 namespace ProsilicaCCD_ns

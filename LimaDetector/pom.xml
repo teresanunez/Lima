@@ -1,185 +1,190 @@
 <?xml version="1.0" encoding="utf-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
-   <modelVersion>4.0.0</modelVersion>
-   <parent>
-       <groupId>fr.soleil</groupId>
-       <artifactId>super-pom-C-CPP-device</artifactId>
-       <version>RELEASE</version>
-   </parent>
+	<modelVersion>4.0.0</modelVersion>
+	<parent>
+		<groupId>fr.soleil</groupId>
+		<artifactId>super-pom-C-CPP-device</artifactId>
+		<version>RELEASE</version>
+	</parent>
 
-   <groupId>fr.soleil.device</groupId>
-   <artifactId>LimaDetector-${aol}-${mode}</artifactId>
-   <version>1.1.9</version>
-   <packaging>nar</packaging>
-   <name>LimaDetector</name>
-   <description>LimaDetector device</description>
+	<groupId>fr.soleil.device</groupId>
+	<artifactId>LimaDetector-${aol}-${mode}</artifactId>
+	<version>1.2.0</version>
+	<packaging>nar</packaging>
+	<name>LimaDetector</name>
+	<description>LimaDetector device</description>
 
-    <dependencies>
+	<dependencies>
 
-    <!--<dependency>
-        <groupId>com.basler</groupId>
-        <artifactId>Genicam-${aol}-shared-${mode}</artifactId>
-        <version>2.1.0</version>
-      </dependency>
+		<dependency>
+			<groupId>com.basler</groupId>
+			<artifactId>Genicam-${aol}-shared-${mode}</artifactId>
+			<version>2.1.0</version>
+		</dependency>
 
-      <dependency>
-        <groupId>com.basler</groupId>
-        <artifactId>Pylon-${aol}-shared-${mode}</artifactId>
-        <version>2.3.3</version>
-      </dependency>-->
+		<dependency>
+			<groupId>com.basler</groupId>
+			<artifactId>Pylon-${aol}-shared-${mode}</artifactId>
+			<version>2.3.3</version>
+		</dependency>
 			
-			<dependency>
-         <groupId>fr.soleil.lib</groupId>
-         <artifactId>YAT4Tango-${aol}-${library}-${mode}</artifactId>   
-      </dependency>
+		<dependency>
+			<groupId>fr.in2p3</groupId>
+			<artifactId>Xpix-${aol}-static-release</artifactId>
+			<version>2.0.7</version>
+		</dependency>
 
-      <dependency>
-         <groupId>fr.soleil.lib</groupId>
-         <artifactId>YAT-${aol}-${library}-${mode}</artifactId>
-      </dependency>  
+		<dependency>
+			<groupId>com.adsc-xray.lib</groupId>
+			<artifactId>AdscDriver-${aol}-shared-${mode}</artifactId>
+			<version>1.0.0</version>
+		</dependency>
+
+		<dependency>
+			<groupId>fr.soleil.lib</groupId>
+			<artifactId>YAT4Tango-${aol}-${library}-${mode}</artifactId>   
+		</dependency>
+
+		<dependency>
+			<groupId>fr.soleil.lib</groupId>
+			<artifactId>YAT-${aol}-${library}-${mode}</artifactId>
+		</dependency>  
             
-      <dependency>
-         <groupId>fr.soleil.lib</groupId>
-         <artifactId>Utils-${aol}-${library}-${mode}</artifactId>
-      </dependency>
+		<dependency>
+			<groupId>fr.soleil.lib</groupId>
+			<artifactId>Utils-${aol}-${library}-${mode}</artifactId>
+		</dependency>
             
-      <dependency>
-         <groupId>fr.soleil.lib.Lima</groupId>
-         <artifactId>LimaControl-${aol}-shared-${mode}</artifactId>
-         <version>1.1.9</version>         
-      </dependency>
+		<dependency>
+			<groupId>fr.soleil.lib.Lima</groupId>
+			<artifactId>LimaControl-${aol}-shared-${mode}</artifactId>
+			<version>1.2.0</version>         
+		</dependency>
 
-      <!--<dependency>
-         <groupId>fr.soleil.lib.Lima.Camera</groupId>
-         <artifactId>LimaBasler-${aol}-shared-${mode}</artifactId>
-         <version>1.1.9</version>
-      </dependency>
+		<dependency>
+			<groupId>fr.soleil.lib.Lima.Camera</groupId>
+			<artifactId>LimaBasler-${aol}-shared-${mode}</artifactId>
+			<version>1.2.0</version>
+		</dependency>
 
-      <dependency>
-         <groupId>fr.soleil.lib.Lima.Camera</groupId>
-         <artifactId>LimaMarccd-${aol}-shared-${mode}</artifactId>
-         <version>1.1.9</version>
-      </dependency>
+		<dependency>
+			<groupId>fr.soleil.lib.Lima.Camera</groupId>
+			<artifactId>LimaMarccd-${aol}-shared-${mode}</artifactId>
+			<version>1.2.0</version>
+		</dependency>
 
-      <dependency>
-         <groupId>fr.soleil.lib.Lima.Camera</groupId>
-         <artifactId>LimaPilatus-${aol}-shared-${mode}</artifactId>
-         <version>1.1.9</version>
-      </dependency>-->
+		<dependency>
+			 <groupId>fr.soleil.lib.Lima.Camera</groupId>
+			 <artifactId>LimaPilatus-${aol}-shared-${mode}</artifactId>
+			 <version>1.2.0</version>
+		</dependency>
     
-      <dependency>
-         <groupId>fr.soleil.lib.Lima.Camera</groupId>
-         <artifactId>LimaXpad-${aol}-shared-${mode}</artifactId>
-         <version>1.1.9</version>
-      </dependency>
+		<dependency>
+			<groupId>fr.soleil.lib.Lima.Camera</groupId>
+			<artifactId>LimaXpad-${aol}-shared-${mode}</artifactId>
+			<version>1.2.0</version>
+		</dependency>
 
-      <!--<dependency>
-         <groupId>fr.soleil.lib.Lima.Camera</groupId>
-         <artifactId>LimaAdsc-${aol}-shared-${mode}</artifactId>
-         <version>1.1.9</version>
-      </dependency>
+		<dependency>
+			<groupId>fr.soleil.lib.Lima.Camera</groupId>
+			<artifactId>LimaAdsc-${aol}-shared-${mode}</artifactId>
+			<version>1.2.0</version>
+		</dependency>
       
-      <dependency>
-         <groupId>fr.soleil.lib.Lima.Camera</groupId>
-         <artifactId>LimaProsilica-${aol}-shared-${mode}</artifactId>
-         <version>1.1.9</version>
-      </dependency>
+		<dependency>
+			<groupId>fr.soleil.lib.Lima.Camera</groupId>
+			<artifactId>LimaProsilica-${aol}-shared-${mode}</artifactId>
+			<version>1.2.0</version>
+		</dependency>
 
-      <dependency>
-         <groupId>fr.soleil.lib.Lima.Camera</groupId>
-         <artifactId>LimaRoperScientific-${aol}-shared-${mode}</artifactId>
-         <version>1.1.9</version>
-      </dependency>-->
-
+		<dependency>
+			<groupId>fr.soleil.lib.Lima.Camera</groupId>
+			<artifactId>LimaSimulator-${aol}-shared-${mode}</artifactId>
+			<version>1.2.0</version>
+		</dependency>
 			
-      <dependency>
-         <groupId>fr.soleil.lib.Lima.Camera</groupId>
-         <artifactId>LimaSimulator-${aol}-shared-${mode}</artifactId>
-         <version>1.1.9</version>
-      </dependency>
-			
-    </dependencies>
+	</dependencies>
 	
 	<scm>
-       <connection>scm:git:git://git.epn-campus.eu/repositories/Lima</connection>
-       <developerConnection>scm:git:git://git@git.epn-campus.eu/repositories/Lima</developerConnection>
-       <url>https://forge.epn-campus.eu/projects/show/lima</url>
-   </scm>
+		<connection>scm:git:git://git.epn-campus.eu/repositories/Lima</connection>
+		<developerConnection>scm:git:git://git@git.epn-campus.eu/repositories/Lima</developerConnection>
+		<url>https://forge.epn-campus.eu/projects/show/lima</url>
+	</scm>
 	
-   <build>
-       <plugins>
-            <plugin>
-                 <groupId>org.freehep</groupId>
-                 <artifactId>freehep-nar-plugin</artifactId>
-                 <configuration>
-                     <cpp>
-                        <defines>
-                           <define>USE_GIGE</define>													 
-													 <!-- define wich detector you need to ENABLE -->
-													 <!--<define>BASLER_ENABLED</define>												 
-                           <define>MARCCD_ENABLED</define>
-                           <define>PILATUS_ENABLED</define>-->
-                       	   <define>XPAD_ENABLED</define>
-                           <!--<define>ADSC_ENABLED</define>   
-                           <define>PROSILICA_ENABLED</define>
-                           <define>PRINCETON_ENABLED</define>
-                           <define>SIMULATOR_ENABLED</define>-->
-                        </defines>
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>org.freehep</groupId>
+				<artifactId>freehep-nar-plugin</artifactId>
+				<configuration>
+					<cpp>
+						<defines>
+							<define>USE_GIGE</define>													 
+							<!-- define wich detector you need to ENABLE -->
+							<define>BASLER_ENABLED</define>												 
+							<define>MARCCD_ENABLED</define>
+							<define>PILATUS_ENABLED</define>
+							<define>XPAD_ENABLED</define>
+							<define>ADSC_ENABLED</define>   
+							<define>PROSILICA_ENABLED</define>
+							<!--<define>PRINCETON_ENABLED</define>-->
+							<define>SIMULATOR_ENABLED</define>
+						</defines>
 
-                        <systemIncludePaths>
-                       
-                        	<systemIncludePath>/home/informatique/ica/langlois/ImXpad/xpix_2_0_7/imxpad_lib/xpci_lib</systemIncludePath>
-                      
-                        </systemIncludePaths>
+						<systemIncludePaths>                
+							<!--<systemIncludePath></systemIncludePath>-->            
+						</systemIncludePaths>
 
-                        <!-- exclude every detector who is NOT ENABLED -->
-                        <excludes>
-										                      
-													 <exclude>Basler*.*</exclude>			 
-													 <exclude>MarCCD*.*</exclude>                          
-													 <exclude>Pilatus*.*</exclude>                                                      	
-													 <!-- <exclude>Xpad*.*</exclude>-->                        
-													 <exclude>Adsc*.*</exclude>                    
-													 <exclude>Prosilica*.*</exclude>
-													 <exclude>Princeton*.*</exclude>
-													 <exclude>Simulator*.*</exclude>
--->
+						<!-- exclude every detector who is NOT ENABLED -->
+						<excludes>
+ 										                      
+							<!--<exclude>Basler*.*</exclude>-->
+							<!--<exclude>MarCCD*.*</exclude>-->
+							<!--<exclude>Pilatus*.*</exclude>-->
+							<!--<exclude>Xpad*.*</exclude>-->
+							<!--<exclude>Adsc*.*</exclude>-->
+							<!--<exclude>Prosilica*.*</exclude>-->
+							<exclude>Princeton*.*</exclude>
+							<!--<exclude>Simulator*.*</exclude>-->
+							<exclude>Pco*.*</exclude>
 
-                        </excludes>
 
-                        <!-- define less verbose mode for gcc-->
-                        <options>
-                            <option>-w</option>
-                        </options>
-                     </cpp>   
-                    <linker>
-                        <libs>
-<lib> 
- 							<name>xpci_lib</name>
- 							<type>static</type>
- 							<!--<directory>/home/imxpad/ICA/xpix_library_2_3/imxpad_lib/xpci_lib</directory>-->
- 							<directory>/home/informatique/ica/langlois/ImXpad/xpix_2_0_7/imxpad_lib/xpci_lib</directory>
- 						</lib>       
-                        </libs>
+						</excludes>
 
-                    </linker>                  
-                 </configuration>
-            </plugin>
+						<!-- define less verbose mode for gcc-->
+						<options>
+							<option>-w</option>
+						</options>
+					</cpp>   
+					<linker>
+						<libs>
 
-       </plugins>
-   </build>
+							<!--						<lib>
+ 						 <name>pvcam</name>
+ 						 <type>shared</type>
+ 						 <directory></directory>
+							</lib>-->
+                                     
+						</libs>
 
-   <developers>
-       <developer>
-           <id>noureddine</id>
-           <name>noureddine</name>
-           <url>http://controle/</url>
-           <organization>Synchrotron Soleil</organization>
-           <organizationUrl>http://www.synchrotron-soleil.fr</organizationUrl>
-           <roles>
-               <role>manager</role>
-           </roles>
-           <timezone>1</timezone>
-       </developer>
-   </developers>
+					</linker>                  
+				</configuration>
+			</plugin>
+
+		</plugins>
+	</build>
+
+	<developers>
+		<developer>
+			<id>noureddine</id>
+			<name>noureddine</name>
+			<url>http://controle/</url>
+			<organization>Synchrotron Soleil</organization>
+			<organizationUrl>http://www.synchrotron-soleil.fr</organizationUrl>
+			<roles>
+				<role>manager</role>
+			</roles>
+			<timezone>1</timezone>
+		</developer>
+	</developers>
 </project>

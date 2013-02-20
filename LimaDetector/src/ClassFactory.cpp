@@ -34,7 +34,7 @@ static const char *RcsId = "$Id:  $";
 //         (c) - Software Engineering Group - ESRF
 //=============================================================================
 #ifdef WIN32
-#include <tango.h>
+#include "tango.h"
 #endif
 #include <LimaDetectorClass.h>
 
@@ -70,8 +70,12 @@ static const char *RcsId = "$Id:  $";
 	#include <PrincetonCCDClass.h>
 #endif
 
+#ifdef PCO_ENABLED
+	#include <PcoClass.h>
+#endif
+
 #ifndef WIN32
-#include <tango.h>
+#include "tango.h"
 #endif
 
 /**
@@ -102,6 +106,10 @@ void Tango::DServer::class_factory()
 	add_class(MarCCD_ns::MarCCDClass::init("MarCCD"));
 #endif
 
+#ifdef ADSC_ENABLED	
+	add_class(AdscCCD_ns::AdscCCDClass::init("AdscCCD"));
+#endif
+
 #ifdef PROSILICA_ENABLED
 	add_class(ProsilicaCCD_ns::ProsilicaCCDClass::init("ProsilicaCCD"));
 #endif
@@ -110,8 +118,8 @@ void Tango::DServer::class_factory()
 	add_class(PrincetonCCD_ns::PrincetonCCDClass::init("PrincetonCCD"));
 #endif
 
-#ifdef ADSC_ENABLED	
-	add_class(AdscCCD_ns::AdscCCDClass::init("AdscCCD"));
+#ifdef PCO_ENABLED
+	add_class(Pco_ns::PcoClass::init("Pco"));
 #endif
 }
 

@@ -44,7 +44,7 @@
  //    Add your own constant definitions here.
  //-----------------------------------------------
 #ifdef WIN32
-#include <tango.h>
+#include "tango.h"
 #include "Factory.h"
 #endif
 
@@ -56,7 +56,7 @@
 #include <RoperScientificInterface.h>
 
 #ifndef WIN32
-#include <tango.h>
+#include "tango.h"
 #include "Factory.h"
 #endif
 

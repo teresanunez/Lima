@@ -7,7 +7,7 @@
   template <class T>
   class Singleton
   {
-  protected: //! protected structors because this is a base class
+  public: //! protected ctors because this is a base class
     Singleton()
     {
     }

@@ -43,7 +43,7 @@
  //    Add your own constant definitions here.
  //-----------------------------------------------
 #ifdef WIN32
-#include <tango.h>
+#include "tango.h"
 #endif
 
 #include "HwInterface.h"
@@ -53,7 +53,7 @@
 #include "Factory.h"
 
 #ifndef WIN32
-#include <tango.h>
+#include "tango.h"
 #endif
 
 

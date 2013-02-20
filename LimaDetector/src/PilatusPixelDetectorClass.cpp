@@ -32,7 +32,7 @@ static const char *HttpServer = "http://www.esrf.fr/computing/cs/tango/tango_doc
 //         (c) - Software Engineering Group - ESRF
 //=============================================================================
 #ifdef WIN32
-#include <tango.h>
+#include "tango.h"
 #endif
 
 
@@ -40,7 +40,7 @@ static const char *HttpServer = "http://www.esrf.fr/computing/cs/tango/tango_doc
 #include <PilatusPixelDetectorClass.h>
 
 #ifndef WIN32
-#include <tango.h>
+#include "tango.h"
 #endif
 
 //+----------------------------------------------------------------------------

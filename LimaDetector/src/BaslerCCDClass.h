@@ -34,7 +34,7 @@
 //         (c) - Software Engineering Group - ESRF
 //=============================================================================
 #ifdef WIN32
-#include <tango.h>
+#include "tango.h"
 #endif
 
 #ifndef _BASLERCCDCLASS_H
@@ -43,7 +43,7 @@
 #include <BaslerCCD.h>
 
 #ifndef WIN32
-#include <tango.h>
+#include "tango.h"
 #endif
 
 namespace BaslerCCD_ns

@@ -320,6 +320,54 @@ public:
 //=========================================
 //	Define classes for commands
 //=========================================
+class GetAttributeAvailableValuesCmd : public Tango::Command
+{
+public:
+	GetAttributeAvailableValuesCmd(const char   *name,
+	               Tango::CmdArgType in,
+				   Tango::CmdArgType out,
+				   const char        *in_desc,
+				   const char        *out_desc,
+				   Tango::DispLevel  level)
+	:Command(name,in,out,in_desc,out_desc, level)	{};
+
+	GetAttributeAvailableValuesCmd(const char   *name,
+	               Tango::CmdArgType in,
+				   Tango::CmdArgType out)
+	:Command(name,in,out)	{};
+	~GetAttributeAvailableValuesCmd() {};
+	
+	virtual CORBA::Any *execute (Tango::DeviceImpl *dev, const CORBA::Any &any);
+	virtual bool is_allowed (Tango::DeviceImpl *dev, const CORBA::Any &any)
+	{return (static_cast<LimaDetector *>(dev))->is_GetAttributeAvailableValues_allowed(any);}
+};
+
+
+
+class ResetROICmd : public Tango::Command
+{
+public:
+	ResetROICmd(const char   *name,
+	               Tango::CmdArgType in,
+				   Tango::CmdArgType out,
+				   const char        *in_desc,
+				   const char        *out_desc,
+				   Tango::DispLevel  level)
+	:Command(name,in,out,in_desc,out_desc, level)	{};
+
+	ResetROICmd(const char   *name,
+	               Tango::CmdArgType in,
+				   Tango::CmdArgType out)
+	:Command(name,in,out)	{};
+	~ResetROICmd() {};
+	
+	virtual CORBA::Any *execute (Tango::DeviceImpl *dev, const CORBA::Any &any);
+	virtual bool is_allowed (Tango::DeviceImpl *dev, const CORBA::Any &any)
+	{return (static_cast<LimaDetector *>(dev))->is_ResetROI_allowed(any);}
+};
+
+
+
 class SetBinningCmd : public Tango::Command
 {
 public:

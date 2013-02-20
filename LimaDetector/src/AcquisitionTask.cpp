@@ -10,7 +10,6 @@
 //        Arafat NOUREDDINE - SOLEIL (MEDIANE SYSTEME)
 //
 // ============================================================================
-#include <yat/threading/Mutex.h>
 #include <AcquisitionTask.h>
                     
 namespace LimaDetector_ns {

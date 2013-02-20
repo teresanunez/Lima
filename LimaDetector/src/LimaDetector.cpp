@@ -45,15 +45,17 @@ static const char *RcsId = "$Id:  $";
 //	The following table gives the correspondence
 //	between commands and method name.
 //
-//  Command name|  Method name
+//  Command name                 |  Method name
 //	----------------------------------------
-//  State       |  dev_state()
-//  Status      |  dev_status()
-//  Snap        |  snap()
-//  Start       |  start()
-//  Stop        |  stop()
-//  SetROI      |  set_roi()
-//  SetBinning  |  set_binning()
+//  State                        |  dev_state()
+//  Status                       |  dev_status()
+//  Snap                         |  snap()
+//  Start                        |  start()
+//  Stop                         |  stop()
+//  SetROI                       |  set_roi()
+//  SetBinning                   |  set_binning()
+//  ResetROI                     |  reset_roi()
+//  GetAttributeAvailableValues  |  get_attribute_available_values()
 //
 //===================================================================
 #ifdef WIN32
@@ -519,19 +521,19 @@ void LimaDetector::init_device()
 		fileGeneration.set_write_value(*attr_fileGeneration_read);
 		write_fileGeneration(fileGeneration);
 
-		/********* TODO : activate when Lima flip is correct
-		INFO_STREAM<<"Write tango hardware at Init - flipX."<<endl;
-		Tango::WAttribute &flipX = dev_attr->get_w_attr_by_name("flipX");
-		*attr_flipX_read = memorizedFlipX;
-		flipX.set_write_value(*attr_flipX_read);
-		write_flipX(flipX);
+//		// TODO : activate when Lima flip is correct
+//		INFO_STREAM<<"Write tango hardware at Init - flipX."<<endl;
+//		Tango::WAttribute &flipX = dev_attr->get_w_attr_by_name("flipX");
+//		*attr_flipX_read = memorizedFlipX;
+//		flipX.set_write_value(*attr_flipX_read);
+//		write_flipX(flipX);
+//
+//		INFO_STREAM<<"Write tango hardware at Init - flipY."<<endl;
+//		Tango::WAttribute &flipY = dev_attr->get_w_attr_by_name("flipY");
+//		*attr_flipY_read = memorizedFlipY;
+//		flipY.set_write_value(*attr_flipY_read);
+//		write_flipY(flipY);
 
-		INFO_STREAM<<"Write tango hardware at Init - flipY."<<endl;
-		Tango::WAttribute &flipY = dev_attr->get_w_attr_by_name("flipY");
-		*attr_flipY_read = memorizedFlipY;
-		flipY.set_write_value(*attr_flipY_read);
-		write_flipY(flipY);
-		**********/
     }
     set_state(Tango::STANDBY);	
 }
@@ -906,7 +908,7 @@ void LimaDetector::get_device_property()
 //-----------------------------------------------------------------------------
 void LimaDetector::always_executed_hook()
 {
-
+    this->dev_state();
 }
 //+----------------------------------------------------------------------------
 //
@@ -2120,10 +2122,13 @@ void LimaDetector::write_flipX(Tango::WAttribute &attr)
 	DEBUG_STREAM << "LimaDetector::write_flipX(Tango::WAttribute &attr) entering... "<< endl;
     try
     {
+    	//TODO : activate when flip is correct
+
 		//- throw exception
 		Tango::Except::throw_exception( (const char*) ("CONFIGURATION_ERROR"),
 										(const char*) ("This functionnality is not already Available !\n"),
-										(const char*) ("LimaDetector::write_flipX"));     
+										(const char*) ("LimaDetector::write_flipX"));
+
 		
 		attr.get_write_value(attr_flipX_write);
 
@@ -2192,7 +2197,8 @@ void LimaDetector::write_flipY(Tango::WAttribute &attr)
 	DEBUG_STREAM << "LimaDetector::write_flipY(Tango::WAttribute &attr) entering... "<< endl;
     try
     {
-        
+    	//TODO : activate when flip is correct
+
 		//- throw exception
 		Tango::Except::throw_exception( (const char*) ("CONFIGURATION_ERROR"),
 										(const char*) ("This functionnality is not already Available !\n"),
@@ -2325,7 +2331,7 @@ void LimaDetector::start()
         //- force NO saving files in continuous mode !
         m_saving_par.savingMode        = CtSaving::Manual;
         m_ct->saving()->setParameters(m_saving_par);
-
+        
         //- in START "LIVE" mode, we request (0) as frames number
         m_ct->acquisition()->setAcqNbFrames(0);
 
@@ -2527,6 +2533,113 @@ void LimaDetector::set_binning(const Tango::DevVarULongArray *argin)
 	}		
 }
 
+//+------------------------------------------------------------------
+/**
+ *	method:	LimaDetector::reset_roi
+ *
+ *	description:	method to execute "ResetROI"
+ *	Use the full frame of the detector according to current Binning.
+ *
+ *
+ */
+//+------------------------------------------------------------------
+void LimaDetector::reset_roi()
+{
+	DEBUG_STREAM << "LimaDetector::reset_roi(): entering... !" << endl;
+
+	//	Add your own code to control device here
+	try
+	{
+		Size size;
+		m_ct->image()->getMaxImageSize(size);
+		Bin bin;
+		m_ct->image()->getBin(bin);
+		Roi roi(Point(0, 0), Size(size.getWidth()/ bin.getX(), size.getHeight()/ bin.getY()));
+		m_ct->image()->setRoi(roi);
+
+        //- update Roi property
+        vector<short> myVector;
+    	myVector.clear();
+    	myVector.push_back(roi.getTopLeft().x);
+    	myVector.push_back(roi.getTopLeft().y);
+    	myVector.push_back(roi.getSize().getWidth());
+    	myVector.push_back(roi.getSize().getHeight());
+		store_value_as_property(myVector,"MemorizedRoi");
+	}
+	catch(Tango::DevFailed& df)
+	{
+		ERROR_STREAM << df << endl;
+		//- rethrow exception
+		Tango::Except::re_throw_exception(df,
+					static_cast<const char*> ("TANGO_DEVICE_ERROR"),
+					static_cast<const char*> (string(df.errors[0].desc).c_str()),
+					static_cast<const char*> ("LimaDetector::reset_roi"));
+	}
+	catch(Exception& e)
+	{
+		ERROR_STREAM << e.getErrMsg() << endl;
+		//- throw exception
+		Tango::Except::throw_exception(
+					static_cast<const char*> ("TANGO_DEVICE_ERROR"),
+					static_cast<const char*> (e.getErrMsg().c_str()),
+					static_cast<const char*> ("LimaDetector::reset_roi"));
+	}
+}
+
+
+//+------------------------------------------------------------------
+/**
+ *	method:	LimaDetector::get_attribute_available_values
+ *
+ *	description:	method to execute "GetAttributeAvailableValues"
+ *	Return a list of string containing all available values of a DevString attribute.
+ *
+ * @param	argin	Attribute name
+ * @return	List of strings containing the available values
+ *
+ */
+//+------------------------------------------------------------------
+Tango::DevVarStringArray *LimaDetector::get_attribute_available_values(Tango::DevString argin)
+{
+	//	POGO has generated a method core with argout allocation.
+	//	If you would like to use a static reference without copying,
+	//	See "TANGO Device Server Programmer's Manual"
+	//		(chapter : Writing a TANGO DS / Exchanging data)
+	//------------------------------------------------------------
+	DEBUG_STREAM << "LimaDetector::get_attribute_available_values(): entering... !" << endl;
+
+	//	Add your own code to control device here
+	Tango::DevVarStringArray	*argout  = new Tango::DevVarStringArray();
+	try
+	{
+		std::string attribute_name = argin;
+		transform(attribute_name.begin(), attribute_name.end(),attribute_name.begin(), ::toupper);
+		if(attribute_name == "TRIGGERMODE")
+		{
+			argout->length(4);
+			(*argout)[0] = CORBA::string_dup("INTERNAL_SINGLE");
+			(*argout)[1] = CORBA::string_dup("EXTERNAL_SINGLE");
+			(*argout)[2] = CORBA::string_dup("EXTERNAL_MULTI");
+			(*argout)[3] = CORBA::string_dup("EXTERNAL_GATE");
+		}
+		else if(attribute_name == "ACQUISITIONMODE")
+		{
+			argout->length(2);
+			(*argout)[0] = CORBA::string_dup("SINGLE");
+			(*argout)[1] = CORBA::string_dup("ACCUMULATION");
+		}
+	}
+	catch(Tango::DevFailed& df)
+	{
+		ERROR_STREAM << df << endl;
+		//- rethrow exception
+		Tango::Except::re_throw_exception(df,
+					static_cast<const char*> ("TANGO_DEVICE_ERROR"),
+					static_cast<const char*> (string(df.errors[0].desc).c_str()),
+					static_cast<const char*> ("LimaDetector::get_attribute_available_values"));
+	}
+	return argout;
+}
 
 //+------------------------------------------------------------------
 /**
@@ -2811,6 +2924,7 @@ int LimaDetector::find_index_from_property_name(Tango::DbData& dev_prop, string 
     if (i == iNbProperties) return -1;
     return i;
 }
+
 
 
 

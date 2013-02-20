@@ -38,12 +38,12 @@
 #define _PRINCETONCCDCLASS_H
 
 #ifdef WIN32
-#include <tango.h>
+#include "tango.h"
 #endif
 #include <PrincetonCCD.h>
 
 #ifndef WIN32
-#include <tango.h>
+#include "tango.h"
 #endif
 
 namespace PrincetonCCD_ns
