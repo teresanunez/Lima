@@ -222,6 +222,12 @@ class LimaCCDs(PyTango.Device_4Impl) :
                                'EDF' : Core.CtSaving.EDF,
                                'CBF' : Core.CtSaving.CBFFormat}
 
+	try:
+	     self.__SavingFormat['EDFGZ'] = Core.CtSaving.EDFGZ
+             self.__SavingFormatDefaultSuffix[Core.CtSaving.EDFGZ] = '.edfgz'
+	except AttributeError:
+	     pass
+
         self.__SavingFormatDefaultSuffix = {Core.CtSaving.RAW : '.raw',
                                             Core.CtSaving.EDF : '.edf',
                                             Core.CtSaving.CBFFormat : '.cbf'}

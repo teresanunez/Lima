@@ -498,6 +498,8 @@ class LimaTacoCCDs(PyTango.Device_4Impl, object):
             pars.overwritePolicy = Core.CtSaving.Abort
         if pars.suffix.lower()[-4:] == '.edf':
             pars.fileFormat = Core.CtSaving.EDF
+        elif pars.suffix.lower()[-6:] == '.edfgz':
+            pars.fileFormat = Core.CtSaving.EDFGZ
         elif pars.suffix.lower()[-4:] == '.cbf':
             pars.fileFormat = Core.CtSaving.CBFFormat
         else:
