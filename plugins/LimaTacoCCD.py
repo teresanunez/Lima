@@ -774,6 +774,20 @@ class LimaTacoCCDs(PyTango.Device_4Impl, object):
         saving.writeFrame(frame_nb,1,synchronous)
 
 #------------------------------------------------------------------
+#    DevCcdWriteAll command:
+#
+#    Description: 
+#------------------------------------------------------------------
+    @Core.DEB_MEMBER_FUNCT
+    def DevCcdWriteAll(self):
+	control = _control_ref()
+	acq = control.acquisition()
+	nbConcat = acq.getConcatNbFrames()
+
+        saving = control.saving()
+        saving.writeFrame(0,nbConcat)
+
+#------------------------------------------------------------------
 #    DevCcdGetBin command:
 #
 #    Description: 
@@ -1128,6 +1142,9 @@ class LimaTacoCCDsClass(PyTango.DeviceClass):
             [PyTango.DevLong, ""]],
         'DevCcdWriteFile':
             [[PyTango.DevLong, "frame to write"],
+            [PyTango.DevVoid, ""]],
+	'DevCcdWriteAll':
+            [[PyTango.DevVoid, ""],
             [PyTango.DevVoid, ""]],
         'DevCcdGetBin':
             [[PyTango.DevVoid, ""],
