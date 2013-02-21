@@ -270,11 +270,13 @@ protected :
     
     //- Store the values into the property
     //- Properties stuff    
-    int                FindIndexFromPropertyName(Tango::DbData& dev_prop, string property_name);
+    int                 find_index_from_property_name(Tango::DbData& dev_prop, string property_name);
     template <class T>
-    void            create_property_if_empty(Tango::DbData& dev_prop,T value, string property_name);    
+    void                create_property_if_empty(Tango::DbData& dev_prop,T value, string property_name);    
     template <class T>
-    void            store_value_as_property(T value, string property_name);
+    void                set_property(string property_name, T value);
+    template <class T>
+    T                   get_property(string property_name) ;
 	
     //state & status stuff
     bool                        m_is_device_initialized ;
@@ -284,8 +286,8 @@ protected :
     CtControl*                  m_ct;
     RoperScientific::Camera*    m_camera;	
 	
-	std::string                 m_acquisition_mode;	//aquisition mode name 	(STANDARD, CONTINUOUS, FOCUS)
-	std::string	                m_shutter_mode;	 //shutter mode name 	(OPEN_NEVER, OPEN_PRE_EXPOSURE, OPEN_NO_CHANGE)
+    std::string                 m_acquisition_mode;	//aquisition mode name 	(STANDARD, CONTINUOUS, FOCUS)
+    std::string	                m_shutter_mode;	 //shutter mode name 	(OPEN_NEVER, OPEN_PRE_EXPOSURE, OPEN_NO_CHANGE)
     
 };
 

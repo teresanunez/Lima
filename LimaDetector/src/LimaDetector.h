@@ -165,6 +165,8 @@ public :
 		Tango::DevDouble	attr_exposureTime_write;
 		Tango::DevDouble	*attr_exposureAccTime_read;
 		Tango::DevDouble	attr_exposureAccTime_write;
+		Tango::DevDouble	*attr_latencyTime_read;
+		Tango::DevDouble	attr_latencyTime_write;
 		Tango::DevUShort	*attr_roiX_read;
 		Tango::DevUShort	*attr_roiY_read;
 		Tango::DevUShort	*attr_roiWidth_read;
@@ -352,6 +354,10 @@ public :
  */
 	Tango::DevDouble	memorizedExposureAccTime;
 /**
+ *	Memorize/Define the latencyTime attribute  at Init device<br>
+ */
+	Tango::DevDouble	memorizedLatencyTime;
+/**
  *	Memorize/Define the nbFrames attribute  at Init device<br>
  */
 	Tango::DevLong	memorizedNbFrames;
@@ -496,6 +502,14 @@ public :
  */
 	virtual void write_exposureAccTime(Tango::WAttribute &attr);
 /**
+ *	Extract real attribute values for latencyTime acquisition result.
+ */
+	virtual void read_latencyTime(Tango::Attribute &attr);
+/**
+ *	Write latencyTime attribute values to hardware.
+ */
+	virtual void write_latencyTime(Tango::WAttribute &attr);
+/**
  *	Extract real attribute values for roiX acquisition result.
  */
 	virtual void read_roiX(Tango::Attribute &attr);
@@ -595,6 +609,10 @@ public :
  *	Read/Write allowed for exposureAccTime attribute.
  */
 	virtual bool is_exposureAccTime_allowed(Tango::AttReqType type);
+/**
+ *	Read/Write allowed for latencyTime attribute.
+ */
+	virtual bool is_latencyTime_allowed(Tango::AttReqType type);
 /**
  *	Read/Write allowed for roiX attribute.
  */
@@ -754,8 +772,10 @@ protected :
     template <class T>
     void                create_property_if_empty(Tango::DbData& dev_prop,T value, string property_name);    
     template <class T>
-    void                store_value_as_property(T value, string property_name);    
-
+    void                set_property(string property_name, T value);
+    template <class T>
+    T                   get_property(string property_name) ;
+    
     //Create Yat::task to manage device Start/Snap/Stop commands
     bool                create_acquisition_task(void);    
         
@@ -763,7 +783,7 @@ protected :
     void                print_acq_conf();
 
     //get the last frame number acquired
-    long long			get_last_image_counter(void);
+    long long           get_last_image_counter(void);
     
     //state & status stuff
     bool                                m_is_device_initialized ;

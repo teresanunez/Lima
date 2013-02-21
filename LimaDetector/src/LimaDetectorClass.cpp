@@ -551,6 +551,19 @@ void LimaDetectorClass::attribute_factory(vector<Tango::Attr *> &att_list)
 	exposure_acc_time->set_memorized_init(false);
 	att_list.push_back(exposure_acc_time);
 
+	//	Attribute : latencyTime
+	latencyTimeAttrib	*latency_time = new latencyTimeAttrib();
+	Tango::UserDefaultAttrProp	latency_time_prop;
+	latency_time_prop.set_unit("ms");
+	latency_time_prop.set_standard_unit("ms");
+	latency_time_prop.set_display_unit("ms");
+	latency_time_prop.set_format("%7.2f");
+	latency_time_prop.set_description("Set/Get latency time (in ms).<br>");
+	latency_time->set_default_properties(latency_time_prop);
+	latency_time->set_memorized();
+	latency_time->set_memorized_init(false);
+	att_list.push_back(latency_time);
+
 	//	Attribute : roiX
 	roiXAttrib	*roi_x = new roiXAttrib();
 	Tango::UserDefaultAttrProp	roi_x_prop;
@@ -984,6 +997,21 @@ void LimaDetectorClass::set_default_property()
 	prop_def  = "100";
 	vect_data.clear();
 	vect_data.push_back("100");
+	if (prop_def.length()>0)
+	{
+		Tango::DbDatum	data(prop_name);
+		data << vect_data ;
+		dev_def_prop.push_back(data);
+		add_wiz_dev_prop(prop_name, prop_desc,  prop_def);
+	}
+	else
+		add_wiz_dev_prop(prop_name, prop_desc);
+
+	prop_name = "MemorizedLatencyTime";
+	prop_desc = "Memorize/Define the latencyTime attribute  at Init device<br>";
+	prop_def  = "0";
+	vect_data.clear();
+	vect_data.push_back("0");
 	if (prop_def.length()>0)
 	{
 		Tango::DbDatum	data(prop_name);

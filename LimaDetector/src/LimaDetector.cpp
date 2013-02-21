@@ -123,6 +123,7 @@ void LimaDetector::delete_device()
     //    Delete device allocated objects
     DELETE_SCALAR_ATTRIBUTE(attr_exposureTime_read);
     DELETE_SCALAR_ATTRIBUTE(attr_exposureAccTime_read);
+    DELETE_SCALAR_ATTRIBUTE(attr_latencyTime_read);    
     DELETE_SCALAR_ATTRIBUTE(attr_detectorWidthMax_read);
     DELETE_SCALAR_ATTRIBUTE(attr_detectorHeightMax_read);
     DELETE_SCALAR_ATTRIBUTE(attr_detectorPixelDepth_read);
@@ -219,6 +220,7 @@ void LimaDetector::init_device()
 
     CREATE_SCALAR_ATTRIBUTE(attr_exposureTime_read,1.0);
     CREATE_SCALAR_ATTRIBUTE(attr_exposureAccTime_read,1.0);
+    CREATE_SCALAR_ATTRIBUTE(attr_latencyTime_read,1.0);    
     CREATE_SCALAR_ATTRIBUTE(attr_detectorWidthMax_read);
     CREATE_SCALAR_ATTRIBUTE(attr_detectorHeightMax_read);
     CREATE_SCALAR_ATTRIBUTE(attr_detectorPixelDepth_read);
@@ -507,6 +509,12 @@ void LimaDetector::init_device()
 		exposureAccTime.set_write_value(*attr_exposureAccTime_read);
 		write_exposureAccTime(exposureAccTime);
 
+		INFO_STREAM<<"Write tango hardware at Init - latencyTime."<<endl;
+		Tango::WAttribute &latencyTime = dev_attr->get_w_attr_by_name("latencyTime");
+		*attr_latencyTime_read =   memorizedLatencyTime;
+		latencyTime.set_write_value(*attr_latencyTime_read);
+		write_latencyTime(latencyTime);
+        
 		INFO_STREAM<<"Write tango hardware at Init - nbFrames."<<endl;
 		Tango::WAttribute &nbFrames = dev_attr->get_w_attr_by_name("nbFrames");
 		*attr_nbFrames_read = memorizedNbFrames;
@@ -571,6 +579,7 @@ void LimaDetector::get_device_property()
 	dev_prop.push_back(Tango::DbDatum("MemorizedTriggerMode"));
 	dev_prop.push_back(Tango::DbDatum("MemorizedExposureTime"));
 	dev_prop.push_back(Tango::DbDatum("MemorizedExposureAccTime"));
+	dev_prop.push_back(Tango::DbDatum("MemorizedLatencyTime"));
 	dev_prop.push_back(Tango::DbDatum("MemorizedNbFrames"));
 	dev_prop.push_back(Tango::DbDatum("MemorizedFileGeneration"));
 	dev_prop.push_back(Tango::DbDatum("MemorizedFlipX"));
@@ -794,6 +803,17 @@ void LimaDetector::get_device_property()
 	//	And try to extract MemorizedExposureAccTime value from database
 	if (dev_prop[i].is_empty()==false)	dev_prop[i]  >>  memorizedExposureAccTime;
 
+	//	Try to initialize MemorizedLatencyTime from class property
+	cl_prop = ds_class->get_class_property(dev_prop[++i].name);
+	if (cl_prop.is_empty()==false)	cl_prop  >>  memorizedLatencyTime;
+	else {
+		//	Try to initialize MemorizedLatencyTime from default device value
+		def_prop = ds_class->get_default_device_property(dev_prop[i].name);
+		if (def_prop.is_empty()==false)	def_prop  >>  memorizedLatencyTime;
+	}
+	//	And try to extract MemorizedLatencyTime value from database
+	if (dev_prop[i].is_empty()==false)	dev_prop[i]  >>  memorizedLatencyTime;
+
 	//	Try to initialize MemorizedNbFrames from class property
 	cl_prop = ds_class->get_class_property(dev_prop[++i].name);
 	if (cl_prop.is_empty()==false)	cl_prop  >>  memorizedNbFrames;
@@ -889,6 +909,7 @@ void LimaDetector::get_device_property()
 	create_property_if_empty(dev_prop,"INTERNAL_SINGLE","MemorizedTriggerMode");
 	create_property_if_empty(dev_prop,"1000","MemorizedExposureTime");
 	create_property_if_empty(dev_prop,"100","MemorizedExposureAccTime");
+	create_property_if_empty(dev_prop,"0","MemorizedLatencyTime");    
 	create_property_if_empty(dev_prop,"1","MemorizedNbFrames");
 	create_property_if_empty(dev_prop,"false","MemorizedFileGeneration");
 	/*** TODO : activate when Lima flip is correct
@@ -921,6 +942,8 @@ void LimaDetector::read_attr_hardware(vector<long> &attr_list)
     DEBUG_STREAM << "LimaDetector::read_attr_hardware(vector<long> &attr_list) entering... "<< endl;
     //    Add your own code here
 }
+
+
 
 //+----------------------------------------------------------------------------
 //
@@ -1243,7 +1266,7 @@ void LimaDetector::write_triggerMode(Tango::WAttribute &attr)
             trig_mode = ExtGate;
 
         m_ct->acquisition()->setTriggerMode(trig_mode);
-        store_value_as_property(m_trigger_mode,"MemorizedTriggerMode");
+        set_property("MemorizedTriggerMode",m_trigger_mode);
 
     }
     catch(Tango::DevFailed& df)
@@ -1340,7 +1363,7 @@ void LimaDetector::write_acquisitionMode(Tango::WAttribute &attr)
             m_ct->acquisition()->setAcqMode(Accumulation);
         }
 
-        store_value_as_property(m_acquisition_mode,"MemorizedAcquisitionMode");
+        set_property("MemorizedAcquisitionMode",m_acquisition_mode);
 
         if(previous.compare(m_acquisition_mode)==0)//if acquisition mode is the same than the previous one -> no need to recreate again image dynmaic attribute
         	return;//Nothing to do .
@@ -1468,7 +1491,7 @@ void LimaDetector::write_exposureTime(Tango::WAttribute &attr)
         attr.get_write_value(attr_exposureTime_write);
         m_ct->acquisition()->setAcqExpoTime((double)(attr_exposureTime_write/1000.0));//exposure USER INPUT is in millisec
         m_ct->video()->setExposure((double)(attr_exposureTime_write/1000.0));//exposure USER INPUT is in millisec
-        store_value_as_property(attr_exposureTime_write,"MemorizedExposureTime");
+        set_property("MemorizedExposureTime", attr_exposureTime_write);
     }
     catch(Tango::DevFailed& df)
     {
@@ -1549,7 +1572,7 @@ void LimaDetector::write_exposureAccTime(Tango::WAttribute &attr)
     {
         attr.get_write_value(attr_exposureAccTime_write);
         m_ct->acquisition()->setAccMaxExpoTime((double)(attr_exposureAccTime_write/1000.0));
-        store_value_as_property(attr_exposureAccTime_write,"MemorizedExposureAccTime");
+        set_property("MemorizedExposureAccTime", attr_exposureAccTime_write);
     }
     catch(Tango::DevFailed& df)
     {
@@ -1569,6 +1592,81 @@ void LimaDetector::write_exposureAccTime(Tango::WAttribute &attr)
                     static_cast<const char*> (e.getErrMsg().c_str()),
                     static_cast<const char*> ("LimaDetector::write_exposureAccTime"));
     }
+}
+
+
+//+----------------------------------------------------------------------------
+//
+// method : 		LimaDetector::read_latencyTime
+// 
+// description : 	Extract real attribute values for latencyTime acquisition result.
+//
+//-----------------------------------------------------------------------------
+void LimaDetector::read_latencyTime(Tango::Attribute &attr)
+{
+	DEBUG_STREAM << "LimaDetector::read_latencyTime(Tango::Attribute &attr) entering... "<< endl;
+    try
+    {
+        double latency;
+        m_ct->acquisition()->getLatencyTime(latency);
+        *attr_latencyTime_read = (Tango::DevDouble)(latency*1000.0);//latency USER OUTPUT is in millisec
+        attr.set_value(attr_latencyTime_read);
+    }
+    catch(Tango::DevFailed& df)
+    {
+        ERROR_STREAM << df << endl;
+        //- rethrow exception
+        Tango::Except::re_throw_exception(df,
+                    static_cast<const char*> ("TANGO_DEVICE_ERROR"),
+                    static_cast<const char*> (string(df.errors[0].desc).c_str()),
+                    static_cast<const char*> ("LimaDetector::read_latencyTime"));
+    }
+    catch(Exception& e)
+    {
+        ERROR_STREAM << e.getErrMsg() << endl;
+        //- throw exception
+        Tango::Except::throw_exception(
+                    static_cast<const char*> ("TANGO_DEVICE_ERROR"),
+                    static_cast<const char*> (e.getErrMsg().c_str()),
+                    static_cast<const char*> ("LimaDetector::read_latencyTime"));
+    }    
+}
+
+//+----------------------------------------------------------------------------
+//
+// method : 		LimaDetector::write_latencyTime
+// 
+// description : 	Write latencyTime attribute values to hardware.
+//
+//-----------------------------------------------------------------------------
+void LimaDetector::write_latencyTime(Tango::WAttribute &attr)
+{
+	DEBUG_STREAM << "LimaDetector::write_latencyTime(Tango::WAttribute &attr) entering... "<< endl;
+    try
+    {
+        attr.get_write_value(attr_latencyTime_write);
+        m_ct->acquisition()->setLatencyTime((double)(attr_latencyTime_write/1000.0));//latency USER INPUT is in millisec
+        m_ct->video()->setExposure((double)(attr_exposureTime_write/1000.0));//exposure USER INPUT is in millisec
+        set_property("MemorizedLatencyTime", attr_latencyTime_write);
+    }
+    catch(Tango::DevFailed& df)
+    {
+        ERROR_STREAM << df << endl;
+        //- rethrow exception
+        Tango::Except::re_throw_exception(df,
+                    static_cast<const char*> ("TANGO_DEVICE_ERROR"),
+                    static_cast<const char*> (string(df.errors[0].desc).c_str()),
+                    static_cast<const char*> ("LimaDetector::write_latencyTime"));
+    }
+    catch(Exception& e)
+    {
+        ERROR_STREAM << e.getErrMsg() << endl;
+        //- throw exception
+        Tango::Except::throw_exception(
+                    static_cast<const char*> ("TANGO_DEVICE_ERROR"),
+                    static_cast<const char*> (e.getErrMsg().c_str()),
+                    static_cast<const char*> ("LimaDetector::write_latencyTime"));
+    }    
 }
 
 //+----------------------------------------------------------------------------
@@ -1845,7 +1943,7 @@ void LimaDetector::write_nbFrames(Tango::WAttribute &attr)
     {
         attr.get_write_value(attr_nbFrames_write);
         m_ct->acquisition()->setAcqNbFrames(attr_nbFrames_write);
-		store_value_as_property(attr_nbFrames_write,"MemorizedNbFrames");
+		set_property("MemorizedNbFrames", attr_nbFrames_write);
     }
     catch(Tango::DevFailed& df)
     {
@@ -1879,7 +1977,10 @@ void LimaDetector::read_currentFrame(Tango::Attribute &attr)
     DEBUG_STREAM << "LimaDetector::read_currentFrame(Tango::Attribute &attr) entering... "<< endl;
     try
     {
-        *attr_currentFrame_read =      m_hw->getNbHwAcquiredFrames();  ///get_last_image_counter()+1;
+        if(m_acquisition_mode.compare("SINGLE")==0)
+            *attr_currentFrame_read = m_hw->getNbHwAcquiredFrames();
+        else
+            *attr_currentFrame_read = get_last_image_counter()+1;
         attr.set_value(attr_currentFrame_read);
     }
     catch(Tango::DevFailed& df)
@@ -1948,8 +2049,8 @@ void LimaDetector::read_image_callback(yat4tango::DynamicAttributeReadCallbackDa
     	{
     		DEBUG_STREAM<<"last_image_counter -> "<<counter<<endl;
 
-    		CtVideo::Image 	m_last_image; //never put this in the class data member, refrence is locked in ctVideo (mantis 0021083)
-        	m_ct->video()->getLastImage(m_last_image); //last image acquired
+    		CtVideo::Image 	m_last_image;               //never put this variable in the class data member, refrence is locked in ctVideo (mantis 0021083)
+        	m_ct->video()->getLastImage(m_last_image);  //last image acquired
 
 			if(m_last_image.buffer()!=0)
 			{
@@ -2063,7 +2164,7 @@ void LimaDetector::write_fileGeneration(Tango::WAttribute &attr)
             m_ct->saving()->setSavingMode(CtSaving::AutoFrame);
         else
             m_ct->saving()->setSavingMode(CtSaving::Manual);
-		store_value_as_property(attr_fileGeneration_write,"MemorizedFileGeneration");
+		set_property("MemorizedFileGeneration", attr_fileGeneration_write);
     }
     catch(Tango::DevFailed& df)
     {
@@ -2088,7 +2189,6 @@ void LimaDetector::read_flipX(Tango::Attribute &attr)
 	DEBUG_STREAM << "LimaDetector::read_flipX(Tango::Attribute &attr) entering... "<< endl;
     try
     {
-
 		Flip flip;
         m_ct->image()->getFlip(flip);
         if(flip.x)
@@ -2139,7 +2239,7 @@ void LimaDetector::write_flipX(Tango::WAttribute &attr)
             flip.x = false;	
 		m_ct->image()->setFlip(flip);
 
-		store_value_as_property(attr_flipX_write,"MemorizedFlipX");		
+		set_property("MemorizedFlipX", attr_flipX_write);		
     }
     catch(Tango::DevFailed& df)
     {
@@ -2211,7 +2311,7 @@ void LimaDetector::write_flipY(Tango::WAttribute &attr)
         else
             flip.y = false;
 		m_ct->image()->setFlip(flip);
-		store_value_as_property(attr_flipY_write,"MemorizedFlipY");		
+		set_property("MemorizedFlipY", attr_flipY_write);		
     }
     catch(Tango::DevFailed& df)
     {
@@ -2448,7 +2548,7 @@ void LimaDetector::set_roi(const Tango::DevVarULongArray *argin)
     	myVector.push_back(roi.getTopLeft().y);
     	myVector.push_back(roi.getSize().getWidth());
     	myVector.push_back(roi.getSize().getHeight());
-		store_value_as_property(myVector,"MemorizedRoi");
+		set_property("MemorizedRoi", myVector);
     }
     catch(Tango::DevFailed& df)
     {
@@ -2507,8 +2607,8 @@ void LimaDetector::set_binning(const Tango::DevVarULongArray *argin)
 		//- set the new BIN
 		Bin bin(binH, binV);
 		m_ct->image()->setBin(bin);
-		store_value_as_property(binH,"MemorizedBinningH");
-		store_value_as_property(binV,"MemorizedBinningV");
+		set_property("MemorizedBinningH", binH);
+		set_property("MemorizedBinningV", binV);
 		//- reset image number (this will disable the refresh of image attribute)
 		m_ct->resetStatus(false);
 	}
@@ -2563,7 +2663,7 @@ void LimaDetector::reset_roi()
     	myVector.push_back(roi.getTopLeft().y);
     	myVector.push_back(roi.getSize().getWidth());
     	myVector.push_back(roi.getSize().getHeight());
-		store_value_as_property(myVector,"MemorizedRoi");
+		set_property("MemorizedRoi", myVector);
 	}
 	catch(Tango::DevFailed& df)
 	{
@@ -2691,16 +2791,14 @@ Tango::DevState LimaDetector::dev_state()
 			//- FL tests
             if(m_ct->event()->hasCapability())
             {
-                //INFO_STREAM << "in hasCapability " << endl;
+                std::vector<lima::Event *> myEventList;
+                m_ct->event()->getEventList(myEventList);
 
-                std::vector<lima::Event *> EventList;
-                m_ct->event()->getEventList(EventList);
-
-                //INFO_STREAM << "EventList.size()= " <<  EventList.size() << endl;
+                INFO_STREAM << "myEventList.size()= " <<  myEventList.size() << endl;
                 
-                for (int i = 0; i< EventList.size();++i)
+                for (int i = 0; i< myEventList.size();++i)
                 {
-                    INFO_STREAM << "in LimaDetector::Event:" <<  EventList[i]->getMsgStr() << endl;
+                    INFO_STREAM << "in LimaDetector::Event:" <<  myEventList[i]->getMsgStr() << endl;
                 }
             }
 
@@ -2841,6 +2939,7 @@ void LimaDetector::print_acq_conf(void)
     INFO_STREAM<<"acquisitionMode\t  = "    <<m_acquisition_mode<<endl;
     INFO_STREAM<<"exposureTime\t  = "       <<attr_exposureTime_write<<endl;
     INFO_STREAM<<"exposureAccTime= "        <<attr_exposureAccTime_write<<endl;
+    INFO_STREAM<<"latencyTime\t  = "        <<attr_latencyTime_write<<endl;    
     INFO_STREAM<<"directory\t  = "          <<m_saving_par.directory<<endl;
     INFO_STREAM<<"prefix\t  = "             <<m_saving_par.prefix<<endl;
     INFO_STREAM<<"suffix\t  = "             <<m_saving_par.suffix<<endl;
@@ -2867,11 +2966,19 @@ void LimaDetector::print_acq_conf(void)
 }
 
 /*-------------------------------------------------------------------------
-//       LimaDetector::store_value_as_property
+//       LimaDetector::set_property
 /-------------------------------------------------------------------------*/
 template <class T>
-void LimaDetector::store_value_as_property (T value, string property_name)
+void LimaDetector::set_property(string property_name, T value)
 {
+    if (!Tango::Util::instance()->_UseDb)
+    {
+        //- rethrow exception
+        Tango::Except::throw_exception(static_cast<const char*> ("TANGO_DEVICE_ERROR"),
+                                       static_cast<const char*> ("NO DB"),
+                                       static_cast<const char*> ("LimaDetector::set_property"));
+    }    
+    
     Tango::DbDatum current_value(property_name);
     current_value << value;
     Tango::DbData db_data;
@@ -2880,18 +2987,54 @@ void LimaDetector::store_value_as_property (T value, string property_name)
     {
         get_db_device()->put_property(db_data);
     }
-    catch(Tango::DevFailed &df)
+    catch (Tango::DevFailed &df)
     {
-        string message= "Error in storing " + property_name + " in Configuration DataBase ";
+        string message = "Error in storing " + property_name + " in Configuration DataBase ";
         LOG_ERROR((message));
-        ERROR_STREAM<<df<<endl;
+        ERROR_STREAM << df << endl;
         //- rethrow exception
         Tango::Except::re_throw_exception(df,
-                    static_cast<const char*> ("TANGO_DEVICE_ERROR"),
-                    static_cast<const char*> (string(df.errors[0].desc).c_str()),
-                    static_cast<const char*> ("LimaDetector::store_value_as_property"));
+                                          static_cast<const char*> ("TANGO_DEVICE_ERROR"),
+                                          static_cast<const char*> (string(df.errors[0].desc).c_str()),
+                                          static_cast<const char*> ("LimaDetector::set_property"));
     }
+}
 
+/*-------------------------------------------------------------------------
+//       LimaDetector::get_property
+/-------------------------------------------------------------------------*/
+template <class T>
+T LimaDetector::get_property(string property_name)
+{
+    if (!Tango::Util::instance()->_UseDb)
+    {
+        //- rethrow exception
+        Tango::Except::throw_exception(static_cast<const char*> ("TANGO_DEVICE_ERROR"),
+                                       static_cast<const char*> ("NO DB"),
+                                       static_cast<const char*> ("LimaDetector::get_property"));
+    }     
+    
+    T value;
+    Tango::DbDatum current_value(property_name);    
+    Tango::DbData db_data;
+    db_data.push_back(current_value);
+    try
+    {
+        get_db_device()->get_property(db_data);
+    }
+    catch (Tango::DevFailed &df)
+    {
+        string message = "Error in reading " + property_name + " in Configuration DataBase ";
+        LOG_ERROR((message));
+        ERROR_STREAM << df << endl;
+        //- rethrow exception
+        Tango::Except::re_throw_exception(df,
+                                          static_cast<const char*> ("TANGO_DEVICE_ERROR"),
+                                          static_cast<const char*> (string(df.errors[0].desc).c_str()),
+                                          static_cast<const char*> ("LimaDetector::get_property"));
+    }
+    db_data[0] >> value;
+    return (value);
 }
 
 /*-------------------------------------------------------------------------
@@ -2965,6 +3108,7 @@ void LimaDetector::EventCallback::processEvent(lima::Event *my_event)
 
 
 }*/
+
 
 
 

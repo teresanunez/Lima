@@ -9,7 +9,7 @@
 
 	<groupId>fr.soleil.device</groupId>
 	<artifactId>LimaDetector-${aol}-${mode}</artifactId>
-	<version>1.2.0</version>
+	<version>1.2.1</version>
 	<packaging>nar</packaging>
 	<name>LimaDetector</name>
 	<description>LimaDetector device</description>
@@ -58,49 +58,49 @@
 		<dependency>
 			<groupId>fr.soleil.lib.Lima</groupId>
 			<artifactId>LimaControl-${aol}-shared-${mode}</artifactId>
-			<version>1.2.0</version>         
+			<version>1.2.1</version>         
 		</dependency>
 
 		<dependency>
 			<groupId>fr.soleil.lib.Lima.Camera</groupId>
 			<artifactId>LimaBasler-${aol}-shared-${mode}</artifactId>
-			<version>1.2.0</version>
+			<version>1.2.1</version>
 		</dependency>
 
 		<dependency>
 			<groupId>fr.soleil.lib.Lima.Camera</groupId>
 			<artifactId>LimaMarccd-${aol}-shared-${mode}</artifactId>
-			<version>1.2.0</version>
+			<version>1.2.1</version>
 		</dependency>
 
 		<dependency>
 			 <groupId>fr.soleil.lib.Lima.Camera</groupId>
 			 <artifactId>LimaPilatus-${aol}-shared-${mode}</artifactId>
-			 <version>1.2.0</version>
+			 <version>1.2.1</version>
 		</dependency>
     
 		<dependency>
 			<groupId>fr.soleil.lib.Lima.Camera</groupId>
 			<artifactId>LimaXpad-${aol}-shared-${mode}</artifactId>
-			<version>1.2.0</version>
+			<version>1.2.1</version>
 		</dependency>
 
 		<dependency>
 			<groupId>fr.soleil.lib.Lima.Camera</groupId>
 			<artifactId>LimaAdsc-${aol}-shared-${mode}</artifactId>
-			<version>1.2.0</version>
+			<version>1.2.1</version>
 		</dependency>
       
 		<dependency>
 			<groupId>fr.soleil.lib.Lima.Camera</groupId>
 			<artifactId>LimaProsilica-${aol}-shared-${mode}</artifactId>
-			<version>1.2.0</version>
+			<version>1.2.1</version>
 		</dependency>
 
 		<dependency>
 			<groupId>fr.soleil.lib.Lima.Camera</groupId>
 			<artifactId>LimaSimulator-${aol}-shared-${mode}</artifactId>
-			<version>1.2.0</version>
+			<version>1.2.1</version>
 		</dependency>
 			
 	</dependencies>

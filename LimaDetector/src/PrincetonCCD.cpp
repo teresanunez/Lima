@@ -413,7 +413,7 @@ void PrincetonCCD::write_internalAcquisitionMode(Tango::WAttribute &attr)
         m_acquisition_mode = attr_internalAcquisitionMode_write;
 
         m_camera->setInternalAcqMode(m_acquisition_mode);
-        store_value_as_property(m_acquisition_mode,"MemorizedInternalAcquisitionMode");
+        set_property(m_acquisition_mode,"MemorizedInternalAcquisitionMode");
 
     }
     catch(Tango::DevFailed& df)
@@ -521,7 +521,7 @@ void PrincetonCCD::write_shutterMode(Tango::WAttribute &attr)
         }
 		
 
-        store_value_as_property(m_acquisition_mode,"MemorizedShutterModeMode");
+        set_property(m_acquisition_mode,"MemorizedShutterModeMode");
 
     }
     catch(Tango::DevFailed& df)
@@ -699,11 +699,19 @@ Tango::DevState PrincetonCCD::dev_state()
 
 
 /*-------------------------------------------------------------------------
-//       LimaDetector::store_value_as_property
+//       PrincetonCCD::set_property
 /-------------------------------------------------------------------------*/
 template <class T>
-void PrincetonCCD::store_value_as_property (T value, string property_name)
+void PrincetonCCD::set_property(string property_name, T value)
 {
+    if (!Tango::Util::instance()->_UseDb)
+    {
+        //- rethrow exception
+        Tango::Except::throw_exception(static_cast<const char*> ("TANGO_DEVICE_ERROR"),
+                                       static_cast<const char*> ("NO DB"),
+                                       static_cast<const char*> ("PrincetonCCD::set_property"));
+    }    
+    
     Tango::DbDatum current_value(property_name);
     current_value << value;
     Tango::DbData db_data;
@@ -712,27 +720,62 @@ void PrincetonCCD::store_value_as_property (T value, string property_name)
     {
         get_db_device()->put_property(db_data);
     }
-    catch(Tango::DevFailed &df)
+    catch (Tango::DevFailed &df)
     {
-        string message= "Error in storing " + property_name + " in Configuration DataBase ";
+        string message = "Error in storing " + property_name + " in Configuration DataBase ";
         LOG_ERROR((message));
-        ERROR_STREAM<<df<<endl;
+        ERROR_STREAM << df << endl;
         //- rethrow exception
         Tango::Except::re_throw_exception(df,
-                    static_cast<const char*> ("TANGO_DEVICE_ERROR"),
-                    static_cast<const char*> (string(df.errors[0].desc).c_str()),
-                    static_cast<const char*> ("PrincetonCCD::store_value_as_property"));
+                                          static_cast<const char*> ("TANGO_DEVICE_ERROR"),
+                                          static_cast<const char*> (string(df.errors[0].desc).c_str()),
+                                          static_cast<const char*> ("PrincetonCCD::set_property"));
     }
-
 }
 
 /*-------------------------------------------------------------------------
-//       LimaDetector::create_property_if_empty
+//       PrincetonCCD::get_property
+/-------------------------------------------------------------------------*/
+template <class T>
+T PrincetonCCD::get_property(string property_name)
+{
+    if (!Tango::Util::instance()->_UseDb)
+    {
+        //- rethrow exception
+        Tango::Except::throw_exception(static_cast<const char*> ("TANGO_DEVICE_ERROR"),
+                                       static_cast<const char*> ("NO DB"),
+                                       static_cast<const char*> ("PrincetonCCD::get_property"));
+    }     
+    
+    T value;
+    Tango::DbDatum current_value(property_name);    
+    Tango::DbData db_data;
+    db_data.push_back(current_value);
+    try
+    {
+        get_db_device()->get_property(db_data);
+    }
+    catch (Tango::DevFailed &df)
+    {
+        string message = "Error in reading " + property_name + " in Configuration DataBase ";
+        LOG_ERROR((message));
+        ERROR_STREAM << df << endl;
+        //- rethrow exception
+        Tango::Except::re_throw_exception(df,
+                                          static_cast<const char*> ("TANGO_DEVICE_ERROR"),
+                                          static_cast<const char*> (string(df.errors[0].desc).c_str()),
+                                          static_cast<const char*> ("PrincetonCCD::get_property"));
+    }
+    db_data[0] >> value;
+    return (value);
+}
+/*-------------------------------------------------------------------------
+//       PrincetonCCD::create_property_if_empty
 /-------------------------------------------------------------------------*/
 template <class T>
 void PrincetonCCD::create_property_if_empty(Tango::DbData& dev_prop,T value,string property_name)
 {
-    int iPropertyIndex = FindIndexFromPropertyName(dev_prop,property_name);
+    int iPropertyIndex = find_index_from_property_name(dev_prop,property_name);
     if (iPropertyIndex == -1) return;
     if (dev_prop[iPropertyIndex].is_empty())
     {
@@ -761,9 +804,9 @@ void PrincetonCCD::create_property_if_empty(Tango::DbData& dev_prop,T value,stri
 
 
 /*-------------------------------------------------------------------------
-//       LimaDetector::FindIndexFromPropertyName
+//       PrincetonCCD::find_index_from_property_name
 /-------------------------------------------------------------------------*/
-int PrincetonCCD::FindIndexFromPropertyName(Tango::DbData& dev_prop, string property_name)
+int PrincetonCCD::find_index_from_property_name(Tango::DbData& dev_prop, string property_name)
 {
     size_t iNbProperties = dev_prop.size();
     unsigned int i;

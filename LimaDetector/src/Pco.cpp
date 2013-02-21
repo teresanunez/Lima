@@ -391,4 +391,126 @@ Tango::DevString Pco::talk(Tango::DevString argin)
 }
 
 
+
+/*-------------------------------------------------------------------------
+//       Pco::set_property
+/-------------------------------------------------------------------------*/
+template <class T>
+void Pco::set_property(string property_name, T value)
+{
+    if (!Tango::Util::instance()->_UseDb)
+    {
+        //- rethrow exception
+        Tango::Except::throw_exception(static_cast<const char*> ("TANGO_DEVICE_ERROR"),
+                                       static_cast<const char*> ("NO DB"),
+                                       static_cast<const char*> ("Pco::set_property"));
+    }    
+    
+    Tango::DbDatum current_value(property_name);
+    current_value << value;
+    Tango::DbData db_data;
+    db_data.push_back(current_value);
+    try
+    {
+        get_db_device()->put_property(db_data);
+    }
+    catch (Tango::DevFailed &df)
+    {
+        string message = "Error in storing " + property_name + " in Configuration DataBase ";
+        LOG_ERROR((message));
+        ERROR_STREAM << df << endl;
+        //- rethrow exception
+        Tango::Except::re_throw_exception(df,
+                                          static_cast<const char*> ("TANGO_DEVICE_ERROR"),
+                                          static_cast<const char*> (string(df.errors[0].desc).c_str()),
+                                          static_cast<const char*> ("Pco::set_property"));
+    }
+}
+
+/*-------------------------------------------------------------------------
+//       Pco::get_property
+/-------------------------------------------------------------------------*/
+template <class T>
+T Pco::get_property(string property_name)
+{
+    if (!Tango::Util::instance()->_UseDb)
+    {
+        //- rethrow exception
+        Tango::Except::throw_exception(static_cast<const char*> ("TANGO_DEVICE_ERROR"),
+                                       static_cast<const char*> ("NO DB"),
+                                       static_cast<const char*> ("Pco::get_property"));
+    }     
+    
+    T value;
+    Tango::DbDatum current_value(property_name);    
+    Tango::DbData db_data;
+    db_data.push_back(current_value);
+    try
+    {
+        get_db_device()->get_property(db_data);
+    }
+    catch (Tango::DevFailed &df)
+    {
+        string message = "Error in reading " + property_name + " in Configuration DataBase ";
+        LOG_ERROR((message));
+        ERROR_STREAM << df << endl;
+        //- rethrow exception
+        Tango::Except::re_throw_exception(df,
+                                          static_cast<const char*> ("TANGO_DEVICE_ERROR"),
+                                          static_cast<const char*> (string(df.errors[0].desc).c_str()),
+                                          static_cast<const char*> ("Pco::get_property"));
+    }
+    db_data[0] >> value;
+    return (value);
+}
+/*-------------------------------------------------------------------------
+//       Pco::create_property_if_empty
+/-------------------------------------------------------------------------*/
+template <class T>
+void Pco::create_property_if_empty(Tango::DbData& dev_prop,T value,string property_name)
+{
+    int iPropertyIndex = find_index_from_property_name(dev_prop,property_name);
+    if (iPropertyIndex == -1) return;
+    if (dev_prop[iPropertyIndex].is_empty())
+    {
+        Tango::DbDatum current_value(dev_prop[iPropertyIndex].name);
+        current_value << value;
+        Tango::DbData db_data;
+        db_data.push_back(current_value);
+
+        try
+        {
+            get_db_device()->put_property(db_data);
+        }
+        catch(Tango::DevFailed &df)
+        {
+            string message= "Error in storing " + property_name + " in Configuration DataBase ";
+            LOG_ERROR((message));
+            ERROR_STREAM<<df<<endl;
+            //- rethrow exception
+            Tango::Except::re_throw_exception(df,
+                        static_cast<const char*> ("TANGO_DEVICE_ERROR"),
+                        static_cast<const char*> (string(df.errors[0].desc).c_str()),
+                        static_cast<const char*> ("Pco::create_property_if_empty"));
+        }
+    }
+}
+
+
+/*-------------------------------------------------------------------------
+//       Pco::find_index_from_property_name
+/-------------------------------------------------------------------------*/
+int Pco::find_index_from_property_name(Tango::DbData& dev_prop, string property_name)
+{
+    size_t iNbProperties = dev_prop.size();
+    unsigned int i;
+    for (i=0;i<iNbProperties;i++)
+    {
+        string sPropertyName(dev_prop[i].name);
+        if (sPropertyName == property_name) return i;
+    }
+    if (i == iNbProperties) return -1;
+    return i;
+}
+
 }	//	namespace

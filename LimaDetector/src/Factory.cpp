@@ -6,7 +6,7 @@ bool  ControlFactory::is_created = false;
 
 
 //-----------------------------------------------------------------------------------------
-ControlFactory::ControlFactory()
+void ControlFactory::initialize_pointers()
 {
     my_control				= 0;
 
@@ -71,6 +71,7 @@ CtControl* ControlFactory::get_control( const std::string& detector_type)
         //get the tango device/instance
         if(!ControlFactory::is_created)
         {
+			initialize_pointers();
             std::string  detector = detector_type;
             Tango::DbDatum db_datum;
             my_server_name = Tango::Util::instance()->get_ds_name ();

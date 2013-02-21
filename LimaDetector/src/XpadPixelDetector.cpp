@@ -764,10 +764,10 @@ Tango::DevState XpadPixelDetector::dev_state()
  *	method:	XpadPixelDetector::save_config_l
  *
  *	description:	method to execute "SaveConfigL"
- *	The function loads/stores a line of calibration data at the line index curRow in the 
- *	memory buffer identified by calibId of the chip identified by chipId of the modules 
- *	selected by  modNum.  The 80 calibration data values that are stored starting at 
- *	address value. Calibration data (80 words 16 bits) for one row of one chip (9 bits)
+ *	Theï¿½functionï¿½loads/storesï¿½aï¿½lineï¿½ofï¿½calibrationï¿½dataï¿½atï¿½theï¿½lineï¿½indexï¿½curRowï¿½inï¿½theï¿½
+ *	memoryï¿½bufferï¿½identifiedï¿½byï¿½calibIdï¿½ofï¿½theï¿½chipï¿½identifiedï¿½byï¿½chipIdï¿½ofï¿½theï¿½modulesï¿½
+ *	selectedï¿½byï¿½ modNum. ï¿½Theï¿½80ï¿½calibrationï¿½dataï¿½valuesï¿½thatï¿½areï¿½storedï¿½startingï¿½atï¿½
+ *	addressï¿½value.ï¿½Calibrationï¿½dataï¿½(80ï¿½wordsï¿½16ï¿½bits)ï¿½forï¿½oneï¿½rowï¿½ofï¿½oneï¿½chipï¿½(9ï¿½bits)
  *
  * @param	argin	modNum(1..8), calibId(0..6), chipId(0..7), curRow (0..119), values (80 values)
  *
@@ -807,8 +807,8 @@ void XpadPixelDetector::save_config_l(const Tango::DevVarULongArray *argin)
  *	method:	XpadPixelDetector::save_config_g
  *
  *	description:	method to execute "SaveConfigG"
- *	The   function   loads/store   the   global   register  reg  (see   paragraph   3.4)   in   the 
- *	memory buffer identified by calibId.
+ *	The ï¿½ function ï¿½ loads/store ï¿½ the ï¿½ global ï¿½ register ï¿½regï¿½ (see ï¿½ paragraph ï¿½ 3.4) ï¿½ in ï¿½ theï¿½
+ *	memoryï¿½bufferï¿½identifiedï¿½byï¿½calibId.
  *
  * @param	argin	modNum(1..8), calibId(0..6), reg, values (7 values)
  *
@@ -848,9 +848,9 @@ void XpadPixelDetector::save_config_g(const Tango::DevVarULongArray *argin)
  *	method:	XpadPixelDetector::load_config
  *
  *	description:	method to execute "LoadConfig"
- *	This function activate  the copy of   the calibration data stored  into  the memory 
- *	buffer identified by calibId of all the chips of the modules selected by modNum  
- *	into the config registers.
+ *	Thisï¿½functionï¿½activateï¿½ theï¿½copyï¿½of ï¿½ theï¿½calibrationï¿½dataï¿½storedï¿½ intoï¿½ theï¿½memoryï¿½
+ *	bufferï¿½identifiedï¿½byï¿½calibIdï¿½ofï¿½allï¿½theï¿½chipsï¿½ofï¿½theï¿½modulesï¿½selectedï¿½byï¿½modNum ï¿½
+ *	intoï¿½theï¿½configï¿½registers.
  *
  * @param	argin	modNum(1..8), calibId(0..6)
  *
@@ -978,83 +978,6 @@ void XpadPixelDetector::set_specific_parameters()
 					static_cast<const char*> (e.getErrMsg().c_str()),
 					static_cast<const char*> ("XpadPixelDetector::set_specific_parameters"));
 	}
-}
-/*-------------------------------------------------------------------------
-//       LimaDetector::store_value_as_property
-/-------------------------------------------------------------------------*/
-template <class T>
-void XpadPixelDetector::store_value_as_property (T value, string property_name)
-{
-    Tango::DbDatum current_value(property_name);
-    current_value << value;
-    Tango::DbData db_data;
-    db_data.push_back(current_value);
-    try
-    {
-        get_db_device()->put_property(db_data);
-    }
-    catch(Tango::DevFailed &df)
-    {
-        string message= "Error in storing " + property_name + " in Configuration DataBase ";
-        LOG_ERROR((message));
-        ERROR_STREAM<<df<<endl;
-        //- rethrow exception
-        Tango::Except::re_throw_exception(df,
-                    static_cast<const char*> ("TANGO_DEVICE_ERROR"),
-                    static_cast<const char*> (string(df.errors[0].desc).c_str()),
-                    static_cast<const char*> ("BaslerCCD::store_value_as_property"));
-    }
-
-}
-
-/*-------------------------------------------------------------------------
-//       LimaDetector::create_property_if_empty
-/-------------------------------------------------------------------------*/
-template <class T>
-void XpadPixelDetector::create_property_if_empty(Tango::DbData& dev_prop,T value,string property_name)
-{
-    int iPropertyIndex = FindIndexFromPropertyName(dev_prop,property_name);
-    if (iPropertyIndex == -1) return;
-    if (dev_prop[iPropertyIndex].is_empty())
-    {
-        Tango::DbDatum current_value(dev_prop[iPropertyIndex].name);
-        current_value << value;
-        Tango::DbData db_data;
-        db_data.push_back(current_value);
-
-        try
-        {
-            get_db_device()->put_property(db_data);
-        }
-        catch(Tango::DevFailed &df)
-        {
-            string message= "Error in storing " + property_name + " in Configuration DataBase ";
-            LOG_ERROR((message));
-            ERROR_STREAM<<df<<endl;
-            //- rethrow exception
-            Tango::Except::re_throw_exception(df,
-                        static_cast<const char*> ("TANGO_DEVICE_ERROR"),
-                        static_cast<const char*> (string(df.errors[0].desc).c_str()),
-                        static_cast<const char*> ("BaslerCCD::create_property_if_empty"));
-        }
-    }
-}
-
-
-/*-------------------------------------------------------------------------
-//       LimaDetector::FindIndexFromPropertyName
-/-------------------------------------------------------------------------*/
-int XpadPixelDetector::FindIndexFromPropertyName(Tango::DbData& dev_prop, string property_name)
-{
-    size_t iNbProperties = dev_prop.size();
-    unsigned int i;
-    for (i=0;i<iNbProperties;i++)
-    {
-        string sPropertyName(dev_prop[i].name);
-        if (sPropertyName == property_name) return i;
-    }
-    if (i == iNbProperties) return -1;
-    return i;
 }
 
 //+------------------------------------------------------------------
@@ -1234,7 +1157,7 @@ void XpadPixelDetector::decrement_ithl()
  *	method:	XpadPixelDetector::get_dacl
  *
  *	description:	method to execute "GetDacl"
- *	This fonction get the values of the DACL
+ *	Thisï¿½fonctionï¿½getï¿½theï¿½valuesï¿½ofï¿½theï¿½DACL
  *
  * @return	array of DACL data
  *
@@ -1312,7 +1235,7 @@ Tango::DevVarUShortArray *XpadPixelDetector::get_dacl()
  *	method:	XpadPixelDetector::get_ithl
  *
  *	description:	method to execute "GetIthl"
- *	This fonction get the values of the ITHL
+ *	Thisï¿½fonctionï¿½getï¿½theï¿½valuesï¿½ofï¿½theï¿½ITHL
  *
  * @return	array of ITHL data
  *
@@ -1334,6 +1257,130 @@ Tango::DevVarUShortArray *XpadPixelDetector::get_ithl()
 
 	return argout;
 }
+
+
+
+/*-------------------------------------------------------------------------
+//       XpadPixelDetector::set_property
+/-------------------------------------------------------------------------*/
+template <class T>
+void XpadPixelDetector::set_property(string property_name, T value)
+{
+    if (!Tango::Util::instance()->_UseDb)
+    {
+        //- rethrow exception
+        Tango::Except::throw_exception(static_cast<const char*> ("TANGO_DEVICE_ERROR"),
+                                       static_cast<const char*> ("NO DB"),
+                                       static_cast<const char*> ("XpadPixelDetector::set_property"));
+    }    
+    
+    Tango::DbDatum current_value(property_name);
+    current_value << value;
+    Tango::DbData db_data;
+    db_data.push_back(current_value);
+    try
+    {
+        get_db_device()->put_property(db_data);
+    }
+    catch (Tango::DevFailed &df)
+    {
+        string message = "Error in storing " + property_name + " in Configuration DataBase ";
+        LOG_ERROR((message));
+        ERROR_STREAM << df << endl;
+        //- rethrow exception
+        Tango::Except::re_throw_exception(df,
+                                          static_cast<const char*> ("TANGO_DEVICE_ERROR"),
+                                          static_cast<const char*> (string(df.errors[0].desc).c_str()),
+                                          static_cast<const char*> ("XpadPixelDetector::set_property"));
+    }
+}
+
+/*-------------------------------------------------------------------------
+//       XpadPixelDetector::get_property
+/-------------------------------------------------------------------------*/
+template <class T>
+T XpadPixelDetector::get_property(string property_name)
+{
+    if (!Tango::Util::instance()->_UseDb)
+    {
+        //- rethrow exception
+        Tango::Except::throw_exception(static_cast<const char*> ("TANGO_DEVICE_ERROR"),
+                                       static_cast<const char*> ("NO DB"),
+                                       static_cast<const char*> ("XpadPixelDetector::get_property"));
+    }     
+    
+    T value;
+    Tango::DbDatum current_value(property_name);    
+    Tango::DbData db_data;
+    db_data.push_back(current_value);
+    try
+    {
+        get_db_device()->get_property(db_data);
+    }
+    catch (Tango::DevFailed &df)
+    {
+        string message = "Error in reading " + property_name + " in Configuration DataBase ";
+        LOG_ERROR((message));
+        ERROR_STREAM << df << endl;
+        //- rethrow exception
+        Tango::Except::re_throw_exception(df,
+                                          static_cast<const char*> ("TANGO_DEVICE_ERROR"),
+                                          static_cast<const char*> (string(df.errors[0].desc).c_str()),
+                                          static_cast<const char*> ("XpadPixelDetector::get_property"));
+    }
+    db_data[0] >> value;
+    return (value);
+}
+/*-------------------------------------------------------------------------
+//       XpadPixelDetector::create_property_if_empty
+/-------------------------------------------------------------------------*/
+template <class T>
+void XpadPixelDetector::create_property_if_empty(Tango::DbData& dev_prop,T value,string property_name)
+{
+    int iPropertyIndex = find_index_from_property_name(dev_prop,property_name);
+    if (iPropertyIndex == -1) return;
+    if (dev_prop[iPropertyIndex].is_empty())
+    {
+        Tango::DbDatum current_value(dev_prop[iPropertyIndex].name);
+        current_value << value;
+        Tango::DbData db_data;
+        db_data.push_back(current_value);
+
+        try
+        {
+            get_db_device()->put_property(db_data);
+        }
+        catch(Tango::DevFailed &df)
+        {
+            string message= "Error in storing " + property_name + " in Configuration DataBase ";
+            LOG_ERROR((message));
+            ERROR_STREAM<<df<<endl;
+            //- rethrow exception
+            Tango::Except::re_throw_exception(df,
+                        static_cast<const char*> ("TANGO_DEVICE_ERROR"),
+                        static_cast<const char*> (string(df.errors[0].desc).c_str()),
+                        static_cast<const char*> ("XpadPixelDetector::create_property_if_empty"));
+        }
+    }
+}
+
+
+/*-------------------------------------------------------------------------
+//       XpadPixelDetector::find_index_from_property_name
+/-------------------------------------------------------------------------*/
+int XpadPixelDetector::find_index_from_property_name(Tango::DbData& dev_prop, string property_name)
+{
+    size_t iNbProperties = dev_prop.size();
+    unsigned int i;
+    for (i=0;i<iNbProperties;i++)
+    {
+        string sPropertyName(dev_prop[i].name);
+        if (sPropertyName == property_name) return i;
+    }
+    if (i == iNbProperties) return -1;
+    return i;
+}
+
 
 
 }	//	namespace

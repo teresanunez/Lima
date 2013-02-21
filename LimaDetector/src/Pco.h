@@ -39,8 +39,8 @@
  * @version	$Revision:  $
  */
 
- //	Add your own constant definitions here.
- //-----------------------------------------------
+//	Add your own constant definitions here.
+//-----------------------------------------------
 #ifdef WIN32
 #include "tango.h"
 #include "Factory.h"
@@ -63,191 +63,201 @@
 namespace Pco_ns
 {
 
-/**
- * Class Description:
- * 
- */
+    /**
+     * Class Description:
+     * 
+     */
 
-/*
- *	Device States Description:
-*  Tango::INIT :
-*  Tango::STANDBY :
-*  Tango::FAULT :
-*  Tango::RUNNING :
- */
-
-
-class Pco: public Tango::Device_4Impl
-{
-public :
-	//	Add your own data members here
-	//-----------------------------------------
+    /*
+     *	Device States Description:
+     *  Tango::INIT :
+     *  Tango::STANDBY :
+     *  Tango::FAULT :
+     *  Tango::RUNNING :
+     */
 
 
-	//	Here is the Start of the automatic code generation part
-	//-------------------------------------------------------------	
-/**
- *	@name attributes
- *	Attribute member data.
- */
-//@{
-		Tango::DevString	*attr_shutterMode_read;
-		Tango::DevString	attr_shutterMode_write;
-		Tango::DevString	*attr_pixelScanRate_read;
-		Tango::DevString	attr_pixelScanRate_write;
-//@}
-
-/**
- * @name Device properties
- * Device properties member data.
- */
-//@{
-//@}
-
-/**
- *	@name Device properties
- *	Device property member data.
- */
-//@{
-//@}
-
-/**@name Constructors
- * Miscellaneous constructors */
-//@{
-/**
- * Constructs a newly allocated Command object.
- *
- *	@param cl	Class.
- *	@param s 	Device Name
- */
-	Pco(Tango::DeviceClass *cl,string &s);
-/**
- * Constructs a newly allocated Command object.
- *
- *	@param cl	Class.
- *	@param s 	Device Name
- */
-	Pco(Tango::DeviceClass *cl,const char *s);
-/**
- * Constructs a newly allocated Command object.
- *
- *	@param cl	Class.
- *	@param s 	Device name
- *	@param d	Device description.
- */
-	Pco(Tango::DeviceClass *cl,const char *s,const char *d);
-//@}
-
-/**@name Destructor
- * Only one destructor is defined for this class */
-//@{
-/**
- * The object destructor.
- */	
-	~Pco() {delete_device();};
-/**
- *	will be called at device destruction or at init command.
- */
-	void delete_device();
-//@}
-
-	
-/**@name Miscellaneous methods */
-//@{
-/**
- *	Initialize the device
- */
-	virtual void init_device();
-/**
- *	Always executed method before execution command method.
- */
-	virtual void always_executed_hook();
-
-//@}
-
-/**
- * @name Pco methods prototypes
- */
-
-//@{
-/**
- *	Hardware acquisition for attributes.
- */
-	virtual void read_attr_hardware(vector<long> &attr_list);
-/**
- *	Extract real attribute values for shutterMode acquisition result.
- */
-	virtual void read_shutterMode(Tango::Attribute &attr);
-/**
- *	Write shutterMode attribute values to hardware.
- */
-	virtual void write_shutterMode(Tango::WAttribute &attr);
-/**
- *	Extract real attribute values for pixelScanRate acquisition result.
- */
-	virtual void read_pixelScanRate(Tango::Attribute &attr);
-/**
- *	Write pixelScanRate attribute values to hardware.
- */
-	virtual void write_pixelScanRate(Tango::WAttribute &attr);
-/**
- *	Read/Write allowed for shutterMode attribute.
- */
-	virtual bool is_shutterMode_allowed(Tango::AttReqType type);
-/**
- *	Read/Write allowed for pixelScanRate attribute.
- */
-	virtual bool is_pixelScanRate_allowed(Tango::AttReqType type);
-/**
- *	Execution allowed for Talk command.
- */
-	virtual bool is_Talk_allowed(const CORBA::Any &any);
-/**
- * A direct command to talk to de camera
- *	@param	argin	str argin
- *	@return	str argout
- *	@exception DevFailed
- */
-	Tango::DevString	talk(Tango::DevString);
-
-/**
- *	Read the device properties from database
- */
-	 void get_device_property();
-//@}
-
-	//	Here is the end of the automatic code generation part
-	//-------------------------------------------------------------	
-    // return true if the device is correctly initialized in init_device
-	bool is_device_initialized(){return m_is_device_initialized;};
+    class Pco : public Tango::Device_4Impl
+    {
+    public:
+        //	Add your own data members here
+        //-----------------------------------------
 
 
+        //	Here is the Start of the automatic code generation part
+        //-------------------------------------------------------------	
+        /**
+         *	@name attributes
+         *	Attribute member data.
+         */
+        //@{
+        Tango::DevString *attr_shutterMode_read;
+        Tango::DevString attr_shutterMode_write;
+        Tango::DevString *attr_pixelScanRate_read;
+        Tango::DevString attr_pixelScanRate_write;
+        //@}
+
+        /**
+         * @name Device properties
+         * Device properties member data.
+         */
+        //@{
+        //@}
+
+        /**
+         *	@name Device properties
+         *	Device property member data.
+         */
+        //@{
+        //@}
+
+        /**@name Constructors
+         * Miscellaneous constructors */
+        //@{
+        /**
+         * Constructs a newly allocated Command object.
+         *
+         *	@param cl	Class.
+         *	@param s 	Device Name
+         */
+        Pco(Tango::DeviceClass *cl, string &s);
+        /**
+         * Constructs a newly allocated Command object.
+         *
+         *	@param cl	Class.
+         *	@param s 	Device Name
+         */
+        Pco(Tango::DeviceClass *cl, const char *s);
+        /**
+         * Constructs a newly allocated Command object.
+         *
+         *	@param cl	Class.
+         *	@param s 	Device name
+         *	@param d	Device description.
+         */
+        Pco(Tango::DeviceClass *cl, const char *s, const char *d);
+        //@}
+
+        /**@name Destructor
+         * Only one destructor is defined for this class */
+        //@{
+
+                /**
+         * The object destructor.
+         */
+        ~Pco()
+        {
+            delete_device();
+        };
+        /**
+         *	will be called at device destruction or at init command.
+         */
+        void delete_device();
+        //@}
 
 
-protected :	
-	//	Add your own data members here
-	//-----------------------------------------
+        /**@name Miscellaneous methods */
+        //@{
+        /**
+         *	Initialize the device
+         */
+        virtual void init_device();
+        /**
+         *	Always executed method before execution command method.
+         */
+        virtual void always_executed_hook();
 
-    //- Store the values into the property
-    //- Properties stuff    
-    int                FindIndexFromPropertyName(Tango::DbData& dev_prop, string property_name);
-    template <class T>
-    void            create_property_if_empty(Tango::DbData& dev_prop,T value, string property_name);    
-    template <class T>
-    void            store_value_as_property(T value, string property_name);
-	
-    //state & status stuff
-    bool                        m_is_device_initialized ;
-    stringstream                m_status_message;
-    //lima OBJECTS
-	lima::Pco::Interface*		m_hw;
-    lima::CtControl*            m_ct;
-    lima::Pco::Camera*			m_camera;	
-	
-	std::string                 m_pixel_scan_rate;	//pixel scan rate 	(SLOW, FAST)
-	std::string	                m_shutter_mode;	 //shutter mode name 	(GLOBAL, ROLLING)
-};
+        //@}
 
-}	// namespace_ns
+        /**
+         * @name Pco methods prototypes
+         */
+
+        //@{
+        /**
+         *	Hardware acquisition for attributes.
+         */
+        virtual void read_attr_hardware(vector<long> &attr_list);
+        /**
+         *	Extract real attribute values for shutterMode acquisition result.
+         */
+        virtual void read_shutterMode(Tango::Attribute &attr);
+        /**
+         *	Write shutterMode attribute values to hardware.
+         */
+        virtual void write_shutterMode(Tango::WAttribute &attr);
+        /**
+         *	Extract real attribute values for pixelScanRate acquisition result.
+         */
+        virtual void read_pixelScanRate(Tango::Attribute &attr);
+        /**
+         *	Write pixelScanRate attribute values to hardware.
+         */
+        virtual void write_pixelScanRate(Tango::WAttribute &attr);
+        /**
+         *	Read/Write allowed for shutterMode attribute.
+         */
+        virtual bool is_shutterMode_allowed(Tango::AttReqType type);
+        /**
+         *	Read/Write allowed for pixelScanRate attribute.
+         */
+        virtual bool is_pixelScanRate_allowed(Tango::AttReqType type);
+        /**
+         *	Execution allowed for Talk command.
+         */
+        virtual bool is_Talk_allowed(const CORBA::Any &any);
+        /**
+         * A direct command to talk to de camera
+         *	@param	argin	str argin
+         *	@return	str argout
+         *	@exception DevFailed
+         */
+        Tango::DevString talk(Tango::DevString);
+
+        /**
+         *	Read the device properties from database
+         */
+        void get_device_property();
+        //@}
+
+        //	Here is the end of the automatic code generation part
+        //-------------------------------------------------------------	
+        // return true if the device is correctly initialized in init_device
+
+        bool is_device_initialized()
+        {
+            return m_is_device_initialized;
+        };
+
+
+
+
+    protected:
+        //	Add your own data members here
+        //-----------------------------------------
+
+        //- Store the values into the property
+        //- Properties stuff    
+        int find_index_from_property_name(Tango::DbData& dev_prop, string property_name);
+        template <class T>
+        void create_property_if_empty(Tango::DbData& dev_prop, T value, string property_name);
+        template <class T>
+        void set_property(string property_name, T value);
+        template <class T>
+        T get_property(string property_name);
+
+        //state & status stuff
+        bool                    m_is_device_initialized;
+        stringstream            m_status_message;
+        //lima OBJECTS
+        lima::Pco::Interface*   m_hw;
+        lima::CtControl*        m_ct;
+        lima::Pco::Camera*      m_camera;
+
+        std::string             m_pixel_scan_rate; //pixel scan rate 	(SLOW, FAST)
+        std::string             m_shutter_mode; //shutter mode name 	(GLOBAL, ROLLING)
+    };
+
+} // namespace_ns
 
 #endif	// _PCO_H

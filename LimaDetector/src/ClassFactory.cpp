@@ -39,39 +39,39 @@ static const char *RcsId = "$Id:  $";
 #include <LimaDetectorClass.h>
 
 #ifdef SIMULATOR_ENABLED
-	#include <SimulatorCCDClass.h>
+#include <SimulatorCCDClass.h>
 #endif
 
 #ifdef BASLER_ENABLED
-	#include <BaslerCCDClass.h>
+#include <BaslerCCDClass.h>
 #endif
 
 #ifdef PILATUS_ENABLED
-	#include <PilatusPixelDetectorClass.h>
+#include <PilatusPixelDetectorClass.h>
 #endif
 
 #ifdef XPAD_ENABLED
-	#include <XpadPixelDetectorClass.h>
+#include <XpadPixelDetectorClass.h>
 #endif
 
 #ifdef MARCCD_ENABLED
-	#include <MarCCDClass.h>
+#include <MarCCDClass.h>
 #endif
 
 #ifdef ADSC_ENABLED
-	#include <AdscCCDClass.h>
+#include <AdscCCDClass.h>
 #endif
 
 #ifdef PROSILICA_ENABLED
-	#include <ProsilicaCCDClass.h>
+#include <ProsilicaCCDClass.h>
 #endif
 
 #ifdef PRINCETON_ENABLED
-	#include <PrincetonCCDClass.h>
+#include <PrincetonCCDClass.h>
 #endif
 
 #ifdef PCO_ENABLED
-	#include <PcoClass.h>
+#include <PcoClass.h>
 #endif
 
 #ifndef WIN32
@@ -84,42 +84,42 @@ static const char *RcsId = "$Id:  $";
 
 void Tango::DServer::class_factory()
 {
-	add_class(LimaDetector_ns::LimaDetectorClass::init("LimaDetector"));
-	
+    add_class(LimaDetector_ns::LimaDetectorClass::init("LimaDetector"));
+
 #ifdef SIMULATOR_ENABLED
-	add_class(SimulatorCCD_ns::SimulatorCCDClass::init("SimulatorCCD"));
+    add_class(SimulatorCCD_ns::SimulatorCCDClass::init("SimulatorCCD"));
 #endif
 
 #ifdef BASLER_ENABLED
-	add_class(BaslerCCD_ns::BaslerCCDClass::init("BaslerCCD"));
+    add_class(BaslerCCD_ns::BaslerCCDClass::init("BaslerCCD"));
 #endif
 
 #ifdef PILATUS_ENABLED
-	add_class(PilatusPixelDetector_ns::PilatusPixelDetectorClass::init("PilatusPixelDetector"));
+    add_class(PilatusPixelDetector_ns::PilatusPixelDetectorClass::init("PilatusPixelDetector"));
 #endif
 
 #ifdef XPAD_ENABLED	
-	add_class(XpadPixelDetector_ns::XpadPixelDetectorClass::init("XpadPixelDetector"));
+    add_class(XpadPixelDetector_ns::XpadPixelDetectorClass::init("XpadPixelDetector"));
 #endif
 
 #ifdef MARCCD_ENABLED	
-	add_class(MarCCD_ns::MarCCDClass::init("MarCCD"));
+    add_class(MarCCD_ns::MarCCDClass::init("MarCCD"));
 #endif
 
 #ifdef ADSC_ENABLED	
-	add_class(AdscCCD_ns::AdscCCDClass::init("AdscCCD"));
+    add_class(AdscCCD_ns::AdscCCDClass::init("AdscCCD"));
 #endif
 
 #ifdef PROSILICA_ENABLED
-	add_class(ProsilicaCCD_ns::ProsilicaCCDClass::init("ProsilicaCCD"));
+    add_class(ProsilicaCCD_ns::ProsilicaCCDClass::init("ProsilicaCCD"));
 #endif
 
 #ifdef PRINCETON_ENABLED
-	add_class(PrincetonCCD_ns::PrincetonCCDClass::init("PrincetonCCD"));
+    add_class(PrincetonCCD_ns::PrincetonCCDClass::init("PrincetonCCD"));
 #endif
 
 #ifdef PCO_ENABLED
-	add_class(Pco_ns::PcoClass::init("Pco"));
+    add_class(Pco_ns::PcoClass::init("Pco"));
 #endif
 }
 

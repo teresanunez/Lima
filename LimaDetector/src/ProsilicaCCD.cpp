@@ -317,11 +317,19 @@ Tango::DevState ProsilicaCCD::dev_state()
 
 
 /*-------------------------------------------------------------------------
-//       LimaDetector::store_value_as_property
+//       ProsilicaCCD::set_property
 /-------------------------------------------------------------------------*/
 template <class T>
-void ProsilicaCCD::store_value_as_property (T value, string property_name)
+void ProsilicaCCD::set_property(string property_name, T value)
 {
+    if (!Tango::Util::instance()->_UseDb)
+    {
+        //- rethrow exception
+        Tango::Except::throw_exception(static_cast<const char*> ("TANGO_DEVICE_ERROR"),
+                                       static_cast<const char*> ("NO DB"),
+                                       static_cast<const char*> ("ProsilicaCCD::set_property"));
+    }    
+    
     Tango::DbDatum current_value(property_name);
     current_value << value;
     Tango::DbData db_data;
@@ -330,27 +338,63 @@ void ProsilicaCCD::store_value_as_property (T value, string property_name)
     {
         get_db_device()->put_property(db_data);
     }
-    catch(Tango::DevFailed &df)
+    catch (Tango::DevFailed &df)
     {
-        string message= "Error in storing " + property_name + " in Configuration DataBase ";
+        string message = "Error in storing " + property_name + " in Configuration DataBase ";
         LOG_ERROR((message));
-        ERROR_STREAM<<df<<endl;
+        ERROR_STREAM << df << endl;
         //- rethrow exception
         Tango::Except::re_throw_exception(df,
-                    static_cast<const char*> ("TANGO_DEVICE_ERROR"),
-                    static_cast<const char*> (string(df.errors[0].desc).c_str()),
-                    static_cast<const char*> ("ProsilicaCCD::store_value_as_property"));
+                                          static_cast<const char*> ("TANGO_DEVICE_ERROR"),
+                                          static_cast<const char*> (string(df.errors[0].desc).c_str()),
+                                          static_cast<const char*> ("ProsilicaCCD::set_property"));
     }
-
 }
 
 /*-------------------------------------------------------------------------
-//       LimaDetector::create_property_if_empty
+//       ProsilicaCCD::get_property
+/-------------------------------------------------------------------------*/
+template <class T>
+T ProsilicaCCD::get_property(string property_name)
+{
+    if (!Tango::Util::instance()->_UseDb)
+    {
+        //- rethrow exception
+        Tango::Except::throw_exception(static_cast<const char*> ("TANGO_DEVICE_ERROR"),
+                                       static_cast<const char*> ("NO DB"),
+                                       static_cast<const char*> ("ProsilicaCCD::get_property"));
+    }     
+    
+    T value;
+    Tango::DbDatum current_value(property_name);    
+    Tango::DbData db_data;
+    db_data.push_back(current_value);
+    try
+    {
+        get_db_device()->get_property(db_data);
+    }
+    catch (Tango::DevFailed &df)
+    {
+        string message = "Error in reading " + property_name + " in Configuration DataBase ";
+        LOG_ERROR((message));
+        ERROR_STREAM << df << endl;
+        //- rethrow exception
+        Tango::Except::re_throw_exception(df,
+                                          static_cast<const char*> ("TANGO_DEVICE_ERROR"),
+                                          static_cast<const char*> (string(df.errors[0].desc).c_str()),
+                                          static_cast<const char*> ("ProsilicaCCD::get_property"));
+    }
+    db_data[0] >> value;
+    return (value);
+}
+
+/*-------------------------------------------------------------------------
+//       ProsilicaCCD::create_property_if_empty
 /-------------------------------------------------------------------------*/
 template <class T>
 void ProsilicaCCD::create_property_if_empty(Tango::DbData& dev_prop,T value,string property_name)
 {
-    int iPropertyIndex = FindIndexFromPropertyName(dev_prop,property_name);
+    int iPropertyIndex = find_index_from_property_name(dev_prop,property_name);
     if (iPropertyIndex == -1) return;
     if (dev_prop[iPropertyIndex].is_empty())
     {
@@ -379,9 +423,9 @@ void ProsilicaCCD::create_property_if_empty(Tango::DbData& dev_prop,T value,stri
 
 
 /*-------------------------------------------------------------------------
-//       LimaDetector::FindIndexFromPropertyName
+//       ProsilicaCCD::find_index_from_property_name
 /-------------------------------------------------------------------------*/
-int ProsilicaCCD::FindIndexFromPropertyName(Tango::DbData& dev_prop, string property_name)
+int ProsilicaCCD::find_index_from_property_name(Tango::DbData& dev_prop, string property_name)
 {
     size_t iNbProperties = dev_prop.size();
     unsigned int i;

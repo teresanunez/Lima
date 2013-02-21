@@ -689,11 +689,19 @@ void AdscCCD::set_header_parameters(Tango::DevString argin)
 
 
 /*-------------------------------------------------------------------------
-//       LimaDetector::store_value_as_property
+//       AdscCCD::set_property
 /-------------------------------------------------------------------------*/
 template <class T>
-void AdscCCD::store_value_as_property (T value, string property_name)
+void AdscCCD::set_property(string property_name, T value)
 {
+    if (!Tango::Util::instance()->_UseDb)
+    {
+        //- rethrow exception
+        Tango::Except::throw_exception(static_cast<const char*> ("TANGO_DEVICE_ERROR"),
+                                       static_cast<const char*> ("NO DB"),
+                                       static_cast<const char*> ("AdscCCD::set_property"));
+    }    
+    
     Tango::DbDatum current_value(property_name);
     current_value << value;
     Tango::DbData db_data;
@@ -702,27 +710,63 @@ void AdscCCD::store_value_as_property (T value, string property_name)
     {
         get_db_device()->put_property(db_data);
     }
-    catch(Tango::DevFailed &df)
+    catch (Tango::DevFailed &df)
     {
-        string message= "Error in storing " + property_name + " in Configuration DataBase ";
+        string message = "Error in storing " + property_name + " in Configuration DataBase ";
         LOG_ERROR((message));
-        ERROR_STREAM<<df<<endl;
+        ERROR_STREAM << df << endl;
         //- rethrow exception
         Tango::Except::re_throw_exception(df,
-                    static_cast<const char*> ("TANGO_DEVICE_ERROR"),
-                    static_cast<const char*> (string(df.errors[0].desc).c_str()),
-                    static_cast<const char*> ("LimaDetector::store_value_as_property"));
+                                          static_cast<const char*> ("TANGO_DEVICE_ERROR"),
+                                          static_cast<const char*> (string(df.errors[0].desc).c_str()),
+                                          static_cast<const char*> ("AdscCCD::set_property"));
     }
-
 }
 
 /*-------------------------------------------------------------------------
-//       LimaDetector::create_property_if_empty
+//       AdscCCD::get_property
+/-------------------------------------------------------------------------*/
+template <class T>
+T AdscCCD::get_property(string property_name)
+{
+    if (!Tango::Util::instance()->_UseDb)
+    {
+        //- rethrow exception
+        Tango::Except::throw_exception(static_cast<const char*> ("TANGO_DEVICE_ERROR"),
+                                       static_cast<const char*> ("NO DB"),
+                                       static_cast<const char*> ("AdscCCD::get_property"));
+    }     
+    
+    T value;
+    Tango::DbDatum current_value(property_name);    
+    Tango::DbData db_data;
+    db_data.push_back(current_value);
+    try
+    {
+        get_db_device()->get_property(db_data);
+    }
+    catch (Tango::DevFailed &df)
+    {
+        string message = "Error in reading " + property_name + " in Configuration DataBase ";
+        LOG_ERROR((message));
+        ERROR_STREAM << df << endl;
+        //- rethrow exception
+        Tango::Except::re_throw_exception(df,
+                                          static_cast<const char*> ("TANGO_DEVICE_ERROR"),
+                                          static_cast<const char*> (string(df.errors[0].desc).c_str()),
+                                          static_cast<const char*> ("AdscCCD::get_property"));
+    }
+    db_data[0] >> value;
+    return (value);
+}
+
+/*-------------------------------------------------------------------------
+//       AdscCCD::create_property_if_empty
 /-------------------------------------------------------------------------*/
 template <class T>
 void AdscCCD::create_property_if_empty(Tango::DbData& dev_prop,T value,string property_name)
 {
-    int iPropertyIndex = FindIndexFromPropertyName(dev_prop,property_name);
+    int iPropertyIndex = find_index_from_property_name(dev_prop,property_name);
     if (iPropertyIndex == -1) return;
     if (dev_prop[iPropertyIndex].is_empty())
     {
@@ -744,15 +788,15 @@ void AdscCCD::create_property_if_empty(Tango::DbData& dev_prop,T value,string pr
             Tango::Except::re_throw_exception(df,
                         static_cast<const char*> ("TANGO_DEVICE_ERROR"),
                         static_cast<const char*> (string(df.errors[0].desc).c_str()),
-                        static_cast<const char*> ("LimaDetector::create_property_if_empty"));
+                        static_cast<const char*> ("AdscCCD::create_property_if_empty"));
         }
     }
 }
 
 /*-------------------------------------------------------------------------
-//       LimaDetector::FindIndexFromPropertyName
+//       AdscCCD::find_index_from_property_name
 /-------------------------------------------------------------------------*/
-int AdscCCD::FindIndexFromPropertyName(Tango::DbData& dev_prop, string property_name)
+int AdscCCD::find_index_from_property_name(Tango::DbData& dev_prop, string property_name)
 {
     size_t iNbProperties = dev_prop.size();
     unsigned int i;
@@ -764,22 +808,6 @@ int AdscCCD::FindIndexFromPropertyName(Tango::DbData& dev_prop, string property_
     if (i == iNbProperties) return -1;
     return i;
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
