@@ -61,14 +61,21 @@
 #endif
 
 #ifdef PCO_ENABLED
-#include <Pco.h>
-#include <PcoBufferCtrlObj.h>
-#include <PcoCamera.h>
-#include <PcoCameraUtils.h>
-#include <PcoDetInfoCtrlObj.h>
-#include <PcoInterface.h>
-#include <PcoSyncCtrlObj.h>   
+    #include <Pco.h>
+    #include <PcoBufferCtrlObj.h>
+    #include <PcoCamera.h>
+    #include <PcoCameraUtils.h>
+    #include <PcoDetInfoCtrlObj.h>
+    #include <PcoInterface.h>
+    #include <PcoSyncCtrlObj.h>   
+#endif
 
+#ifdef PERKINELMER_ENABLED
+    #include <PerkinElmerBinCtrlObj.h>
+    #include <PerkinElmerCompatibility.h>
+    #include <PerkinElmerDetInfoCtrlObj.h>
+    #include <PerkinElmerInterface.h>
+    #include <PerkinElmerSyncCtrlObj.h>    
 #endif
 
 using namespace lima;
@@ -137,12 +144,16 @@ private:
     Pco::Interface* my_interface_pco;
 #endif
 
-    CtControl* my_control;
-    static bool is_created;
-    std::string my_server_name;
-    std::string my_device_name;
-    Tango::DevState my_state;
-    stringstream my_status;
+#ifdef PERKINELMER_ENABLED
+	PerkinElmer::Interface*        my_interface_perkinelmer;
+#endif
+
+	CtControl*                     my_control;
+	static bool                    is_created;
+	std::string                    my_server_name;  
+	std::string                    my_device_name;
+	Tango::DevState				   my_state;
+	stringstream				   my_status;
 
     //lock the singleton acess
     yat::Mutex object_lock;

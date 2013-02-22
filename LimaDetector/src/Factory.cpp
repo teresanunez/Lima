@@ -55,6 +55,10 @@ void ControlFactory::initialize_pointers()
     my_interface_pco 	    = 0;
 #endif
 
+#ifdef PERKINELMER_ENABLED
+    my_interface_perkinelmer= 0;
+#endif
+
     my_server_name 			= "none";
     my_device_name 			= "none";
 
@@ -303,6 +307,19 @@ CtControl* ControlFactory::get_control( const std::string& detector_type)
         }
 #endif
 
+#ifdef PERKINELMER_ENABLED
+        if (detector_type.compare("PerkinElmer")== 0)
+        {
+            if(!ControlFactory::is_created)
+            {
+                my_interface_perkinelmer    = new PerkinElmer::Interface();
+                my_control                  = new CtControl(my_interface_perkinelmer);
+                ControlFactory::is_created  = true;
+                return my_control;
+            }
+        }
+#endif
+
         if(!ControlFactory::is_created)
             throw LIMA_HW_EXC(Error, "Unable to create the lima control object : Unknown Detector Type");
 
@@ -491,6 +508,17 @@ void ControlFactory::reset(const std::string& detector_type )
                     delete my_camera_pco;
                     my_camera_pco = 0;
                 }
+            }
+#endif
+
+#ifdef PERKINELMER_ENABLED
+            if (detector_type.compare("PerkinElmer")==0)
+            {
+                if(my_interface_perkinelmer)
+                {
+                    delete my_interface_perkinelmer;
+                    my_interface_perkinelmer = 0;
+                }                
             }
 #endif
         }

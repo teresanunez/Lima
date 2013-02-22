@@ -126,8 +126,8 @@
 				Name="VCCLCompilerTool"
 				Optimization="0"
 				EnableIntrinsicFunctions="false"
-				AdditionalIncludeDirectories="&quot;$(TANGO_INC)&quot;;&quot;$(YAT_INC)&quot;;&quot;$(YAT4TANGO_INC)&quot;;&quot;..\..\..\..\..\..\third-party\Processlib\core\include&quot;;&quot;..\..\..\..\..\..\third-party\Processlib\core\include\WindowSpecific&quot;;&quot;..\..\..\..\..\..\third-party\Processlib\tasks\include&quot;;..\..\..\..\..\..\control\include;..\..\..\..\..\..\control\software_operation\include;..\..\..\..\..\..\common\include;..\..\..\..\..\..\hardware\include;..\..\..\..\..\..\camera\simulator\include;..\..\..\..\..\..\camera\roperscientific\sdk\msvc\include;..\..\..\..\..\..\camera\roperscientific\include;..\..\..\..\..\..\applications\tango\LimaDetector\src;..\..\..\..\..\..\camera\pco\include;..\..\..\..\..\..\camera\pco\sdk\include"
-				PreprocessorDefinitions="_WIN32_WINNT=0x0502;WIN32;NDEBUG;_CONSOLE;SIMULATOR_ENABLED;PRINCETON_ENABLED;PCO_ENABLED;TANGO_HAS_DLL;LOG4TANGO_HAS_DLL"
+				AdditionalIncludeDirectories="&quot;$(TANGO_ROOT)\win32_vc9\win32_dll\include&quot;;&quot;$(YAT_ROOT)\include&quot;;&quot;$(YAT4TANGO_ROOT)\include&quot;;&quot;..\..\..\..\..\..\third-party\Processlib\core\include&quot;;&quot;..\..\..\..\..\..\third-party\Processlib\core\include\WindowSpecific&quot;;&quot;..\..\..\..\..\..\third-party\Processlib\tasks\include&quot;;..\..\..\..\..\..\control\include;..\..\..\..\..\..\control\software_operation\include;..\..\..\..\..\..\common\include;..\..\..\..\..\..\hardware\include;..\..\..\..\..\..\camera\simulator\include;..\..\..\..\..\..\camera\roperscientific\sdk\msvc\include;..\..\..\..\..\..\camera\roperscientific\include;..\..\..\..\..\..\applications\tango\LimaDetector\src;..\..\..\..\..\..\camera\pco\include;..\..\..\..\..\..\camera\pco\sdk\include;..\..\..\..\..\..\camera\perkinelmer\include;C:\XIS\SDK32"
+				PreprocessorDefinitions="_WIN32_WINNT=0x0502;WIN32;NDEBUG;_CONSOLE;SIMULATOR_ENABLED;PRINCETON_ENABLED;PCO_ENABLED;PERKINELMER_ENABLED;TANGO_HAS_DLL;LOG4TANGO_HAS_DLL"
 				RuntimeLibrary="2"
 				BufferSecurityCheck="true"
 				EnableFunctionLevelLinking="false"
@@ -227,6 +227,26 @@
 			</File>
 			<File
 				RelativePath="..\..\..\src\PcoStateMachine.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\src\PerkinElmer.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\src\PerkinElmer.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\src\PerkinElmerClass.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\src\PerkinElmerClass.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\src\PerkinElmerStateMachine.cpp"
 				>
 			</File>
 			<File
