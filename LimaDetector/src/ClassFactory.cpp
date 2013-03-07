@@ -74,6 +74,10 @@ static const char *RcsId = "$Id:  $";
 #include <PcoClass.h>
 #endif
 
+#ifdef PERKINELMER_ENABLED
+#include <PerkinElmerClass.h>
+#endif
+
 #ifndef WIN32
 #include "tango.h"
 #endif
@@ -120,6 +124,10 @@ void Tango::DServer::class_factory()
 
 #ifdef PCO_ENABLED
     add_class(Pco_ns::PcoClass::init("Pco"));
+#endif
+
+#ifdef PERKINELMER_ENABLED
+    add_class(PerkinElmer_ns::PerkinElmerClass::init("PerkinElmer"));
 #endif
 }
 
