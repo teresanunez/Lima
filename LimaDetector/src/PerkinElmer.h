@@ -224,6 +224,12 @@ public :
  */
 	virtual bool is_StartAcqGainImage_allowed(const CORBA::Any &any);
 /**
+ * This command gets the device state (stored in its <i>device_state</i> data member) and returns it to the caller.
+ *	@return	State Code
+ *	@exception DevFailed
+ */
+	virtual Tango::DevState	dev_state();
+/**
  * startAcqOffsetImage: ?
  *	@param	argin	nb frames, integration time
  *	@exception DevFailed

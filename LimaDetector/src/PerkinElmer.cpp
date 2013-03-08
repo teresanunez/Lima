@@ -553,4 +553,46 @@ void PerkinElmer::start_acq_gain_image(const Tango::DevVarDoubleArray *argin)
 
 }
 
+
+//+------------------------------------------------------------------
+/**
+ *	method:	PerkinElmer::dev_state
+ *
+ *	description:	method to execute "State"
+ *	This command gets the device state (stored in its <i>device_state</i> data member) and returns it to the caller.
+ *
+ * @return	State Code
+ *
+ */
+//+------------------------------------------------------------------
+Tango::DevState PerkinElmer::dev_state()
+{
+	Tango::DevState	argout = DeviceImpl::dev_state();
+	DEBUG_STREAM << "PerkinElmer::dev_state(): entering... !" << endl;
+
+	//	Add your own code to control device here
+
+	stringstream    DeviceStatus;
+    DeviceStatus     << "";
+    Tango::DevState DeviceState    = Tango::STANDBY;
+    if(!m_is_device_initialized )
+    {
+        DeviceState            = Tango::FAULT;
+        DeviceStatus        << m_status_message.str();
+    }
+    else
+	{
+		//state&status are retrieved from specific device
+		DeviceState = ControlFactory::instance().get_state();
+		DeviceStatus << ControlFactory::instance().get_status();		
+    }
+
+    set_state(DeviceState);
+    set_status(DeviceStatus.str());
+
+    argout = DeviceState;
+
+    return argout;
+}
+
 }	//	namespace
