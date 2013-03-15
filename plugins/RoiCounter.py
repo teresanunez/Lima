@@ -78,9 +78,8 @@ class RoiCounterDeviceServer(BasePostProcess) :
 #    Write BufferSize attribute
 #------------------------------------------------------------------
     def write_BufferSize(self, attr):
-	data=[]
-	attr.get_write_value(data)
-        self.__roiCounterMgr.setBufferSize(data[0])
+	data = attr.get_write_value()
+        self.__roiCounterMgr.setBufferSize(data)
 
 
 #------------------------------------------------------------------
