@@ -1190,8 +1190,7 @@ class LimaCCDs(PyTango.Device_4Impl) :
         attr.set_value(self.__shared_memory_names)
 
     def write_shared_memory_names(self,attr) :
-        self.__shared_memory_names = []
-        attr.get_write_value(self.__shared_memory_names)
+        self.__shared_memory_names = attr.get_write_value()
         shared_memory = self.__control.display()
         shared_memory.setNames(*self.__shared_memory_names)
 
