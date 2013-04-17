@@ -1199,6 +1199,12 @@ void LimaDetector::read_triggerMode(Tango::Attribute &attr)
             strcpy(*attr_triggerMode_read, "EXTERNAL_MULTI");
         else if (trig_mode == ExtGate)
             strcpy(*attr_triggerMode_read, "EXTERNAL_GATE");
+		else if (trig_mode == IntTrigMult)
+            strcpy(*attr_triggerMode_read, "INTERNAL_MULTI");
+		else if (trig_mode == ExtStartStop)
+            strcpy(*attr_triggerMode_read, "EXTERNAL_START_STOP");
+		else if (trig_mode == ExtTrigReadout)
+            strcpy(*attr_triggerMode_read, "EXTERNAL_READOUT");
         else
             strcpy(*attr_triggerMode_read, "ERROR");
 
@@ -1241,14 +1247,27 @@ void LimaDetector::write_triggerMode(Tango::WAttribute &attr)
         string previous = m_trigger_mode;
         attr.get_write_value(attr_triggerMode_write);
         string current = attr_triggerMode_write;
-        if(current.compare("INTERNAL_SINGLE")!=0 && current.compare("EXTERNAL_SINGLE")!=0 && current.compare("EXTERNAL_MULTI")!=0 && current.compare("EXTERNAL_GATE")!=0)
+        if(current.compare("INTERNAL_SINGLE")!=0	&& 
+			current.compare("EXTERNAL_SINGLE")!=0	&& 
+			current.compare("EXTERNAL_MULTI")!=0	&& 
+			current.compare("EXTERNAL_GATE")!=0		&& 
+			current.compare("INTERNAL_MULTI")!=0	&& 
+			current.compare("EXTERNAL_START_STOP")!=0	&& 
+			current.compare("EXTERNAL_READOUT")!=0)
         {
             m_trigger_mode = previous;
             attr_triggerMode_write = new char [m_trigger_mode.size()+1];
             strcpy (attr_triggerMode_write, m_trigger_mode.c_str());
 
             Tango::Except::throw_exception( (const char*) ("CONFIGURATION_ERROR"),
-                                            (const char*) ("Available Trigger Modes are: \n- INTERNAL_SINGLE \n- EXTERNAL_SINGLE \n- EXTERNAL_MULTI \n- EXTERNAL_GATE"),
+                                            (const char*) ("Available Trigger Modes are:	\n- INTERNAL_SINGLE \
+																							\n- EXTERNAL_SINGLE \
+																							\n- EXTERNAL_MULTI \
+																							\n- EXTERNAL_GATE \
+																							\n- INTERNAL_MULTI \
+																							\n- EXTERNAL_START_STOP \
+																							\n- EXTERNAL_READOUT \
+																							"),
                                             (const char*) ("LimaDetector::write_triggerMode"));
         }
 
@@ -1256,14 +1275,20 @@ void LimaDetector::write_triggerMode(Tango::WAttribute &attr)
         m_trigger_mode = attr_triggerMode_write;
 
         TrigMode trig_mode = IntTrig;
-        if(m_trigger_mode.compare("INTERNAL_SINGLE")==0)
+        if (m_trigger_mode.compare("INTERNAL_SINGLE")==0)
             trig_mode = IntTrig;
         else if (m_trigger_mode.compare("EXTERNAL_SINGLE")==0)
             trig_mode = ExtTrigSingle;
         else if (m_trigger_mode.compare("EXTERNAL_MULTI")==0)
             trig_mode = ExtTrigMult;
-        else //m_trigger_mode.compare("EXTERNAL_GATE")==0
+        else if (m_trigger_mode.compare("EXTERNAL_GATE")==0)
             trig_mode = ExtGate;
+		else if (m_trigger_mode.compare("INTERNAL_MULTI")==0)
+            trig_mode = IntTrigMult;
+		else if (m_trigger_mode.compare("EXTERNAL_START_STOP")==0)
+            trig_mode = ExtStartStop;
+		else if (m_trigger_mode.compare("EXTERNAL_READOUT")==0)
+            trig_mode = ExtTrigReadout;
 
         m_ct->acquisition()->setTriggerMode(trig_mode);
         set_property("MemorizedTriggerMode",m_trigger_mode);

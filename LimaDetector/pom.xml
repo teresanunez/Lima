@@ -147,6 +147,7 @@
 							<exclude>Princeton*.*</exclude>
 							<!--<exclude>Simulator*.*</exclude>-->
 							<exclude>Pco*.*</exclude>
+							<exclude>PerkinElmer*.*</exclude>
 
 
 						</excludes>
