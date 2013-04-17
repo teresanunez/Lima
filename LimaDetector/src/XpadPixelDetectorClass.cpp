@@ -621,7 +621,9 @@ void XpadPixelDetectorClass::attribute_factory(vector<Tango::Attr *> &att_list)
 	//	Attribute : deadTime
 	deadTimeAttrib	*dead_time = new deadTimeAttrib();
 	Tango::UserDefaultAttrProp	dead_time_prop;
-	dead_time_prop.set_unit(" ");
+	dead_time_prop.set_unit("탎");
+	dead_time_prop.set_format("%d");
+	dead_time_prop.set_description("time between images");
 	dead_time->set_default_properties(dead_time_prop);
 	dead_time->set_disp_level(Tango::EXPERT);
 	att_list.push_back(dead_time);
@@ -629,7 +631,9 @@ void XpadPixelDetectorClass::attribute_factory(vector<Tango::Attr *> &att_list)
 	//	Attribute : init
 	initAttrib	*init = new initAttrib();
 	Tango::UserDefaultAttrProp	init_prop;
-	init_prop.set_unit(" ");
+	init_prop.set_unit("탎");
+	init_prop.set_format("%d");
+	init_prop.set_description("time before start");
 	init->set_default_properties(init_prop);
 	init->set_disp_level(Tango::EXPERT);
 	att_list.push_back(init);
@@ -637,7 +641,9 @@ void XpadPixelDetectorClass::attribute_factory(vector<Tango::Attr *> &att_list)
 	//	Attribute : shutter
 	shutterAttrib	*shutter = new shutterAttrib();
 	Tango::UserDefaultAttrProp	shutter_prop;
-	shutter_prop.set_unit(" ");
+	shutter_prop.set_unit("탎");
+	shutter_prop.set_format("%d");
+	shutter_prop.set_description("shutter time");
 	shutter->set_default_properties(shutter_prop);
 	shutter->set_disp_level(Tango::EXPERT);
 	att_list.push_back(shutter);
@@ -645,7 +651,9 @@ void XpadPixelDetectorClass::attribute_factory(vector<Tango::Attr *> &att_list)
 	//	Attribute : ovf
 	ovfAttrib	*ovf = new ovfAttrib();
 	Tango::UserDefaultAttrProp	ovf_prop;
-	ovf_prop.set_unit(" ");
+	ovf_prop.set_unit("탎");
+	ovf_prop.set_format("%d");
+	ovf_prop.set_description("ovf time");
 	ovf->set_default_properties(ovf_prop);
 	ovf->set_disp_level(Tango::EXPERT);
 	att_list.push_back(ovf);
@@ -653,7 +661,9 @@ void XpadPixelDetectorClass::attribute_factory(vector<Tango::Attr *> &att_list)
 	//	Attribute : n
 	nAttrib	*n = new nAttrib();
 	Tango::UserDefaultAttrProp	n_prop;
-	n_prop.set_unit(" ");
+	n_prop.set_unit("탎");
+	n_prop.set_format("%d");
+	n_prop.set_description("?	");
 	n->set_default_properties(n_prop);
 	n->set_disp_level(Tango::EXPERT);
 	att_list.push_back(n);
@@ -661,7 +671,8 @@ void XpadPixelDetectorClass::attribute_factory(vector<Tango::Attr *> &att_list)
 	//	Attribute : p
 	pAttrib	*p = new pAttrib();
 	Tango::UserDefaultAttrProp	p_prop;
-	p_prop.set_unit(" ");
+	p_prop.set_unit("탎");
+	p_prop.set_format("%d");
 	p->set_default_properties(p_prop);
 	p->set_disp_level(Tango::EXPERT);
 	att_list.push_back(p);
@@ -670,6 +681,8 @@ void XpadPixelDetectorClass::attribute_factory(vector<Tango::Attr *> &att_list)
 	gp1Attrib	*gp1 = new gp1Attrib();
 	Tango::UserDefaultAttrProp	gp1_prop;
 	gp1_prop.set_unit(" ");
+	gp1_prop.set_format("%d");
+	gp1_prop.set_description("?");
 	gp1->set_default_properties(gp1_prop);
 	gp1->set_disp_level(Tango::EXPERT);
 	att_list.push_back(gp1);
@@ -678,6 +691,8 @@ void XpadPixelDetectorClass::attribute_factory(vector<Tango::Attr *> &att_list)
 	gp2Attrib	*gp2 = new gp2Attrib();
 	Tango::UserDefaultAttrProp	gp2_prop;
 	gp2_prop.set_unit(" ");
+	gp2_prop.set_format("%d");
+	gp2_prop.set_description("?");
 	gp2->set_default_properties(gp2_prop);
 	gp2->set_disp_level(Tango::EXPERT);
 	att_list.push_back(gp2);
@@ -686,6 +701,8 @@ void XpadPixelDetectorClass::attribute_factory(vector<Tango::Attr *> &att_list)
 	gp3Attrib	*gp3 = new gp3Attrib();
 	Tango::UserDefaultAttrProp	gp3_prop;
 	gp3_prop.set_unit(" ");
+	gp3_prop.set_format("%d");
+	gp3_prop.set_description("?");
 	gp3->set_default_properties(gp3_prop);
 	gp3->set_disp_level(Tango::EXPERT);
 	att_list.push_back(gp3);
@@ -694,6 +711,8 @@ void XpadPixelDetectorClass::attribute_factory(vector<Tango::Attr *> &att_list)
 	gp4Attrib	*gp4 = new gp4Attrib();
 	Tango::UserDefaultAttrProp	gp4_prop;
 	gp4_prop.set_unit(" ");
+	gp4_prop.set_format("%d");
+	gp4_prop.set_description("?");
 	gp4->set_default_properties(gp4_prop);
 	gp4->set_disp_level(Tango::EXPERT);
 	att_list.push_back(gp4);

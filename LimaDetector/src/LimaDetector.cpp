@@ -2823,11 +2823,11 @@ Tango::DevState LimaDetector::dev_state()
 				std::vector<lima::Event *> myEventList;
                 m_ct->event()->getEventList(myEventList);
 
-                INFO_STREAM << "myEventList.size()= " <<  myEventList.size() << endl;
+                DEBUG_STREAM << "myEventList.size()= " <<  myEventList.size() << endl;
                 
                 for (int i = 0; i< myEventList.size();++i)
                 {
-                    INFO_STREAM << "in LimaDetector::Event:" <<  myEventList[i]->getMsgStr() << endl;
+                    DEBUG_STREAM << "in LimaDetector::Event:" <<  myEventList[i]->getMsgStr() << endl;
                 }
             }
 
@@ -3137,6 +3137,7 @@ void LimaDetector::EventCallback::processEvent(lima::Event *my_event)
 
 
 }*/
+
 
 
 

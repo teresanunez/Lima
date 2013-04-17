@@ -509,7 +509,7 @@ void LimaDetectorClass::attribute_factory(vector<Tango::Attr *> &att_list)
 	triggerModeAttrib	*trigger_mode = new triggerModeAttrib();
 	Tango::UserDefaultAttrProp	trigger_mode_prop;
 	trigger_mode_prop.set_unit(" ");
-	trigger_mode_prop.set_description("Available Trigger Modes :<br>\nINTERNAL_SINGLE<br>\nEXTERNAL_SINGLE<br>\nEXTERNAL_MULTI<br>\nEXTERNAL_GATE<br>");
+	trigger_mode_prop.set_description("Available Trigger Modes :<br>\nINTERNAL_SINGLE<br>\nEXTERNAL_SINGLE<br>\nEXTERNAL_MULTI<br>\nEXTERNAL_GATE<br>\nINTERNAL_MULTI<br>\nEXTERNAL_START_STOP<br>\nEXTERNAL_READOUT<br>");
 	trigger_mode->set_default_properties(trigger_mode_prop);
 	trigger_mode->set_memorized();
 	trigger_mode->set_memorized_init(false);

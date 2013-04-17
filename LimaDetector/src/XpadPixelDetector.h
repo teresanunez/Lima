@@ -67,16 +67,16 @@ namespace XpadPixelDetector_ns
     /**
      * Class Description:
      * This is the Xpad 3.2 (PCIe) Pixel Detector device, which uses Lima
-     */
+ */
 
-    /*
-     *	Device States Description:
-     *  Tango::INIT :
-     *  Tango::STANDBY :
-     *  Tango::RUNNING :
-     *  Tango::FAULT :
-     *  Tango::DISABLE :  Xpad is calibrating
-     */
+/*
+ *	Device States Description:
+*  Tango::INIT :
+*  Tango::STANDBY :
+*  Tango::RUNNING :
+*  Tango::FAULT :
+*  Tango::DISABLE :  Xpad is calibrating
+ */
 
 
     class XpadPixelDetector : public Tango::Device_4Impl
@@ -93,60 +93,60 @@ namespace XpadPixelDetector_ns
          *	Attribute member data.
          */
         //@{
-        Tango::DevULong *attr_deadTime_read;
-        Tango::DevULong attr_deadTime_write;
-        Tango::DevULong *attr_init_read;
-        Tango::DevULong attr_init_write;
-        Tango::DevULong *attr_shutter_read;
-        Tango::DevULong attr_shutter_write;
-        Tango::DevULong *attr_ovf_read;
-        Tango::DevULong attr_ovf_write;
-        Tango::DevULong *attr_n_read;
-        Tango::DevULong attr_n_write;
-        Tango::DevULong *attr_p_read;
-        Tango::DevULong attr_p_write;
-        Tango::DevULong *attr_gp1_read;
-        Tango::DevULong attr_gp1_write;
-        Tango::DevULong *attr_gp2_read;
-        Tango::DevULong attr_gp2_write;
-        Tango::DevULong *attr_gp3_read;
-        Tango::DevULong attr_gp3_write;
-        Tango::DevULong *attr_gp4_read;
-        Tango::DevULong attr_gp4_write;
-        Tango::DevULong *attr_dacl_read;
-        Tango::DevULong *attr_ithl_read;
-        //@}
+		Tango::DevULong	*attr_deadTime_read;
+		Tango::DevULong	attr_deadTime_write;
+		Tango::DevULong	*attr_init_read;
+		Tango::DevULong	attr_init_write;
+		Tango::DevULong	*attr_shutter_read;
+		Tango::DevULong	attr_shutter_write;
+		Tango::DevULong	*attr_ovf_read;
+		Tango::DevULong	attr_ovf_write;
+		Tango::DevULong	*attr_n_read;
+		Tango::DevULong	attr_n_write;
+		Tango::DevULong	*attr_p_read;
+		Tango::DevULong	attr_p_write;
+		Tango::DevULong	*attr_gp1_read;
+		Tango::DevULong	attr_gp1_write;
+		Tango::DevULong	*attr_gp2_read;
+		Tango::DevULong	attr_gp2_write;
+		Tango::DevULong	*attr_gp3_read;
+		Tango::DevULong	attr_gp3_write;
+		Tango::DevULong	*attr_gp4_read;
+		Tango::DevULong	attr_gp4_write;
+		Tango::DevULong	*attr_dacl_read;
+		Tango::DevULong	*attr_ithl_read;
+//@}
 
         /**
          * @name Device properties
          * Device properties member data.
          */
         //@{
-        /**
-         *	Type of Acquisition:<BR>
-         *	0->SYNC<BR>
-         *	1->ASYNC (not supported yet)
-         */
-        Tango::DevShort acquisitionType;
-        /**
-         *	Define the model of the XPAD (architecture)<BR>
-         *	Availables models :<BR>
-         *	- BACKPLANE<BR>
-         *	- IMXPAD_S70<BR>
-         *	- IMXPAD_S140<BR>
-         *	- IMXPAD_S340<BR>
-         *	- IMXPAD_S540<BR>
-         */
-        string xpadModel;
-        /**
-         *	Path where the calibration files will be save, and from where the calibrations will be uploaded via an UploadCalibration command
-         */
-        string calibrationPath;
-        /**
-         *	Number of Adjusting iteration for the Calibration
-         */
-        Tango::DevULong calibrationAdjustingNumber;
-        //@}
+/**
+ *	Type of Acquisition:<BR>
+ *	0->SYNC<BR>
+ *	1->ASYNC (not supported yet)
+ */
+	Tango::DevShort	acquisitionType;
+/**
+ *	Define the model of the XPAD (architecture)<BR>
+ *	Availables models :<BR>
+ *	- BACKPLANE<BR>
+ *	- IMXPAD_S70<BR>
+ *	- IMXPAD_S140<BR>
+ *	- IMXPAD_S340<BR>
+ *	- IMXPAD_S540<BR>
+ */
+	string	xpadModel;
+/**
+ *	Path where the calibration files will be save, and from where the calibrations will be uploaded via an UploadCalibration command
+ */
+	string	calibrationPath;
+/**
+ *	Number of Adjusting iteration for the Calibration
+ */
+	Tango::DevULong	calibrationAdjustingNumber;
+//@}
 
         /**
          *	@name Device properties
@@ -211,299 +211,290 @@ namespace XpadPixelDetector_ns
          */
         virtual void always_executed_hook();
 
-        //@}
+//@}
 
-        /**
-         * @name XpadPixelDetector methods prototypes
-         */
+/**
+ * @name XpadPixelDetector methods prototypes
+ */
 
-        //@{
-        /**
-         *	Hardware acquisition for attributes.
-         */
-        virtual void read_attr_hardware(vector<long> &attr_list);
-        /**
-         *	Extract real attribute values for deadTime acquisition result.
-         */
-        virtual void read_deadTime(Tango::Attribute &attr);
-        /**
-         *	Write deadTime attribute values to hardware.
-         */
-        virtual void write_deadTime(Tango::WAttribute &attr);
-        /**
-         *	Extract real attribute values for init acquisition result.
-         */
-        virtual void read_init(Tango::Attribute &attr);
-        /**
-         *	Write init attribute values to hardware.
-         */
-        virtual void write_init(Tango::WAttribute &attr);
-        /**
-         *	Extract real attribute values for shutter acquisition result.
-         */
-        virtual void read_shutter(Tango::Attribute &attr);
-        /**
-         *	Write shutter attribute values to hardware.
-         */
-        virtual void write_shutter(Tango::WAttribute &attr);
-        /**
-         *	Extract real attribute values for ovf acquisition result.
-         */
-        virtual void read_ovf(Tango::Attribute &attr);
-        /**
-         *	Write ovf attribute values to hardware.
-         */
-        virtual void write_ovf(Tango::WAttribute &attr);
-        /**
-         *	Extract real attribute values for n acquisition result.
-         */
-        virtual void read_n(Tango::Attribute &attr);
-        /**
-         *	Write n attribute values to hardware.
-         */
-        virtual void write_n(Tango::WAttribute &attr);
-        /**
-         *	Extract real attribute values for p acquisition result.
-         */
-        virtual void read_p(Tango::Attribute &attr);
-        /**
-         *	Write p attribute values to hardware.
-         */
-        virtual void write_p(Tango::WAttribute &attr);
-        /**
-         *	Extract real attribute values for gp1 acquisition result.
-         */
-        virtual void read_gp1(Tango::Attribute &attr);
-        /**
-         *	Write gp1 attribute values to hardware.
-         */
-        virtual void write_gp1(Tango::WAttribute &attr);
-        /**
-         *	Extract real attribute values for gp2 acquisition result.
-         */
-        virtual void read_gp2(Tango::Attribute &attr);
-        /**
-         *	Write gp2 attribute values to hardware.
-         */
-        virtual void write_gp2(Tango::WAttribute &attr);
-        /**
-         *	Extract real attribute values for gp3 acquisition result.
-         */
-        virtual void read_gp3(Tango::Attribute &attr);
-        /**
-         *	Write gp3 attribute values to hardware.
-         */
-        virtual void write_gp3(Tango::WAttribute &attr);
-        /**
-         *	Extract real attribute values for gp4 acquisition result.
-         */
-        virtual void read_gp4(Tango::Attribute &attr);
-        /**
-         *	Write gp4 attribute values to hardware.
-         */
-        virtual void write_gp4(Tango::WAttribute &attr);
-        /**
-         *	Extract real attribute values for dacl acquisition result.
-         */
-        virtual void read_dacl(Tango::Attribute &attr);
-        /**
-         *	Extract real attribute values for ithl acquisition result.
-         */
-        virtual void read_ithl(Tango::Attribute &attr);
-        /**
-         *	Read/Write allowed for deadTime attribute.
-         */
-        virtual bool is_deadTime_allowed(Tango::AttReqType type);
-        /**
-         *	Read/Write allowed for init attribute.
-         */
-        virtual bool is_init_allowed(Tango::AttReqType type);
-        /**
-         *	Read/Write allowed for shutter attribute.
-         */
-        virtual bool is_shutter_allowed(Tango::AttReqType type);
-        /**
-         *	Read/Write allowed for ovf attribute.
-         */
-        virtual bool is_ovf_allowed(Tango::AttReqType type);
-        /**
-         *	Read/Write allowed for n attribute.
-         */
-        virtual bool is_n_allowed(Tango::AttReqType type);
-        /**
-         *	Read/Write allowed for p attribute.
-         */
-        virtual bool is_p_allowed(Tango::AttReqType type);
-        /**
-         *	Read/Write allowed for gp1 attribute.
-         */
-        virtual bool is_gp1_allowed(Tango::AttReqType type);
-        /**
-         *	Read/Write allowed for gp2 attribute.
-         */
-        virtual bool is_gp2_allowed(Tango::AttReqType type);
-        /**
-         *	Read/Write allowed for gp3 attribute.
-         */
-        virtual bool is_gp3_allowed(Tango::AttReqType type);
-        /**
-         *	Read/Write allowed for gp4 attribute.
-         */
-        virtual bool is_gp4_allowed(Tango::AttReqType type);
-        /**
-         *	Read/Write allowed for dacl attribute.
-         */
-        virtual bool is_dacl_allowed(Tango::AttReqType type);
-        /**
-         *	Read/Write allowed for ithl attribute.
-         */
-        virtual bool is_ithl_allowed(Tango::AttReqType type);
-        /**
-         *	Execution allowed for LoadFlatConfig command.
-         */
-        virtual bool is_LoadFlatConfig_allowed(const CORBA::Any &any);
-        /**
-         *	Execution allowed for LoadAllConfigG command.
-         */
-        virtual bool is_LoadAllConfigG_allowed(const CORBA::Any &any);
-        /**
-         *	Execution allowed for SaveConfigL command.
-         */
-        virtual bool is_SaveConfigL_allowed(const CORBA::Any &any);
-        /**
-         *	Execution allowed for SaveConfigG command.
-         */
-        virtual bool is_SaveConfigG_allowed(const CORBA::Any &any);
-        /**
-         *	Execution allowed for LoadConfig command.
-         */
-        virtual bool is_LoadConfig_allowed(const CORBA::Any &any);
-        /**
-         *	Execution allowed for Reset command.
-         */
-        virtual bool is_Reset_allowed(const CORBA::Any &any);
-        /**
-         *	Execution allowed for GetDacl command.
-         */
-        virtual bool is_GetDacl_allowed(const CORBA::Any &any);
-        /**
-         *	Execution allowed for GetIthl command.
-         */
-        virtual bool is_GetIthl_allowed(const CORBA::Any &any);
-        /**
-         *	Execution allowed for CalibrateOTNSlow command.
-         */
-        virtual bool is_CalibrateOTNSlow_allowed(const CORBA::Any &any);
-        /**
-         *	Execution allowed for UploadCalibration command.
-         */
-        virtual bool is_UploadCalibration_allowed(const CORBA::Any &any);
-        /**
-         *	Execution allowed for UploadWaitTimes command.
-         */
-        virtual bool is_UploadWaitTimes_allowed(const CORBA::Any &any);
-        /**
-         *	Execution allowed for IncrementITHL command.
-         */
-        virtual bool is_IncrementITHL_allowed(const CORBA::Any &any);
-        /**
-         *	Execution allowed for DecrementITHL command.
-         */
-        virtual bool is_DecrementITHL_allowed(const CORBA::Any &any);
-        /**
-         * This command gets the device state (stored in its <i>device_state</i> data member) and returns it to the caller.
-         *	@return	State Code
-         *	@exception DevFailed
-         */
-        virtual Tango::DevState dev_state();
-        /**
-         * Load a Flat config, for each pixel
-         *	@param	argin	Flat value to be loaded
-         *	@exception DevFailed
-         */
-        void load_flat_config(Tango::DevULong);
-        /**
-         * IBUFFER
-         *	@param	argin	modNum(1..8), chipId(0..6), config_values (11 values)
-         *	@exception DevFailed
-         */
-        void load_all_config_g(const Tango::DevVarULongArray *);
-        /**
-         * The�function�loads/stores�a�line�of�calibration�data�at�the�line�index�curRow�in�the�
-         *	memory�buffer�identified�by�calibId�of�the�chip�identified�by�chipId�of�the�modules�
-         *	selected�by� modNum. �The�80�calibration�data�values�that�are�stored�starting�at�
-         *	address�value.�Calibration�data�(80�words�16�bits)�for�one�row�of�one�chip�(9�bits)
-         *	@param	argin	modNum(1..8), calibId(0..6), chipId(0..7), curRow (0..119), values (80 values)
-         *	@exception DevFailed
-         */
-        void save_config_l(const Tango::DevVarULongArray *);
-        /**
-         * The � function � loads/store � the � global � register �reg� (see � paragraph � 3.4) � in � the�
-         *	memory�buffer�identified�by�calibId.
-         *	@param	argin	modNum(1..8), calibId(0..6), reg, values (7 values)
-         *	@exception DevFailed
-         */
-        void save_config_g(const Tango::DevVarULongArray *);
-        /**
-         * This�function�activate� the�copy�of � the�calibration�data�stored� into� the�memory�
-         *	buffer�identified�by�calibId�of�all�the�chips�of�the�modules�selected�by�modNum �
-         *	into�the�config�registers.
-         *	@param	argin	modNum(1..8), calibId(0..6)
-         *	@exception DevFailed
-         */
-        void load_config(const Tango::DevVarULongArray *);
-        /**
-         * Reset the Xpad : call the xpci_hubModRebootNIOS(modMask) xpix function
-         *	@exception DevFailed
-         */
-        void reset();
-        /**
-         * This�fonction�get�the�values�of�the�DACL
-         *	@return	array of DACL data
-         *	@exception DevFailed
-         */
-        Tango::DevVarUShortArray *get_dacl();
-        /**
-         * This�fonction�get�the�values�of�the�ITHL
-         *	@return	array of ITHL data
-         *	@exception DevFailed
-         */
-        Tango::DevVarUShortArray *get_ithl();
-        /**
-         * Calibrate the Xpad over the noise with a slow  XXX and store the results in the directory defined by the CalibrationPath property
-         *	with theses hard coded config G values:
-         *	ITHL ...
-         *	...
-         *	@exception DevFailed
-         */
-        void calibrate_otnslow();
-        /**
-         * Upload the calibration (dacl + configg) which is stored the path defined in the CalibrationPath property
-         *	@exception DevFailed
-         */
-        void upload_calibration();
-        /**
-         * Upload the wait times between images: the number of values has to correspond to the number of images
-         *	@param	argin	the wait times
-         *	@exception DevFailed
-         */
-        void upload_wait_times(const Tango::DevVarULongArray *);
-        /**
-         * Increment the ITHL
-         *	@exception DevFailed
-         */
-        void increment_ithl();
-        /**
-         * Decrement the ITHL
-         *	@exception DevFailed
-         */
-        void decrement_ithl();
+//@{
+/**
+ *	Hardware acquisition for attributes.
+ */
+	virtual void read_attr_hardware(vector<long> &attr_list);
+/**
+ *	Extract real attribute values for deadTime acquisition result.
+ */
+	virtual void read_deadTime(Tango::Attribute &attr);
+/**
+ *	Write deadTime attribute values to hardware.
+ */
+	virtual void write_deadTime(Tango::WAttribute &attr);
+/**
+ *	Extract real attribute values for init acquisition result.
+ */
+	virtual void read_init(Tango::Attribute &attr);
+/**
+ *	Write init attribute values to hardware.
+ */
+	virtual void write_init(Tango::WAttribute &attr);
+/**
+ *	Extract real attribute values for shutter acquisition result.
+ */
+	virtual void read_shutter(Tango::Attribute &attr);
+/**
+ *	Write shutter attribute values to hardware.
+ */
+	virtual void write_shutter(Tango::WAttribute &attr);
+/**
+ *	Extract real attribute values for ovf acquisition result.
+ */
+	virtual void read_ovf(Tango::Attribute &attr);
+/**
+ *	Write ovf attribute values to hardware.
+ */
+	virtual void write_ovf(Tango::WAttribute &attr);
+/**
+ *	Extract real attribute values for n acquisition result.
+ */
+	virtual void read_n(Tango::Attribute &attr);
+/**
+ *	Write n attribute values to hardware.
+ */
+	virtual void write_n(Tango::WAttribute &attr);
+/**
+ *	Extract real attribute values for p acquisition result.
+ */
+	virtual void read_p(Tango::Attribute &attr);
+/**
+ *	Write p attribute values to hardware.
+ */
+	virtual void write_p(Tango::WAttribute &attr);
+/**
+ *	Extract real attribute values for gp1 acquisition result.
+ */
+	virtual void read_gp1(Tango::Attribute &attr);
+/**
+ *	Write gp1 attribute values to hardware.
+ */
+	virtual void write_gp1(Tango::WAttribute &attr);
+/**
+ *	Extract real attribute values for gp2 acquisition result.
+ */
+	virtual void read_gp2(Tango::Attribute &attr);
+/**
+ *	Write gp2 attribute values to hardware.
+ */
+	virtual void write_gp2(Tango::WAttribute &attr);
+/**
+ *	Extract real attribute values for gp3 acquisition result.
+ */
+	virtual void read_gp3(Tango::Attribute &attr);
+/**
+ *	Write gp3 attribute values to hardware.
+ */
+	virtual void write_gp3(Tango::WAttribute &attr);
+/**
+ *	Extract real attribute values for gp4 acquisition result.
+ */
+	virtual void read_gp4(Tango::Attribute &attr);
+/**
+ *	Write gp4 attribute values to hardware.
+ */
+	virtual void write_gp4(Tango::WAttribute &attr);
+/**
+ *	Extract real attribute values for dacl acquisition result.
+ */
+	virtual void read_dacl(Tango::Attribute &attr);
+/**
+ *	Extract real attribute values for ithl acquisition result.
+ */
+	virtual void read_ithl(Tango::Attribute &attr);
+/**
+ *	Read/Write allowed for deadTime attribute.
+ */
+	virtual bool is_deadTime_allowed(Tango::AttReqType type);
+/**
+ *	Read/Write allowed for init attribute.
+ */
+	virtual bool is_init_allowed(Tango::AttReqType type);
+/**
+ *	Read/Write allowed for shutter attribute.
+ */
+	virtual bool is_shutter_allowed(Tango::AttReqType type);
+/**
+ *	Read/Write allowed for ovf attribute.
+ */
+	virtual bool is_ovf_allowed(Tango::AttReqType type);
+/**
+ *	Read/Write allowed for n attribute.
+ */
+	virtual bool is_n_allowed(Tango::AttReqType type);
+/**
+ *	Read/Write allowed for p attribute.
+ */
+	virtual bool is_p_allowed(Tango::AttReqType type);
+/**
+ *	Read/Write allowed for gp1 attribute.
+ */
+	virtual bool is_gp1_allowed(Tango::AttReqType type);
+/**
+ *	Read/Write allowed for gp2 attribute.
+ */
+	virtual bool is_gp2_allowed(Tango::AttReqType type);
+/**
+ *	Read/Write allowed for gp3 attribute.
+ */
+	virtual bool is_gp3_allowed(Tango::AttReqType type);
+/**
+ *	Read/Write allowed for gp4 attribute.
+ */
+	virtual bool is_gp4_allowed(Tango::AttReqType type);
+/**
+ *	Read/Write allowed for dacl attribute.
+ */
+	virtual bool is_dacl_allowed(Tango::AttReqType type);
+/**
+ *	Read/Write allowed for ithl attribute.
+ */
+	virtual bool is_ithl_allowed(Tango::AttReqType type);
+/**
+ *	Execution allowed for LoadFlatConfig command.
+ */
+	virtual bool is_LoadFlatConfig_allowed(const CORBA::Any &any);
+/**
+ *	Execution allowed for LoadAllConfigG command.
+ */
+	virtual bool is_LoadAllConfigG_allowed(const CORBA::Any &any);
+/**
+ *	Execution allowed for SaveConfigL command.
+ */
+	virtual bool is_SaveConfigL_allowed(const CORBA::Any &any);
+/**
+ *	Execution allowed for SaveConfigG command.
+ */
+	virtual bool is_SaveConfigG_allowed(const CORBA::Any &any);
+/**
+ *	Execution allowed for LoadConfig command.
+ */
+	virtual bool is_LoadConfig_allowed(const CORBA::Any &any);
+/**
+ *	Execution allowed for Reset command.
+ */
+	virtual bool is_Reset_allowed(const CORBA::Any &any);
+/**
+ *	Execution allowed for GetDacl command.
+ */
+	virtual bool is_GetDacl_allowed(const CORBA::Any &any);
+/**
+ *	Execution allowed for GetIthl command.
+ */
+	virtual bool is_GetIthl_allowed(const CORBA::Any &any);
+/**
+ *	Execution allowed for CalibrateOTNSlow command.
+ */
+	virtual bool is_CalibrateOTNSlow_allowed(const CORBA::Any &any);
+/**
+ *	Execution allowed for UploadCalibration command.
+ */
+	virtual bool is_UploadCalibration_allowed(const CORBA::Any &any);
+/**
+ *	Execution allowed for UploadWaitTimes command.
+ */
+	virtual bool is_UploadWaitTimes_allowed(const CORBA::Any &any);
+/**
+ *	Execution allowed for IncrementITHL command.
+ */
+	virtual bool is_IncrementITHL_allowed(const CORBA::Any &any);
+/**
+ *	Execution allowed for DecrementITHL command.
+ */
+	virtual bool is_DecrementITHL_allowed(const CORBA::Any &any);
+/**
+ * This command gets the device state (stored in its <i>device_state</i> data member) and returns it to the caller.
+ *	@return	State Code
+ *	@exception DevFailed
+ */
+	virtual Tango::DevState	dev_state();
+/**
+ * 
+ *	@param	argin	Flat value to be loaded
+ *	@exception DevFailed
+ */
+	void	load_flat_config(Tango::DevULong);
+/**
+ * 
+ *	@param	argin	modNum(1..8), chipId(0..6), config_values (11 values)
+ *	@exception DevFailed
+ */
+	void	load_all_config_g(const Tango::DevVarULongArray *);
+/**
+ * 
+ *	@param	argin	modNum(1..8), calibId(0..6), chipId(0..7), curRow (0..119), values (80 values)
+ *	@exception DevFailed
+ */
+	void	save_config_l(const Tango::DevVarULongArray *);
+/**
+ * 
+ *	@param	argin	modNum(1..8), calibId(0..6), reg, values (7 values)
+ *	@exception DevFailed
+ */
+	void	save_config_g(const Tango::DevVarULongArray *);
+/**
+ * 
+ *	@param	argin	modNum(1..8), calibId(0..6)
+ *	@exception DevFailed
+ */
+	void	load_config(const Tango::DevVarULongArray *);
+/**
+ * 
+ *	@exception DevFailed
+ */
+	void	reset();
+/**
+ * 
+ *	@return	array of DACL data
+ *	@exception DevFailed
+ */
+	Tango::DevVarUShortArray	*get_dacl();
+/**
+ * 
+ *	@return	array of ITHL data
+ *	@exception DevFailed
+ */
+	Tango::DevVarUShortArray	*get_ithl();
+/**
+ * 
+ *	@exception DevFailed
+ */
+	void	calibrate_otnslow();
+/**
+ * 
+ *	@exception DevFailed
+ */
+	void	upload_calibration();
+/**
+ * 
+ *	@param	argin	the wait times
+ *	@exception DevFailed
+ */
+	void	upload_wait_times(const Tango::DevVarULongArray *);
+/**
+ * 
+ *	@exception DevFailed
+ */
+	void	increment_ithl();
+/**
+ * 
+ *	@exception DevFailed
+ */
+	void	decrement_ithl();
 
-        /**
-         *	Read the device properties from database
-         */
-        void get_device_property();
-        //@}
+/**
+ *	Read the device properties from database
+ */
+	 void get_device_property();
+//@}
 
         //	Here is the end of the automatic code generation part
         //-------------------------------------------------------------	

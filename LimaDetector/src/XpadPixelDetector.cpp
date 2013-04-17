@@ -693,7 +693,6 @@ void XpadPixelDetector::write_gp1(Tango::WAttribute &attr)
  *	method:	XpadPixelDetector::load_flat_config
  *
  *	description:	method to execute "LoadFlatConfig"
- *	Load a Flat config, for each pixel
  *
  * @param	argin	Flat value to be loaded
  *
@@ -764,10 +763,6 @@ Tango::DevState XpadPixelDetector::dev_state()
  *	method:	XpadPixelDetector::save_config_l
  *
  *	description:	method to execute "SaveConfigL"
- *	The�function�loads/stores�a�line�of�calibration�data�at�the�line�index�curRow�in�the�
- *	memory�buffer�identified�by�calibId�of�the�chip�identified�by�chipId�of�the�modules�
- *	selected�by� modNum. �The�80�calibration�data�values�that�are�stored�starting�at�
- *	address�value.�Calibration�data�(80�words�16�bits)�for�one�row�of�one�chip�(9�bits)
  *
  * @param	argin	modNum(1..8), calibId(0..6), chipId(0..7), curRow (0..119), values (80 values)
  *
@@ -807,8 +802,6 @@ void XpadPixelDetector::save_config_l(const Tango::DevVarULongArray *argin)
  *	method:	XpadPixelDetector::save_config_g
  *
  *	description:	method to execute "SaveConfigG"
- *	The � function � loads/store � the � global � register �reg� (see � paragraph � 3.4) � in � the�
- *	memory�buffer�identified�by�calibId.
  *
  * @param	argin	modNum(1..8), calibId(0..6), reg, values (7 values)
  *
@@ -848,9 +841,6 @@ void XpadPixelDetector::save_config_g(const Tango::DevVarULongArray *argin)
  *	method:	XpadPixelDetector::load_config
  *
  *	description:	method to execute "LoadConfig"
- *	This�function�activate� the�copy�of � the�calibration�data�stored� into� the�memory�
- *	buffer�identified�by�calibId�of�all�the�chips�of�the�modules�selected�by�modNum �
- *	into�the�config�registers.
  *
  * @param	argin	modNum(1..8), calibId(0..6)
  *
@@ -889,7 +879,6 @@ void XpadPixelDetector::load_config(const Tango::DevVarULongArray *argin)
  *	method:	XpadPixelDetector::reset
  *
  *	description:	method to execute "Reset"
- *	Reset the Xpad : call the xpci_hubModRebootNIOS(modMask) xpix function
  *
  *
  */
@@ -919,7 +908,6 @@ void XpadPixelDetector::reset()
  *	method:	XpadPixelDetector::load_all_config_g
  *
  *	description:	method to execute "LoadAllConfigG"
- *	IBUFFER
  *
  * @param	argin	modNum(1..8), chipId(0..6), config_values (11 values)
  *
@@ -985,10 +973,6 @@ void XpadPixelDetector::set_specific_parameters()
  *	method:	XpadPixelDetector::calibrate_otnslow
  *
  *	description:	method to execute "CalibrateOTNSlow"
- *	Calibrate the Xpad over the noise with a slow  XXX and store the results in the directory defined by the CalibrationPath property
- *	with theses hard coded config G values:
- *	ITHL ...
- *	...
  *
  *
  */
@@ -1019,7 +1003,6 @@ void XpadPixelDetector::calibrate_otnslow()
  *	method:	XpadPixelDetector::upload_calibration
  *
  *	description:	method to execute "UploadCalibration"
- *	Upload the calibration (dacl + configg) which is stored the path defined in the CalibrationPath property
  *
  *
  */
@@ -1049,7 +1032,6 @@ void XpadPixelDetector::upload_calibration()
  *	method:	XpadPixelDetector::upload_wait_times
  *
  *	description:	method to execute "UploadWaitTimes"
- *	Upload the wait times between images: the number of values has to correspond to the number of images
  *
  * @param	argin	the wait times
  *
@@ -1096,7 +1078,6 @@ void XpadPixelDetector::upload_wait_times(const Tango::DevVarULongArray *argin)
  *	method:	XpadPixelDetector::increment_ithl
  *
  *	description:	method to execute "IncrementITHL"
- *	Increment the ITHL
  *
  *
  */
@@ -1127,7 +1108,6 @@ void XpadPixelDetector::increment_ithl()
  *	method:	XpadPixelDetector::decrement_ithl
  *
  *	description:	method to execute "DecrementITHL"
- *	Decrement the ITHL
  *
  *
  */
@@ -1157,7 +1137,6 @@ void XpadPixelDetector::decrement_ithl()
  *	method:	XpadPixelDetector::get_dacl
  *
  *	description:	method to execute "GetDacl"
- *	This�fonction�get�the�values�of�the�DACL
  *
  * @return	array of DACL data
  *
@@ -1235,7 +1214,6 @@ Tango::DevVarUShortArray *XpadPixelDetector::get_dacl()
  *	method:	XpadPixelDetector::get_ithl
  *
  *	description:	method to execute "GetIthl"
- *	This�fonction�get�the�values�of�the�ITHL
  *
  * @return	array of ITHL data
  *
@@ -1380,6 +1358,8 @@ int XpadPixelDetector::find_index_from_property_name(Tango::DbData& dev_prop, st
     if (i == iNbProperties) return -1;
     return i;
 }
+
+
 
 
 

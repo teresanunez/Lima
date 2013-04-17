@@ -106,7 +106,7 @@ The language device desctructor automatically calls the <i> delete_device() </i>
 <A NAME="LoadFlatConfig"><!-- --></A>
 <h2>4 - LoadFlatConfig</h2>
 <ul>
-<Li><Strong>Description: </Strong> Load a Flat config, for each pixel<Br>&nbsp
+<Li><Strong>Description: </Strong> <Br>&nbsp
 <Li><Strong>Argin:<Br>DEV_ULONG</Strong>
  : Flat value to be loaded<Br>&nbsp
 <Li><Strong>Argout:<Br>DEV_VOID</Strong>
@@ -120,7 +120,7 @@ The language device desctructor automatically calls the <i> delete_device() </i>
 <A NAME="LoadAllConfigG"><!-- --></A>
 <h2>5 - LoadAllConfigG</h2>
 <ul>
-<Li><Strong>Description: </Strong> IBUFFER<Br>&nbsp
+<Li><Strong>Description: </Strong> <Br>&nbsp
 <Li><Strong>Argin:<Br>DEVVAR_ULONGARRAY</Strong>
  : modNum(1..8), chipId(0..6), config_values (11 values)<Br>&nbsp
 <Li><Strong>Argout:<Br>DEV_VOID</Strong>
@@ -134,10 +134,7 @@ The language device desctructor automatically calls the <i> delete_device() </i>
 <A NAME="SaveConfigL"><!-- --></A>
 <h2>6 - SaveConfigL</h2>
 <ul>
-<Li><Strong>Description: </Strong> The function loads/stores a line of calibration data at the line index curRow in the 
-memory buffer identified by calibId of the chip identified by chipId of the modules 
-selected by  modNum.  The 80 calibration data values that are stored starting at 
-address value. Calibration data (80 words 16 bits) for one row of one chip (9 bits)<Br>&nbsp
+<Li><Strong>Description: </Strong> <Br>&nbsp
 <Li><Strong>Argin:<Br>DEVVAR_ULONGARRAY</Strong>
  : modNum(1..8), calibId(0..6), chipId(0..7), curRow (0..119), values (80 values)<Br>&nbsp
 <Li><Strong>Argout:<Br>DEV_VOID</Strong>
@@ -151,8 +148,7 @@ address value. Calibration data (80 words 16 bits) for one row of one chip (9 bi
 <A NAME="SaveConfigG"><!-- --></A>
 <h2>7 - SaveConfigG</h2>
 <ul>
-<Li><Strong>Description: </Strong> The   function   loads/store   the   global   register  reg  (see   paragraph   3.4)   in   the 
-memory buffer identified by calibId.<Br>&nbsp
+<Li><Strong>Description: </Strong> <Br>&nbsp
 <Li><Strong>Argin:<Br>DEVVAR_ULONGARRAY</Strong>
  : modNum(1..8), calibId(0..6), reg, values (7 values)<Br>&nbsp
 <Li><Strong>Argout:<Br>DEV_VOID</Strong>
@@ -166,9 +162,7 @@ memory buffer identified by calibId.<Br>&nbsp
 <A NAME="LoadConfig"><!-- --></A>
 <h2>8 - LoadConfig</h2>
 <ul>
-<Li><Strong>Description: </Strong> This function activate  the copy of   the calibration data stored  into  the memory 
-buffer identified by calibId of all the chips of the modules selected by modNum  
-into the config registers.<Br>&nbsp
+<Li><Strong>Description: </Strong> <Br>&nbsp
 <Li><Strong>Argin:<Br>DEVVAR_ULONGARRAY</Strong>
  : modNum(1..8), calibId(0..6)<Br>&nbsp
 <Li><Strong>Argout:<Br>DEV_VOID</Strong>
@@ -182,7 +176,7 @@ into the config registers.<Br>&nbsp
 <A NAME="Reset"><!-- --></A>
 <h2>9 - Reset</h2>
 <ul>
-<Li><Strong>Description: </Strong> Reset the Xpad : call the xpci_hubModRebootNIOS(modMask) xpix function<Br>&nbsp
+<Li><Strong>Description: </Strong> <Br>&nbsp
 <Li><Strong>Argin:<Br>DEV_VOID</Strong>
  : <Br>&nbsp
 <Li><Strong>Argout:<Br>DEV_VOID</Strong>
@@ -196,7 +190,7 @@ into the config registers.<Br>&nbsp
 <A NAME="GetDacl"><!-- --></A>
 <h2>10 - GetDacl</h2>
 <ul>
-<Li><Strong>Description: </Strong> This fonction get the values of the DACL<Br>&nbsp
+<Li><Strong>Description: </Strong> <Br>&nbsp
 <Li><Strong>Argin:<Br>DEV_VOID</Strong>
  : <Br>&nbsp
 <Li><Strong>Argout:<Br>DEVVAR_USHORTARRAY</Strong>
@@ -210,7 +204,7 @@ into the config registers.<Br>&nbsp
 <A NAME="GetIthl"><!-- --></A>
 <h2>11 - GetIthl</h2>
 <ul>
-<Li><Strong>Description: </Strong> This fonction get the values of the ITHL<Br>&nbsp
+<Li><Strong>Description: </Strong> <Br>&nbsp
 <Li><Strong>Argin:<Br>DEV_VOID</Strong>
  : <Br>&nbsp
 <Li><Strong>Argout:<Br>DEVVAR_USHORTARRAY</Strong>
@@ -224,10 +218,7 @@ into the config registers.<Br>&nbsp
 <A NAME="CalibrateOTNSlow"><!-- --></A>
 <h2>12 - CalibrateOTNSlow</h2>
 <ul>
-<Li><Strong>Description: </Strong> Calibrate the Xpad over the noise with a slow  XXX and store the results in the directory defined by the CalibrationPath property
-with theses hard coded config G values:
-ITHL ...
-...<Br>&nbsp
+<Li><Strong>Description: </Strong> <Br>&nbsp
 <Li><Strong>Argin:<Br>DEV_VOID</Strong>
  : <Br>&nbsp
 <Li><Strong>Argout:<Br>DEV_VOID</Strong>
@@ -241,7 +232,7 @@ ITHL ...
 <A NAME="UploadCalibration"><!-- --></A>
 <h2>13 - UploadCalibration</h2>
 <ul>
-<Li><Strong>Description: </Strong> Upload the calibration (dacl + configg) which is stored the path defined in the CalibrationPath property<Br>&nbsp
+<Li><Strong>Description: </Strong> <Br>&nbsp
 <Li><Strong>Argin:<Br>DEV_VOID</Strong>
  : <Br>&nbsp
 <Li><Strong>Argout:<Br>DEV_VOID</Strong>
@@ -255,7 +246,7 @@ ITHL ...
 <A NAME="UploadWaitTimes"><!-- --></A>
 <h2>14 - UploadWaitTimes</h2>
 <ul>
-<Li><Strong>Description: </Strong> Upload the wait times between images: the number of values has to correspond to the number of images<Br>&nbsp
+<Li><Strong>Description: </Strong> <Br>&nbsp
 <Li><Strong>Argin:<Br>DEVVAR_ULONGARRAY</Strong>
  : the wait times<Br>&nbsp
 <Li><Strong>Argout:<Br>DEV_VOID</Strong>
@@ -269,7 +260,7 @@ ITHL ...
 <A NAME="IncrementITHL"><!-- --></A>
 <h2>15 - IncrementITHL</h2>
 <ul>
-<Li><Strong>Description: </Strong> Increment the ITHL<Br>&nbsp
+<Li><Strong>Description: </Strong> <Br>&nbsp
 <Li><Strong>Argin:<Br>DEV_VOID</Strong>
  : <Br>&nbsp
 <Li><Strong>Argout:<Br>DEV_VOID</Strong>
@@ -283,7 +274,7 @@ ITHL ...
 <A NAME="DecrementITHL"><!-- --></A>
 <h2>16 - DecrementITHL</h2>
 <ul>
-<Li><Strong>Description: </Strong> Decrement the ITHL<Br>&nbsp
+<Li><Strong>Description: </Strong> <Br>&nbsp
 <Li><Strong>Argin:<Br>DEV_VOID</Strong>
  : <Br>&nbsp
 <Li><Strong>Argout:<Br>DEV_VOID</Strong>

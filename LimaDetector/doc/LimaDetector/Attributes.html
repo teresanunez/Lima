@@ -80,7 +80,7 @@ Revision:  - Author:
 <Tr><Td><b>detectorPixelDepth</b>: <Font Size=-1>Pixel resolution in bits:<br> 8<br> 16<br> 32<br></Font></Td>
 <Td><Center><Font Size=-1>DEV_USHORT</Font></Center></Td><Td><Center><Font Size=-1>READ</Font></Center></Td><Td><Center><Font Size=-1>No</Font></Center></Td></Tr>
 
-<Tr><Td><b>triggerMode</b>: <Font Size=-1>Available Trigger Modes :<br> INTERNAL_SINGLE<br> EXTERNAL_SINGLE<br> EXTERNAL_MULTI<br> EXTERNAL_GATE<br></Font></Td>
+<Tr><Td><b>triggerMode</b>: <Font Size=-1>Available Trigger Modes :<br> INTERNAL_SINGLE<br> EXTERNAL_SINGLE<br> EXTERNAL_MULTI<br> EXTERNAL_GATE<br> INTERNAL_MULTI<br> EXTERNAL_START_STOP<br> EXTERNAL_READOUT<br></Font></Td>
 <Td><Center><Font Size=-1>DEV_STRING</Font></Center></Td><Td><Center><Font Size=-1>READ_WRITE</Font></Center></Td><Td><Center><Font Size=-1>No</Font></Center></Td></Tr>
 
 <Tr><Td><b>acquisitionMode</b>: <Font Size=-1>Available Acquisition Modes :<br> SINGLE<br> ACCUMULATION<br> </Font></Td>
@@ -113,7 +113,7 @@ Revision:  - Author:
 <Tr><Td><b>binningV</b>: <Font Size=-1>Current Binning Vertical value</Font></Td>
 <Td><Center><Font Size=-1>DEV_USHORT</Font></Center></Td><Td><Center><Font Size=-1>READ</Font></Center></Td><Td><Center><Font Size=-1>No</Font></Center></Td></Tr>
 
-<Tr><Td><b>nbFrames</b>: <Font Size=-1>Define the number of frames to acquire.<br> Available only in acqusisition mode, i.e "SNAP".<br> In vide mode, i.e "START" it is always forced to 0, this is mean that we request an infinite number of frames.</Font></Td>
+<Tr><Td><b>nbFrames</b>: <Font Size=-1>Define the number of frames to acquire.<br> Available only in acqusisition mode, i.e SNAP.<br> In vide mode, i.e START it is always forced to 0, this is mean that we request an infinite number of frames.</Font></Td>
 <Td><Center><Font Size=-1>DEV_LONG</Font></Center></Td><Td><Center><Font Size=-1>READ_WRITE</Font></Center></Td><Td><Center><Font Size=-1>No</Font></Center></Td></Tr>
 
 <Tr><Td><b>currentFrame</b>: <Font Size=-1>Display the current frame number.</Font></Td>
