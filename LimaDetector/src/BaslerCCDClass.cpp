@@ -248,7 +248,35 @@ void BaslerCCDClass::attribute_factory(vector<Tango::Attr *> &att_list)
 {
 	//	Attribute : frameRate
 	frameRateAttrib	*frame_rate = new frameRateAttrib();
+	Tango::UserDefaultAttrProp	frame_rate_prop;
+	frame_rate_prop.set_description("Display the current frame rate (nb frames/s)<br>");
+	frame_rate->set_default_properties(frame_rate_prop);
 	att_list.push_back(frame_rate);
+
+	//	Attribute : temperature
+	temperatureAttrib	*temperature = new temperatureAttrib();
+	Tango::UserDefaultAttrProp	temperature_prop;
+	temperature_prop.set_description("Display the current temperature of the BoardSensor.");
+	temperature->set_default_properties(temperature_prop);
+	att_list.push_back(temperature);
+
+	//	Attribute : gain
+	gainAttrib	*gain = new gainAttrib();
+	Tango::UserDefaultAttrProp	gain_prop;
+	gain_prop.set_description("Define the gain of the detector. [0..1]");
+	gain->set_default_properties(gain_prop);
+	gain->set_memorized();
+	gain->set_memorized_init(false);
+	att_list.push_back(gain);
+
+	//	Attribute : autoGain
+	autoGainAttrib	*auto_gain = new autoGainAttrib();
+	Tango::UserDefaultAttrProp	auto_gain_prop;
+	auto_gain_prop.set_description("Let the detector manage the gain automatically. [0..1]");
+	auto_gain->set_default_properties(auto_gain_prop);
+	auto_gain->set_memorized();
+	auto_gain->set_memorized_init(false);
+	att_list.push_back(auto_gain);
 
 	//	End of Automatic code generation
 	//-------------------------------------------------------------
@@ -336,6 +364,36 @@ void BaslerCCDClass::set_default_property()
 	prop_def  = "1500";
 	vect_data.clear();
 	vect_data.push_back("1500");
+	if (prop_def.length()>0)
+	{
+		Tango::DbDatum	data(prop_name);
+		data << vect_data ;
+		dev_def_prop.push_back(data);
+		add_wiz_dev_prop(prop_name, prop_desc,  prop_def);
+	}
+	else
+		add_wiz_dev_prop(prop_name, prop_desc);
+
+	prop_name = "MemorizedGain";
+	prop_desc = "Memorize/Define the  attribute  gain at Init device<br>";
+	prop_def  = "0";
+	vect_data.clear();
+	vect_data.push_back("0");
+	if (prop_def.length()>0)
+	{
+		Tango::DbDatum	data(prop_name);
+		data << vect_data ;
+		dev_def_prop.push_back(data);
+		add_wiz_dev_prop(prop_name, prop_desc,  prop_def);
+	}
+	else
+		add_wiz_dev_prop(prop_name, prop_desc);
+
+	prop_name = "MemorizedAutoGain";
+	prop_desc = "Memorize/Define the  attribute  autoGain at Init device<br>";
+	prop_def  = "False";
+	vect_data.clear();
+	vect_data.push_back("False");
 	if (prop_def.length()>0)
 	{
 		Tango::DbDatum	data(prop_name);

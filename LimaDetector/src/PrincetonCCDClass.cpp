@@ -62,6 +62,33 @@ __declspec(dllexport)
 
 namespace PrincetonCCD_ns
 {
+//+----------------------------------------------------------------------------
+//
+// method : 		SetADCModeCmd::execute()
+// 
+// description : 	method to trigger the execution of the command.
+//                PLEASE DO NOT MODIFY this method core without pogo   
+//
+// in : - device : The device on which the command must be executed
+//		- in_any : The command input data
+//
+// returns : The command output data (packed in the Any object)
+//
+//-----------------------------------------------------------------------------
+CORBA::Any *SetADCModeCmd::execute(Tango::DeviceImpl *device,const CORBA::Any &in_any)
+{
+
+	cout2 << "SetADCModeCmd::execute(): arrived" << endl;
+
+	Tango::DevUShort	argin;
+	extract(in_any, argin);
+
+	((static_cast<PrincetonCCD *>(device))->set_adcmode(argin));
+	return new CORBA::Any();
+}
+
+
+
 
 
 //
@@ -150,6 +177,11 @@ PrincetonCCDClass *PrincetonCCDClass::instance()
 //-----------------------------------------------------------------------------
 void PrincetonCCDClass::command_factory()
 {
+	command_list.push_back(new SetADCModeCmd("SetADCMode",
+		Tango::DEV_USHORT, Tango::DEV_VOID,
+		"",
+		"",
+		Tango::OPERATOR));
 
 	//	add polling if any
 	for (unsigned int i=0 ; i<command_list.size(); i++)
@@ -262,7 +294,7 @@ void PrincetonCCDClass::attribute_factory(vector<Tango::Attr *> &att_list)
 	//	Attribute : temperature
 	temperatureAttrib	*temperature = new temperatureAttrib();
 	Tango::UserDefaultAttrProp	temperature_prop;
-	temperature_prop.set_unit("°");
+	temperature_prop.set_unit("ï¿½");
 	temperature_prop.set_format("%6.2f");
 	temperature->set_default_properties(temperature_prop);
 	att_list.push_back(temperature);
@@ -270,10 +302,24 @@ void PrincetonCCDClass::attribute_factory(vector<Tango::Attr *> &att_list)
 	//	Attribute : temperatureTarget
 	temperatureTargetAttrib	*temperature_target = new temperatureTargetAttrib();
 	Tango::UserDefaultAttrProp	temperature_target_prop;
-	temperature_target_prop.set_unit("°");
+	temperature_target_prop.set_unit("ï¿½");
 	temperature_target_prop.set_format("%6.2f");
 	temperature_target->set_default_properties(temperature_target_prop);
 	att_list.push_back(temperature_target);
+
+	//	Attribute : gain
+	gainAttrib	*gain = new gainAttrib();
+	Tango::UserDefaultAttrProp	gain_prop;
+	gain_prop.set_description("Define the currect gain.\n");
+	gain->set_default_properties(gain_prop);
+	att_list.push_back(gain);
+
+	//	Attribute : currentRate
+	currentRateAttrib	*current_rate = new currentRateAttrib();
+	Tango::UserDefaultAttrProp	current_rate_prop;
+	current_rate_prop.set_description("Display the current ADC frequency in Mhz");
+	current_rate->set_default_properties(current_rate_prop);
+	att_list.push_back(current_rate);
 
 	//	End of Automatic code generation
 	//-------------------------------------------------------------
@@ -375,6 +421,36 @@ void PrincetonCCDClass::set_default_property()
 	prop_def  = "OPEN_NO_CHANGE";
 	vect_data.clear();
 	vect_data.push_back("OPEN_NO_CHANGE");
+	if (prop_def.length()>0)
+	{
+		Tango::DbDatum	data(prop_name);
+		data << vect_data ;
+		dev_def_prop.push_back(data);
+		add_wiz_dev_prop(prop_name, prop_desc,  prop_def);
+	}
+	else
+		add_wiz_dev_prop(prop_name, prop_desc);
+
+	prop_name = "MemorizedGain";
+	prop_desc = "";
+	prop_def  = "1";
+	vect_data.clear();
+	vect_data.push_back("1");
+	if (prop_def.length()>0)
+	{
+		Tango::DbDatum	data(prop_name);
+		data << vect_data ;
+		dev_def_prop.push_back(data);
+		add_wiz_dev_prop(prop_name, prop_desc,  prop_def);
+	}
+	else
+		add_wiz_dev_prop(prop_name, prop_desc);
+
+	prop_name = "MemorizedADCMode";
+	prop_desc = "";
+	prop_def  = "1";
+	vect_data.clear();
+	vect_data.push_back("1");
 	if (prop_def.length()>0)
 	{
 		Tango::DbDatum	data(prop_name);

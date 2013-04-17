@@ -121,6 +121,7 @@ The language device desctructor automatically calls the <i> delete_device() </i>
 <h2>5 - Start</h2>
 <ul>
 <Li><Strong>Description: </Strong> Starts a "video/live" acquisition of an infinite number of frames.<br>
+In this mode, In this mode, the frame loss is permitted and not signaled as FAULT in the device state<br>
 It is not allowed to generate files in this mode.<Br>&nbsp
 <Li><Strong>Argin:<Br>DEV_VOID</Strong>
  : <Br>&nbsp
@@ -135,7 +136,7 @@ It is not allowed to generate files in this mode.<Br>&nbsp
 <A NAME="Stop"><!-- --></A>
 <h2>6 - Stop</h2>
 <ul>
-<Li><Strong>Description: </Strong> Stop current acquisition.<Br>&nbsp
+<Li><Strong>Description: </Strong> Stop current acquisition/video.<Br>&nbsp
 <Li><Strong>Argin:<Br>DEV_VOID</Strong>
  : <Br>&nbsp
 <Li><Strong>Argout:<Br>DEV_VOID</Strong>
@@ -149,7 +150,8 @@ It is not allowed to generate files in this mode.<Br>&nbsp
 <A NAME="SetROI"><!-- --></A>
 <h2>7 - SetROI</h2>
 <ul>
-<Li><Strong>Description: </Strong> Define a Region of Interest . (OriginX, OriginY, Width, Height)<Br>&nbsp
+<Li><Strong>Description: </Strong> Define a Region of Interest . (OriginX, OriginY, Width, Height)<br>
+Roi and Binning are associated.<Br>&nbsp
 <Li><Strong>Argin:<Br>DEVVAR_ULONGARRAY</Strong>
  : [origin_x, origin_y, width, height]<Br>&nbsp
 <Li><Strong>Argout:<Br>DEV_VOID</Strong>

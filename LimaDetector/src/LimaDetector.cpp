@@ -541,6 +541,8 @@ void LimaDetector::init_device()
 //		write_flipY(flipY);
 
     }
+   
+    
     set_state(Tango::STANDBY);	
 }
 
@@ -2427,6 +2429,7 @@ void LimaDetector::snap()
  *
  *	description:	method to execute "Start"
  *	Starts a "video/live" acquisition of an infinite number of frames.<br>
+ *	In this mode, In this mode, the frame loss is permitted and not signaled as FAULT in the device state<br>
  *	It is not allowed to generate files in this mode.
  *
  *
@@ -2490,7 +2493,7 @@ void LimaDetector::start()
  *	method:	LimaDetector::stop
  *
  *	description:	method to execute "Stop"
- *	Stop current acquisition.
+ *	Stop current acquisition/video.
  *
  *
  */
@@ -2533,7 +2536,8 @@ void LimaDetector::stop()
  *	method:	LimaDetector::set_roi
  *
  *	description:	method to execute "SetROI"
- *	Define a Region of Interest . (OriginX, OriginY, Width, Height)
+ *	Define a Region of Interest . (OriginX, OriginY, Width, Height)<br>
+ *	Roi and Binning are associated.
  *
  * @param	argin	[origin_x, origin_y, width, height]
  *
@@ -2684,10 +2688,10 @@ void LimaDetector::reset_roi()
         //- update Roi property
         vector<short> myVector;
     	myVector.clear();
-    	myVector.push_back(roi.getTopLeft().x);
-    	myVector.push_back(roi.getTopLeft().y);
-    	myVector.push_back(roi.getSize().getWidth());
-    	myVector.push_back(roi.getSize().getHeight());
+    	myVector.push_back(0);
+    	myVector.push_back(0);
+    	myVector.push_back(size.getWidth());
+    	myVector.push_back(size.getHeight());
 		set_property("MemorizedRoi", myVector);
 	}
 	catch(Tango::DevFailed& df)
@@ -2815,8 +2819,8 @@ Tango::DevState LimaDetector::dev_state()
 
 			//- FL tests
             if(m_ct->event()->hasCapability())
-            {
-                std::vector<lima::Event *> myEventList;
+            {        
+				std::vector<lima::Event *> myEventList;
                 m_ct->event()->getEventList(myEventList);
 
                 INFO_STREAM << "myEventList.size()= " <<  myEventList.size() << endl;
@@ -3133,6 +3137,8 @@ void LimaDetector::EventCallback::processEvent(lima::Event *my_event)
 
 
 }*/
+
+
 
 
 

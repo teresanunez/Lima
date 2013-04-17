@@ -47,8 +47,9 @@ static const char *RcsId = "$Id:  $";
 //
 //  Command name|  Method name
 //	----------------------------------------
-//  State   |  dev_state()
-//  Status  |  dev_status()
+//  State       |  dev_state()
+//  Status      |  dev_status()
+//  SetADCMode  |  set_adcmode()
 //
 //===================================================================
 #ifdef WIN32
@@ -105,8 +106,11 @@ void PrincetonCCD::delete_device()
     INFO_STREAM << "PrincetonCCD::PrincetonCCD() delete device " << device_name << endl;
     DELETE_SCALAR_ATTRIBUTE(attr_temperature_read);	
 	DELETE_SCALAR_ATTRIBUTE(attr_temperatureTarget_read);	
+    DELETE_SCALAR_ATTRIBUTE(attr_gain_read);    
 	DELETE_DEVSTRING_ATTRIBUTE(attr_internalAcquisitionMode_read);	
 	DELETE_DEVSTRING_ATTRIBUTE(attr_shutterMode_read);		
+	DELETE_DEVSTRING_ATTRIBUTE(attr_currentRate_read);		
+
     //    Delete device allocated objects
 
     //!!!! ONLY LimaDetector device can do this !!!!
@@ -133,8 +137,10 @@ void PrincetonCCD::init_device()
     get_device_property();
 	CREATE_SCALAR_ATTRIBUTE(attr_temperature_read, 0.0);
 	CREATE_SCALAR_ATTRIBUTE(attr_temperatureTarget_read, 0.0);		
+    CREATE_SCALAR_ATTRIBUTE(attr_gain_read);
 	CREATE_DEVSTRING_ATTRIBUTE(attr_internalAcquisitionMode_read,MAX_ATTRIBUTE_STRING_LENGTH);	
 	CREATE_DEVSTRING_ATTRIBUTE(attr_shutterMode_read,MAX_ATTRIBUTE_STRING_LENGTH);	
+	CREATE_DEVSTRING_ATTRIBUTE(attr_currentRate_read,MAX_ATTRIBUTE_STRING_LENGTH);	
     m_is_device_initialized = false;
     set_state(Tango::INIT);
     m_status_message.str("");
@@ -200,7 +206,12 @@ void PrincetonCCD::init_device()
 		strcpy(*attr_shutterMode_read,m_shutter_mode.c_str());
 		shutterMode.set_write_value(m_shutter_mode);
 		write_shutterMode(shutterMode);
-		
+
+		set_adcmode(memorizedADCMode);
+
+		Tango::WAttribute &gain = dev_attr->get_w_attr_by_name("gain");
+		gain.set_write_value(memorizedGain);
+		write_gain(gain);
 	}
     catch(Exception& e)
     {
@@ -243,6 +254,8 @@ void PrincetonCCD::get_device_property()
 	dev_prop.push_back(Tango::DbDatum("DetectorNum"));
 	dev_prop.push_back(Tango::DbDatum("MemorizedInternalAcquisitionMode"));
 	dev_prop.push_back(Tango::DbDatum("MemorizedShutterMode"));
+	dev_prop.push_back(Tango::DbDatum("MemorizedGain"));
+	dev_prop.push_back(Tango::DbDatum("MemorizedADCMode"));
 
 	//	Call database and extract values
 	//--------------------------------------------
@@ -286,6 +299,28 @@ void PrincetonCCD::get_device_property()
 	//	And try to extract MemorizedShutterMode value from database
 	if (dev_prop[i].is_empty()==false)	dev_prop[i]  >>  memorizedShutterMode;
 
+	//	Try to initialize MemorizedGain from class property
+	cl_prop = ds_class->get_class_property(dev_prop[++i].name);
+	if (cl_prop.is_empty()==false)	cl_prop  >>  memorizedGain;
+	else {
+		//	Try to initialize MemorizedGain from default device value
+		def_prop = ds_class->get_default_device_property(dev_prop[i].name);
+		if (def_prop.is_empty()==false)	def_prop  >>  memorizedGain;
+	}
+	//	And try to extract MemorizedGain value from database
+	if (dev_prop[i].is_empty()==false)	dev_prop[i]  >>  memorizedGain;
+
+	//	Try to initialize MemorizedADCMode from class property
+	cl_prop = ds_class->get_class_property(dev_prop[++i].name);
+	if (cl_prop.is_empty()==false)	cl_prop  >>  memorizedADCMode;
+	else {
+		//	Try to initialize MemorizedADCMode from default device value
+		def_prop = ds_class->get_default_device_property(dev_prop[i].name);
+		if (def_prop.is_empty()==false)	def_prop  >>  memorizedADCMode;
+	}
+	//	And try to extract MemorizedADCMode value from database
+	if (dev_prop[i].is_empty()==false)	dev_prop[i]  >>  memorizedADCMode;
+
 
 
     //    End of Automatic code generation
@@ -293,6 +328,9 @@ void PrincetonCCD::get_device_property()
     create_property_if_empty(dev_prop,"-1","DetectorNum");
 	create_property_if_empty(dev_prop,"STANDARD","MemorizedInternalAcquisitionMode");	
 	create_property_if_empty(dev_prop,"OPEN_PRE_EXPOSURE","MemorizedShutterMode");	
+    create_property_if_empty(dev_prop,"1","MemorizedGain");	    
+	create_property_if_empty(dev_prop,"1","MemorizedADCMode");	    
+	
 }
 //+----------------------------------------------------------------------------
 //
@@ -378,6 +416,15 @@ void PrincetonCCD::read_internalAcquisitionMode(Tango::Attribute &attr)
                     static_cast<const char*> (string(df.errors[0].desc).c_str()),
                     static_cast<const char*> ("PrincetonCCD::read_internalAcquisitionMode"));
     }		
+    catch(Exception& e)
+    {
+        ERROR_STREAM << e.getErrMsg() << endl;
+        //- throw exception
+        Tango::Except::throw_exception(
+                     static_cast<const char*> ("TANGO_DEVICE_ERROR"),
+                     static_cast<const char*> (e.getErrMsg().c_str()),
+                     static_cast<const char*> ("PrincetonCCD::read_internalAcquisitionMode"));
+    }	 
 }
 
 //+----------------------------------------------------------------------------
@@ -396,16 +443,16 @@ void PrincetonCCD::write_internalAcquisitionMode(Tango::WAttribute &attr)
         string previous = m_acquisition_mode;
         attr.get_write_value(attr_internalAcquisitionMode_write);
         string current = attr_internalAcquisitionMode_write;
-		/*TODO enhance CONTINUOUS & FOCUS*/
-        if(current.compare("STANDARD")!=0 /*&& current.compare("CONTINUOUS")!=0 && current.compare("FOCUS")!=0*/)
+		/*TODO enhance CONTINUOUS*/
+        if(current.compare("STANDARD")!=0 && current.compare("FOCUS")!=0/*&& current.compare("CONTINUOUS")!=0 */)
         {
             m_acquisition_mode = previous;
             attr_internalAcquisitionMode_write = new char [m_acquisition_mode.size()+1];
             strcpy (attr_internalAcquisitionMode_write, m_acquisition_mode.c_str());
 
             Tango::Except::throw_exception( (const char*) ("CONFIGURATION_ERROR"),
-                                            /*(const char*) ("Available Internal Acquisition Modes are: \n- STANDRAD \n- CONTINUOUS \n- FOCUS"),*/
-											(const char*) ("Available Internal Acquisition Modes are: \n- STANDRAD"),
+                                            /*(const char*) ("Available Internal Acquisition Modes are: \n- STANDARD \n- CONTINUOUS \n- FOCUS"),*/
+											(const char*) ("Available Internal Acquisition Modes are: \n- STANDARD\n- FOCUS"),
                                             (const char*) ("PrincetonCCD::write_internalAcquisitionMode"));
         }
 
@@ -413,7 +460,7 @@ void PrincetonCCD::write_internalAcquisitionMode(Tango::WAttribute &attr)
         m_acquisition_mode = attr_internalAcquisitionMode_write;
 
         m_camera->setInternalAcqMode(m_acquisition_mode);
-        set_property(m_acquisition_mode,"MemorizedInternalAcquisitionMode");
+        set_property("MemorizedInternalAcquisitionMode", m_acquisition_mode);
 
     }
     catch(Tango::DevFailed& df)
@@ -472,6 +519,15 @@ void PrincetonCCD::read_shutterMode(Tango::Attribute &attr)
                     static_cast<const char*> (string(df.errors[0].desc).c_str()),
                     static_cast<const char*> ("PrincetonCCD::read_shutterMode"));
     }			
+    catch(Exception& e)
+    {
+        ERROR_STREAM << e.getErrMsg() << endl;
+        //- throw exception
+        Tango::Except::throw_exception(
+                     static_cast<const char*> ("TANGO_DEVICE_ERROR"),
+                     static_cast<const char*> (e.getErrMsg().c_str()),
+                     static_cast<const char*> ("PrincetonCCD::read_shutterMode"));
+    }	 
 }
 
 //+----------------------------------------------------------------------------
@@ -521,7 +577,7 @@ void PrincetonCCD::write_shutterMode(Tango::WAttribute &attr)
         }
 		
 
-        set_property(m_acquisition_mode,"MemorizedShutterModeMode");
+        set_property("MemorizedShutterMode", m_shutter_mode);
 
     }
     catch(Tango::DevFailed& df)
@@ -652,6 +708,161 @@ void PrincetonCCD::read_temperature(Tango::Attribute &attr)
                      static_cast<const char*> ("PrincetonCCD::read_temperature"));
     }	
 }
+
+//+----------------------------------------------------------------------------
+//
+// method : 		PrincetonCCD::read_gain
+// 
+// description : 	Extract real attribute values for gain acquisition result.
+//
+//-----------------------------------------------------------------------------
+void PrincetonCCD::read_gain(Tango::Attribute &attr)
+{
+	DEBUG_STREAM << "PrincetonCCD::read_gain(Tango::Attribute &attr) entering... "<< endl;	
+    try
+    {
+		*attr_gain_read = (Tango::DevUShort)m_camera->getGain();		
+        attr.set_value(attr_gain_read);
+    }
+    catch(Tango::DevFailed& df)
+    {
+        ERROR_STREAM << df << endl;
+        //- rethrow exception
+        Tango::Except::re_throw_exception(df,
+                    static_cast<const char*> ("TANGO_DEVICE_ERROR"),
+                    static_cast<const char*> (string(df.errors[0].desc).c_str()),
+                    static_cast<const char*> ("PrincetonCCD::read_gain"));
+    }	    
+    catch(Exception& e)
+    {
+        ERROR_STREAM << e.getErrMsg() << endl;
+        //- throw exception
+        Tango::Except::throw_exception(
+                     static_cast<const char*> ("TANGO_DEVICE_ERROR"),
+                     static_cast<const char*> (e.getErrMsg().c_str()),
+                     static_cast<const char*> ("PrincetonCCD::read_gain"));
+    }	
+}
+
+//+----------------------------------------------------------------------------
+//
+// method : 		PrincetonCCD::write_gain
+// 
+// description : 	Write gain attribute values to hardware.
+//
+//-----------------------------------------------------------------------------
+void PrincetonCCD::write_gain(Tango::WAttribute &attr)
+{
+	DEBUG_STREAM << "PrincetonCCD::write_gain(Tango::WAttribute &attr) entering... "<< endl;
+    try
+    {
+       attr.get_write_value(attr_gain_write);
+       m_camera->setGain(attr_gain_write);
+       set_property("MemorizedGain", attr_gain_write);       
+    }
+    catch(Tango::DevFailed& df)
+    {
+        ERROR_STREAM << df << endl;
+        //- rethrow exception
+        Tango::Except::re_throw_exception(df,
+                    static_cast<const char*> ("TANGO_DEVICE_ERROR"),
+                    static_cast<const char*> (string(df.errors[0].desc).c_str()),
+                    static_cast<const char*> ("PrincetonCCD::write_gain"));
+    }		
+    catch(Exception& e)
+    {
+        ERROR_STREAM << e.getErrMsg() << endl;
+        //- throw exception
+        Tango::Except::throw_exception(
+                     static_cast<const char*> ("TANGO_DEVICE_ERROR"),
+                     static_cast<const char*> (e.getErrMsg().c_str()),
+                     static_cast<const char*> ("PrincetonCCD::write_gain"));
+    }	    
+}
+
+//+----------------------------------------------------------------------------
+//
+// method : 		PrincetonCCD::read_currentRate
+// 
+// description : 	Extract real attribute values for currentRate acquisition result.
+//
+//-----------------------------------------------------------------------------
+void PrincetonCCD::read_currentRate(Tango::Attribute &attr)
+{
+	DEBUG_STREAM << "PrincetonCCD::read_currentRate(Tango::Attribute &attr) entering... "<< endl;
+    try
+    {
+		std::stringstream strRate("");
+		//strRate<< "ADC mode = "<<m_camera->getSpeedTableIndex()<<" ( "<<m_camera->getADCRate()<<" )";
+		strRate<< m_camera->getADCRate();
+        strcpy(*attr_currentRate_read, (strRate.str()).c_str());
+		
+        attr.set_value(attr_currentRate_read);
+    }
+    catch(Tango::DevFailed& df)
+    {
+        ERROR_STREAM << df << endl;
+        //- rethrow exception
+        Tango::Except::re_throw_exception(df,
+                    static_cast<const char*> ("TANGO_DEVICE_ERROR"),
+                    static_cast<const char*> (string(df.errors[0].desc).c_str()),
+                    static_cast<const char*> ("PrincetonCCD::read_currentRate"));
+    }	
+    catch(Exception& e)
+    {
+        ERROR_STREAM << e.getErrMsg() << endl;
+        //- throw exception
+        Tango::Except::throw_exception(
+                     static_cast<const char*> ("TANGO_DEVICE_ERROR"),
+                     static_cast<const char*> (e.getErrMsg().c_str()),
+                     static_cast<const char*> ("PrincetonCCD::read_currentRate"));
+    }	 
+}
+
+
+//+------------------------------------------------------------------
+/**
+ *	method:	PrincetonCCD::set_adcmode
+ *
+ *	description:	method to execute "SetADCMode"
+ *	Define the ADC frequency .<br>
+ *	Available values are :
+ *	0-> 1MHz<br>
+ *	1-> 100Khz
+ *
+ * @param	argin	
+ *
+ */
+//+------------------------------------------------------------------
+void PrincetonCCD::set_adcmode(Tango::DevUShort argin)
+{
+	DEBUG_STREAM << "PrincetonCCD::set_adcmode(): entering... !" << endl;
+
+	//	Add your own code to control device here
+    try
+    {
+       m_camera->setSpeedTableIndex(argin);
+	   set_property("MemorizedADCMode", argin);   
+    }
+    catch(Tango::DevFailed& df)
+    {
+        ERROR_STREAM << df << endl;
+        //- rethrow exception
+        Tango::Except::re_throw_exception(df,
+                    static_cast<const char*> ("TANGO_DEVICE_ERROR"),
+                    static_cast<const char*> (string(df.errors[0].desc).c_str()),
+                    static_cast<const char*> ("PrincetonCCD::set_adcmode"));
+    }		
+    catch(Exception& e)
+    {
+        ERROR_STREAM << e.getErrMsg() << endl;
+        //- throw exception
+        Tango::Except::throw_exception(
+                     static_cast<const char*> ("TANGO_DEVICE_ERROR"),
+                     static_cast<const char*> (e.getErrMsg().c_str()),
+                     static_cast<const char*> ("PrincetonCCD::set_adcmode"));
+    }	
+}    
 
 
 //+------------------------------------------------------------------
@@ -818,15 +1029,6 @@ int PrincetonCCD::find_index_from_property_name(Tango::DbData& dev_prop, string 
     if (i == iNbProperties) return -1;
     return i;
 }
-
-
-
-
-
-
-
-
-
 
 
 

@@ -50,6 +50,32 @@ namespace PrincetonCCD_ns
 {//=====================================
 //	Define classes for attributes
 //=====================================
+class currentRateAttrib: public Tango::Attr
+{
+public:
+	currentRateAttrib():Attr("currentRate", Tango::DEV_STRING, Tango::READ) {};
+	~currentRateAttrib() {};
+	
+	virtual void read(Tango::DeviceImpl *dev,Tango::Attribute &att)
+	{(static_cast<PrincetonCCD *>(dev))->read_currentRate(att);}
+	virtual bool is_allowed(Tango::DeviceImpl *dev,Tango::AttReqType ty)
+	{return (static_cast<PrincetonCCD *>(dev))->is_currentRate_allowed(ty);}
+};
+
+class gainAttrib: public Tango::Attr
+{
+public:
+	gainAttrib():Attr("gain", Tango::DEV_USHORT, Tango::READ_WRITE) {};
+	~gainAttrib() {};
+	
+	virtual void read(Tango::DeviceImpl *dev,Tango::Attribute &att)
+	{(static_cast<PrincetonCCD *>(dev))->read_gain(att);}
+	virtual void write(Tango::DeviceImpl *dev,Tango::WAttribute &att)
+	{(static_cast<PrincetonCCD *>(dev))->write_gain(att);}
+	virtual bool is_allowed(Tango::DeviceImpl *dev,Tango::AttReqType ty)
+	{return (static_cast<PrincetonCCD *>(dev))->is_gain_allowed(ty);}
+};
+
 class temperatureTargetAttrib: public Tango::Attr
 {
 public:
@@ -107,6 +133,30 @@ public:
 //=========================================
 //	Define classes for commands
 //=========================================
+class SetADCModeCmd : public Tango::Command
+{
+public:
+	SetADCModeCmd(const char   *name,
+	               Tango::CmdArgType in,
+				   Tango::CmdArgType out,
+				   const char        *in_desc,
+				   const char        *out_desc,
+				   Tango::DispLevel  level)
+	:Command(name,in,out,in_desc,out_desc, level)	{};
+
+	SetADCModeCmd(const char   *name,
+	               Tango::CmdArgType in,
+				   Tango::CmdArgType out)
+	:Command(name,in,out)	{};
+	~SetADCModeCmd() {};
+	
+	virtual CORBA::Any *execute (Tango::DeviceImpl *dev, const CORBA::Any &any);
+	virtual bool is_allowed (Tango::DeviceImpl *dev, const CORBA::Any &any)
+	{return (static_cast<PrincetonCCD *>(dev))->is_SetADCMode_allowed(any);}
+};
+
+
+
 //
 // The PrincetonCCDClass singleton definition
 //

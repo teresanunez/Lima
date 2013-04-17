@@ -201,7 +201,6 @@ void MarCCD::get_device_property()
 	dev_prop.push_back(Tango::DbDatum("DetectorPort"));
 	dev_prop.push_back(Tango::DbDatum("DetectorTargetPath"));
 	dev_prop.push_back(Tango::DbDatum("ReaderTimeout"));
-	dev_prop.push_back(Tango::DbDatum("UseReader"));
 
 	//	Call database and extract values
 	//--------------------------------------------
@@ -256,17 +255,6 @@ void MarCCD::get_device_property()
 	//	And try to extract ReaderTimeout value from database
 	if (dev_prop[i].is_empty()==false)	dev_prop[i]  >>  readerTimeout;
 
-	//	Try to initialize UseReader from class property
-	cl_prop = ds_class->get_class_property(dev_prop[++i].name);
-	if (cl_prop.is_empty()==false)	cl_prop  >>  useReader;
-	else {
-		//	Try to initialize UseReader from default device value
-		def_prop = ds_class->get_default_device_property(dev_prop[i].name);
-		if (def_prop.is_empty()==false)	def_prop  >>  useReader;
-	}
-	//	And try to extract UseReader value from database
-	if (dev_prop[i].is_empty()==false)	dev_prop[i]  >>  useReader;
-
 
 
 	//	End of Automatic code generation
@@ -275,7 +263,6 @@ void MarCCD::get_device_property()
 	create_property_if_empty(dev_prop,"-1","DetectorPort");
 	create_property_if_empty(dev_prop,"/no/path/defined/","DetectorTargetPath");
 	create_property_if_empty(dev_prop,"10000","ReaderTimeout");
-	create_property_if_empty(dev_prop,"true","UseReader");
 }
 //+----------------------------------------------------------------------------
 //
@@ -509,7 +496,7 @@ void MarCCD::take_background()
 		}
 		catch(...)
 		{
-			ERROR_STREAM << "MarCCD::read_binnig -> caught [...]" << endl;
+			ERROR_STREAM << "MarCCD::take_background() -> caught [...]" << endl;
 			//- throw exception
 			Tango::Except::throw_exception(
 				static_cast<const char*> ("UNKNOWN_ERROR"),
@@ -679,6 +666,8 @@ int MarCCD::find_index_from_property_name(Tango::DbData& dev_prop, string proper
     if (i == iNbProperties) return -1;
     return i;
 }
+
+
 
 
 

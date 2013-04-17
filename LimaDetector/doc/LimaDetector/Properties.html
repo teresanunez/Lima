@@ -73,6 +73,8 @@ Availables types :<BR>
 - AdscCCD<BR>
 - BaslerCCD<BR>
 - MarCCD<BR>
+- Pco<BR>
+- PerkinElmer<BR>
 - PilatusPixelDetector<BR>
 - ProsilicaCCD<BR>
 - PrincetonCCD<BR>
@@ -138,7 +140,7 @@ Nota :<br>
 
 <Tr><Td><b><a href=#Dev_DefaultValues>FileNbFrames </a></b></Td>
 <Td><Font Size=-1>Tango::DEV_LONG</Font></Td>
-<Td><Font Size=-1>Define the amount of frames stored in the target file.
+<Td><Font Size=-1>Define the amount of frames stored in the target file.<br>
 If Nexus file, this is the NbAcqPerFile.</Font></Td></Tr>
 
 <Tr><Td><b><a href=#Dev_DefaultValues>FileTargetPath </a></b></Td>
@@ -225,6 +227,10 @@ Availables values :<br>
 <Tr><Td><b><a href=#Dev_DefaultValues>MemorizedExposureAccTime </a></b></Td>
 <Td><Font Size=-1>Tango::DEV_DOUBLE</Font></Td>
 <Td><Font Size=-1>Memorize/Define the exposureAccTime attribute at Init device<br></Font></Td></Tr>
+
+<Tr><Td><b><a href=#Dev_DefaultValues>MemorizedLatencyTime </a></b></Td>
+<Td><Font Size=-1>Tango::DEV_DOUBLE</Font></Td>
+<Td><Font Size=-1>Memorize/Define the latencyTime attribute  at Init device<br></Font></Td></Tr>
 
 <Tr><Td><b><a href=#Dev_DefaultValues>MemorizedNbFrames </a></b></Td>
 <Td><Font Size=-1>Tango::DEV_LONG</Font></Td>
@@ -336,6 +342,10 @@ Availables values :<br>
     <Tr>
         <Td>MemorizedExposureAccTime</Td>
         <td>100</td>
+    </Tr>
+    <Tr>
+        <Td>MemorizedLatencyTime</Td>
+        <td>0</td>
     </Tr>
     <Tr>
         <Td>MemorizedNbFrames</Td>

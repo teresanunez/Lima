@@ -95,6 +95,11 @@ public :
  */
 //@{
 		Tango::DevDouble	*attr_frameRate_read;
+		Tango::DevDouble	*attr_temperature_read;
+		Tango::DevDouble	*attr_gain_read;
+		Tango::DevDouble	attr_gain_write;
+		Tango::DevBoolean	*attr_autoGain_read;
+		Tango::DevBoolean	attr_autoGain_write;
 //@}
 
 /**
@@ -114,6 +119,14 @@ public :
  *	Sets the packet size in bytes for the selected steam channel of the Transport Layer.<br>
  */
 	Tango::DevLong	detectorPacketSize;
+/**
+ *	Memorize/Define the  attribute  gain at Init device<br>
+ */
+	Tango::DevDouble	memorizedGain;
+/**
+ *	Memorize/Define the  attribute  autoGain at Init device<br>
+ */
+	Tango::DevBoolean	memorizedAutoGain;
 //@}
 
 /**
@@ -191,9 +204,41 @@ public :
  */
 	virtual void read_frameRate(Tango::Attribute &attr);
 /**
+ *	Extract real attribute values for temperature acquisition result.
+ */
+	virtual void read_temperature(Tango::Attribute &attr);
+/**
+ *	Extract real attribute values for gain acquisition result.
+ */
+	virtual void read_gain(Tango::Attribute &attr);
+/**
+ *	Write gain attribute values to hardware.
+ */
+	virtual void write_gain(Tango::WAttribute &attr);
+/**
+ *	Extract real attribute values for autoGain acquisition result.
+ */
+	virtual void read_autoGain(Tango::Attribute &attr);
+/**
+ *	Write autoGain attribute values to hardware.
+ */
+	virtual void write_autoGain(Tango::WAttribute &attr);
+/**
  *	Read/Write allowed for frameRate attribute.
  */
 	virtual bool is_frameRate_allowed(Tango::AttReqType type);
+/**
+ *	Read/Write allowed for temperature attribute.
+ */
+	virtual bool is_temperature_allowed(Tango::AttReqType type);
+/**
+ *	Read/Write allowed for gain attribute.
+ */
+	virtual bool is_gain_allowed(Tango::AttReqType type);
+/**
+ *	Read/Write allowed for autoGain attribute.
+ */
+	virtual bool is_autoGain_allowed(Tango::AttReqType type);
 /**
  * This command gets the device state (stored in its <i>device_state</i> data member) and returns it to the caller.
  *	@return	State Code
@@ -229,7 +274,9 @@ protected :
 	
     bool                 m_is_device_initialized ;
     stringstream        m_status_message;
+    
     //lima OBJECTS
+    Basler::Camera*       m_camera;    
     Basler::Interface*    m_hw;
     CtControl*            m_ct;
     

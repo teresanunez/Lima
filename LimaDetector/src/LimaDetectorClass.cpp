@@ -625,7 +625,7 @@ void LimaDetectorClass::attribute_factory(vector<Tango::Attr *> &att_list)
 	nb_frames_prop.set_standard_unit(" ");
 	nb_frames_prop.set_display_unit(" ");
 	nb_frames_prop.set_format("%6d");
-	nb_frames_prop.set_description("Define the number of frames to acquire.");
+	nb_frames_prop.set_description("Define the number of frames to acquire.<br>\nAvailable only in acqusisition mode, i.e SNAP.<br>\nIn vide mode, i.e START it is always forced to 0, this is mean that we request an infinite number of frames.");
 	nb_frames->set_default_properties(nb_frames_prop);
 	nb_frames->set_memorized();
 	nb_frames->set_memorized_init(false);
@@ -729,7 +729,7 @@ void LimaDetectorClass::set_default_property()
 		add_wiz_dev_prop(prop_name, prop_desc);
 
 	prop_name = "DetectorType";
-	prop_desc = "Define the type of the connected Detector .<BR>\nAvailables types :<BR>\n- AdscCCD<BR>\n- BaslerCCD<BR>\n- MarCCD<BR>\n- PilatusPixelDetector<BR>\n- ProsilicaCCD<BR>\n- PrincetonCCD<BR>\n- SimulatorCCD<BR>\n- XpadPixelDetector<BR>\n\n";
+	prop_desc = "Define the type of the connected Detector .<BR>\nAvailables types :<BR>\n- AdscCCD<BR>\n- BaslerCCD<BR>\n- MarCCD<BR>\n- Pco<BR>\n- PerkinElmer<BR>\n- PilatusPixelDetector<BR>\n- ProsilicaCCD<BR>\n- PrincetonCCD<BR>\n- SimulatorCCD<BR>\n- XpadPixelDetector<BR>\n\n";
 	prop_def  = "SimulatorCCD";
 	vect_data.clear();
 	vect_data.push_back("SimulatorCCD");
@@ -819,7 +819,7 @@ void LimaDetectorClass::set_default_property()
 		add_wiz_dev_prop(prop_name, prop_desc);
 
 	prop_name = "FileNbFrames";
-	prop_desc = "Define the amount of frames stored in the target file.\nIf Nexus file, this is the NbAcqPerFile.";
+	prop_desc = "Define the amount of frames stored in the target file.<br>\nIf Nexus file, this is the NbAcqPerFile.";
 	prop_def  = "1";
 	vect_data.clear();
 	vect_data.push_back("1");

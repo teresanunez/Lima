@@ -83,10 +83,10 @@ public:
 //=========================================
 //	Define classes for commands
 //=========================================
-class TakeBackgroundClass : public Tango::Command
+class TakeBackgroundCmd : public Tango::Command
 {
 public:
-	TakeBackgroundClass(const char   *name,
+	TakeBackgroundCmd(const char   *name,
 	               Tango::CmdArgType in,
 				   Tango::CmdArgType out,
 				   const char        *in_desc,
@@ -94,11 +94,11 @@ public:
 				   Tango::DispLevel  level)
 	:Command(name,in,out,in_desc,out_desc, level)	{};
 
-	TakeBackgroundClass(const char   *name,
+	TakeBackgroundCmd(const char   *name,
 	               Tango::CmdArgType in,
 				   Tango::CmdArgType out)
 	:Command(name,in,out)	{};
-	~TakeBackgroundClass() {};
+	~TakeBackgroundCmd() {};
 	
 	virtual CORBA::Any *execute (Tango::DeviceImpl *dev, const CORBA::Any &any);
 	virtual bool is_allowed (Tango::DeviceImpl *dev, const CORBA::Any &any)

@@ -103,6 +103,9 @@ public :
 		Tango::DevDouble	*attr_temperature_read;
 		Tango::DevDouble	*attr_temperatureTarget_read;
 		Tango::DevDouble	attr_temperatureTarget_write;
+		Tango::DevUShort	*attr_gain_read;
+		Tango::DevUShort	attr_gain_write;
+		Tango::DevString	*attr_currentRate_read;
 //@}
 
 /**
@@ -129,6 +132,14 @@ public :
  *	- OPEN_NO_CHANGE<br>
  */
 	string	memorizedShutterMode;
+/**
+ *	
+ */
+	Tango::DevUShort	memorizedGain;
+/**
+ *	
+ */
+	Tango::DevUShort	memorizedADCMode;
 //@}
 
 /**
@@ -230,6 +241,18 @@ public :
  */
 	virtual void write_temperatureTarget(Tango::WAttribute &attr);
 /**
+ *	Extract real attribute values for gain acquisition result.
+ */
+	virtual void read_gain(Tango::Attribute &attr);
+/**
+ *	Write gain attribute values to hardware.
+ */
+	virtual void write_gain(Tango::WAttribute &attr);
+/**
+ *	Extract real attribute values for currentRate acquisition result.
+ */
+	virtual void read_currentRate(Tango::Attribute &attr);
+/**
  *	Read/Write allowed for internalAcquisitionMode attribute.
  */
 	virtual bool is_internalAcquisitionMode_allowed(Tango::AttReqType type);
@@ -246,11 +269,32 @@ public :
  */
 	virtual bool is_temperatureTarget_allowed(Tango::AttReqType type);
 /**
+ *	Read/Write allowed for gain attribute.
+ */
+	virtual bool is_gain_allowed(Tango::AttReqType type);
+/**
+ *	Read/Write allowed for currentRate attribute.
+ */
+	virtual bool is_currentRate_allowed(Tango::AttReqType type);
+/**
+ *	Execution allowed for SetADCMode command.
+ */
+	virtual bool is_SetADCMode_allowed(const CORBA::Any &any);
+/**
  * This command gets the device state (stored in its <i>device_state</i> data member) and returns it to the caller.
  *	@return	State Code
  *	@exception DevFailed
  */
 	virtual Tango::DevState	dev_state();
+/**
+ * Define the ADC frequency .<br>
+ *	Available values are :
+ *	0-> 1MHz<br>
+ *	1-> 100Khz
+ *	@param	argin	
+ *	@exception DevFailed
+ */
+	void	set_adcmode(Tango::DevUShort);
 
 /**
  *	Read the device properties from database

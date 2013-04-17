@@ -92,6 +92,9 @@ Revision:  - Author:
 <Tr><Td><b>exposureAccTime</b>: <Font Size=-1>Set/Get exposure time ONLY in mode ACCUMULATION (in ms)<br></Font></Td>
 <Td><Center><Font Size=-1>DEV_DOUBLE</Font></Center></Td><Td><Center><Font Size=-1>READ_WRITE</Font></Center></Td><Td><Center><Font Size=-1>No</Font></Center></Td></Tr>
 
+<Tr><Td><b>latencyTime</b>: <Font Size=-1>Set/Get latency time (in ms).<br></Font></Td>
+<Td><Center><Font Size=-1>DEV_DOUBLE</Font></Center></Td><Td><Center><Font Size=-1>READ_WRITE</Font></Center></Td><Td><Center><Font Size=-1>No</Font></Center></Td></Tr>
+
 <Tr><Td><b>roiX</b>: <Font Size=-1>Region of Interest . (Origin X)</Font></Td>
 <Td><Center><Font Size=-1>DEV_USHORT</Font></Center></Td><Td><Center><Font Size=-1>READ</Font></Center></Td><Td><Center><Font Size=-1>No</Font></Center></Td></Tr>
 
@@ -110,7 +113,7 @@ Revision:  - Author:
 <Tr><Td><b>binningV</b>: <Font Size=-1>Current Binning Vertical value</Font></Td>
 <Td><Center><Font Size=-1>DEV_USHORT</Font></Center></Td><Td><Center><Font Size=-1>READ</Font></Center></Td><Td><Center><Font Size=-1>No</Font></Center></Td></Tr>
 
-<Tr><Td><b>nbFrames</b>: <Font Size=-1>Define the number of frames to acquire.</Font></Td>
+<Tr><Td><b>nbFrames</b>: <Font Size=-1>Define the number of frames to acquire.<br> Available only in acqusisition mode, i.e "SNAP".<br> In vide mode, i.e "START" it is always forced to 0, this is mean that we request an infinite number of frames.</Font></Td>
 <Td><Center><Font Size=-1>DEV_LONG</Font></Center></Td><Td><Center><Font Size=-1>READ_WRITE</Font></Center></Td><Td><Center><Font Size=-1>No</Font></Center></Td></Tr>
 
 <Tr><Td><b>currentFrame</b>: <Font Size=-1>Display the current frame number.</Font></Td>

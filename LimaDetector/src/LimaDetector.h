@@ -199,6 +199,8 @@ public :
  *	- AdscCCD<BR>
  *	- BaslerCCD<BR>
  *	- MarCCD<BR>
+ *	- Pco<BR>
+ *	- PerkinElmer<BR>
  *	- PilatusPixelDetector<BR>
  *	- ProsilicaCCD<BR>
  *	- PrincetonCCD<BR>
@@ -264,7 +266,7 @@ public :
  */
 	string	fileIndexPattern;
 /**
- *	Define the amount of frames stored in the target file.
+ *	Define the amount of frames stored in the target file.<br>
  *	If Nexus file, this is the NbAcqPerFile.
  */
 	Tango::DevLong	fileNbFrames;
@@ -698,17 +700,19 @@ public :
 	void	snap();
 /**
  * Starts a "video/live" acquisition of an infinite number of frames.<br>
+ *	In this mode, In this mode, the frame loss is permitted and not signaled as FAULT in the device state<br>
  *	It is not allowed to generate files in this mode.
  *	@exception DevFailed
  */
 	void	start();
 /**
- * Stop current acquisition.
+ * Stop current acquisition/video.
  *	@exception DevFailed
  */
 	void	stop();
 /**
- * Define a Region of Interest . (OriginX, OriginY, Width, Height)
+ * Define a Region of Interest . (OriginX, OriginY, Width, Height)<br>
+ *	Roi and Binning are associated.
  *	@param	argin	[origin_x, origin_y, width, height]
  *	@exception DevFailed
  */

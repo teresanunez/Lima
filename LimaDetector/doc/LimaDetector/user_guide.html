@@ -44,9 +44,9 @@
 <Tr><Td><Br>&nbsp;<Br>
 <center>
 <h1>
-Adsc CCD detector from Lima <Br>
+LimaDetector <Br>
 User's Guide<Br>&nbsp;<Br> <Br><Br>
-AdscCCD Class<Br>&nbsp;<Br></Td></Tr>
+LimaDetector Class<Br>&nbsp;<Br></Td></Tr>
 </h1>
 <Tr><Td>
 <b><Center>Revision:  - Author:  <Br>
@@ -63,7 +63,7 @@ AdscCCD Class<Br>&nbsp;<Br></Td></Tr>
 <Br>&nbsp;<Br><Br>&nbsp;<Br>
 <h2>Introduction:</h2>
 <ul>
-	<Br>
+	Generic device intented to manage Detector via Lima Framework<Br>
 </ul>
 <Br>
 <Br>
@@ -79,7 +79,7 @@ AdscCCD Class<Br>&nbsp;<Br></Td></Tr>
 	<ul>
 		<li> <a href="http://www.esrf.fr/computing/cs/tango/tango_doc/kernel_doc/cpp_doc/"> Tango::Device_4Impl</a></li>
 		<ul>
-			<li> AdscCCD</li>
+			<li> LimaDetector</li>
 			</ul>
 		</ul>
 	</ul>
@@ -90,13 +90,320 @@ AdscCCD Class<Br>&nbsp;<Br></Td></Tr>
 
 
 <Center>
+<Br> <Br> <Br> 
+<Table Border=2 Cellpadding=3 CELLSPACING=0 WIDTH="100%">
+<TR BGCOLOR="#CCCCFF" CLASS="TableHeadingColor">
+<Td COLSPAN=3> <Font Size=+2><Center><b>Device Properties</b></td></Font></Center>
+<TR BGCOLOR="#CCCCFF" CLASS="TableHeadingColor">
+<Td><Center><b>Property name</b></td></Center>
+<Td><Center><b>Property type</b></td></Center>
+<Td><Center><b>Description</b></td></Center>
+<Tr><Td><b><a href=#Dev_DefaultValues>DetectorDescription </a></b></Td>
+<Td><Font Size=-1>Tango::DEV_STRING</Font></Td>
+<Td><Font Size=-1>Detector user-defined text to identify the engine.</Font></Td></Tr>
+
+<Tr><Td><b><a href=#Dev_DefaultValues>DetectorType </a></b></Td>
+<Td><Font Size=-1>Tango::DEV_STRING</Font></Td>
+<Td><Font Size=-1>Define the type of the connected Detector .<BR>
+Availables types :<BR>
+- AdscCCD<BR>
+- BaslerCCD<BR>
+- MarCCD<BR>
+- Pco<BR>
+- PerkinElmer<BR>
+- PilatusPixelDetector<BR>
+- ProsilicaCCD<BR>
+- PrincetonCCD<BR>
+- SimulatorCCD<BR>
+- XpadPixelDetector<BR>
+
+</Font></Td></Tr>
+
+<Tr><Td><b><a href=#Dev_DefaultValues>DetectorPixelDepth </a></b></Td>
+<Td><Font Size=-1>Tango::DEV_USHORT</Font></Td>
+<Td><Font Size=-1>Define the pixel depth of the detector : <br>
+Availables values : <br>
+- 8 <br>
+- 16<br>
+- 32<br></Font></Td></Tr>
+
+<Tr><Td><b><a href=#Dev_DefaultValues>DetectorVideoMode </a></b></Td>
+<Td><Font Size=-1>Tango::DEV_STRING</Font></Td>
+<Td><Font Size=-1>Define the format of video stream: <br>
+Availables values :<br>
+- NONE<BR>
+- Y8 <BR>
+- Y16<BR>
+- Y32<BR>
+- Y64<BR>
+- RGB555<BR>
+- RGB565<BR>
+- RGB24<BR>
+- RGB32<BR>
+- BGR24<BR>
+- BGR32<BR>
+- BAYER_RG8<BR>
+- BAYER_RG16<BR>
+- I420<BR>
+- YUV411<BR>
+- YUV422<BR>
+- YUV444<BR>
+<br>
+Nota:<br>
+This property is usefull only for detectors having video capabilities.<BR>
+Otherwise, use only NONE.</Font></Td></Tr>
+
+<Tr><Td><b><a href=#Dev_DefaultValues>FileFormat </a></b></Td>
+<Td><Font Size=-1>Tango::DEV_STRING</Font></Td>
+<Td><Font Size=-1>Define the format of image files :<BR>
+Availables values :<br>
+- EDF<BR>
+- NXS<BR>
+- RAW<BR>
+</Font></Td></Tr>
+
+<Tr><Td><b><a href=#Dev_DefaultValues>FilePrefix </a></b></Td>
+<Td><Font Size=-1>Tango::DEV_STRING</Font></Td>
+<Td><Font Size=-1>Define the prefix used for the image files name.</Font></Td></Tr>
+
+<Tr><Td><b><a href=#Dev_DefaultValues>FileIndexPattern </a></b></Td>
+<Td><Font Size=-1>Tango::DEV_STRING</Font></Td>
+<Td><Font Size=-1>Define the pattern of the index used for image files names.<br>
+<br>
+Nota :<br>
+%04d mean that file name index will be end with exactly  4 digits filled by '0' if necessary .<br>
+</Font></Td></Tr>
+
+<Tr><Td><b><a href=#Dev_DefaultValues>FileNbFrames </a></b></Td>
+<Td><Font Size=-1>Tango::DEV_LONG</Font></Td>
+<Td><Font Size=-1>Define the amount of frames stored in the target file.<br>
+If Nexus file, this is the NbAcqPerFile.</Font></Td></Tr>
+
+<Tr><Td><b><a href=#Dev_DefaultValues>FileTargetPath </a></b></Td>
+<Td><Font Size=-1>Tango::DEV_STRING</Font></Td>
+<Td><Font Size=-1>Define the Path where Files will be generated, only when savingFile is checked.
+
+</Font></Td></Tr>
+
+<Tr><Td><b><a href=#Dev_DefaultValues>DebugModules </a></b></Td>
+<Td><Font Size=-1>Array of string</Font></Td>
+<Td><Font Size=-1>Define modules that we need to have some debug traces.<BR>
+Availables values :<BR>
+- None<BR>
+- Hardware<BR>
+- Control<BR>
+- Common<BR>
+- Camera<BR></Font></Td></Tr>
+
+<Tr><Td><b><a href=#Dev_DefaultValues>DebugLevels </a></b></Td>
+<Td><Font Size=-1>Array of string</Font></Td>
+<Td><Font Size=-1>Define Lima verbose level of traces.<BR>
+Availables values :<BR>
+- Fatal<BR>
+- Error<BR>
+- Warning<BR>
+- Trace<BR>
+- Funct<BR>
+- Param<BR>
+- Return<BR>
+- Always<BR></Font></Td></Tr>
+
+<Tr><Td><b><a href=#Dev_DefaultValues>DebugFormats </a></b></Td>
+<Td><Font Size=-1>Array of string</Font></Td>
+<Td><Font Size=-1>Define Lima traces format.<BR>
+Availables values :<BR>
+- DateTime<BR>
+- Thread<BR>
+- Module<BR>
+- Obj<BR>
+- Funct<BR>
+- FileLine<BR></Font></Td></Tr>
+
+<Tr><Td><b><a href=#Dev_DefaultValues>MemorizedRoi </a></b></Td>
+<Td><Font Size=-1>Array of short</Font></Td>
+<Td><Font Size=-1>Memorize/Define the Region of Interest of the Acquisition: <br>
+origin X<br>
+origin Y<br>
+Width<br>
+Height<br>
+<br>
+Nota:<br>
+if any roi value is <0, then we consider all detector area as Roi.</Font></Td></Tr>
+
+<Tr><Td><b><a href=#Dev_DefaultValues>MemorizedBinningH </a></b></Td>
+<Td><Font Size=-1>Tango::DEV_USHORT</Font></Td>
+<Td><Font Size=-1>Memorize/Define the Binning Horizontal value of the Acquisition<br>
+</Font></Td></Tr>
+
+<Tr><Td><b><a href=#Dev_DefaultValues>MemorizedBinningV </a></b></Td>
+<Td><Font Size=-1>Tango::DEV_USHORT</Font></Td>
+<Td><Font Size=-1>Memorize/Define the Binning Vertical value of the Acquisition<br></Font></Td></Tr>
+
+<Tr><Td><b><a href=#Dev_DefaultValues>MemorizedAcquisitionMode </a></b></Td>
+<Td><Font Size=-1>Tango::DEV_STRING</Font></Td>
+<Td><Font Size=-1>Memorize/Define the acquisitionMode attribute at Init device<br>
+Availables values :<br>
+- SINGLE<br>
+- ACCUMULATION<br></Font></Td></Tr>
+
+<Tr><Td><b><a href=#Dev_DefaultValues>MemorizedTriggerMode </a></b></Td>
+<Td><Font Size=-1>Tango::DEV_STRING</Font></Td>
+<Td><Font Size=-1>Memorize/Define the triggerMode attribute at Init device<br>
+Availables values :<br>
+- INTERNAL_SINGLE<br>
+- EXTERNAL_SINGLE<br>
+- EXTERNAL_MULTI<br>
+- EXTERNAL_GATE<br></Font></Td></Tr>
+
+<Tr><Td><b><a href=#Dev_DefaultValues>MemorizedExposureTime </a></b></Td>
+<Td><Font Size=-1>Tango::DEV_DOUBLE</Font></Td>
+<Td><Font Size=-1>Memorize/Define the exposureTime attribute  at Init device<br>
+</Font></Td></Tr>
+
+<Tr><Td><b><a href=#Dev_DefaultValues>MemorizedExposureAccTime </a></b></Td>
+<Td><Font Size=-1>Tango::DEV_DOUBLE</Font></Td>
+<Td><Font Size=-1>Memorize/Define the exposureAccTime attribute at Init device<br></Font></Td></Tr>
+
+<Tr><Td><b><a href=#Dev_DefaultValues>MemorizedLatencyTime </a></b></Td>
+<Td><Font Size=-1>Tango::DEV_DOUBLE</Font></Td>
+<Td><Font Size=-1>Memorize/Define the latencyTime attribute  at Init device<br></Font></Td></Tr>
+
+<Tr><Td><b><a href=#Dev_DefaultValues>MemorizedNbFrames </a></b></Td>
+<Td><Font Size=-1>Tango::DEV_LONG</Font></Td>
+<Td><Font Size=-1>Memorize/Define the nbFrames attribute  at Init device<br></Font></Td></Tr>
+
+<Tr><Td><b><a href=#Dev_DefaultValues>MemorizedFileGeneration </a></b></Td>
+<Td><Font Size=-1>Tango::DEV_BOOLEAN</Font></Td>
+<Td><Font Size=-1>Memorize/Define the fileGeneration attribute at Init device<br></Font></Td></Tr>
+
+<Tr><Td><b><a href=#Dev_DefaultValues>MemorizedFlipX </a></b></Td>
+<Td><Font Size=-1>Tango::DEV_BOOLEAN</Font></Td>
+<Td><Font Size=-1>Memorize/Define the flipX attribute at Init device<br></Font></Td></Tr>
+
+<Tr><Td><b><a href=#Dev_DefaultValues>MemorizedFlipY </a></b></Td>
+<Td><Font Size=-1>Tango::DEV_BOOLEAN</Font></Td>
+<Td><Font Size=-1>Memorize/Define the flipY attribute at Init device<br></Font></Td></Tr>
+
+</Table>
+
 </Center>
 <Br><Br><Br>
 <Br><Br><Br>
 
+<A name=Dev_DefaultValues><!---  ---></a>
+<Font Size=+1>Device Properties Default Values:</Font><Br>
+<Table Border=2 Cellpadding=2 CELLSPACING=2>
+    <tr BGCOLOR="#CCCCFF" CLASS="TableHeadingColor">
+        <Td><b>Property Name</b></td>
+        <td><b>Default Values</b></td>
+    </Tr>
+    <Tr>
+        <Td>DetectorDescription</Td>
+        <td>This is my Simulator</td>
+    </Tr>
+    <Tr>
+        <Td>DetectorType</Td>
+        <td>SimulatorCCD</td>
+    </Tr>
+    <Tr>
+        <Td>DetectorPixelDepth</Td>
+        <td>16</td>
+    </Tr>
+    <Tr>
+        <Td>DetectorVideoMode</Td>
+        <td>NONE</td>
+    </Tr>
+    <Tr>
+        <Td>FileFormat</Td>
+        <td>NXS</td>
+    </Tr>
+    <Tr>
+        <Td>FilePrefix</Td>
+        <td>Image</td>
+    </Tr>
+    <Tr>
+        <Td>FileIndexPattern</Td>
+        <td>%06d</td>
+    </Tr>
+    <Tr>
+        <Td>FileNbFrames</Td>
+        <td>1</td>
+    </Tr>
+    <Tr>
+        <Td>FileTargetPath</Td>
+        <td>./data</td>
+    </Tr>
+    <Tr>
+        <Td>DebugModules</Td>
+        <td>	Hardware<Br>
+	Control<Br>
+	Common<Br>
+	Camera</td>
+    </Tr>
+    <Tr>
+        <Td>DebugLevels</Td>
+        <td>	Fatal<Br>
+	Error<Br>
+	Warning</td>
+    </Tr>
+    <Tr>
+        <Td>DebugFormats</Td>
+        <td>	DateTime<Br>
+	Funct</td>
+    </Tr>
+    <Tr>
+        <Td>MemorizedRoi</Td>
+        <td>-1, -1, -1, -1</td>
+    </Tr>
+    <Tr>
+        <Td>MemorizedBinningH</Td>
+        <td>1</td>
+    </Tr>
+    <Tr>
+        <Td>MemorizedBinningV</Td>
+        <td>1</td>
+    </Tr>
+    <Tr>
+        <Td>MemorizedAcquisitionMode</Td>
+        <td>SINGLE</td>
+    </Tr>
+    <Tr>
+        <Td>MemorizedTriggerMode</Td>
+        <td>INTERNAL_SINGLE</td>
+    </Tr>
+    <Tr>
+        <Td>MemorizedExposureTime</Td>
+        <td>1000</td>
+    </Tr>
+    <Tr>
+        <Td>MemorizedExposureAccTime</Td>
+        <td>100</td>
+    </Tr>
+    <Tr>
+        <Td>MemorizedLatencyTime</Td>
+        <td>0</td>
+    </Tr>
+    <Tr>
+        <Td>MemorizedNbFrames</Td>
+        <td>1</td>
+    </Tr>
+    <Tr>
+        <Td>MemorizedFileGeneration</Td>
+        <td>false</td>
+    </Tr>
+    <Tr>
+        <Td>MemorizedFlipX</Td>
+        <td>false</td>
+    </Tr>
+    <Tr>
+        <Td>MemorizedFlipY</Td>
+        <td>false</td>
+    </Tr>
+</Table>
+
+<Br><Br><Br>
 <Center><b>
 There is no Class properties.<Br><Br>
-There is no Device Properties.<Br><Br>
 </Center></b>
 <Br> <Br> <Br> 
 
@@ -113,17 +420,38 @@ There is no Device Properties.<Br><Br>
 <TR BGCOLOR="#CCCCFF" CLASS="TableHeadingColor">
 <Td><Center><b>Names</b></td></Center>
 <Td><Center><b>Descriptions</b></td></Center>
-<Tr><Td><b>STANDBY</b></Td>
-<Td><Font Size=-1></Font></Td></Tr>
-
 <Tr><Td><b>INIT</b></Td>
-<Td><Font Size=-1></Font></Td></Tr>
+<Td><Font Size=-1>Error occured at the initialization of the device.<br>
+It is mandatory to fix the errors and run the [ Init ] command of the LimaDetector device.<br>
+The [ Snap ] command IS NOT available.<br>
+The [ Start ] command IS NOT available.<br>
+The [ Stop ] command IS NOT available.<br>
+The [ SetRoi ] command IS NOT available.<br>
+The [ SetBinning ] command IS NOT available.<br></Font></Td></Tr>
 
-<Tr><Td><b>RUNNING</b></Td>
-<Td><Font Size=-1></Font></Td></Tr>
+<Tr><Td><b>STANDBY</b></Td>
+<Td><Font Size=-1>The Device is Waiting for a user request.<br>
+The [ Snap ] command IS available.<br>
+The [ Start ] command IS available.<br>
+The [ Stop ] command IS available.<br>
+The [ SetRoi ] command IS available.<br>
+The [ SetBinning ] command IS available.<br></Font></Td></Tr>
 
 <Tr><Td><b>FAULT</b></Td>
-<Td><Font Size=-1></Font></Td></Tr>
+<Td><Font Size=-1>Acquisition/Settings of the detector encounter a problem.<BR>
+The [ Snap ] command IS available.<br>
+The [ Start ] command IS available.<br>
+The [ Stop ] command IS available.<br>
+The [ SetRoi ] command IS available.<br>
+The [ SetBinning ] command IS available.<br></Font></Td></Tr>
+
+<Tr><Td><b>RUNNING</b></Td>
+<Td><Font Size=-1>The Acquisition is in Progress.<br>
+The [ Snap ] command IS NOT available.<br>
+The [ Start ] command IS NOT available.<br>
+The [ Stop ] command IS available.<br>
+The [ SetRoi ] command IS NOT available.<br>
+The [ SetBinning ] command IS NOT available.<br></Font></Td></Tr>
 
 
 
@@ -145,20 +473,71 @@ There is no Device Properties.<Br><Br>
 <Td><Center><b>Data Type</b></td></Center>
 <Td><Center><b>R/W Type</b></td></Center>
 <Td><Center><b>Expert</b></td></Center>
-<Tr><Td><b>imagePath</b>: <Font Size=-1>Change the image path.<br> <br> If the directory does not exist, it will be created if possible according to permissions.<br> A path relative to the current path is accepted.<br></Font></Td>
+<Tr><Td><b>detectorDescription</b>: <Font Size=-1>Detector user-defined text to identify the engine.</Font></Td>
+<Td><Center><Font Size=-1>DEV_STRING</Font></Center></Td><Td><Center><Font Size=-1>READ</Font></Center></Td><Td><Center><Font Size=-1>No</Font></Center></Td></Tr>
+
+<Tr><Td><b>detectorType</b>: <Font Size=-1>Return the type of the Detector.</Font></Td>
+<Td><Center><Font Size=-1>DEV_STRING</Font></Center></Td><Td><Center><Font Size=-1>READ</Font></Center></Td><Td><Center><Font Size=-1>No</Font></Center></Td></Tr>
+
+<Tr><Td><b>detectorModel</b>: <Font Size=-1>Return the model of the Detector.</Font></Td>
+<Td><Center><Font Size=-1>DEV_STRING</Font></Center></Td><Td><Center><Font Size=-1>READ</Font></Center></Td><Td><Center><Font Size=-1>No</Font></Center></Td></Tr>
+
+<Tr><Td><b>detectorWidthMax</b>: <Font Size=-1>Detector width in pixels.</Font></Td>
+<Td><Center><Font Size=-1>DEV_USHORT</Font></Center></Td><Td><Center><Font Size=-1>READ</Font></Center></Td><Td><Center><Font Size=-1>No</Font></Center></Td></Tr>
+
+<Tr><Td><b>detectorHeightMax</b>: <Font Size=-1>Detector height in pixels.</Font></Td>
+<Td><Center><Font Size=-1>DEV_USHORT</Font></Center></Td><Td><Center><Font Size=-1>READ</Font></Center></Td><Td><Center><Font Size=-1>No</Font></Center></Td></Tr>
+
+<Tr><Td><b>detectorPixelDepth</b>: <Font Size=-1>Pixel resolution in bits:<br> 8<br> 16<br> 32<br></Font></Td>
+<Td><Center><Font Size=-1>DEV_USHORT</Font></Center></Td><Td><Center><Font Size=-1>READ</Font></Center></Td><Td><Center><Font Size=-1>No</Font></Center></Td></Tr>
+
+<Tr><Td><b>triggerMode</b>: <Font Size=-1>Available Trigger Modes :<br> INTERNAL_SINGLE<br> EXTERNAL_SINGLE<br> EXTERNAL_MULTI<br> EXTERNAL_GATE<br></Font></Td>
 <Td><Center><Font Size=-1>DEV_STRING</Font></Center></Td><Td><Center><Font Size=-1>READ_WRITE</Font></Center></Td><Td><Center><Font Size=-1>No</Font></Center></Td></Tr>
 
-<Tr><Td><b>fileName</b>: <Font Size=-1>Requested Image file name.</Font></Td>
+<Tr><Td><b>acquisitionMode</b>: <Font Size=-1>Available Acquisition Modes :<br> SINGLE<br> ACCUMULATION<br> </Font></Td>
 <Td><Center><Font Size=-1>DEV_STRING</Font></Center></Td><Td><Center><Font Size=-1>READ_WRITE</Font></Center></Td><Td><Center><Font Size=-1>No</Font></Center></Td></Tr>
 
-<Tr><Td><b>useStoredImageDark</b></Td>
-<Td><Center><Font Size=-1>DEV_BOOLEAN</Font></Center></Td><Td><Center><Font Size=-1>READ_WRITE</Font></Center></Td><Td><Center><Font Size=-1>No</Font></Center></Td></Tr>
+<Tr><Td><b>exposureTime</b>: <Font Size=-1>Set/Get exposure time (in ms).<br> Nota : <br> In video mode (acquisition launched by Start), exposure time can be changed during acquistion.</Font></Td>
+<Td><Center><Font Size=-1>DEV_DOUBLE</Font></Center></Td><Td><Center><Font Size=-1>READ_WRITE</Font></Center></Td><Td><Center><Font Size=-1>No</Font></Center></Td></Tr>
 
-<Tr><Td><b>imageKind</b>: <Font Size=-1>imageKind = 0,1, 5 if  useStoredImageDark = 0<br> imageKind = 5 if  useStoredImageDark = 1<br></Font></Td>
-<Td><Center><Font Size=-1>DEV_USHORT</Font></Center></Td><Td><Center><Font Size=-1>READ_WRITE</Font></Center></Td><Td><Center><Font Size=-1>No</Font></Center></Td></Tr>
+<Tr><Td><b>exposureAccTime</b>: <Font Size=-1>Set/Get exposure time ONLY in mode ACCUMULATION (in ms)<br></Font></Td>
+<Td><Center><Font Size=-1>DEV_DOUBLE</Font></Center></Td><Td><Center><Font Size=-1>READ_WRITE</Font></Center></Td><Td><Center><Font Size=-1>No</Font></Center></Td></Tr>
 
-<Tr><Td><b>isLastImage</b></Td>
-<Td><Center><Font Size=-1>DEV_BOOLEAN</Font></Center></Td><Td><Center><Font Size=-1>READ_WRITE</Font></Center></Td><Td><Center><Font Size=-1>No</Font></Center></Td></Tr>
+<Tr><Td><b>latencyTime</b>: <Font Size=-1>Set/Get latency time (in ms).<br></Font></Td>
+<Td><Center><Font Size=-1>DEV_DOUBLE</Font></Center></Td><Td><Center><Font Size=-1>READ_WRITE</Font></Center></Td><Td><Center><Font Size=-1>No</Font></Center></Td></Tr>
+
+<Tr><Td><b>roiX</b>: <Font Size=-1>Region of Interest . (Origin X)</Font></Td>
+<Td><Center><Font Size=-1>DEV_USHORT</Font></Center></Td><Td><Center><Font Size=-1>READ</Font></Center></Td><Td><Center><Font Size=-1>No</Font></Center></Td></Tr>
+
+<Tr><Td><b>roiY</b>: <Font Size=-1>Region of Interest . (Origin Y)</Font></Td>
+<Td><Center><Font Size=-1>DEV_USHORT</Font></Center></Td><Td><Center><Font Size=-1>READ</Font></Center></Td><Td><Center><Font Size=-1>No</Font></Center></Td></Tr>
+
+<Tr><Td><b>roiWidth</b>: <Font Size=-1>Region of Interest . (Width)</Font></Td>
+<Td><Center><Font Size=-1>DEV_USHORT</Font></Center></Td><Td><Center><Font Size=-1>READ</Font></Center></Td><Td><Center><Font Size=-1>No</Font></Center></Td></Tr>
+
+<Tr><Td><b>roiHeight</b>: <Font Size=-1>Region of Interest . (Height)</Font></Td>
+<Td><Center><Font Size=-1>DEV_USHORT</Font></Center></Td><Td><Center><Font Size=-1>READ</Font></Center></Td><Td><Center><Font Size=-1>No</Font></Center></Td></Tr>
+
+<Tr><Td><b>binningH</b>: <Font Size=-1>Current Binning Horizontal value</Font></Td>
+<Td><Center><Font Size=-1>DEV_USHORT</Font></Center></Td><Td><Center><Font Size=-1>READ</Font></Center></Td><Td><Center><Font Size=-1>No</Font></Center></Td></Tr>
+
+<Tr><Td><b>binningV</b>: <Font Size=-1>Current Binning Vertical value</Font></Td>
+<Td><Center><Font Size=-1>DEV_USHORT</Font></Center></Td><Td><Center><Font Size=-1>READ</Font></Center></Td><Td><Center><Font Size=-1>No</Font></Center></Td></Tr>
+
+<Tr><Td><b>nbFrames</b>: <Font Size=-1>Define the number of frames to acquire.<br> Available only in acqusisition mode, i.e "SNAP".<br> In vide mode, i.e "START" it is always forced to 0, this is mean that we request an infinite number of frames.</Font></Td>
+<Td><Center><Font Size=-1>DEV_LONG</Font></Center></Td><Td><Center><Font Size=-1>READ_WRITE</Font></Center></Td><Td><Center><Font Size=-1>No</Font></Center></Td></Tr>
+
+<Tr><Td><b>currentFrame</b>: <Font Size=-1>Display the current frame number.</Font></Td>
+<Td><Center><Font Size=-1>DEV_ULONG</Font></Center></Td><Td><Center><Font Size=-1>READ</Font></Center></Td><Td><Center><Font Size=-1>No</Font></Center></Td></Tr>
+
+<Tr><Td><b>fileGeneration</b>: <Font Size=-1>Allow to save grabbed frames into a file on disk.<br> Available formats for the file are:  EDF, RAW, NXS<br> The format is fixed in FileFormat property.<br></Font></Td>
+<Td><Center><Font Size=-1>DEV_BOOLEAN</Font></Center></Td><Td><Center><Font Size=-1>READ_WRITE</Font></Center></Td><Td><Center><Font Size=-1>Yes</Font></Center></Td></Tr>
+
+<Tr><Td><b>flipX</b></Td>
+<Td><Center><Font Size=-1>DEV_BOOLEAN</Font></Center></Td><Td><Center><Font Size=-1>READ_WRITE</Font></Center></Td><Td><Center><Font Size=-1>Yes</Font></Center></Td></Tr>
+
+<Tr><Td><b>flipY</b></Td>
+<Td><Center><Font Size=-1>DEV_BOOLEAN</Font></Center></Td><Td><Center><Font Size=-1>READ_WRITE</Font></Center></Td><Td><Center><Font Size=-1>Yes</Font></Center></Td></Tr>
 
 </Table>
 </Center>
@@ -189,9 +568,40 @@ There is no Device Properties.<Br><Br>
 <Tr><Td><b>Status</b></Td>
 <Td><Font Size=-1>DEV_VOID</Font></Td>
 <Td><Font Size=-1>CONST_DEV_STRING</Font></Td>
-<Tr><Td><b>SetHeaderParameters</b></Td>
-<Td><Font Size=-1>DEV_STRING</Font></Td>
+<Tr><Td><b>Snap</b></Td>
 <Td><Font Size=-1>DEV_VOID</Font></Td>
+<Td><Font Size=-1>DEV_VOID</Font></Td>
+<Tr><Td><b>Start</b></Td>
+<Td><Font Size=-1>DEV_VOID</Font></Td>
+<Td><Font Size=-1>DEV_VOID</Font></Td>
+<Tr><Td><b>Stop</b></Td>
+<Td><Font Size=-1>DEV_VOID</Font></Td>
+<Td><Font Size=-1>DEV_VOID</Font></Td>
+<Tr><Td><b>SetROI</b></Td>
+<Td><Font Size=-1>DEVVAR_ULONGARRAY</Font></Td>
+<Td><Font Size=-1>DEV_VOID</Font></Td>
+<Tr><Td><b>SetBinning</b></Td>
+<Td><Font Size=-1>DEVVAR_ULONGARRAY</Font></Td>
+<Td><Font Size=-1>DEV_VOID</Font></Td>
+<Tr><Td><b>ResetROI</b></Td>
+<Td><Font Size=-1>DEV_VOID</Font></Td>
+<Td><Font Size=-1>DEV_VOID</Font></Td>
+
+
+
+</Table></Center>
+<Br> <Br> <Br> 
+<Center>
+<Table Border=2 Cellpadding=3 CELLSPACING=0 WIDTH="100%">
+<TR BGCOLOR="#CCCCFF" CLASS="TableHeadingColor">
+<Td COLSPAN=3> <Font Size=+2><Center><b>Device Commands for Expert Level Only</b></td></Font></Center>
+<TR BGCOLOR="#CCCCFF" CLASS="TableHeadingColor">
+<Td><Center><b>Command name</b></td></Center>
+<Td><Center><b>Argument In</b></td></Center>
+<Td><Center><b>Argument Out</b></td></Center>
+<Tr><Td><b>GetAttributeAvailableValues</b></Td>
+<Td><Font Size=-1>DEV_STRING</Font></Td>
+<Td><Font Size=-1>DEVVAR_STRINGARRAY</Font></Td>
 
 
 
@@ -217,7 +627,7 @@ The language device desctructor automatically calls the <i> delete_device() </i>
 <Li><Strong>Argout:<Br>DEV_VOID</Strong>
  : none.<Br>&nbsp
 <Li><Strong>Command allowed for: </Strong><Ul>
-<Li>Tango::STANDBY<Li>Tango::INIT<Li>Tango::RUNNING<Li>Tango::FAULT</Ul>
+<Li>Tango::INIT<Li>Tango::STANDBY<Li>Tango::FAULT<Li>Tango::RUNNING</Ul>
 <Br>&nbsp
 </ul><Br>
 <Br>
@@ -231,7 +641,7 @@ The language device desctructor automatically calls the <i> delete_device() </i>
 <Li><Strong>Argout:<Br>DEV_STATE</Strong>
  : State Code<Br>&nbsp
 <Li><Strong>Command allowed for: </Strong><Ul>
-<Li>Tango::STANDBY<Li>Tango::INIT<Li>Tango::RUNNING<Li>Tango::FAULT</Ul>
+<Li>Tango::INIT<Li>Tango::STANDBY<Li>Tango::FAULT<Li>Tango::RUNNING</Ul>
 <Br>&nbsp
 </ul><Br>
 <Br>
@@ -245,28 +655,108 @@ The language device desctructor automatically calls the <i> delete_device() </i>
 <Li><Strong>Argout:<Br>CONST_DEV_STRING</Strong>
  : Status description<Br>&nbsp
 <Li><Strong>Command allowed for: </Strong><Ul>
-<Li>Tango::STANDBY<Li>Tango::INIT<Li>Tango::RUNNING<Li>Tango::FAULT</Ul>
+<Li>Tango::INIT<Li>Tango::STANDBY<Li>Tango::FAULT<Li>Tango::RUNNING</Ul>
 <Br>&nbsp
 </ul><Br>
 <Br>
-<A NAME="SetHeaderParameters"><!-- --></A>
-<A NAME="SetHeaderParameters"><!-- --></A>
-<h2>4 - SetHeaderParameters</h2>
+<A NAME="Snap"><!-- --></A>
+<A NAME="Snap"><!-- --></A>
+<h2>4 - Snap</h2>
 <ul>
-<Li><Strong>Description: </Strong> Set crystallographic parameters reported in the image header. <br>
-
-[param_name=value]<CARRIAGE RETURN>[param_name=value]<CARRIAGE RETURN>...<br>
-
-sample :<br>
-DISTANCE=300\nPHI=88.5\n...\nWAVELENGTH=0.987\n\0<br>
-
-List of availables param_name :<br><Br>&nbsp
-<Li><Strong>Argin:<Br>DEV_STRING</Strong>
+<Li><Strong>Description: </Strong> Starts the acquisition of a number of frames equal to  'nbFrames' attribute value.<Br>&nbsp
+<Li><Strong>Argin:<Br>DEV_VOID</Strong>
  : <Br>&nbsp
 <Li><Strong>Argout:<Br>DEV_VOID</Strong>
  : <Br>&nbsp
 <Li><Strong>Command allowed for: </Strong><Ul>
-<Li>Tango::STANDBY<Li>Tango::FAULT</Ul>
+<Li>Tango::STANDBY<Li>Tango::RUNNING</Ul>
+<Br>&nbsp
+</ul><Br>
+<Br>
+<A NAME="Start"><!-- --></A>
+<A NAME="Start"><!-- --></A>
+<h2>5 - Start</h2>
+<ul>
+<Li><Strong>Description: </Strong> Starts a "video/live" acquisition of an infinite number of frames.<br>
+In this mode, In this mode, the frame loss is permitted and not signaled as FAULT in the device state<br>
+It is not allowed to generate files in this mode.<Br>&nbsp
+<Li><Strong>Argin:<Br>DEV_VOID</Strong>
+ : <Br>&nbsp
+<Li><Strong>Argout:<Br>DEV_VOID</Strong>
+ : <Br>&nbsp
+<Li><Strong>Command allowed for: </Strong><Ul>
+<Li>Tango::STANDBY<Li>Tango::RUNNING</Ul>
+<Br>&nbsp
+</ul><Br>
+<Br>
+<A NAME="Stop"><!-- --></A>
+<A NAME="Stop"><!-- --></A>
+<h2>6 - Stop</h2>
+<ul>
+<Li><Strong>Description: </Strong> Stop current acquisition/video.<Br>&nbsp
+<Li><Strong>Argin:<Br>DEV_VOID</Strong>
+ : <Br>&nbsp
+<Li><Strong>Argout:<Br>DEV_VOID</Strong>
+ : <Br>&nbsp
+<Li><Strong>Command allowed for: </Strong><Ul>
+<Li>Tango::STANDBY<Li>Tango::RUNNING</Ul>
+<Br>&nbsp
+</ul><Br>
+<Br>
+<A NAME="SetROI"><!-- --></A>
+<A NAME="SetROI"><!-- --></A>
+<h2>7 - SetROI</h2>
+<ul>
+<Li><Strong>Description: </Strong> Define a Region of Interest . (OriginX, OriginY, Width, Height)<br>
+Roi and Binning are associated.<Br>&nbsp
+<Li><Strong>Argin:<Br>DEVVAR_ULONGARRAY</Strong>
+ : [origin_x, origin_y, width, height]<Br>&nbsp
+<Li><Strong>Argout:<Br>DEV_VOID</Strong>
+ : <Br>&nbsp
+<Li><Strong>Command allowed for: </Strong><Ul>
+<Li>Tango::STANDBY</Ul>
+<Br>&nbsp
+</ul><Br>
+<Br>
+<A NAME="SetBinning"><!-- --></A>
+<A NAME="SetBinning"><!-- --></A>
+<h2>8 - SetBinning</h2>
+<ul>
+<Li><Strong>Description: </Strong> Define a binning Horizontal (x) & Vertical (y) for the image. <br><Br>&nbsp
+<Li><Strong>Argin:<Br>DEVVAR_ULONGARRAY</Strong>
+ : <Br>&nbsp
+<Li><Strong>Argout:<Br>DEV_VOID</Strong>
+ : <Br>&nbsp
+<Li><Strong>Command allowed for: </Strong><Ul>
+<Li>Tango::STANDBY</Ul>
+<Br>&nbsp
+</ul><Br>
+<Br>
+<A NAME="ResetROI"><!-- --></A>
+<A NAME="ResetROI"><!-- --></A>
+<h2>9 - ResetROI</h2>
+<ul>
+<Li><Strong>Description: </Strong> Use the full frame of the detector according to current Binning.<Br>&nbsp
+<Li><Strong>Argin:<Br>DEV_VOID</Strong>
+ : <Br>&nbsp
+<Li><Strong>Argout:<Br>DEV_VOID</Strong>
+ : <Br>&nbsp
+<Li><Strong>Command allowed for: </Strong><Ul>
+<Li>Tango::STANDBY</Ul>
+<Br>&nbsp
+</ul><Br>
+<Br>
+<A NAME="GetAttributeAvailableValues"><!-- --></A>
+<A NAME="GetAttributeAvailableValues"><!-- --></A>
+<h2>10 - GetAttributeAvailableValues (for expert only)</h2>
+<ul>
+<Li><Strong>Description: </Strong> Return a list of string containing all available values of a DevString attribute.<Br>&nbsp
+<Li><Strong>Argin:<Br>DEV_STRING</Strong>
+ : Attribute name<Br>&nbsp
+<Li><Strong>Argout:<Br>DEVVAR_STRINGARRAY</Strong>
+ : List of strings containing the available values<Br>&nbsp
+<Li><Strong>Command allowed for: </Strong><Ul>
+<Li>Tango::STANDBY<Li>Tango::FAULT<Li>Tango::RUNNING</Ul>
 <Br>&nbsp
 </ul><Br>
 <Br>

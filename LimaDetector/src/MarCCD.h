@@ -123,11 +123,6 @@ public :
  *	During acquisition, this is the time before declaring that is no available image returned by detector. (in ms)
  */
 	Tango::DevUShort	readerTimeout;
-/**
- *	Enable/Disable using ImageDiffraction to read image file.
- *	[default = enable]
- */
-	Tango::DevBoolean	useReader;
 //@}
 
 /**

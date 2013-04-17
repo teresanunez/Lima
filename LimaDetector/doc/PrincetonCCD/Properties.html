@@ -66,6 +66,29 @@ Revision:  - Author:
 <Td><Font Size=-1>Tango::DEV_STRING</Font></Td>
 <Td><Font Size=-1>Detector Number.</Font></Td></Tr>
 
+<Tr><Td><b><a href=#Dev_DefaultValues>MemorizedInternalAcquisitionMode </a></b></Td>
+<Td><Font Size=-1>string</Font></Td>
+<Td><Font Size=-1>Memorize/Define the internalAcquisitionMode attribute at Init device<br>
+Availables values :<br>
+- STANDARD<br>
+- FOCUS<br></Font></Td></Tr>
+
+<Tr><Td><b><a href=#Dev_DefaultValues>MemorizedShutterMode </a></b></Td>
+<Td><Font Size=-1>string</Font></Td>
+<Td><Font Size=-1>Memorize/Define the SHUTTERMode attribute at Init device<br>
+Availables values :<br>
+- OPEN_NEVER<br>
+- OPEN_PRE_EXPOSURE<br>
+- OPEN_NO_CHANGE<br></Font></Td></Tr>
+
+<Tr><Td><b><a href=#Dev_DefaultValues>MemorizedGain </a></b></Td>
+<Td><Font Size=-1>Tango::DEV_USHORT</Font></Td>
+<Td><Font Size=-1></Font></Td></Tr>
+
+<Tr><Td><b><a href=#Dev_DefaultValues>MemorizedADCMode </a></b></Td>
+<Td><Font Size=-1>Tango::DEV_USHORT</Font></Td>
+<Td><Font Size=-1></Font></Td></Tr>
+
 </Table>
 
 </Center>
@@ -82,6 +105,22 @@ Revision:  - Author:
     <Tr>
         <Td>DetectorNum</Td>
         <td>No default value</td>
+    </Tr>
+    <Tr>
+        <Td>MemorizedInternalAcquisitionMode</Td>
+        <td>STANDARD</td>
+    </Tr>
+    <Tr>
+        <Td>MemorizedShutterMode</Td>
+        <td>OPEN_NO_CHANGE</td>
+    </Tr>
+    <Tr>
+        <Td>MemorizedGain</Td>
+        <td>1</td>
+    </Tr>
+    <Tr>
+        <Td>MemorizedADCMode</Td>
+        <td>1</td>
     </Tr>
 </Table>
 

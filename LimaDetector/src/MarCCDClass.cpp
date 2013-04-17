@@ -66,7 +66,7 @@ namespace MarCCD_ns
 {
 //+----------------------------------------------------------------------------
 //
-// method : 		TakeBackgroundClass::execute()
+// method : 		TakeBackgroundCmd::execute()
 // 
 // description : 	method to trigger the execution of the command.
 //                PLEASE DO NOT MODIFY this method core without pogo   
@@ -77,14 +77,15 @@ namespace MarCCD_ns
 // returns : The command output data (packed in the Any object)
 //
 //-----------------------------------------------------------------------------
-CORBA::Any *TakeBackgroundClass::execute(Tango::DeviceImpl *device,const CORBA::Any &in_any)
+CORBA::Any *TakeBackgroundCmd::execute(Tango::DeviceImpl *device,const CORBA::Any &in_any)
 {
 
-	cout2 << "TakeBackgroundClass::execute(): arrived" << endl;
+	cout2 << "TakeBackgroundCmd::execute(): arrived" << endl;
 
 	((static_cast<MarCCD *>(device))->take_background());
 	return new CORBA::Any();
 }
+
 
 
 
@@ -178,7 +179,7 @@ MarCCDClass *MarCCDClass::instance()
 //-----------------------------------------------------------------------------
 void MarCCDClass::command_factory()
 {
-	command_list.push_back(new TakeBackgroundClass("TakeBackground",
+	command_list.push_back(new TakeBackgroundCmd("TakeBackground",
 		Tango::DEV_VOID, Tango::DEV_VOID,
 		"no argin",
 		"no argout",
@@ -411,21 +412,6 @@ void MarCCDClass::set_default_property()
 	prop_def  = "10000";
 	vect_data.clear();
 	vect_data.push_back("10000");
-	if (prop_def.length()>0)
-	{
-		Tango::DbDatum	data(prop_name);
-		data << vect_data ;
-		dev_def_prop.push_back(data);
-		add_wiz_dev_prop(prop_name, prop_desc,  prop_def);
-	}
-	else
-		add_wiz_dev_prop(prop_name, prop_desc);
-
-	prop_name = "UseReader";
-	prop_desc = "Enable/Disable using ImageDiffraction to read image file.\n[default = enable]";
-	prop_def  = "true";
-	vect_data.clear();
-	vect_data.push_back("true");
 	if (prop_def.length()>0)
 	{
 		Tango::DbDatum	data(prop_name);
