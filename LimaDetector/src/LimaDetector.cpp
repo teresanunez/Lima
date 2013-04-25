@@ -56,6 +56,8 @@ static const char *RcsId = "$Id:  $";
 //  SetBinning                   |  set_binning()
 //  ResetROI                     |  reset_roi()
 //  GetAttributeAvailableValues  |  get_attribute_available_values()
+//  OpenShutter                  |  open_shutter()
+//  CloseShutter                 |  close_shutter()
 //
 //===================================================================
 #ifdef WIN32
@@ -72,9 +74,7 @@ static const char *RcsId = "$Id:  $";
 #endif
 
 
-
 #define MAX_ATTRIBUTE_STRING_LENGTH     256
-
 
 
 namespace LimaDetector_ns
@@ -143,6 +143,14 @@ void LimaDetector::delete_device()
 	DELETE_SCALAR_ATTRIBUTE(attr_binningV_read);
 	DELETE_SCALAR_ATTRIBUTE(attr_flipX_read);	
 	DELETE_SCALAR_ATTRIBUTE(attr_flipY_read);		
+
+    if(m_ct->shutter()->hasCapability())
+    {
+        DELETE_DEVSTRING_ATTRIBUTE(attr_shutterMode_read);
+        DELETE_DEVSTRING_ATTRIBUTE(attr_shutterState_read);
+        DELETE_SCALAR_ATTRIBUTE(attr_shutterOpenTime_read);
+        DELETE_SCALAR_ATTRIBUTE(attr_shutterCloseTime_read);
+    }
 
     //remove attributes from dam
     INFO_STREAM<<"Remove image dynamic attribute."<<endl;
@@ -239,9 +247,7 @@ void LimaDetector::init_device()
     CREATE_SCALAR_ATTRIBUTE(attr_binningH_read);
 	CREATE_SCALAR_ATTRIBUTE(attr_binningV_read);
 	CREATE_SCALAR_ATTRIBUTE(attr_flipX_read);	
-	CREATE_SCALAR_ATTRIBUTE(attr_flipY_read);		
-
-
+	CREATE_SCALAR_ATTRIBUTE(attr_flipY_read);
 
     //----------------------------------------------------------------------------------
     //- Create lima control object and configure acquistion parameters
@@ -353,6 +359,78 @@ void LimaDetector::init_device()
         INFO_STREAM<<"Reload BIN of detector from Binning property."<<endl;
         Bin myBin(memorizedBinningH, memorizedBinningV);
         m_ct->image()->setBin(myBin);
+
+        //- if Shutter available: creates dynamic attributes
+        if(m_ct->shutter()->hasCapability())
+        {
+            INFO_STREAM<<"Add shutter dynamic attributes."<<endl;
+
+            //- Create shutterMode attribute
+            CREATE_DEVSTRING_ATTRIBUTE(attr_shutterMode_read,MAX_ATTRIBUTE_STRING_LENGTH);
+            DynamicAttributeInfo dai;
+            dai.dev = this;
+            dai.tai.name = "shutterMode";
+            dai.tai.unit = " ";
+            dai.tai.data_format = Tango::SCALAR;
+            dai.tai.data_type = Tango::DEV_STRING;
+            dai.tai.writable = Tango::READ_WRITE;
+            dai.tai.disp_level = Tango::OPERATOR;
+            dai.tai.description = "Available Shutter Modes (Depending on camera):<br> \n MANUAL<br> \n AUTO_FRAME<br> \n AUTO_SEQUENCE<br>";
+ 
+            dai.rcb = DynamicAttributeReadCallback::instanciate(*this, &LimaDetector::read_shutterMode_callback);
+            dai.wcb = DynamicAttributeWriteCallback::instanciate(*this, &LimaDetector::write_shutterMode_callback);
+            //- add the attribute to the dam
+            m_dam->add_attribute(dai);
+
+            //- Create shutterOpenTime attribute
+            CREATE_SCALAR_ATTRIBUTE(attr_shutterOpenTime_read);
+            DynamicAttributeInfo dai2;
+            dai2.dev = this;
+            dai2.tai.name = "shutterOpenTime";
+            dai2.tai.unit = "ms";
+            dai2.tai.data_format = Tango::SCALAR;
+            dai2.tai.data_type = Tango::DEV_DOUBLE;
+            dai2.tai.writable = Tango::READ_WRITE;
+            dai2.tai.disp_level = Tango::OPERATOR;
+            dai2.tai.description = "Shutter open time";
+ 
+            dai2.rcb = DynamicAttributeReadCallback::instanciate(*this, &LimaDetector::read_shutterOpenTime_callback);
+            dai2.wcb = DynamicAttributeWriteCallback::instanciate(*this, &LimaDetector::write_shutterOpenTime_callback);
+            //- add the attribute to the dam
+            m_dam->add_attribute(dai2);
+
+            //- Create shutterOpenTime attribute
+            CREATE_SCALAR_ATTRIBUTE(attr_shutterCloseTime_read);
+            DynamicAttributeInfo dai3;
+            dai3.dev = this;
+            dai3.tai.name = "shutterCloseTime";
+            dai3.tai.unit = "ms";
+            dai3.tai.data_format = Tango::SCALAR;
+            dai3.tai.data_type = Tango::DEV_DOUBLE;
+            dai3.tai.writable = Tango::READ_WRITE;
+            dai3.tai.disp_level = Tango::OPERATOR;
+            dai3.tai.description = "Shutter close time";
+ 
+            dai3.rcb = DynamicAttributeReadCallback::instanciate(*this, &LimaDetector::read_shutterCloseTime_callback);
+            dai3.wcb = DynamicAttributeWriteCallback::instanciate(*this, &LimaDetector::write_shutterCloseTime_callback);
+            //- add the attribute to the dam
+            m_dam->add_attribute(dai3);
+
+            CREATE_DEVSTRING_ATTRIBUTE(attr_shutterState_read,MAX_ATTRIBUTE_STRING_LENGTH);
+            DynamicAttributeInfo dai4;
+            dai4.dev = this;
+            dai4.tai.name = "shutterState";
+            dai4.tai.unit = " ";
+            dai4.tai.data_format = Tango::SCALAR;
+            dai4.tai.data_type = Tango::DEV_STRING;
+            dai4.tai.writable = Tango::READ;
+            dai4.tai.disp_level = Tango::OPERATOR;
+            dai4.tai.description = "State of the Shutter (in case of manual mode) : OPEN/CLOSE/NOT_MANUAL_MODE";
+ 
+            dai4.rcb = DynamicAttributeReadCallback::instanciate(*this, &LimaDetector::read_shutterState_callback);
+            //- add the attribute to the dam
+            m_dam->add_attribute(dai4);
+        }
 
         //- Set default nb frames of acquisition at start-up
         INFO_STREAM<<"Set default nb. frames of acquisition at start-up to "<<attr_nbFrames_write<<"."<<endl;
@@ -486,16 +564,41 @@ void LimaDetector::init_device()
 
     	Tango::WAttribute &acquisitionMode = dev_attr->get_w_attr_by_name("acquisitionMode");
     	m_acquisition_mode = memorizedAcquisitionMode;
-    	strcpy(*attr_acquisitionMode_read,m_acquisition_mode.c_str());
     	acquisitionMode.set_write_value(m_acquisition_mode);
 		write_acquisitionMode(acquisitionMode);
 
 		INFO_STREAM<<"Write tango hardware at Init - triggerMode."<<endl;
 		Tango::WAttribute &triggerMode = dev_attr->get_w_attr_by_name("triggerMode");
 		m_trigger_mode = memorizedTriggerMode;
-		strcpy(*attr_triggerMode_read, m_trigger_mode.c_str());
 		triggerMode.set_write_value(m_trigger_mode);
 		write_triggerMode(triggerMode);
+
+        if(m_ct->shutter()->hasCapability())
+        {
+            INFO_STREAM<<"Write tango hardware at Init - shutterMode."<<endl;
+		    Tango::WAttribute &shutterMode = dev_attr->get_w_attr_by_name("shutterMode");
+		    m_shutter_mode = memorizedShutterMode;
+		    shutterMode.set_write_value(m_shutter_mode);
+            yat4tango::DynamicAttributeWriteCallbackData cbd_shutterMode;
+            cbd_shutterMode.tga = &shutterMode;
+            write_shutterMode_callback(cbd_shutterMode);
+
+            INFO_STREAM<<"Write tango hardware at Init - shutterOpenTime."<<endl;
+		    Tango::WAttribute &shutterOpenTime = dev_attr->get_w_attr_by_name("shutterOpenTime");
+		    attr_shutterOpenTime_write = memorizedShutterOpenTime;
+		    shutterOpenTime.set_write_value(attr_shutterOpenTime_write);
+            yat4tango::DynamicAttributeWriteCallbackData cbd_shutterOpenTime;
+            cbd_shutterOpenTime.tga = &shutterOpenTime;
+            write_shutterOpenTime_callback(cbd_shutterOpenTime);
+
+            INFO_STREAM<<"Write tango hardware at Init - shutterCloseTime."<<endl;
+		    Tango::WAttribute &shutterCloseTime = dev_attr->get_w_attr_by_name("shutterCloseTime");
+		    attr_shutterCloseTime_write = memorizedShutterCloseTime;
+		    shutterCloseTime.set_write_value(attr_shutterCloseTime_write);
+            yat4tango::DynamicAttributeWriteCallbackData cbd_shutterCloseTime;
+            cbd_shutterCloseTime.tga = &shutterCloseTime;
+            write_shutterCloseTime_callback(cbd_shutterCloseTime);
+        }
 
 		INFO_STREAM<<"Write tango hardware at Init - exposureTime."<<endl;
 		Tango::WAttribute &exposureTime = dev_attr->get_w_attr_by_name("exposureTime");
@@ -503,11 +606,16 @@ void LimaDetector::init_device()
 		exposureTime.set_write_value(*attr_exposureTime_read);
 		write_exposureTime(exposureTime);
 
-		INFO_STREAM<<"Write tango hardware at Init - exposureAccTime."<<endl;
-		Tango::WAttribute &exposureAccTime = dev_attr->get_w_attr_by_name("exposureAccTime");
-		*attr_exposureAccTime_read = memorizedExposureAccTime;
-		exposureAccTime.set_write_value(*attr_exposureAccTime_read);
-		write_exposureAccTime(exposureAccTime);
+        if( memorizedAcquisitionMode == "ACCUMULATION")
+        {
+            INFO_STREAM<<"Write tango hardware at Init - exposureAccTime."<<endl;
+	        Tango::WAttribute &exposureAccTime = dev_attr->get_w_attr_by_name("exposureAccTime");
+	        attr_exposureAccTime_write = memorizedExposureAccTime;
+	        exposureAccTime.set_write_value(attr_exposureAccTime_write);
+            yat4tango::DynamicAttributeWriteCallbackData cbd_exposureAccTime;
+            cbd_exposureAccTime.tga = &exposureAccTime;
+            write_exposureAccTime_callback(cbd_exposureAccTime);
+        }
 
 		INFO_STREAM<<"Write tango hardware at Init - latencyTime."<<endl;
 		Tango::WAttribute &latencyTime = dev_attr->get_w_attr_by_name("latencyTime");
@@ -579,6 +687,9 @@ void LimaDetector::get_device_property()
 	dev_prop.push_back(Tango::DbDatum("MemorizedBinningV"));
 	dev_prop.push_back(Tango::DbDatum("MemorizedAcquisitionMode"));
 	dev_prop.push_back(Tango::DbDatum("MemorizedTriggerMode"));
+	dev_prop.push_back(Tango::DbDatum("MemorizedShutterMode"));
+	dev_prop.push_back(Tango::DbDatum("MemorizedShutterOpenTime"));
+	dev_prop.push_back(Tango::DbDatum("MemorizedShutterCloseTime"));
 	dev_prop.push_back(Tango::DbDatum("MemorizedExposureTime"));
 	dev_prop.push_back(Tango::DbDatum("MemorizedExposureAccTime"));
 	dev_prop.push_back(Tango::DbDatum("MemorizedLatencyTime"));
@@ -783,6 +894,39 @@ void LimaDetector::get_device_property()
 	//	And try to extract MemorizedTriggerMode value from database
 	if (dev_prop[i].is_empty()==false)	dev_prop[i]  >>  memorizedTriggerMode;
 
+	//	Try to initialize MemorizedShutterMode from class property
+	cl_prop = ds_class->get_class_property(dev_prop[++i].name);
+	if (cl_prop.is_empty()==false)	cl_prop  >>  memorizedShutterMode;
+	else {
+		//	Try to initialize MemorizedShutterMode from default device value
+		def_prop = ds_class->get_default_device_property(dev_prop[i].name);
+		if (def_prop.is_empty()==false)	def_prop  >>  memorizedShutterMode;
+	}
+	//	And try to extract MemorizedShutterMode value from database
+	if (dev_prop[i].is_empty()==false)	dev_prop[i]  >>  memorizedShutterMode;
+
+	//	Try to initialize MemorizedShutterOpenTime from class property
+	cl_prop = ds_class->get_class_property(dev_prop[++i].name);
+	if (cl_prop.is_empty()==false)	cl_prop  >>  memorizedShutterOpenTime;
+	else {
+		//	Try to initialize MemorizedShutterOpenTime from default device value
+		def_prop = ds_class->get_default_device_property(dev_prop[i].name);
+		if (def_prop.is_empty()==false)	def_prop  >>  memorizedShutterOpenTime;
+	}
+	//	And try to extract MemorizedShutterOpenTime value from database
+	if (dev_prop[i].is_empty()==false)	dev_prop[i]  >>  memorizedShutterOpenTime;
+
+	//	Try to initialize MemorizedShutterCloseTime from class property
+	cl_prop = ds_class->get_class_property(dev_prop[++i].name);
+	if (cl_prop.is_empty()==false)	cl_prop  >>  memorizedShutterCloseTime;
+	else {
+		//	Try to initialize MemorizedShutterCloseTime from default device value
+		def_prop = ds_class->get_default_device_property(dev_prop[i].name);
+		if (def_prop.is_empty()==false)	def_prop  >>  memorizedShutterCloseTime;
+	}
+	//	And try to extract MemorizedShutterCloseTime value from database
+	if (dev_prop[i].is_empty()==false)	dev_prop[i]  >>  memorizedShutterCloseTime;
+
 	//	Try to initialize MemorizedExposureTime from class property
 	cl_prop = ds_class->get_class_property(dev_prop[++i].name);
 	if (cl_prop.is_empty()==false)	cl_prop  >>  memorizedExposureTime;
@@ -895,8 +1039,6 @@ void LimaDetector::get_device_property()
     myVector.push_back("Type");
     create_property_if_empty(dev_prop,myVector,"DebugFormats");
 
-
-
 	myVector.clear();
 	myVector.push_back("-1");
 	myVector.push_back("-1");
@@ -909,6 +1051,9 @@ void LimaDetector::get_device_property()
 
 	create_property_if_empty(dev_prop,"SINGLE","MemorizedAcquisitionMode");
 	create_property_if_empty(dev_prop,"INTERNAL_SINGLE","MemorizedTriggerMode");
+    create_property_if_empty(dev_prop,"MANUAL","MemorizedShutterMode");
+    create_property_if_empty(dev_prop,"1000","MemorizedShutterOpenTime");
+    create_property_if_empty(dev_prop,"1000","MemorizedShutterCloseTime");
 	create_property_if_empty(dev_prop,"1000","MemorizedExposureTime");
 	create_property_if_empty(dev_prop,"100","MemorizedExposureAccTime");
 	create_property_if_empty(dev_prop,"0","MemorizedLatencyTime");    
@@ -1383,11 +1528,39 @@ void LimaDetector::write_acquisitionMode(Tango::WAttribute &attr)
         if(m_acquisition_mode.compare("SINGLE")==0)
         {
             m_ct->acquisition()->setAcqMode(Single);
+
+            //- Remove dynamic attribute exposureAccTime
+            try
+            {
+                m_dam->get_attribute("exposureAccTime");
+                m_dam->remove_attribute("exposureAccTime");
+            }
+            catch(Tango::DevFailed& df)
+            {
+                //- Attribute already exist: don't need to remove it
+            }
         }
 
         if(m_acquisition_mode.compare("ACCUMULATION")==0)
         {
             m_ct->acquisition()->setAcqMode(Accumulation);
+
+            //- Create dynamic attribute exposureAccTime
+            DynamicAttributeInfo dai;
+		    dai.dev = this;
+		    dai.tai.name = "exposureAccTime";
+            dai.tai.unit = "ms";
+		    dai.tai.data_format = Tango::SCALAR;
+            dai.tai.data_type = Tango::DEV_DOUBLE;
+            dai.tai.writable = Tango::READ_WRITE;
+            dai.tai.disp_level = Tango::OPERATOR;
+            dai.tai.description = "Set/Get exposure time ONLY in mode ACCUMULATION (in ms)<br>";
+
+            dai.rcb = DynamicAttributeReadCallback::instanciate(*this, &LimaDetector::read_exposureAccTime_callback);
+            dai.wcb = DynamicAttributeWriteCallback::instanciate(*this, &LimaDetector::write_exposureAccTime_callback);
+
+            //- add the attribute to the dam
+            m_dam->add_attribute(dai);
         }
 
         set_property("MemorizedAcquisitionMode",m_acquisition_mode);
@@ -1403,13 +1576,9 @@ void LimaDetector::write_acquisitionMode(Tango::WAttribute &attr)
 
         //remove attributes from dam
         INFO_STREAM<<"Remove image dynamic attribute."<<endl;
-        if(m_dam!=0)
-        {
-        	m_dam->remove_attributes();
-        	delete m_dam;
-        	m_dam = 0;
-        }
-
+      
+        m_dam->remove_attribute("image");
+        	
         //- add image dynamic attribute
 		//- create image dyn attr (UChar, UShort or ULong)
 		INFO_STREAM<<"Add image dynamic attribute."<<endl;
@@ -1426,7 +1595,6 @@ void LimaDetector::write_acquisitionMode(Tango::WAttribute &attr)
                     break;
                 case 16    :    dai.tai.data_type = Tango::DEV_USHORT;
                     break;
-
                 case 32    :    dai.tai.data_type = Tango::DEV_ULONG;
                     break;
             }
@@ -1442,7 +1610,6 @@ void LimaDetector::write_acquisitionMode(Tango::WAttribute &attr)
         dai.rcb = DynamicAttributeReadCallback::instanciate(*this, &LimaDetector::read_image_callback);
 
         //- add the attribute to the dam
-        m_dam = new DynamicAttributeManager(this);
         m_dam->add_attribute(dai);
         //////*******************************************************************************************//////
     }
@@ -1540,30 +1707,23 @@ void LimaDetector::write_exposureTime(Tango::WAttribute &attr)
     }
 }
 
-
 //+----------------------------------------------------------------------------
 //
-// method :         LimaDetector::read_exposureAccTime
+// method :         LimaDetector::read_exposureAccTime_callback()
 //
-// description :     Extract real attribute values for exposureAccTime acquisition result.
+// description :
 //
 //-----------------------------------------------------------------------------
-void LimaDetector::read_exposureAccTime(Tango::Attribute &attr)
+void LimaDetector::read_exposureAccTime_callback(yat4tango::DynamicAttributeReadCallbackData& cbd)
 {
-    DEBUG_STREAM << "LimaDetector::read_exposureAccTime(Tango::Attribute &attr) entering... "<< endl;
+    DEBUG_STREAM << "LimaDetector::read_exposureAccTime_callback()"<<endl;//  << cbd.dya->get_name() << endl;
+
     try
     {
-        if(m_acquisition_mode.compare("ACCUMULATION")==0)
-        {
-            double exposure;
-            m_ct->acquisition()->getAccExpoTime(exposure);
-            *attr_exposureAccTime_read = (Tango::DevDouble)(exposure*1000.0);
-            attr.set_value(attr_exposureAccTime_read);
-        }
-        else
-        {
-            attr.set_quality(Tango::ATTR_INVALID);
-        }
+        double exposure;
+        m_ct->acquisition()->getAccExpoTime(exposure);
+        *attr_exposureAccTime_read = (Tango::DevDouble)(exposure*1000.0);
+        cbd.tga->set_value(attr_exposureAccTime_read);
     }
     catch(Tango::DevFailed& df)
     {
@@ -1585,19 +1745,20 @@ void LimaDetector::read_exposureAccTime(Tango::Attribute &attr)
     }
 }
 
+
 //+----------------------------------------------------------------------------
 //
-// method :         LimaDetector::write_exposureAccTime
+// method :         LimaDetector::write_exposureAccTime_callback()
 //
-// description :     Write exposureAccTime attribute values to hardware.
+// description :
 //
 //-----------------------------------------------------------------------------
-void LimaDetector::write_exposureAccTime(Tango::WAttribute &attr)
+void LimaDetector::write_exposureAccTime_callback(yat4tango::DynamicAttributeWriteCallbackData& cbd)
 {
-    DEBUG_STREAM << "LimaDetector::write_exposureAccTime(Tango::WAttribute &attr) entering... "<< endl;
+    DEBUG_STREAM << "LimaDetector::write_exposureAccTime_callback()"<<endl;//  << cbd.dya->get_name() << endl;
     try
     {
-        attr.get_write_value(attr_exposureAccTime_write);
+        cbd.tga->get_write_value(attr_exposureAccTime_write);
         m_ct->acquisition()->setAccMaxExpoTime((double)(attr_exposureAccTime_write/1000.0));
         set_property("MemorizedExposureAccTime", attr_exposureAccTime_write);
     }
@@ -1620,7 +1781,6 @@ void LimaDetector::write_exposureAccTime(Tango::WAttribute &attr)
                     static_cast<const char*> ("LimaDetector::write_exposureAccTime"));
     }
 }
-
 
 //+----------------------------------------------------------------------------
 //
@@ -2057,6 +2217,327 @@ long long LimaDetector::get_last_image_counter(void)
 
 //+----------------------------------------------------------------------------
 //
+// method :         LimaDetector::read_shutterState_callback()
+//
+// description :
+//
+//-----------------------------------------------------------------------------
+void LimaDetector::read_shutterState_callback(yat4tango::DynamicAttributeReadCallbackData& cbd)
+{
+    DEBUG_STREAM << "LimaDetector::read_shutterState_callback()"<<endl;//  << cbd.dya->get_name() << endl;
+
+    try
+    {
+        bool shutter_state;
+        m_ct->shutter()->getState(shutter_state);
+        if (shutter_state == true)
+            strcpy(*attr_shutterState_read, "OPEN");
+        else
+            strcpy(*attr_shutterState_read, "CLOSE");
+
+        /*if (shutter_mode == ShutterManual)
+        {
+            bool shutter_state;
+            m_ct->shutter()->getState(shutter_state);
+
+            if (shutter_state == true)
+                strcpy(*attr_shutterState_read, "OPEN");
+            else
+                strcpy(*attr_shutterState_read, "CLOSE");
+        }
+        else
+            strcpy(*attr_shutterState_read, "NOT_MANUAL_MODE");*/
+
+
+        cbd.tga->set_value(attr_shutterState_read);
+    }
+    catch(Tango::DevFailed& df)
+    {
+        ERROR_STREAM << df << endl;
+        //- rethrow exception
+        Tango::Except::re_throw_exception(df,
+                static_cast<const char*> ("TANGO_DEVICE_ERROR"),
+                static_cast<const char*> (string(df.errors[0].desc).c_str()),
+                static_cast<const char*> ("LimaDetector::read_shutterState"));
+    }
+    catch(Exception& e)
+    {
+        ERROR_STREAM << e.getErrMsg() << endl;
+        //- throw exception
+        Tango::Except::throw_exception(
+            static_cast<const char*> ("TANGO_DEVICE_ERROR"),
+            static_cast<const char*> (e.getErrMsg().c_str()),
+            static_cast<const char*> ("LimaDetector::read_shutterState"));
+    }
+}
+//+----------------------------------------------------------------------------
+//
+// method :         LimaDetector::read_shutterOpenTime_callback()
+//
+// description :
+//
+//-----------------------------------------------------------------------------
+void LimaDetector::read_shutterOpenTime_callback(yat4tango::DynamicAttributeReadCallbackData& cbd)
+{
+    DEBUG_STREAM << "LimaDetector::read_shutterOpenTime_callback()"<<endl;//  << cbd.dya->get_name() << endl;
+
+    try
+    {
+        m_ct->shutter()->getOpenTime(*attr_shutterOpenTime_read);
+        cbd.tga->set_value(attr_shutterOpenTime_read);
+    }
+    catch(Tango::DevFailed& df)
+    {
+        ERROR_STREAM << df << endl;
+        //- rethrow exception
+        Tango::Except::re_throw_exception(df,
+                static_cast<const char*> ("TANGO_DEVICE_ERROR"),
+                static_cast<const char*> (string(df.errors[0].desc).c_str()),
+                static_cast<const char*> ("LimaDetector::read_shutterOpenTime"));
+    }
+    catch(Exception& e)
+    {
+        ERROR_STREAM << e.getErrMsg() << endl;
+        //- throw exception
+        Tango::Except::throw_exception(
+            static_cast<const char*> ("TANGO_DEVICE_ERROR"),
+            static_cast<const char*> (e.getErrMsg().c_str()),
+            static_cast<const char*> ("LimaDetector::read_shutterOpenTime"));
+    }
+}
+
+//+----------------------------------------------------------------------------
+//
+// method :         LimaDetector::write_shutterOpenTime_callback()
+//
+// description :
+//
+//-----------------------------------------------------------------------------
+void LimaDetector::write_shutterOpenTime_callback(yat4tango::DynamicAttributeWriteCallbackData& cbd)
+{
+    DEBUG_STREAM << "LimaDetector::write_shutterOpenTime_callback()"<<endl;//  << cbd.dya->get_name() << endl;
+
+    try
+    {
+        cbd.tga->get_write_value(attr_shutterOpenTime_write);
+        m_ct->shutter()->setOpenTime(attr_shutterOpenTime_write);
+
+        set_property("MemorizedShutterOpenTime",attr_shutterOpenTime_write);
+    }
+    catch(Tango::DevFailed& df)
+    {
+        ERROR_STREAM << df << endl;
+        //- rethrow exception
+        Tango::Except::re_throw_exception(df,
+                static_cast<const char*> ("TANGO_DEVICE_ERROR"),
+                static_cast<const char*> (string(df.errors[0].desc).c_str()),
+                static_cast<const char*> ("LimaDetector::write_shutterOpenTime"));
+    }
+    catch(Exception& e)
+    {
+        ERROR_STREAM << e.getErrMsg() << endl;
+        //- throw exception
+        Tango::Except::throw_exception(
+            static_cast<const char*> ("TANGO_DEVICE_ERROR"),
+            static_cast<const char*> (e.getErrMsg().c_str()),
+            static_cast<const char*> ("LimaDetector::write_shutterOpenTime"));
+    }
+}
+
+//+----------------------------------------------------------------------------
+//
+// method :         LimaDetector::read_shutterCloseTime_callback()
+//
+// description :
+//
+//-----------------------------------------------------------------------------
+void LimaDetector::read_shutterCloseTime_callback(yat4tango::DynamicAttributeReadCallbackData& cbd)
+{
+    DEBUG_STREAM << "LimaDetector::read_shutterCloseTime_callback()"<<endl;//  << cbd.dya->get_name() << endl;
+
+    try
+    {
+        m_ct->shutter()->getCloseTime(*attr_shutterCloseTime_read);
+        DEBUG_STREAM << "apres m_ct->shutter()->getCloseTime"<<endl;
+        cbd.tga->set_value(attr_shutterCloseTime_read);
+        DEBUG_STREAM << "apres cbd.tga->set_value(attr_shutterCloseTime_read)"<<endl;
+    }
+    catch(Tango::DevFailed& df)
+    {
+        ERROR_STREAM << df << endl;
+        //- rethrow exception
+        Tango::Except::re_throw_exception(df,
+                static_cast<const char*> ("TANGO_DEVICE_ERROR"),
+                static_cast<const char*> (string(df.errors[0].desc).c_str()),
+                static_cast<const char*> ("LimaDetector::read_shutterCloseTime"));
+    }
+    catch(Exception& e)
+    {
+        ERROR_STREAM << e.getErrMsg() << endl;
+        //- throw exception
+        Tango::Except::throw_exception(
+            static_cast<const char*> ("TANGO_DEVICE_ERROR"),
+            static_cast<const char*> (e.getErrMsg().c_str()),
+            static_cast<const char*> ("LimaDetector::read_shutterCloseTime"));
+    }
+}
+
+//+----------------------------------------------------------------------------
+//
+// method :         LimaDetector::write_shutterCloseTime_callback()
+//
+// description :
+//
+//-----------------------------------------------------------------------------
+void LimaDetector::write_shutterCloseTime_callback(yat4tango::DynamicAttributeWriteCallbackData& cbd)
+{
+    DEBUG_STREAM << "LimaDetector::write_shutterCloseTime_callback()"<<endl;//  << cbd.dya->get_name() << endl;
+
+    try
+    {
+        cbd.tga->get_write_value(attr_shutterCloseTime_write);
+        m_ct->shutter()->setCloseTime(attr_shutterCloseTime_write);
+
+        set_property("MemorizedShutterCloseTime",attr_shutterCloseTime_write);
+    }
+    catch(Tango::DevFailed& df)
+    {
+        ERROR_STREAM << df << endl;
+        //- rethrow exception
+        Tango::Except::re_throw_exception(df,
+                static_cast<const char*> ("TANGO_DEVICE_ERROR"),
+                static_cast<const char*> (string(df.errors[0].desc).c_str()),
+                static_cast<const char*> ("LimaDetector::write_shutterCloseTime"));
+    }
+    catch(Exception& e)
+    {
+        ERROR_STREAM << e.getErrMsg() << endl;
+        //- throw exception
+        Tango::Except::throw_exception(
+            static_cast<const char*> ("TANGO_DEVICE_ERROR"),
+            static_cast<const char*> (e.getErrMsg().c_str()),
+            static_cast<const char*> ("LimaDetector::write_shutterCloseTime"));
+    }
+}
+
+//+----------------------------------------------------------------------------
+//
+// method :         LimaDetector::read_shutterMode_callback()
+//
+// description :
+//
+//-----------------------------------------------------------------------------
+void LimaDetector::read_shutterMode_callback(yat4tango::DynamicAttributeReadCallbackData& cbd)
+{
+    DEBUG_STREAM << "LimaDetector::read_shutterMode_callback()"<<endl;//  << cbd.dya->get_name() << endl;
+
+    try
+    {
+        ShutterMode shutter_mode; 
+        m_ct->shutter()->getMode(shutter_mode);
+
+        if (shutter_mode == ShutterManual)
+            strcpy(*attr_shutterMode_read, "MANUAL");
+        else if (shutter_mode == ShutterAutoFrame)
+            strcpy(*attr_shutterMode_read, "AUTO_FRAME");
+        else if (shutter_mode == ShutterAutoSequence)
+            strcpy(*attr_shutterMode_read, "AUTO_SEQUENCE");
+
+        cbd.tga->set_value((Tango::DevString*)attr_shutterMode_read);
+    }
+    catch(Tango::DevFailed& df)
+    {
+        ERROR_STREAM << df << endl;
+        //- rethrow exception
+        Tango::Except::re_throw_exception(df,
+                static_cast<const char*> ("TANGO_DEVICE_ERROR"),
+                static_cast<const char*> (string(df.errors[0].desc).c_str()),
+                static_cast<const char*> ("LimaDetector::read_shutterMode"));
+    }
+    catch(Exception& e)
+    {
+        ERROR_STREAM << e.getErrMsg() << endl;
+        //- throw exception
+        Tango::Except::throw_exception(
+            static_cast<const char*> ("TANGO_DEVICE_ERROR"),
+            static_cast<const char*> (e.getErrMsg().c_str()),
+            static_cast<const char*> ("LimaDetector::read_shutterMode"));
+    }
+}
+
+//+----------------------------------------------------------------------------
+//
+// method :         LimaDetector::write_shutterMode_callback()
+//
+// description :
+//
+//-----------------------------------------------------------------------------
+void LimaDetector::write_shutterMode_callback(yat4tango::DynamicAttributeWriteCallbackData& cbd)
+{
+    DEBUG_STREAM << "LimaDetector::write_shutterMode_callback()"<<endl;//  << cbd.dya->get_name() << endl;
+
+    try
+    {
+        cbd.tga->get_write_value(attr_shutterMode_write);
+        m_shutter_mode = attr_shutterMode_write;
+
+        //- Transform Shutter mode in string to Lima types
+        ShutterMode new_shutter_mode; 
+
+        if (m_shutter_mode.compare("MANUAL")==0)
+            new_shutter_mode = ShutterManual;
+        else if (m_shutter_mode.compare("AUTO_FRAME")==0)
+            new_shutter_mode = ShutterAutoFrame;
+        else if (m_shutter_mode.compare("AUTO_SEQUENCE")==0)
+            new_shutter_mode = ShutterAutoSequence;
+        else
+        {
+            //- Error: Not supported
+            Tango::Except::throw_exception( (const char*) ("CONFIGURATION_ERROR"),
+                                            (const char*) ("Available Shutter Modes are:	\n- MANUAL \n- AUTO_FRAME \n- AUTO_SEQUENCE"),
+                                            (const char*) ("LimaDetector::write_shutterMode"));
+        }
+
+        //- Check if shutter mode is supported by this camera
+        ShutterModeList modeList;
+        m_ct->shutter()->getModeList(modeList);
+        ShutterModeList::iterator it;
+
+        // find the mode:
+        it = find (modeList.begin(), modeList.end(), new_shutter_mode);
+        if (it == modeList.end())
+        {
+            //- Error: Not supported
+            Tango::Except::throw_exception( (const char*) ("CONFIGURATION_ERROR"),
+                                            (const char*) ("this shutter mode is not supported by this camera"),
+                                            (const char*) ("LimaDetector::write_shutterMode"));
+        }
+        
+        m_ct->shutter()->setMode(new_shutter_mode);
+        set_property("MemorizedShutterMode",m_shutter_mode);
+    }
+    catch(Tango::DevFailed& df)
+    {
+        ERROR_STREAM << df << endl;
+        //- rethrow exception
+        Tango::Except::re_throw_exception(df,
+                static_cast<const char*> ("TANGO_DEVICE_ERROR"),
+                static_cast<const char*> (string(df.errors[0].desc).c_str()),
+                static_cast<const char*> ("LimaDetector::write_shutterMode"));
+    }
+    catch(Exception& e)
+    {
+        ERROR_STREAM << e.getErrMsg() << endl;
+        //- throw exception
+        Tango::Except::throw_exception(
+            static_cast<const char*> ("TANGO_DEVICE_ERROR"),
+            static_cast<const char*> (e.getErrMsg().c_str()),
+            static_cast<const char*> ("LimaDetector::write_shutterMode"));
+    }
+}
+
+//+----------------------------------------------------------------------------
+//
 // method :         LimaDetector::read_image_callback()
 //
 // description :
@@ -2076,37 +2557,37 @@ void LimaDetector::read_image_callback(yat4tango::DynamicAttributeReadCallbackDa
     	{
     		DEBUG_STREAM<<"last_image_counter -> "<<counter<<endl;
 
-    		CtVideo::Image 	m_last_image;               //never put this variable in the class data member, refrence is locked in ctVideo (mantis 0021083)
-        	m_ct->video()->getLastImage(m_last_image);  //last image acquired
+    		CtVideo::Image 	last_image;               //never put this variable in the class data member, refrence is locked in ctVideo (mantis 0021083)
+        	m_ct->video()->getLastImage(last_image);  //last image acquired
 
-			if(m_last_image.buffer()!=0)
+			if(last_image.buffer()!=0)
 			{
 				switch (cbd.dya->get_tango_data_type())
 				{
 					//8 bits
 					case  TangoTraits<Tango::DevUChar>::type_id :
 						DEBUG_STREAM<<"image->set_value() : DevUChar"<<endl;
-						cbd.tga->set_value(	(Tango::DevUChar*)m_last_image.buffer(),
-											m_last_image.width(),//- width
-											m_last_image.height()//- height
+						cbd.tga->set_value(	(Tango::DevUChar*)last_image.buffer(),
+											last_image.width(),//- width
+											last_image.height()//- height
 										  );
 						break;
 
 					//16 bits
 					case  TangoTraits<Tango::DevUShort>::type_id :
 						DEBUG_STREAM<<"image->set_value() : DevUShort"<<endl;
-						cbd.tga->set_value( (Tango::DevUShort*)m_last_image.buffer(),
-											 m_last_image.width(),//- width
-											 m_last_image.height()//- height
+						cbd.tga->set_value( (Tango::DevUShort*)last_image.buffer(),
+											 last_image.width(),//- width
+											 last_image.height()//- height
 										   );
 						break;
 
 					//32 bits
 					case  TangoTraits<Tango::DevULong>::type_id :
 						DEBUG_STREAM<<"image->set_value() : DevULong"<<endl;
-						cbd.tga->set_value( (Tango::DevULong*)m_last_image.buffer(),
-											m_last_image.width(),//- width
-											m_last_image.height()//- height
+						cbd.tga->set_value( (Tango::DevULong*)last_image.buffer(),
+											last_image.width(),//- width
+											last_image.height()//- height
 										  );
 						break;
 
@@ -2744,11 +3225,31 @@ Tango::DevVarStringArray *LimaDetector::get_attribute_available_values(Tango::De
 		transform(attribute_name.begin(), attribute_name.end(),attribute_name.begin(), ::toupper);
 		if(attribute_name == "TRIGGERMODE")
 		{
-			argout->length(4);
+			argout->length(7);
 			(*argout)[0] = CORBA::string_dup("INTERNAL_SINGLE");
 			(*argout)[1] = CORBA::string_dup("EXTERNAL_SINGLE");
 			(*argout)[2] = CORBA::string_dup("EXTERNAL_MULTI");
 			(*argout)[3] = CORBA::string_dup("EXTERNAL_GATE");
+            (*argout)[4] = CORBA::string_dup("INTERNAL_MULTI");
+            (*argout)[5] = CORBA::string_dup("EXTERNAL_START_STOP");
+            (*argout)[6] = CORBA::string_dup("EXTERNAL_READOUT");
+		}
+        else if( (attribute_name == "SHUTTERMODE") && (m_ct->shutter()->hasCapability()))
+        {
+            ShutterModeList modeList;
+            m_ct->shutter()->getModeList(modeList);
+
+            argout->length(modeList.size());
+
+            for (int i = 0; i < modeList.size(); i++)
+            {
+                if (modeList[i] == ShutterManual)
+                    (*argout)[i] = CORBA::string_dup("MANUAL");
+                else if (modeList[i] == ShutterAutoFrame)
+                    (*argout)[i] = CORBA::string_dup("AUTO_FRAME");
+                else if (modeList[i] == ShutterAutoSequence)
+                    (*argout)[i] = CORBA::string_dup("AUTO_SEQUENCE");
+            }
 		}
 		else if(attribute_name == "ACQUISITIONMODE")
 		{
@@ -2965,6 +3466,12 @@ void LimaDetector::print_acq_conf(void)
     INFO_STREAM<<"pixelDepth\t  = "         <<detectorPixelDepth<<endl;
     INFO_STREAM<<"videoMode\t  = "          <<videomode<<endl;
     INFO_STREAM<<"triggerMode\t  = "        <<m_trigger_mode<<endl;
+    if (m_ct->shutter()->hasCapability())
+    {
+        INFO_STREAM<<"shutterMode\t  = "        <<m_shutter_mode<<endl;
+        INFO_STREAM<<"shutterOpenTime\t  = "    <<*attr_shutterOpenTime_read<<endl;
+        INFO_STREAM<<"shutterCloseTime\t  = "   <<*attr_shutterCloseTime_read<<endl;
+    }
     INFO_STREAM<<"acquisitionMode\t  = "    <<m_acquisition_mode<<endl;
     INFO_STREAM<<"exposureTime\t  = "       <<attr_exposureTime_write<<endl;
     INFO_STREAM<<"exposureAccTime= "        <<attr_exposureAccTime_write<<endl;
@@ -3138,17 +3645,123 @@ void LimaDetector::EventCallback::processEvent(lima::Event *my_event)
 
 }*/
 
+//+------------------------------------------------------------------
+/**
+ *	method:	LimaDetector::open_shutter
+ *
+ *	description:	method to execute "OpenShutter"
+ *	Open the shutter in case of Shutter being in available and in Manual Mode
+ *
+ *
+ */
+//+------------------------------------------------------------------
+void LimaDetector::open_shutter()
+{
+	DEBUG_STREAM << "LimaDetector::open_shutter(): entering... !" << endl;
 
+	//	Add your own code to control device here
 
+    try
+    {
+        if (m_ct->shutter()->hasCapability())
+        {
+            ShutterMode shutter_mode; 
+            m_ct->shutter()->getMode(shutter_mode);
 
+            if (shutter_mode == ShutterManual)
+                m_ct->shutter()->setState(true);
+            else
+            {
+                Tango::Except::throw_exception(static_cast<const char*> ("CONFIGURATION_ERROR"),
+                                               static_cast<const char*> ("Not able to manually open the shutter when not in manual mode"),
+                                               static_cast<const char*> ("LimaDetector::open_shutter"));
+            }
+        }
+        else
+        {
+            Tango::Except::throw_exception(static_cast<const char*> ("TANGO_NON_SUPPORTED_FEATURE_ERROR"),
+                                           static_cast<const char*> ("Shutter capability is not supported by this camera"),
+                                           static_cast<const char*> ("LimaDetector::open_shutter"));
+        }
+    }
+    catch(Tango::DevFailed& df)
+    {
+        ERROR_STREAM << df << endl;
+        //- rethrow exception
+        Tango::Except::re_throw_exception(df,
+                static_cast<const char*> ("TANGO_DEVICE_ERROR"),
+                static_cast<const char*> (string(df.errors[0].desc).c_str()),
+                static_cast<const char*> ("LimaDetector::open_shutter"));
+    }
+    catch(Exception& e)
+    {
+        ERROR_STREAM << e.getErrMsg() << endl;
+        //- throw exception
+        Tango::Except::throw_exception(
+            static_cast<const char*> ("TANGO_DEVICE_ERROR"),
+            static_cast<const char*> (e.getErrMsg().c_str()),
+            static_cast<const char*> ("LimaDetector::open_shutter"));
+    }
+}
 
+//+------------------------------------------------------------------
+/**
+ *	method:	LimaDetector::close_shutter
+ *
+ *	description:	method to execute "CloseShutter"
+ *	Close the shutter in case of Shutter being in available and in Manual Mode
+ *
+ *
+ */
+//+------------------------------------------------------------------
+void LimaDetector::close_shutter()
+{
+	DEBUG_STREAM << "LimaDetector::close_shutter(): entering... !" << endl;
 
+	//	Add your own code to control device here
 
+    try
+    {
+        if (m_ct->shutter()->hasCapability())
+        {
+            ShutterMode shutter_mode; 
+            m_ct->shutter()->getMode(shutter_mode);
 
-
-
-
-
+            if (shutter_mode == ShutterManual)
+                m_ct->shutter()->setState(false);
+            else
+            {
+                Tango::Except::throw_exception(static_cast<const char*> ("CONFIGURATION_ERROR"),
+                                               static_cast<const char*> ("Not able to manually close the shutter when not in manual mode"),
+                                               static_cast<const char*> ("LimaDetector::close_shutter"));
+            }
+        }
+        else
+        {
+            Tango::Except::throw_exception(static_cast<const char*> ("TANGO_NON_SUPPORTED_FEATURE_ERROR"),
+                                           static_cast<const char*> ("Shutter capability is not supported by this camera"),
+                                           static_cast<const char*> ("LimaDetector::close_shutter"));
+        }
+    }
+    catch(Tango::DevFailed& df)
+    {
+        ERROR_STREAM << df << endl;
+        //- rethrow exception
+        Tango::Except::re_throw_exception(df,
+                static_cast<const char*> ("TANGO_DEVICE_ERROR"),
+                static_cast<const char*> (string(df.errors[0].desc).c_str()),
+                static_cast<const char*> ("LimaDetector::close_shutter"));
+    }
+    catch(Exception& e)
+    {
+        ERROR_STREAM << e.getErrMsg() << endl;
+        //- throw exception
+        Tango::Except::throw_exception(
+            static_cast<const char*> ("TANGO_DEVICE_ERROR"),
+            static_cast<const char*> (e.getErrMsg().c_str()),
+            static_cast<const char*> ("LimaDetector::close_shutter"));
+    }
+}
 
 
 

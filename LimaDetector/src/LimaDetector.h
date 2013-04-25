@@ -65,6 +65,7 @@
 #include "CtVideo.h"
 #include "CtBuffer.h"
 #include "CtEvent.h"
+#include "CtShutter.h"
 #include "AcqState.h"
 
 //- This Device
@@ -142,6 +143,18 @@ class LimaDetector: public Tango::Device_4Impl
 public :
     //    Add your own data members here
     //-----------------------------------------
+    
+        /* used for dynamic attributes */
+		Tango::DevString	*attr_shutterMode_read;    
+        Tango::DevString	attr_shutterMode_write;
+        Tango::DevString    *attr_shutterState_read;
+        Tango::DevDouble    *attr_shutterOpenTime_read;
+        Tango::DevDouble    attr_shutterOpenTime_write;
+        Tango::DevDouble    *attr_shutterCloseTime_read;
+        Tango::DevDouble    attr_shutterCloseTime_write;
+        Tango::DevDouble    *attr_exposureAccTime_read;
+        Tango::DevDouble    attr_exposureAccTime_write;
+		
 
 
     //    Here is the Start of the automatic code generation part
@@ -163,8 +176,6 @@ public :
 		Tango::DevString	attr_acquisitionMode_write;
 		Tango::DevDouble	*attr_exposureTime_read;
 		Tango::DevDouble	attr_exposureTime_write;
-		Tango::DevDouble	*attr_exposureAccTime_read;
-		Tango::DevDouble	attr_exposureAccTime_write;
 		Tango::DevDouble	*attr_latencyTime_read;
 		Tango::DevDouble	attr_latencyTime_write;
 		Tango::DevUShort	*attr_roiX_read;
@@ -344,8 +355,27 @@ public :
  *	- EXTERNAL_SINGLE<br>
  *	- EXTERNAL_MULTI<br>
  *	- EXTERNAL_GATE<br>
+ *	- INTERNAL_MULTI<br>
+ *	- EXTERNAL_START_STOP<br>
+ *	- EXTERNAL_READOUT<br>
  */
 	string	memorizedTriggerMode;
+/**
+ *	Memorize/Define the shutterMode attribute at Init device<br>
+ *	Availables values :<br>
+ *	- MANUAL<br>
+ *	- AUTO_FRAME<br>
+ *	- AUTO_SEQUENCE
+ */
+	string	memorizedShutterMode;
+/**
+ *	Memorize/Define the shutterOpenTime attribute at Init device<br>
+ */
+	Tango::DevDouble	memorizedShutterOpenTime;
+/**
+ *	Memorize/Define the shutterCloseTime attribute at Init device<br>
+ */
+	Tango::DevDouble	memorizedShutterCloseTime;
 /**
  *	Memorize/Define the exposureTime attribute  at Init device<br>
  *	
@@ -496,14 +526,6 @@ public :
  */
 	virtual void write_exposureTime(Tango::WAttribute &attr);
 /**
- *	Extract real attribute values for exposureAccTime acquisition result.
- */
-	virtual void read_exposureAccTime(Tango::Attribute &attr);
-/**
- *	Write exposureAccTime attribute values to hardware.
- */
-	virtual void write_exposureAccTime(Tango::WAttribute &attr);
-/**
  *	Extract real attribute values for latencyTime acquisition result.
  */
 	virtual void read_latencyTime(Tango::Attribute &attr);
@@ -608,10 +630,6 @@ public :
  */
 	virtual bool is_exposureTime_allowed(Tango::AttReqType type);
 /**
- *	Read/Write allowed for exposureAccTime attribute.
- */
-	virtual bool is_exposureAccTime_allowed(Tango::AttReqType type);
-/**
  *	Read/Write allowed for latencyTime attribute.
  */
 	virtual bool is_latencyTime_allowed(Tango::AttReqType type);
@@ -688,6 +706,14 @@ public :
  */
 	virtual bool is_GetAttributeAvailableValues_allowed(const CORBA::Any &any);
 /**
+ *	Execution allowed for OpenShutter command.
+ */
+	virtual bool is_OpenShutter_allowed(const CORBA::Any &any);
+/**
+ *	Execution allowed for CloseShutter command.
+ */
+	virtual bool is_CloseShutter_allowed(const CORBA::Any &any);
+/**
  * This command gets the device state (stored in its <i>device_state</i> data member) and returns it to the caller.
  *	@return	State Code
  *	@exception DevFailed
@@ -735,6 +761,16 @@ public :
  *	@exception DevFailed
  */
 	Tango::DevVarStringArray	*get_attribute_available_values(Tango::DevString);
+/**
+ * Open the shutter in case of Shutter being in available and in Manual Mode
+ *	@exception DevFailed
+ */
+	void	open_shutter();
+/**
+ * Close the shutter in case of Shutter being in available and in Manual Mode
+ *	@exception DevFailed
+ */
+	void	close_shutter();
 
 /**
  *	Read the device properties from database
@@ -746,10 +782,24 @@ public :
     //-------------------------------------------------------------    
 
 	//method in charge of displaying image in the "image" dynamic attribute
-    void                read_image_callback(yat4tango::DynamicAttributeReadCallbackData& cbd);
+    void    read_image_callback(yat4tango::DynamicAttributeReadCallbackData& cbd);
+
+    void    read_shutterMode_callback(yat4tango::DynamicAttributeReadCallbackData& cbd);
+    void    write_shutterMode_callback(yat4tango::DynamicAttributeWriteCallbackData& cbd);
+
+    void    read_shutterOpenTime_callback(yat4tango::DynamicAttributeReadCallbackData& cbd);
+    void    write_shutterOpenTime_callback(yat4tango::DynamicAttributeWriteCallbackData& cbd);
+
+    void    read_shutterCloseTime_callback(yat4tango::DynamicAttributeReadCallbackData& cbd);
+    void    write_shutterCloseTime_callback(yat4tango::DynamicAttributeWriteCallbackData& cbd);
+
+    void    read_shutterState_callback(yat4tango::DynamicAttributeReadCallbackData& cbd);
+
+    void    read_exposureAccTime_callback(yat4tango::DynamicAttributeReadCallbackData& cbd);
+    void    write_exposureAccTime_callback(yat4tango::DynamicAttributeWriteCallbackData& cbd);
 
     // return true if the device is correctly initialized in init_device
-    bool is_device_initialized(){return m_is_device_initialized;};
+    bool    is_device_initialized(){return m_is_device_initialized;};
 
     /*******************************************************************
      * \class EventCallback
@@ -798,7 +848,8 @@ protected :
     HwInterface*                        m_hw;				//object to the generic interface of camera's
     CtControl*                          m_ct;    			//object to Lima, the MAIN object
     CtSaving::Parameters                m_saving_par;		//struct holding parameters used when saving image in a file (NXS, EDF, ...)
-    string                              m_trigger_mode; 	//trigger mode name 	(INTERNAL_SINGLE, EXTERNAL_SINGLE, EXTERNAL_MULTI, EXTERNAL_GATE)
+    string                              m_trigger_mode; 	//trigger mode name 	(INTERNAL_SINGLE, EXTERNAL_SINGLE, EXTERNAL_MULTI, EXTERNAL_GATE, INTERNAL_MULTI, EXTERNAL_START_STOP, EXTERNAL_READOUT)
+    string                              m_shutter_mode; 	//shutter mode name 	(MANUAL, AUTO_FRAME, AUTO_SEQUENCE)
     string                              m_acquisition_mode;	//aquisition mode name 	(SINGLE, ACCUMULATION) nota: imageType is forced to 32 bits in ACCUMULATION MODE
 
     //-Yat::task objects, manage device Start/Snap/Stop commands

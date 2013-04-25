@@ -211,13 +211,32 @@ Availables values :<br>
 - ACCUMULATION<br></Font></Td></Tr>
 
 <Tr><Td><b><a href=#Dev_DefaultValues>MemorizedTriggerMode </a></b></Td>
-<Td><Font Size=-1>Tango::DEV_STRING</Font></Td>
+<Td><Font Size=-1>string</Font></Td>
 <Td><Font Size=-1>Memorize/Define the triggerMode attribute at Init device<br>
 Availables values :<br>
 - INTERNAL_SINGLE<br>
 - EXTERNAL_SINGLE<br>
 - EXTERNAL_MULTI<br>
-- EXTERNAL_GATE<br></Font></Td></Tr>
+- EXTERNAL_GATE<br>
+- INTERNAL_MULTI<br>
+- EXTERNAL_START_STOP<br>
+- EXTERNAL_READOUT<br></Font></Td></Tr>
+
+<Tr><Td><b><a href=#Dev_DefaultValues>MemorizedShutterMode </a></b></Td>
+<Td><Font Size=-1>Tango::DEV_STRING</Font></Td>
+<Td><Font Size=-1>Memorize/Define the shutterMode attribute at Init device<br>
+Availables values :<br>
+- MANUAL<br>
+- AUTO_FRAME<br>
+- AUTO_SEQUENCE</Font></Td></Tr>
+
+<Tr><Td><b><a href=#Dev_DefaultValues>MemorizedShutterOpenTime </a></b></Td>
+<Td><Font Size=-1>Tango::DEV_DOUBLE</Font></Td>
+<Td><Font Size=-1>Memorize/Define the shutterOpenTime attribute at Init device<br></Font></Td></Tr>
+
+<Tr><Td><b><a href=#Dev_DefaultValues>MemorizedShutterCloseTime </a></b></Td>
+<Td><Font Size=-1>Tango::DEV_DOUBLE</Font></Td>
+<Td><Font Size=-1>Memorize/Define the shutterCloseTime attribute at Init device<br></Font></Td></Tr>
 
 <Tr><Td><b><a href=#Dev_DefaultValues>MemorizedExposureTime </a></b></Td>
 <Td><Font Size=-1>Tango::DEV_DOUBLE</Font></Td>
@@ -334,6 +353,18 @@ Availables values :<br>
     <Tr>
         <Td>MemorizedTriggerMode</Td>
         <td>INTERNAL_SINGLE</td>
+    </Tr>
+    <Tr>
+        <Td>MemorizedShutterMode</Td>
+        <td>MANUAL</td>
+    </Tr>
+    <Tr>
+        <Td>MemorizedShutterOpenTime</Td>
+        <td>1000</td>
+    </Tr>
+    <Tr>
+        <Td>MemorizedShutterCloseTime</Td>
+        <td>1000</td>
     </Tr>
     <Tr>
         <Td>MemorizedExposureTime</Td>

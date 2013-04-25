@@ -228,34 +228,6 @@ bool LimaDetector::is_acquisitionMode_allowed(Tango::AttReqType type)
 }
 //+----------------------------------------------------------------------------
 //
-// method : 		LimaDetector::is_exposureAccTime_allowed
-// 
-// description : 	Read/Write allowed for exposureAccTime attribute.
-//
-//-----------------------------------------------------------------------------
-bool LimaDetector::is_exposureAccTime_allowed(Tango::AttReqType type)
-{
-	if (get_state() == Tango::INIT	||
-		get_state() == Tango::FAULT	||
-		get_state() == Tango::RUNNING)
-	{
-		//	End of Generated Code
-		if ( get_state()==Tango::RUNNING && type==Tango::READ_REQ )
-		{
-           return true;
-		}
-		
-		if ( get_state()==Tango::FAULT && is_device_initialized() )
-		{
-           return true;
-		}	
-		//	Re-Start of Generated Code
-		return false;
-	}
-	return true;
-}
-//+----------------------------------------------------------------------------
-//
 // method : 		LimaDetector::is_triggerMode_allowed
 // 
 // description : 	Read/Write allowed for triggerMode attribute.
@@ -820,6 +792,44 @@ bool LimaDetector::is_ResetROI_allowed(const CORBA::Any &any)
 bool LimaDetector::is_GetAttributeAvailableValues_allowed(const CORBA::Any &any)
 {
 	if (get_state() == Tango::INIT)
+	{
+		//	End of Generated Code
+
+		//	Re-Start of Generated Code
+		return false;
+	}
+	return true;
+}
+//+----------------------------------------------------------------------------
+//
+// method : 		LimaDetector::is_OpenShutter_allowed
+// 
+// description : 	Execution allowed for OpenShutter command.
+//
+//-----------------------------------------------------------------------------
+bool LimaDetector::is_OpenShutter_allowed(const CORBA::Any &any)
+{
+	if (get_state() == Tango::INIT	||
+		get_state() == Tango::FAULT)
+	{
+		//	End of Generated Code
+
+		//	Re-Start of Generated Code
+		return false;
+	}
+	return true;
+}
+//+----------------------------------------------------------------------------
+//
+// method : 		LimaDetector::is_CloseShutter_allowed
+// 
+// description : 	Execution allowed for CloseShutter command.
+//
+//-----------------------------------------------------------------------------
+bool LimaDetector::is_CloseShutter_allowed(const CORBA::Any &any)
+{
+	if (get_state() == Tango::INIT	||
+		get_state() == Tango::FAULT)
 	{
 		//	End of Generated Code
 

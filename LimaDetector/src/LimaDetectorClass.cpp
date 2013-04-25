@@ -65,6 +65,51 @@ __declspec(dllexport)
 
 namespace LimaDetector_ns
 {
+
+//+----------------------------------------------------------------------------
+//
+// method : 		CloseShutterCmd::execute()
+// 
+// description : 	method to trigger the execution of the command.
+//                PLEASE DO NOT MODIFY this method core without pogo   
+//
+// in : - device : The device on which the command must be executed
+//		- in_any : The command input data
+//
+// returns : The command output data (packed in the Any object)
+//
+//-----------------------------------------------------------------------------
+CORBA::Any *CloseShutterCmd::execute(Tango::DeviceImpl *device,const CORBA::Any &in_any)
+{
+
+	cout2 << "CloseShutterCmd::execute(): arrived" << endl;
+
+	((static_cast<LimaDetector *>(device))->close_shutter());
+	return new CORBA::Any();
+}
+
+//+----------------------------------------------------------------------------
+//
+// method : 		OpenShutterCmd::execute()
+// 
+// description : 	method to trigger the execution of the command.
+//                PLEASE DO NOT MODIFY this method core without pogo   
+//
+// in : - device : The device on which the command must be executed
+//		- in_any : The command input data
+//
+// returns : The command output data (packed in the Any object)
+//
+//-----------------------------------------------------------------------------
+CORBA::Any *OpenShutterCmd::execute(Tango::DeviceImpl *device,const CORBA::Any &in_any)
+{
+
+	cout2 << "OpenShutterCmd::execute(): arrived" << endl;
+
+	((static_cast<LimaDetector *>(device))->open_shutter());
+	return new CORBA::Any();
+}
+
 //+----------------------------------------------------------------------------
 //
 // method : 		GetAttributeAvailableValuesCmd::execute()
@@ -356,6 +401,16 @@ void LimaDetectorClass::command_factory()
 		"Attribute name",
 		"List of strings containing the available values",
 		Tango::EXPERT));
+	command_list.push_back(new OpenShutterCmd("OpenShutter",
+		Tango::DEV_VOID, Tango::DEV_VOID,
+		"",
+		"",
+		Tango::EXPERT));
+	command_list.push_back(new CloseShutterCmd("CloseShutter",
+		Tango::DEV_VOID, Tango::DEV_VOID,
+		"",
+		"",
+		Tango::EXPERT));
 
 	//	add polling if any
 	for (unsigned int i=0 ; i<command_list.size(); i++)
@@ -537,19 +592,6 @@ void LimaDetectorClass::attribute_factory(vector<Tango::Attr *> &att_list)
 	exposure_time->set_memorized();
 	exposure_time->set_memorized_init(false);
 	att_list.push_back(exposure_time);
-
-	//	Attribute : exposureAccTime
-	exposureAccTimeAttrib	*exposure_acc_time = new exposureAccTimeAttrib();
-	Tango::UserDefaultAttrProp	exposure_acc_time_prop;
-	exposure_acc_time_prop.set_unit("ms");
-	exposure_acc_time_prop.set_standard_unit("ms");
-	exposure_acc_time_prop.set_display_unit("ms");
-	exposure_acc_time_prop.set_format("%7.2f");
-	exposure_acc_time_prop.set_description("Set/Get exposure time ONLY in mode ACCUMULATION (in ms)<br>");
-	exposure_acc_time->set_default_properties(exposure_acc_time_prop);
-	exposure_acc_time->set_memorized();
-	exposure_acc_time->set_memorized_init(false);
-	att_list.push_back(exposure_acc_time);
 
 	//	Attribute : latencyTime
 	latencyTimeAttrib	*latency_time = new latencyTimeAttrib();
@@ -963,10 +1005,55 @@ void LimaDetectorClass::set_default_property()
 		add_wiz_dev_prop(prop_name, prop_desc);
 
 	prop_name = "MemorizedTriggerMode";
-	prop_desc = "Memorize/Define the triggerMode attribute at Init device<br>\nAvailables values :<br>\n- INTERNAL_SINGLE<br>\n- EXTERNAL_SINGLE<br>\n- EXTERNAL_MULTI<br>\n- EXTERNAL_GATE<br>";
+	prop_desc = "Memorize/Define the triggerMode attribute at Init device<br>\nAvailables values :<br>\n- INTERNAL_SINGLE<br>\n- EXTERNAL_SINGLE<br>\n- EXTERNAL_MULTI<br>\n- EXTERNAL_GATE<br>\n- INTERNAL_MULTI<br>\n- EXTERNAL_START_STOP<br>\n- EXTERNAL_READOUT<br>";
 	prop_def  = "INTERNAL_SINGLE";
 	vect_data.clear();
 	vect_data.push_back("INTERNAL_SINGLE");
+	if (prop_def.length()>0)
+	{
+		Tango::DbDatum	data(prop_name);
+		data << vect_data ;
+		dev_def_prop.push_back(data);
+		add_wiz_dev_prop(prop_name, prop_desc,  prop_def);
+	}
+	else
+		add_wiz_dev_prop(prop_name, prop_desc);
+
+	prop_name = "MemorizedShutterMode";
+	prop_desc = "Memorize/Define the shutterMode attribute at Init device<br>\nAvailables values :<br>\n- MANUAL<br>\n- AUTO_FRAME<br>\n- AUTO_SEQUENCE";
+	prop_def  = "MANUAL";
+	vect_data.clear();
+	vect_data.push_back("MANUAL");
+	if (prop_def.length()>0)
+	{
+		Tango::DbDatum	data(prop_name);
+		data << vect_data ;
+		dev_def_prop.push_back(data);
+		add_wiz_dev_prop(prop_name, prop_desc,  prop_def);
+	}
+	else
+		add_wiz_dev_prop(prop_name, prop_desc);
+
+	prop_name = "MemorizedShutterOpenTime";
+	prop_desc = "Memorize/Define the shutterOpenTime attribute at Init device<br>";
+	prop_def  = "1000";
+	vect_data.clear();
+	vect_data.push_back("1000");
+	if (prop_def.length()>0)
+	{
+		Tango::DbDatum	data(prop_name);
+		data << vect_data ;
+		dev_def_prop.push_back(data);
+		add_wiz_dev_prop(prop_name, prop_desc,  prop_def);
+	}
+	else
+		add_wiz_dev_prop(prop_name, prop_desc);
+
+	prop_name = "MemorizedShutterCloseTime";
+	prop_desc = "Memorize/Define the shutterCloseTime attribute at Init device<br>";
+	prop_def  = "1000";
+	vect_data.clear();
+	vect_data.push_back("1000");
 	if (prop_def.length()>0)
 	{
 		Tango::DbDatum	data(prop_name);
