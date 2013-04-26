@@ -153,7 +153,7 @@ void LimaDetector::delete_device()
     }
 
     //remove attributes from dam
-    INFO_STREAM<<"Remove image dynamic attribute."<<endl;
+    INFO_STREAM<<"Remove dynamic attributes."<<endl;
     if(m_dam!=0)
     {
     	m_dam->remove_attributes();
@@ -482,7 +482,7 @@ void LimaDetector::init_device()
         mMyVideoMode["Y64"] 		= Y64;
         mMyVideoMode["RGB555"] 		= RGB555;
         mMyVideoMode["RGB565"] 		= RGB565;
-        ////mMyVideoMode["RGB24"] 		= RGB24;
+        //mMyVideoMode["RGB24"] 		= RGB24;
         mMyVideoMode["RGB32"] 		= RGB32;
         mMyVideoMode["BGR24"] 		= BGR24;
         mMyVideoMode["BGR32"] 		= BGR32;
