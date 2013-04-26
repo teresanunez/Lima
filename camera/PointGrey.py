@@ -60,6 +60,8 @@ class PointGrey(PyTango.Device_4Impl):
                                         , 'auto_gain'     : 'AutoGain'
                                         , 'exp_time'      : 'ExpTime'
                                         , 'auto_exp_time' : 'AutoExpTime'
+                                        , 'packet_size'   : 'PacketSize'
+                                        , 'packet_delay'  : 'PacketDelay'
                                         }
 
 #------------------------------------------------------------------
@@ -139,6 +141,14 @@ class PointGreyClass(PyTango.DeviceClass):
           PyTango.READ_WRITE]],
         'auto_exp_time':
         [[PyTango.DevBoolean,
+          PyTango.SCALAR,
+          PyTango.READ_WRITE]],
+        'packet_size':
+        [[PyTango.DevLong,
+          PyTango.SCALAR,
+          PyTango.READ_WRITE]],
+        'packet_delay':
+        [[PyTango.DevLong,
           PyTango.SCALAR,
           PyTango.READ_WRITE]],
         }
