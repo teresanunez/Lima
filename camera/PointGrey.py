@@ -107,12 +107,15 @@ class PointGreyClass(PyTango.DeviceClass):
     class_property_list = {}
 
     device_property_list = {
-        'cam_ip_address':
-        [PyTango.DevString,
-         "Camera ip address",[]],
-        'cam_serial_number':
+        'camera_serial':
         [PyTango.DevLong,
-         "Camera serial number",0],                            
+         "Camera serial number", []],
+        'packet_size':
+        [PyTango.DevLong,
+         "GigE packet size", [-1]],
+        'packet_delay':                            
+        [PyTango.DevLong,
+         "GigE packet delay", [-1]],                            
         }
 
     cmd_list = {
@@ -150,12 +153,14 @@ class PointGreyClass(PyTango.DeviceClass):
 _PointGreyCam = None
 _PointGreyInterface = None
 
-def get_control(cam_ip_address = "", cam_serial_number = 0) :
+def get_control(camera_serial, packet_size, packet_delay):
     global _PointGreyCam
     global _PointGreyInterface
 
     if _PointGreyCam is None:
-        _PointGreyCam = PointGreyAcq.Camera(cam_ip_address, int(cam_serial_number))
+        _PointGreyCam = PointGreyAcq.Camera(int(camera_serial),
+                                            int(packet_size),
+                                            int(packet_delay))
         _PointGreyInterface = PointGreyAcq.Interface(_PointGreyCam)
             
     return Core.CtControl(_PointGreyInterface)
