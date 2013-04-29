@@ -40,6 +40,7 @@
 #=============================================================================
 #
 import PyTango
+import pdb
 from Lima import Core
 from Lima import Pco as PcoAcq
 from LimaCCDs import CallableReadEnum,CallableWriteEnum
@@ -210,8 +211,22 @@ class PcoClass(PyTango.DeviceClass):
     class_property_list = {}
 
     #    Device Properties
+
     device_property_list = {
+        'debug_control':
+        [PyTango.DevString,
+           "general debug",[]],
+        'debug_module':
+        [PyTango.DevString,
+           "debug module flags",[]],
+        'debug_format':
+        [PyTango.DevString,
+           "debug format flags",[]],
+        'debug_type':
+        [PyTango.DevString,
+           "debug flags flags",[]]
         }
+
 
     #    Command definitions
     cmd_list = {
@@ -284,19 +299,29 @@ class PcoClass(PyTango.DeviceClass):
 _PcoCam = None
 _PcoInterface = None
 
-def get_control(**keys) :
+def get_control(debug_control = "0", debug_module = "0", debug_type="0",
+                debug_format = "0", **keys) :
     global _PcoCam
     global _PcoInterface
 
 
-    if 0:
-        Core.DebParams.setModuleFlags(0xffffffff)
-        Core.DebParams.setTypeFlags(0xffffffff)
+    debControl = int(debug_control,0)
+    debModule = int(debug_module,0)
+    debType = int(debug_type,0)
+    debFormat = int(debug_format,0)
+
+    
+
+
+    if debControl:
+        Core.DebParams.setModuleFlags(debModule)
+        Core.DebParams.setTypeFlags(debType)
     else:
         Core.DebParams.setTypeFlags(0)
         Core.DebParams.setModuleFlags(0)
 
-    Core.DebParams.setFormatFlags(0x31)
+    #Core.DebParams.setFormatFlags(0x31)
+    Core.DebParams.setFormatFlags(debFormat)
 
     if _PcoCam is None:
         _PcoCam = PcoAcq.Camera("")
