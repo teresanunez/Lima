@@ -56,12 +56,14 @@ class PointGrey(PyTango.Device_4Impl):
 
         self.init_device()
 
-        self.__Attribute2FunctionBase = { 'gain'          : 'Gain'
-                                        , 'auto_gain'     : 'AutoGain'
-                                        , 'exp_time'      : 'ExpTime'
-                                        , 'auto_exp_time' : 'AutoExpTime'
-                                        , 'packet_size'   : 'PacketSize'
-                                        , 'packet_delay'  : 'PacketDelay'
+        self.__Attribute2FunctionBase = { 'gain'            : 'Gain'
+                                        , 'auto_gain'       : 'AutoGain'
+                                        , 'exp_time'        : 'ExpTime'
+                                        , 'auto_exp_time'   : 'AutoExpTime'
+                                        , 'frame_rate'      : 'FrameRate'
+                                        , 'auto_frame_rate' : 'AutoFrameRate'
+                                        , 'packet_size'     : 'PacketSize'
+                                        , 'packet_delay'    : 'PacketDelay'
                                         }
 
 #------------------------------------------------------------------
@@ -96,7 +98,7 @@ class PointGrey(PyTango.Device_4Impl):
 #==================================================================
     def __getattr__(self,name) :
         #use AttrHelper
-        return get_attr_4u(self, name, _PointGreyCam)
+        return get_attr_4u(self, name, _PointGreyInterface)
 
 
 #==================================================================
@@ -143,6 +145,14 @@ class PointGreyClass(PyTango.DeviceClass):
         [[PyTango.DevBoolean,
           PyTango.SCALAR,
           PyTango.READ_WRITE]],
+        'frame_rate':
+        [[PyTango.DevDouble,
+          PyTango.SCALAR,
+          PyTango.READ_WRITE]],
+        'auto_frame_rate':
+        [[PyTango.DevBoolean,
+          PyTango.SCALAR,
+          PyTango.READ_WRITE]],
         'packet_size':
         [[PyTango.DevLong,
           PyTango.SCALAR,
@@ -153,6 +163,7 @@ class PointGreyClass(PyTango.DeviceClass):
           PyTango.READ_WRITE]],
         }
 
+
     def __init__(self,name) :
         PyTango.DeviceClass.__init__(self,name)
         self.set_type(name)
@@ -160,14 +171,12 @@ class PointGreyClass(PyTango.DeviceClass):
 #----------------------------------------------------------------------------
 # Plugins
 #----------------------------------------------------------------------------
-_PointGreyCam = None
 _PointGreyInterface = None
 
 def get_control(camera_serial, packet_size, packet_delay):
-    global _PointGreyCam
     global _PointGreyInterface
 
-    if _PointGreyCam is None:
+    if _PointGreyInterface is None:
         _PointGreyCam = PointGreyAcq.Camera(int(camera_serial),
                                             int(packet_size),
                                             int(packet_delay))
