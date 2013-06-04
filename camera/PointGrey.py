@@ -163,7 +163,6 @@ class PointGreyClass(PyTango.DeviceClass):
           PyTango.READ_WRITE]],
         }
 
-
     def __init__(self,name) :
         PyTango.DeviceClass.__init__(self,name)
         self.set_type(name)
@@ -171,12 +170,13 @@ class PointGreyClass(PyTango.DeviceClass):
 #----------------------------------------------------------------------------
 # Plugins
 #----------------------------------------------------------------------------
+_PointGreyCam = None
 _PointGreyInterface = None
 
 def get_control(camera_serial, packet_size, packet_delay):
-    global _PointGreyInterface
+    global _PointGreyCam, _PointGreyInterface 
 
-    if _PointGreyInterface is None:
+    if _PointGreyCam is None:
         _PointGreyCam = PointGreyAcq.Camera(int(camera_serial),
                                             int(packet_size),
                                             int(packet_delay))
