@@ -43,7 +43,6 @@ from Lima import Core
 from Lima import PointGrey as PointGreyAcq
 from AttrHelper import get_attr_4u, get_attr_string_value_list
 
-
 class PointGrey(PyTango.Device_4Impl):
 
     Core.DEB_CLASS(Core.DebModApplication, 'LimaCCDs')
@@ -100,6 +99,17 @@ class PointGrey(PyTango.Device_4Impl):
         #use AttrHelper
         return get_attr_4u(self, name, _PointGreyInterface)
 
+    def read_exp_time_range(self, attr):
+        min_, max_ = _PointGreyInterface.getExpTimeRange()
+        attr.set_value([min_, max_])
+
+    def read_gain_range(self, attr):
+        min_, max_ = _PointGreyInterface.getGainRange()
+        attr.set_value([min_, max_])
+
+    def read_frame_rate_range(self, attr):
+        min_, max_ = _PointGreyInterface.getFrameRateRange()
+        attr.set_value([min_, max_])
 
 #==================================================================
 #
@@ -132,7 +142,10 @@ class PointGreyClass(PyTango.DeviceClass):
         'gain':
         [[PyTango.DevDouble,
           PyTango.SCALAR,
-          PyTango.READ_WRITE]],
+          PyTango.READ_WRITE],
+          {
+              'unit': "dB",
+          }],
         'auto_gain':
         [[PyTango.DevBoolean,
           PyTango.SCALAR,
@@ -140,7 +153,10 @@ class PointGreyClass(PyTango.DeviceClass):
         'exp_time':
         [[PyTango.DevDouble,
           PyTango.SCALAR,
-          PyTango.READ_WRITE]],
+          PyTango.READ_WRITE],
+          {
+              'unit': "ms",
+          }],
         'auto_exp_time':
         [[PyTango.DevBoolean,
           PyTango.SCALAR,
@@ -148,7 +164,10 @@ class PointGreyClass(PyTango.DeviceClass):
         'frame_rate':
         [[PyTango.DevDouble,
           PyTango.SCALAR,
-          PyTango.READ_WRITE]],
+          PyTango.READ_WRITE],
+          {
+              'unit': "fps",
+          }],
         'auto_frame_rate':
         [[PyTango.DevBoolean,
           PyTango.SCALAR,
@@ -161,6 +180,30 @@ class PointGreyClass(PyTango.DeviceClass):
         [[PyTango.DevLong,
           PyTango.SCALAR,
           PyTango.READ_WRITE]],
+        'exp_time_range':
+        [[PyTango.DevDouble,
+          PyTango.SPECTRUM,
+          PyTango.READ,2],
+          {
+              'unit': "ms",
+              'description':"min exposure, max exposure",
+          }],
+        'gain_range':
+        [[PyTango.DevDouble,
+          PyTango.SPECTRUM,
+          PyTango.READ,2],
+          {
+              'unit': "dB",
+              'description':"min gain, max gain",
+          }],
+        'frame_rate_range':
+        [[PyTango.DevDouble,
+          PyTango.SPECTRUM,
+          PyTango.READ,2],
+          {
+              'unit': "fps",
+              'description':"min frame rate, max frame rate",
+          }],
         }
 
     def __init__(self,name) :
