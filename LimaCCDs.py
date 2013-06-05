@@ -1289,6 +1289,7 @@ class LimaCCDs(PyTango.Device_4Impl) :
         data = self.__control.ReadImage(image_id)
         self.__dataflat_cache = numpy.array(data.buffer.ravel())
         self.__dataflat_cache.dtype = numpy.uint8
+        data.releaseBuffer()
         return self.__dataflat_cache
 
     ##@brief get image data
@@ -1369,6 +1370,7 @@ class LimaCCDs(PyTango.Device_4Impl) :
         flatimage.dtype = numpy.uint8
         
         self._datacache = dataheader+flatimage.tostring()        
+        image.releaseBuffer()
         
         return ('DATA_ARRAY',  self._datacache)  
   
