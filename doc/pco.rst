@@ -1,5 +1,3 @@
-.. image:: ../../../camera/pco/doc/Under_cons.jpg
-
 PCO
 ===
 
