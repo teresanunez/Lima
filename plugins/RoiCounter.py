@@ -48,6 +48,25 @@ class RoiCounterDeviceServer(BasePostProcess) :
                 
 	BasePostProcess.__init__(self,cl,name)
 	RoiCounterDeviceServer.init_device(self)
+        try:
+            ctControl = _control_ref()
+            config = ctControl.config()
+
+            class _RoiConfigSave(Core.CtConfig.ModuleTypeCallback) :
+                def __init__(self,cnt):
+                    Core.CtConfig.ModuleTypeCallback.__init__(self,"RoiCounters")
+                    self.__cnt = weakref.ref(cnt)
+                def store(self) :
+                    cnt = self.__cnt()
+                    return cnt.get_current_config()
+                def restore(self,c) :
+                    cnt = self.__cnt()
+                    cnt.apply_config(c)
+
+            self.__roiConfigsave = _RoiConfigSave(self)
+            config.registerModule(self.__roiConfigsave)
+        except AttributeError:
+            pass
 
     def set_state(self,state) :
 	if(state == PyTango.DevState.OFF) :
@@ -116,6 +135,46 @@ class RoiCounterDeviceServer(BasePostProcess) :
             returnList.extend((p.x,p.y,s.getWidth(),s.getHeight()))
         return returnList
 
+    def get_current_config(self):
+        returnDict = {}
+        if self.__roiCounterMgr:
+            returnDict["active"] = True
+            returnDict["runLevel"] = self._runLevel
+            for i,roi in enumerate(self.__roiCounterMgr.get()) :
+                p = roi.getTopLeft()
+                s = roi.getSize()
+                returnDict["roi_%d" % i] = {"x":p.x,
+                                            "y":p.y,
+                                            "width":s.getWidth(),
+                                            "height":s.getHeight()}
+        else:
+            returnDict["active"] = False
+        return returnDict
+
+    def apply_config(self,c) :
+        active = c.get("active",False)
+        self.Stop()
+        if active:
+            self._runLevel = c.get("runLevel",0)
+            self.Start()
+            roi_list = [(key,values) for key,values in c.iteritems() if key.startswith('roi_')]
+            def _sort(a,b):
+                ak,_ = a
+                bk,_ = b
+                return int(ak.split('_')[-1]) - int(bk.split('_')[-1])
+            roi_list.sort(_sort)
+            rois = []
+            for roi_name,values in roi_list:
+                try:
+                    rois.append(Core.Roi(values['x'],
+                                         values['y'],
+                                         values['width'],
+                                         values['height']))
+                except:
+                    import traceback
+                    traceback.print_exc()
+            self.__roiCounterMgr.set(rois)
+                
     def clearAllRoi(self):
         self.__roiCounterMgr.clearAllRoi()
 
