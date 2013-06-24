@@ -259,6 +259,9 @@ void PerkinElmer::read_correctionMode(Tango::Attribute &attr)
             case lima::PerkinElmer::Interface::OffsetAndGain :
                 *attr_correctionMode_read = "OffsetAndGain";
                 break;
+            default:
+                *attr_correctionMode_read = "NOT_SUPPORTED";
+                break;
 
         }
         attr.set_value(attr_correctionMode_read);
@@ -305,6 +308,12 @@ void PerkinElmer::write_correctionMode(Tango::WAttribute &attr)
             curr_mode = lima::PerkinElmer::Interface::OffsetOnly;
         if (string(attr_correctionMode_write).compare("OffsetAndGain"))
             curr_mode = lima::PerkinElmer::Interface::OffsetAndGain;
+        else
+            Tango::Except::throw_exception(
+                    static_cast<const char*> ("TANGO_NON_SUPPORTED_FEATURE_ERROR"),
+                    static_cast<const char*> ("Correction mode not supported"),
+                    static_cast<const char*> ("PerkinElmer::write_correctionMode"));
+
 
         m_hw->setCorrectionMode(curr_mode);  
     }
@@ -536,7 +545,7 @@ void PerkinElmer::start_acq_gain_image(const Tango::DevVarDoubleArray *argin)
         {
             //- throw exception
             Tango::Except::throw_exception( (const char*) ("CONFIGURATION_ERROR"),
-                                            (const char*) ("StartAcqOffsetImage need 2 parameters: nb_frames and integration_time\n"),
+                                            (const char*) ("StartAcqGainImage need 2 parameters: nb_frames and integration_time\n"),
                                             (const char*) ("PerkinElmer::start_acq_gain_image"));
         }
 	    m_hw->startAcqGainImage((*argin)[0],(*argin)[1]);
