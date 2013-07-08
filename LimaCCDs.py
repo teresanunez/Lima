@@ -1390,7 +1390,7 @@ class LimaCCDs(PyTango.Device_4Impl) :
         #prepare the structure
         #  '>IHHHHHHHHHHHHHHIIIIIIII',
         dataheader = struct.pack(
-          'IHHIIHHHHHHHHHHHHHHHHHHIII',
+          '<IHHIIHHHHHHHHHHHHHHHHHHIII',
           0x44544159,  				# 4bytes I  - magic number
           1,           				# 2bytes H  - version
           64,          				# 2 bytes H - header length, this header
