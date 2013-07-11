@@ -207,6 +207,41 @@ class RoiCounterDeviceServer(BasePostProcess) :
                 return returnArray
         return numpy.array([0],dtype = numpy.double)
 
+    def readCountersByFrame(self,argin) :
+        roiResultCounterList = self.__roiCounterMgr.readCounters(argin)
+        nrCounters = 6
+	if roiResultCounterList:
+            nrFrames = len(roiResultCounterList[0][1])
+            for roiId,resultList in roiResultCounterList:
+                if nrFrames > len(resultList):
+                    nrFrames = len(resultList)
+            
+            if nrFrames :
+	    	nrRois = len(roiResultCounterList)
+		returnArray = numpy.zeros(nrFrames * nrRois * nrCounters + 1,dtype = numpy.double)
+		#print "--- nrRois[%d]  nrFrames[%d] array[%d]" %(nrRois, nrFrames, len(returnArray)) 
+                returnArray[0] = float(nrFrames)
+
+                for roiId,resultList in roiResultCounterList:
+                    iRoi = roiId - 1
+		    iFrame=0
+		    for result in resultList[:nrFrames] :
+		    	#indexArray = (iRoi * nrFrames + iFrame) * nrCounters + 0 + 1 
+
+                        # ordered: frame -> roi -> counter
+		    	indexArray = (iFrame * nrRois + iRoi) * nrCounters + 1 
+                        #print "    index[%d] roiId[%d] iFrame[%d]" % (indexArray, iRoi, iFrame) 
+
+                        returnArray[indexArray:indexArray+6] = (float(result.frameNumber),
+                                                                result.sum,
+                                                                result.average,
+                                                                result.std,
+                                                                result.minValue,
+                                                                result.maxValue)
+                        iFrame += 1
+                return returnArray
+        return numpy.array([0],dtype = numpy.double)
+
     def __get_roi_list_from_argin(self,argin) :
         rois = []
         for x,y,w,h in itertools.izip(itertools.islice(argin,0,len(argin),4),
@@ -253,6 +288,9 @@ class RoiCounterDeviceServerClass(PyTango.DeviceClass):
         'readCounters':
         [[PyTango.DevLong,"from which frame"],
          [PyTango.DevVarDoubleArray,"number of result for each roi,frame number 0,sum 0,average 0,std 0,min 0,max 0,frame number 1,sum 1,average 1,std 1,min 1,max 1..."]],
+        'readCountersByFrame':
+        [[PyTango.DevLong,"from which frame"],
+         [PyTango.DevVarDoubleArray,"number of result for each frame,(roi0) frame number,sum,average,std,min,max, (roi1) frame number,sum,average,std,min,max..."]],
 	'Start':
 	[[PyTango.DevVoid,""],
 	 [PyTango.DevVoid,""]],
