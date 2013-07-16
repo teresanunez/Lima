@@ -2235,20 +2235,6 @@ void LimaDetector::read_shutterState_callback(yat4tango::DynamicAttributeReadCal
         else
             strcpy(*attr_shutterState_read, "CLOSE");
 
-        /*if (shutter_mode == ShutterManual)
-        {
-            bool shutter_state;
-            m_ct->shutter()->getState(shutter_state);
-
-            if (shutter_state == true)
-                strcpy(*attr_shutterState_read, "OPEN");
-            else
-                strcpy(*attr_shutterState_read, "CLOSE");
-        }
-        else
-            strcpy(*attr_shutterState_read, "NOT_MANUAL_MODE");*/
-
-
         cbd.tga->set_value(attr_shutterState_read);
     }
     catch(Tango::DevFailed& df)
@@ -3318,20 +3304,6 @@ Tango::DevState LimaDetector::dev_state()
             HwInterface::StatusType state;
 			m_hw->getStatus(state);
 
-			//- FL tests
-            if(m_ct->event()->hasCapability())
-            {        
-				std::vector<lima::Event *> myEventList;
-                m_ct->event()->getEventList(myEventList);
-
-                DEBUG_STREAM << "myEventList.size()= " <<  myEventList.size() << endl;
-                
-                for (int i = 0; i< myEventList.size();++i)
-                {
-                    DEBUG_STREAM << "in LimaDetector::Event:" <<  myEventList[i]->getMsgStr() << endl;
-                }
-            }
-
 
 			if (status.AcquisitionStatus == lima::AcqReady)
 			{
@@ -3622,28 +3594,6 @@ int LimaDetector::find_index_from_property_name(Tango::DbData& dev_prop, string 
     return i;
 }
 
-/*******************************************************************
- * \brief EventCallback constructor
- *******************************************************************/
-/*LimaDetector::EventCallback::EventCallback() 
-{
-	DEB_CONSTRUCTOR();
-}
-
-LimaDetector::EventCallback::~EventCallback()
-{
-	DEB_DESTRUCTOR();
-}
-
-void LimaDetector::EventCallback::processEvent(lima::Event *my_event)
-{
-	DEB_MEMBER_FUNCT();
-
-    std::cout << "in LimaDetector::EventCallback::processEvent:" <<  my_event->getMsgStr() << endl;
-
-
-
-}*/
 
 //+------------------------------------------------------------------
 /**
