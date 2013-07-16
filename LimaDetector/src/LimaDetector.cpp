@@ -143,13 +143,17 @@ void LimaDetector::delete_device()
 	DELETE_SCALAR_ATTRIBUTE(attr_binningV_read);
 	DELETE_SCALAR_ATTRIBUTE(attr_flipX_read);	
 	DELETE_SCALAR_ATTRIBUTE(attr_flipY_read);		
+    
 
-    if(m_ct->shutter()->hasCapability())
-    {
-        DELETE_DEVSTRING_ATTRIBUTE(attr_shutterMode_read);
-        DELETE_DEVSTRING_ATTRIBUTE(attr_shutterState_read);
-        DELETE_SCALAR_ATTRIBUTE(attr_shutterOpenTime_read);
-        DELETE_SCALAR_ATTRIBUTE(attr_shutterCloseTime_read);
+    if(m_ct!=0)
+    {    
+        if(m_ct->shutter()->hasCapability())
+        {
+            DELETE_DEVSTRING_ATTRIBUTE(attr_shutterMode_read);
+            DELETE_DEVSTRING_ATTRIBUTE(attr_shutterState_read);
+            DELETE_SCALAR_ATTRIBUTE(attr_shutterOpenTime_read);
+            DELETE_SCALAR_ATTRIBUTE(attr_shutterCloseTime_read);
+        }
     }
 
     //remove attributes from dam
