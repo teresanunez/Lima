@@ -98,8 +98,6 @@ public :
 		Tango::DevString	attr_imagePath_write;
 		Tango::DevString	*attr_fileName_read;
 		Tango::DevString	attr_fileName_write;
-		Tango::DevDouble	*attr_latency_read;
-		Tango::DevDouble	attr_latency_write;
 //@}
 
 /**
@@ -225,14 +223,6 @@ public :
  */
 	virtual void write_fileName(Tango::WAttribute &attr);
 /**
- *	Extract real attribute values for latency acquisition result.
- */
-	virtual void read_latency(Tango::Attribute &attr);
-/**
- *	Write latency attribute values to hardware.
- */
-	virtual void write_latency(Tango::WAttribute &attr);
-/**
  *	Read/Write allowed for threshold attribute.
  */
 	virtual bool is_threshold_allowed(Tango::AttReqType type);
@@ -248,10 +238,6 @@ public :
  *	Read/Write allowed for fileName attribute.
  */
 	virtual bool is_fileName_allowed(Tango::AttReqType type);
-/**
- *	Read/Write allowed for latency attribute.
- */
-	virtual bool is_latency_allowed(Tango::AttReqType type);
 /**
  *	Execution allowed for SetEnergy command.
  */

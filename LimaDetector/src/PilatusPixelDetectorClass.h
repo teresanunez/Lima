@@ -52,20 +52,6 @@ namespace PilatusPixelDetector_ns
 {//=====================================
 //	Define classes for attributes
 //=====================================
-class latencyAttrib: public Tango::Attr
-{
-public:
-	latencyAttrib():Attr("latency", Tango::DEV_DOUBLE, Tango::READ_WRITE) {};
-	~latencyAttrib() {};
-	
-	virtual void read(Tango::DeviceImpl *dev,Tango::Attribute &att)
-	{(static_cast<PilatusPixelDetector *>(dev))->read_latency(att);}
-	virtual void write(Tango::DeviceImpl *dev,Tango::WAttribute &att)
-	{(static_cast<PilatusPixelDetector *>(dev))->write_latency(att);}
-	virtual bool is_allowed(Tango::DeviceImpl *dev,Tango::AttReqType ty)
-	{return (static_cast<PilatusPixelDetector *>(dev))->is_latency_allowed(ty);}
-};
-
 class fileNameAttrib: public Tango::Attr
 {
 public:

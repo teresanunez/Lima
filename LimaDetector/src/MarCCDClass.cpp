@@ -64,6 +64,7 @@ __declspec(dllexport)
 
 namespace MarCCD_ns
 {
+
 //+----------------------------------------------------------------------------
 //
 // method : 		TakeBackgroundCmd::execute()

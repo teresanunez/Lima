@@ -413,15 +413,6 @@ void PilatusPixelDetectorClass::attribute_factory(vector<Tango::Attr *> &att_lis
 	file_name->set_memorized_init(false);
 	att_list.push_back(file_name);
 
-	//	Attribute : latency
-	latencyAttrib	*latency = new latencyAttrib();
-	Tango::UserDefaultAttrProp	latency_prop;
-	latency_prop.set_description("Define latency time (redout time ) of the detector (in ms).");
-	latency->set_default_properties(latency_prop);
-	latency->set_memorized();
-	latency->set_memorized_init(true);
-	att_list.push_back(latency);
-
 	//	End of Automatic code generation
 	//-------------------------------------------------------------
 }

@@ -249,6 +249,7 @@ void BaslerCCDClass::attribute_factory(vector<Tango::Attr *> &att_list)
 	//	Attribute : frameRate
 	frameRateAttrib	*frame_rate = new frameRateAttrib();
 	Tango::UserDefaultAttrProp	frame_rate_prop;
+	frame_rate_prop.set_display_unit("Frames/s");
 	frame_rate_prop.set_description("Display the current frame rate (nb frames/s)<br>");
 	frame_rate->set_default_properties(frame_rate_prop);
 	att_list.push_back(frame_rate);
@@ -256,6 +257,10 @@ void BaslerCCDClass::attribute_factory(vector<Tango::Attr *> &att_list)
 	//	Attribute : temperature
 	temperatureAttrib	*temperature = new temperatureAttrib();
 	Tango::UserDefaultAttrProp	temperature_prop;
+	temperature_prop.set_unit("Celcius");
+	temperature_prop.set_standard_unit("Celsius");
+	temperature_prop.set_display_unit("°");
+	temperature_prop.set_format("%4.1f");
 	temperature_prop.set_description("Display the current temperature of the BoardSensor.");
 	temperature->set_default_properties(temperature_prop);
 	att_list.push_back(temperature);

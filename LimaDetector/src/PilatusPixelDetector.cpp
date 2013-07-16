@@ -109,7 +109,6 @@ void PilatusPixelDetector::delete_device()
 {
     INFO_STREAM << "PilatusPixelDetector::PilatusPixelDetector() delete device " << device_name << endl;    
     //    Delete device allocated objects
-    DELETE_SCALAR_ATTRIBUTE(attr_latency_read);
     DELETE_SCALAR_ATTRIBUTE(attr_threshold_read);
     DELETE_DEVSTRING_ATTRIBUTE(attr_gain_read);
     DELETE_DEVSTRING_ATTRIBUTE(attr_imagePath_read);
@@ -137,7 +136,6 @@ void PilatusPixelDetector::init_device()
     // Initialise variables to default values
     //--------------------------------------------
 	get_device_property();
-    CREATE_SCALAR_ATTRIBUTE(attr_latency_read, 3.0);
     CREATE_SCALAR_ATTRIBUTE(attr_threshold_read);
     CREATE_DEVSTRING_ATTRIBUTE(attr_gain_read,MAX_ATTRIBUTE_STRING_LENGTH);
     CREATE_DEVSTRING_ATTRIBUTE(attr_imagePath_read,MAX_ATTRIBUTE_STRING_LENGTH);
@@ -310,77 +308,7 @@ void PilatusPixelDetector::read_attr_hardware(vector<long> &attr_list)
     DEBUG_STREAM << "PilatusPixelDetector::read_attr_hardware(vector<long> &attr_list) entering... "<< endl;
     //    Add your own code here
 }
-//+----------------------------------------------------------------------------
-//
-// method : 		PilatusPixelDetector::read_latency
-// 
-// description : 	Extract real attribute values for latency acquisition result.
-//
-//-----------------------------------------------------------------------------
-void PilatusPixelDetector::read_latency(Tango::Attribute &attr)
-{
-	DEBUG_STREAM << "PilatusPixelDetector::read_latency(Tango::Attribute &attr) entering... "<< endl;
-    try
-    {
-        double latency = 0.003;
-        m_ct->acquisition()->getLatencyTime(latency);
-        *attr_latency_read = (Tango::DevDouble)(latency*1000.0);//latency USER OUTPUT is in millisec
-        attr.set_value(attr_latency_read);
-    }
-    catch(Tango::DevFailed& df)
-    {
-        ERROR_STREAM << df << endl;
-        //- rethrow exception
-        Tango::Except::re_throw_exception(df,
-                     static_cast<const char*> ("TANGO_DEVICE_ERROR"),
-                     static_cast<const char*> (string(df.errors[0].desc).c_str()),
-                     static_cast<const char*> ("PilatusPixelDetector::read_latency"));
-    }
-    catch(Exception& e)
-    {
-        ERROR_STREAM << e.getErrMsg() << endl;
-        //- throw exception
-        Tango::Except::throw_exception(
-                     static_cast<const char*> ("TANGO_DEVICE_ERROR"),
-                     static_cast<const char*> (e.getErrMsg().c_str()),
-                     static_cast<const char*> ("PilatusPixelDetector::read_latency"));
-    }
-}
 
-//+----------------------------------------------------------------------------
-//
-// method : 		PilatusPixelDetector::write_latency
-// 
-// description : 	Write latency attribute values to hardware.
-//
-//-----------------------------------------------------------------------------
-void PilatusPixelDetector::write_latency(Tango::WAttribute &attr)
-{
-	DEBUG_STREAM << "PilatusPixelDetector::write_latency(Tango::WAttribute &attr) entering... "<< endl;
-    try
-    {
-        attr.get_write_value(attr_latency_write);
-        m_ct->acquisition()->setLatencyTime((double)(attr_latency_write/1000.0));//latency USER INPUT is in millisec
-    }
-    catch(Tango::DevFailed& df)
-    {
-        ERROR_STREAM << df << endl;
-        //- rethrow exception
-        Tango::Except::re_throw_exception(df,
-                     static_cast<const char*> ("TANGO_DEVICE_ERROR"),
-                     static_cast<const char*> (string(df.errors[0].desc).c_str()),
-                     static_cast<const char*> ("PilatusPixelDetector::write_latency"));
-    }
-    catch(Exception& e)
-    {
-        ERROR_STREAM << e.getErrMsg() << endl;
-        //- throw exception
-        Tango::Except::throw_exception(
-                     static_cast<const char*> ("TANGO_DEVICE_ERROR"),
-                     static_cast<const char*> (e.getErrMsg().c_str()),
-                     static_cast<const char*> ("PilatusPixelDetector::write_latency"));
-    }
-}
 
 //+----------------------------------------------------------------------------
 //
@@ -1078,6 +1006,7 @@ void PilatusPixelDetector::set_energy(Tango::DevDouble argin)
                      static_cast<const char*> ("PilatusPixelDetector::set_energy"));
     }
 }
+
 
 
 
