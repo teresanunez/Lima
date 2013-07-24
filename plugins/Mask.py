@@ -74,15 +74,13 @@ class MaskDeviceServer(BasePostProcess) :
         return valueList
 
     def write_type(self,attr) :
-        data = []
-        attr.get_write_value(data)
-        t = _getDictValue(self.__Type,data[0])
-        self.__maskImage.setType(t)
+        data = attr.get_write_value()
+        t = _getDictValue(self.__Type,data)
+        self.__maskTask.setType(t)
 
     def read_type(self,attr) :
-        t = self.__maskImage.getType()
+        t = self.__maskTask.getType()
         attr.set_value(_getDictKey(self.__Type,t))
-        attr.set_value(t)
         
 def _getDictKey(dict, value):
     try:
