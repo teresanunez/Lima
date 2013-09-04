@@ -97,8 +97,10 @@ class LiveViewer (PyTango.Device_4Impl):
 	self.acquisition.setAcqExpoTime(self.attr_Exposure_Time)
         self.acquisition.setAcqNbFrames(self.attr_Nb_Frame)
         self.interface.setFrameRate(self.attr_Frame_Rate)
-        self.control.prepareAcq()
-        self.control.startAcq()
+
+	if self.AcquisitionAutoStart:
+           self.control.prepareAcq()
+           self.control.startAcq()
 
 		
         self.data = []
