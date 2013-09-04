@@ -402,7 +402,7 @@ class LiveViewerClass(PyTango.DeviceClass):
         'AcquisitionAutoStart':
             [PyTango.DevBoolean,
             "Flag to start acquisition at startup",
-            [ True ] ],
+            [ False ] ],
         }
 
 
