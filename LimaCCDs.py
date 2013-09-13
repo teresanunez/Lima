@@ -70,6 +70,14 @@ except ImportError:
 TacoSpecificDict = {}
 TacoSpecificName = []
 
+VerboseLevel2TypeFlags = {
+    0: ['Fatal'],
+    1: ['Error'],
+    2: ['Warning'],
+    3: ['Trace'],
+    4: ['Funct', 'Param', 'Return']
+    }
+
 class LimaCCDs(PyTango.Device_4Impl) :
 
     Core.DEB_CLASS(Core.DebModApplication, 'LimaCCDs')
@@ -148,7 +156,11 @@ class LimaCCDs(PyTango.Device_4Impl) :
                 specificClass,specificDevice = m.get_tango_specific_class_n_device()
             except AttributeError: pass
             else:
-		Core.DebParams.setTypeFlags(0)
+                typeFlagsNameList = []
+                for l in range(verboseLevel + 1):
+                    typeFlagsNameList += VerboseLevel2TypeFlags.get(l, [])
+                Core.DebParams.setTypeFlagsNameList(typeFlagsNameList)
+
                 util = PyTango.Util.instance()
                 deviceName = self.__className2deviceName.get(specificDevice.__name__,None)
                 if deviceName:

@@ -69,7 +69,10 @@ def setup_lima_env(argv):
     aux_py = open(aux_py_name, 'wt')
     aux_py.write(FindCoreVerHelperPy)
     aux_py.close()
-    args = ['python', aux_py_name] + argv[1:]
+    args = ['python', aux_py_name]
+    for arg in argv[1:]:
+        if not arg.startswith('-v'):
+            args.append(arg)
     for r in range(2):
         pobj = Popen(args, stdout=PIPE, stderr=PIPE)
         output = {}
