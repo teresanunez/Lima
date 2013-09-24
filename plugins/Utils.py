@@ -108,6 +108,5 @@ class BasePostProcess(PyTango.Device_4Impl) :
 #    Write RunLevel attribute
 #------------------------------------------------------------------
     def write_RunLevel(self, attr):
-	data=[]
-	attr.get_write_value(data)
-        self._runLevel = data[0]
+	data = attr.get_write_value()
+	self._runLevel = data
