@@ -233,7 +233,8 @@ class LimaCCDs(PyTango.Device_4Impl) :
         
         self.__SavingFormat = {'RAW' : Core.CtSaving.RAW,
                                'EDF' : Core.CtSaving.EDF,
-                               'CBF' : Core.CtSaving.CBFFormat}
+                               'CBF' : Core.CtSaving.CBFFormat,
+                               'TIFF' : Core.CtSaving.TIFFFormat}
 
 	try:
 	     self.__SavingFormat['EDFGZ'] = Core.CtSaving.EDFGZ
@@ -243,7 +244,8 @@ class LimaCCDs(PyTango.Device_4Impl) :
 
         self.__SavingFormatDefaultSuffix = {Core.CtSaving.RAW : '.raw',
                                             Core.CtSaving.EDF : '.edf',
-                                            Core.CtSaving.CBFFormat : '.cbf'}
+                                            Core.CtSaving.CBFFormat : '.cbf',
+                                            Core.CtSaving.TIFFFormat : '.tiff'}
 
         self.__SavingMode = {'MANUAL' : Core.CtSaving.Manual,
                              'AUTO_FRAME' : Core.CtSaving.AutoFrame,
